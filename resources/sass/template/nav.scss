@@ -1,0 +1,56 @@
+
+.nav-nav{
+    background-color: var(--bg-nav);
+    transition: none !important;
+
+    .logo a, ul a li{
+        color: var(--text);
+        &:hover{
+            color: var(--text-accent);
+        }
+    }
+
+    .logo a{
+        color: var(--text-accent);
+    }
+
+    .navTrigger i{
+        background: var(--text);
+    }
+
+    .toggle-group{
+        background: var(--bg-nav);
+        .toggle-on{
+            background: var(--bg-nav);
+            color: var(--text);
+            &:hover{
+                background: var(--bg-back);
+            }
+            &:active{
+                background: var(--bg-back);
+            }
+        }
+        .toggle-off{
+            color: var(--text);
+            &:hover{
+                background: var(--bg-back);
+            }
+            &:active{
+                background: var(--bg-back);
+            }
+        }
+    }
+    .toggle .toggle-handle{
+        background: var(--text) !important;
+    }
+    .toggle:hover .toggle-handle{
+        background: var(--text) !important;
+    }
+
+    // Nav On Mobile
+    @media screen and (max-width: 768px){
+        .nav-nav div.main_list ul{
+            background: var(--bg-nav-m);
+        }
+    }
+}

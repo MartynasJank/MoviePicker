@@ -1,0 +1,26 @@
+.light-theme{
+    --bg-head: linear-gradient(to bottom, #{fade-out(white, .5)} 0%,#{fade-out(white, .5)} 100%), url('../assets/yoink.jpg');
+
+    --bg-content: linear-gradient(to bottom, #{fade-out(white, .5)} 0%,#{fade-out(white, .5)} 100%), url('../assets/contact-bg.jpg');
+
+    --text: #000;
+    --text-o: #fff;
+    --text-muted: #BDC3C7;
+    --text-accent: #7C2021;
+
+    --bg-back: rgba(230, 230, 230, 1);
+    --bg-front: #fff;
+
+    --bg-dropdown: rgba(230, 230, 230, 1);
+
+    --bg-nav: #fff;
+    --bg-nav-m: rgba(230, 230, 230, 1);
+
+    --accent: #7C2021;
+    --accent-dark: #7C2021;
+
+    --form-btn-border: #000;
+
+    --boxshadow: rgba(0,0,0,1);
+    --accent-boxshadow: rgba(124,32,33,0.5);
+}

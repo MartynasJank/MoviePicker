@@ -1,0 +1,41 @@
+// Movie Page
+.card{
+    background: var(--bg-front);
+    color: var(--text);
+    box-shadow: 0px 0px 2px 0px var(--boxshadow);
+}
+
+// Buttons
+.btn-custom{
+    box-shadow: 0px 0px 2px 0px var(--boxshadow);
+    background: var(--bg-front);
+    color: var(--text);
+
+    &:hover{
+        background: var(--accent);
+        color: var(--text-o);
+    }
+}
+
+.score{
+    text-decoration-color: var(--accent);
+    li{
+        box-shadow: 0px 0px 2px 0px var(--boxshadow);
+        background: var(--bg-front);
+        color: var(--text);
+
+        &:hover{
+            background: var(--bg-front);
+            color: var(--text);
+        }
+    }
+}
+
+// Movie page more and less buttons
+.more, .less{
+    cursor: pointer;
+
+    &:hover{
+        opacity: 0.7;
+    }
+}

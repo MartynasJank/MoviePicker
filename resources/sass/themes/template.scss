@@ -1,0 +1,39 @@
+body{
+    background: var(--bg-back);
+    color: var(--text);
+    transition: none;
+
+    hr, hr.divider{
+        border-color: var(--accent);
+    }
+
+    @import 'template/nav';
+    @import 'template/homepage';
+    @import 'template/criteria';
+    @import 'template/movie';
+
+
+    // Carousel
+    .owl-carousel {
+        a{
+            color: var(--text);
+            &:hover{
+                color: var(--accent);
+            }
+        }
+    }
+
+    // POSTER PLACEHOLDER DIV
+    .poster-placeholder{
+        background: var(--bg-front);
+        border: 1px solid var(--text);
+        h4{
+            color: var(--text);
+        }
+    }
+
+    .btn:focus, .btn.focus:focus{
+        outline: none;
+        box-shadow: 0 0 2px 0 var(--boxshadow);
+    }
+}

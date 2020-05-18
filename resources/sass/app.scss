@@ -1,0 +1,142 @@
+// Fonts
+@import url('https://fonts.googleapis.com/css?family=Nunito');
+
+// Variables
+@import 'variables';
+
+// Bootstrap
+@import '~bootstrap/scss/bootstrap';
+@import '../../node_modules/bootstrap4-toggle/css/bootstrap4-toggle.min';
+@import 'jquery.flexdatalist.min.css';
+
+// Font
+@font-face{
+    font-family: 'TitilliumWeb';
+    src: url('../fonts/TitilliumWeb/TitilliumWeb-Regular.ttf') format('ttf');
+    font-style: normal;
+    font-weight: normal;
+}
+
+// Bootstrap select
+@import "../../node_modules/bootstrap-select/sass/bootstrap-select.scss";
+
+// Owl Carousel
+@import "../../node_modules/owl.carousel/dist/assets/owl.carousel.css";
+@import "../../node_modules/owl.carousel/dist/assets/owl.theme.default.css";
+.owl-carousel {
+    .owl-stage {
+        display: flex;
+    }
+    .owl-item {
+        display: flex;
+        flex: 1 0 auto;
+    }
+    .movie {
+        display: flex;
+        flex: 1 0 auto;
+        flex-direction: column;
+
+        a{
+            display:flex;
+            flex: 1 0 auto;
+            flex-direction: column;
+        }
+    }
+    .flex-text {
+        flex-grow: 1;
+    }
+    .poster {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+// Home Page
+@import "home/variables.scss";
+@import "home/global.scss";
+@import "home/masthead.scss";
+@import "home/utilities.scss";
+
+// Form
+@import "../../node_modules/smartwizard/dist/css/smart_wizard.css";
+
+#with_cast-flexdatalist, #with_crew-flexdatalist{
+    outline: none;
+}
+
+.sw-btn-prev{
+    margin-right: 0.5rem;
+}
+
+.btn-group > .btn:not(:last-child):not(.dropdown-toggle), .btn-group > .btn-group:not(:last-child) > .btn,
+.btn-group > .btn:not(:first-child), .btn-group > .btn-group:not(:first-child) > .btn{
+    border-radius: 0.25rem;
+}
+
+.btn-secondary:focus, .btn-secondary.focus{
+    box-shadow: 0 0 0 0.05rem rgba(130, 138, 145, 0.5);
+}
+
+// Nav
+@import "nav.scss";
+
+ol, ul{
+    list-style: none;
+    padding: 0;
+}
+
+button.custom{
+    background: none!important;
+    padding: 0 !important;
+}
+
+.row{
+    margin: 0;
+}
+
+.card-deck{
+     margin: 0;
+}
+
+.custom-height{
+    max-height: 450px;
+}
+
+.owl-carousel .poster{
+    width: 100%;
+}
+
+.poster-img{
+    height: 400px;
+    background-size: cover;
+    background-position: center;
+}
+
+.poster-placeholder{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.disable-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+// Footer
+footer{
+    line-height: 44px;
+    width: 100%;
+}
+
+.btn{
+    transition: none;
+}
+
+// SWITCH
+
+@import "themes/dark.scss";
+@import "themes/light.scss";
+@import "themes/template.scss";
