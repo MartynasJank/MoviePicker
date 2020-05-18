@@ -46,11 +46,11 @@
     .toggle:hover .toggle-handle{
         background: var(--text) !important;
     }
+}
 
-    // Nav On Mobile
-    @media screen and (max-width: 768px){
-        .nav-nav div.main_list ul{
-            background: var(--bg-nav-m);
-        }
+// Nav On Mobile
+@media screen and (max-width: 768px){
+    .nav-nav div.main_list ul{
+        background: var(--bg-nav-m);
     }
 }

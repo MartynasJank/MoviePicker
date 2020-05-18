@@ -12658,7 +12658,7 @@ body .nav-nav .toggle:hover .toggle-handle {
 }
 
 @media screen and (max-width: 768px) {
-  body .nav-nav .nav-nav div.main_list ul {
+  body .nav-nav div.main_list ul {
     background: var(--bg-nav-m);
   }
 }

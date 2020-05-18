@@ -12,7 +12,7 @@
                 </div>
                 <div class="col-lg-8 align-self-baseline">
                     <p class="font-weight-light mb-5">For evenings when you can't decide what to watch!</p>
-                    <a class="btn btn-xl mb-4 main" href="/movie">Get a random movie</a>
+                    <a class="btn btn-xl mb-4 main" href="/movie?i=new">Get a random movie</a>
                     <a class="btn btn-xl mb-4 main" href="/criteria">Enter details for a random movie</a>
                 </div>
             </div>
@@ -23,7 +23,7 @@
                 <div class="container">
                 <div class="col-lg-12">
                     <h2 class="text-center mt-0">Movies Trending Today</h2>
-                    <hr class="divider my-4" />
+                    <hr class="divider my-4"/>
                     @include('includes.carousel', ['allMovies' => $trending, 'name' => 'owl-trending'])
                 </div>
                 </div>

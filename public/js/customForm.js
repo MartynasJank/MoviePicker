@@ -41017,7 +41017,7 @@ __webpack_require__(/*! ../jquery.flexdatalist.min */ "./resources/js/jquery.fle
 
 $(document).ready(function () {
   var animation = true;
-  var tmdb = '';
+  var tmdb = '4d8868b4c38c4a941f15586d824cb806';
   $('#smartwizard').smartWizard({
     selected: 0,
     cycleSteps: true,
@@ -41077,7 +41077,7 @@ $(document).ready(function () {
       $('.flexdatalist-alias').blur();
       $('.selectpicker').selectpicker('deselectAll');
       $('.bg-input').val('');
-      $('#with_original_language').val('').trigger('change');
+      $('#with_original_language').val('en').trigger('change');
       $('.flexdatalist-results').remove();
       animation = true;
     });
