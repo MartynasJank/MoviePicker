@@ -36,6 +36,7 @@ class TMDB extends Model implements ApiMovie
             $input['vote_count.gte'] = 10;
         }
         $input['sort_by'] = $this->randomSort();
+        $input['with_runtime.gte'] = 40;
         $input['language'] = 'en-US';
         $input['include_adult'] = 'false';
         $input['include_video'] = 'false';
