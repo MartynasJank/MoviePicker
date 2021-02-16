@@ -29,5 +29,6 @@ mix
         jQuery: 'jquery',
         'window.jQuery': 'jquery'
       })
-    ]
+    ],
+      node: { fs: 'empty' }
   });

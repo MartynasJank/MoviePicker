@@ -2,11 +2,13 @@ require('../bootstrap');
 require('../../../node_modules/bootstrap-select/dist/js/bootstrap-select');
 require('../../../node_modules/smartwizard/dist/js/jquery.smartWizard');
 require('../jquery.flexdatalist.min');
+require('dotenv').config();
+
 
 $(document).ready(function(){
 
     var animation = true;
-    var tmdb = '4d8868b4c38c4a941f15586d824cb806';
+    var tmdb = process.env.MIX_TMDB_API_KEY;
 
     $(document).on('hide.bs.modal','#myModal', function () {
         $('#trailer').attr("src", jQuery("#trailer").attr("src"));
