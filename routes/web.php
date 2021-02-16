@@ -14,8 +14,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', 'HomeController@index');
+Route::get('/userinput', 'AjaxController@index');
 Route::get('/criteria', 'CriteriaController@index');
 Route::post('/movie', 'RandomMovieController@show');
 Route::get('/movie', 'RandomMovieController@show');
 Route::get('/movie/{id}', 'MovieController@show')->name('movie');
-Route::get('/movie/new', 'MovieController@show');
+Route::get('/multiple', 'RandomMovieController@multiple');
+Route::post('/multiple', 'RandomMovieController@multiple');

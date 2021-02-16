@@ -17,6 +17,13 @@
     }
 }
 
+.btn-custom-no{
+    box-shadow: 0px 0px 2px 0px var(--boxshadow);
+    background: var(--bg-front);
+    color: var(--text);
+    pointer-events: none;
+}
+
 .score{
     text-decoration-color: var(--accent);
     li{
@@ -37,5 +44,11 @@
 
     &:hover{
         opacity: 0.7;
+    }
+}
+
+@media (max-width: 500px){
+    .adjust-form{
+        width: 100%;
     }
 }

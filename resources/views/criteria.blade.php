@@ -10,7 +10,7 @@
 
 @section('content')
 <div class="container content" style="padding-top: 80px;">
-    <form method="POST" autocomplete="off" action="/movie" class="custom-border">
+    <form method="POST" autocomplete="off" action="/movie" class="custom-border" id="criteria">
         @csrf
         <div id="smartwizard" style="display: none">
             <ul>
@@ -70,7 +70,7 @@
                     </div>
                 </div>
                 <div id="step-3">
-                        @include('includes.languages')
+                    @include('includes.languages')
                 </div>
                 <div id="step-4">
                     <div class="form-row">

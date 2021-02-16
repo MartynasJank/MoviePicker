@@ -14218,6 +14218,35 @@ $(document).ready(function () {
         items: 4
       }
     }
+  }); // Owl multiple carousel in multiple page
+
+  $('.owl-multiple').owlCarousel({
+    loop: false,
+    margin: 15,
+    dots: false,
+    nav: false,
+    responsiveClass: true,
+    autoHeight: false,
+    lazyLoad: false,
+    autoplay: false,
+    responsive: {
+      0: {
+        loop: true,
+        items: 1,
+        margin: 10,
+        stagePadding: 20
+      },
+      600: {
+        loop: true,
+        items: 2,
+        margin: 10,
+        stagePadding: 20
+      },
+      1000: {
+        items: 4,
+        stagePadding: 50
+      }
+    }
   });
 });
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js")))

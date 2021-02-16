@@ -9,17 +9,40 @@
     <link href="{{ mix('css/app.css') }}" rel="stylesheet">
     <script src="{{ mix('js/app.js') }}"></script>
     @yield('scripts', '')
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-176903858-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'UA-176903858-1');
+    </script>
 </head>
 <body class="{{ Cookie::get('theme') == 'dark' ? 'dark-theme' : 'light-theme' }}">
-    <nav class="nav-nav">
-        <div class="container">
+    <nav class="nav-nav navbar-expand-lg">
+        <div class="container text-left d-flex custom-nav-container">
             <div class="logo">
                 <a href="/">{{ config('app.name', 'Laravel') }}</a>
             </div>
-            <div id="mainListDiv" class="main_list">
+            <div id="mainListDiv" class="main_list flex-grow-1 ml-3">
                 <ul class="navlinks">
+                    <li class="flex-grow-1 align-self-center custom-input">
+                        <form action="/movie" method="POST" class="submit-search my-auto d-inline w-100">
+                            @csrf
+                            <input
+                                type="text"
+                                class="movie-search bg-input movie-input border form-control align-self-center"
+                                style="height: 35px;"
+                                id="movie_search"
+                                name="movie_search"
+                                placeholder="Search movies by title"
+                            >
+                        </form>
+                    </li>
                     <a href="/criteria" class="text-decoration-none"><li>Movie Criteria</li></a>
                     <a href="/movie?i=new" class="text-decoration-none"><li>Random Movie</li></a>
+                    <a href="/multiple?i=new" class="text-decoration-none"><li>Random Batch</li></a>
                     <a class="text-decoration-none">
                         <li>
                             <input
@@ -42,7 +65,6 @@
                 <i></i>
                 <i></i>
             </span>
-            </div>
         </div>
     </nav>
     @yield('content')

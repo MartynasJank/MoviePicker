@@ -6,6 +6,17 @@
 <script src="/js/showmore.js"></script>
 <script src="/js/customOwlCarousel.js"></script>
 <script src="/js/customModal.js"></script>
+<script>
+    @if (isset($similarMovies))
+        @if ($similarMovies->type == 'discover')
+            console.log('Discover');
+            console.log('Total pages: {{ $similarMovies->total_pages ?? 0 }}');
+            console.log('Current page:{{ $similarMovies->page ?? 0 }}');
+        @else
+            console.log('Similar');
+        @endif
+    @endif
+</script>
 @endsection
 @section('content')
 <div class="container" style="padding-top: 80px;">
@@ -13,11 +24,18 @@
     <!-- TRAILER MODAL -->
         @include('includes.modal')
     @endif
+    @include('includes.modal-form')
     <!-- Title and release year -->
-    <div class="row mb-2">
+    <div class="row mb-2 justify-content-between">
         <div class="align-bottom">
             <h1 class="d-block">{{ $tmdbInfo->title ?? $omdbInfo->Title  }}</h1>
             <span>{{ $omdbInfo->Year ?? date('Y', strtotime($tmdbInfo->release_date)) }}</span>
+        </div>
+        <!-- Adjust form button -->
+        <div class="adjust-form">
+            <button id="modal-btn" type="button" class="btn btn-lg btn-block btn-custom" data-toggle="modal" data-target="#modal-form">
+                <span>Adjust Form</span>
+            </button>
         </div>
     </div>
     <!-- Movie genres and rating -->
@@ -61,6 +79,7 @@
                             @endif >
                                 <li class="list-group-item list-group-item-action mb-3">{{ $rating->Source }}: {{ $rating->Value }}</li>
                         </a>
+                        <a class="score" href=""></a>
                     @endforeach
                 </ul>
             @endif
@@ -74,7 +93,7 @@
     </div>
     <!-- Trailer Button -->
     <div class="row mb-4">
-        <div class="col-md-3  ">
+        <div class="col-md-3">
         <button id="modal-btn" type="button" class="btn btn-lg btn-block btn-custom" data-toggle="modal" data-target="#myModal">
             <span>{{ isset($trailer) ? 'Trailer' : 'No Trailer :(' }}</span>
         </button>
@@ -87,6 +106,29 @@
             </div>
         </div>
     </div>
+    @if ($linksToStreams != null)
+        <div class="row mb-4">
+            @foreach($linksToStreams as $key => $type)
+                <div class="col-md-4 mb-3">
+                    @if($type != null)
+                        <h4>{{ ucfirst($key) }} the movie</h4>
+                        @foreach($type as $link)
+                            <div class="d-inline-block">
+                                <a href="{{ $link['URL']}}" target="_blank" class="mr-2">
+                                    <img src="{{ $link['icon'] }}" style="width: 50px">
+                                </a>
+                                <span class="d-block">{{ ($link['price'] != null) ? $link['price'] : '' }}</span>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="d-flex h-100">
+                            <span class="btn btn-lg btn-block btn-custom-no align-self-center">No {{ $key }} services were found</span>
+                        </div>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+    @endif
     <!-- General Movie Info -->
     <div class="row">
         <!-- Cast -->
@@ -211,7 +253,7 @@
     <div class="row">
         <div class="col-md-12 py-3">
             <h3 class="text-center w-100 mb-3">Similar movies</h3>
-            @include('includes.carousel', ['allMovies' => $similarMovies, 'name' => 'owl-similar'])
+            @include('includes.carousel', ['allMovies' => $similarMovies, 'name' => 'owl-similar', 'genres' => []])
         </div>
     </div>
     @endif

@@ -2,9 +2,24 @@ require('../bootstrap');
 require('../../../node_modules/bootstrap-select/dist/js/bootstrap-select');
 require('../../../node_modules/smartwizard/dist/js/jquery.smartWizard');
 require('../jquery.flexdatalist.min');
+
 $(document).ready(function(){
+
     var animation = true;
-    var tmdb = '';
+    var tmdb = '4d8868b4c38c4a941f15586d824cb806';
+
+    $(document).on('hide.bs.modal','#myModal', function () {
+        $('#trailer').attr("src", jQuery("#trailer").attr("src"));
+    });
+
+    $('.modal').on('show.bs.modal', function (e) {
+        $('.nav-nav').css('padding-right', '17px');
+        $('.nav-nav').css('transition', 'all 0s ease');
+    });
+
+    $('.modal').on('hidden.bs.modal', function (e) {
+        $('.nav-nav').css('padding-right', '0');
+    });
 
     $('#smartwizard').smartWizard({
         selected: 0,
@@ -34,9 +49,11 @@ $(document).ready(function(){
     if($(window).width() < 768){
         var smallScreen = false;
         $('.content').append('<button type="button" class="btn btn-secondary btn-left form-reset">Reset Form</button>');
+        $('.sw-btn-group-extra').append('<button type="submit" class="btn btn-secondary btn-left mr-auto" style="margin-left: 8px" formaction="/multiple">Find Multiple</button>');
     } else {
         var smallScreen = true;
         $('.btn-toolbar').prepend('<button type="button" class="btn btn-secondary btn-left form-reset mr-auto">Reset Form</button>');
+        $('.sw-btn-group-extra').append('<button type="submit" class="btn btn-secondary btn-left mr-auto" style="margin-left: 8px" formaction="/multiple">Find Multiple</button>');
     }
     formReset();
 
@@ -67,13 +84,13 @@ $(document).ready(function(){
     function formReset(){
         $('.form-reset').click(function(){
             animation = false;
-            $('.flexdatalist-alias').val('');
+            $('#criteria .flexdatalist-alias').val('');
             $('.fdl-remove').click();
-            $('.flexdatalist-alias').blur();
+            $('#criteria .flexdatalist-alias').blur();
             $('.selectpicker').selectpicker('deselectAll');
-            $('.bg-input').val('');
-            $('#with_original_language').val('').trigger('change');
-            $('.flexdatalist-results').remove();
+            $('#criteria .bg-input').val('');
+            $('#with_original_language').val('en').trigger('change');
+            $('#criteria .flexdatalist-results').remove();
             animation = true;
         });
     }
@@ -106,6 +123,34 @@ $(document).ready(function(){
         searchDelay: 1000
     });
 
+    $('.movie-search').flexdatalist({
+        minLength: 1,
+        maxShownResults: 5,
+        textProperty: '{title}',
+        valueProperty: 'id',
+        selectionRequired: true,
+        visibleProperties: ["item-backdrop_path", "meta"],
+        searchContain: true,
+        searchByWord: true,
+        searchIn: 'title',
+        multiple: false,
+        cacheLifetime: 5,
+        searchDelay: 1000
+    }).on("show:flexdatalist.results",function(ev,result){
+        $.each(result,function(key,value){
+            console.log(result[key]);
+            if(value.backdrop_path != null) {
+                result[key]['item-backdrop_path'] = '<img src="https://image.tmdb.org/t/p/w92' + value.backdrop_path + '">';
+            }
+            if(value.title != null || value.release_date != null) {
+                result[key]['meta'] = '<div class="movie-meta"><span class="item">'+value.title_highlight+'</span><span class="item">'+value.release_date+'</span></div>';
+            }
+        });
+    }).on('select:flexdatalist', function () {
+        $('.submit-search').submit();
+    });
+
+
     // Delete autocomplete data on select
     $('input.flexdatalist').on('select:flexdatalist', function(event, set, options) {
         $('.cast').flexdatalist('data', []);
@@ -116,6 +161,7 @@ $(document).ready(function(){
     var doneTypingInterval = 500;
     var $input1 = $('#with_cast-flexdatalist');
     var $input2 = $('#with_crew-flexdatalist');
+    var $input3 = $('#movie_search-flexdatalist');
 
     // Find when user stops typing
     //on keyup, start the countdown
@@ -140,6 +186,16 @@ $(document).ready(function(){
         clearTimeout(typingTimer);
     });
 
+    $input3.on('keyup', function () {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(done($input3, movie, tmdb), doneTypingInterval);
+    });
+
+    //on keydown, clear the countdown
+    $input3.on('keydown', function () {
+        clearTimeout(typingTimer);
+    });
+
     $('#with_cast-flexdatalist').parent().parent().click(function(){
         if(animation){
             $("body,html").animate({
@@ -160,12 +216,129 @@ $(document).ready(function(){
         }
     });
 
+    $.getJSON('/userinput', function(data) {
+        if (data['with_cast']){
+            s_array = data['with_cast'].split(',');
+            $user_array = [];
+            $.each(s_array, function (i, id) {
+                $.getJSON("https://api.themoviedb.org/3/person/"+id+"?api_key="+tmdb+"&language=en-US", function (data) {
+
+                }).done(function (data) {
+                    $user_array.push({
+                        id: id,
+                        name: data.name
+                    });
+                    if(s_array.length == $user_array.length) {
+                        s_id = [];
+                        $.each($user_array, function (i, entry) {
+                            s_id.push(entry.id);
+                        });
+                        $('.cast').flexdatalist('data', $user_array);
+                        $('.cast').flexdatalist('value', s_id.toString())
+                    }
+                })
+            });
+        }
+
+        if (data['with_crew']){
+            c_array = data['with_crew'].split(',');
+            $crew_array = [];
+            $.each(c_array, function (i, id) {
+                $.getJSON("https://api.themoviedb.org/3/person/"+id+"?api_key="+tmdb+"&language=en-US", function (data) {
+
+                }).done(function (data) {
+                    $crew_array.push({
+                        id: id,
+                        name: data.name
+                    });
+                    if(c_array.length == $crew_array.length) {
+                        c_id = [];
+                        $.each($user_array, function (i, entry) {
+                            c_id.push(entry.id);
+                        });
+                        $('.cast').flexdatalist('data', $crew_array);
+                        $('.cast').flexdatalist('value', c_id.toString())
+                    }
+                })
+            });
+        }
+    });
+
     // FUNCTIONS
     // Action after user stops typing
     function done($input, fn, tmdb){
         val = $input.val();
         fn(val, tmdb);
     }
+
+    // $.getJSON('/userinput', function(data) {
+    //     s_array = data['title'].split(',');
+    //     $user_array = [];
+    //     $.each(s_array, function (i, id) {
+    //         $.getJSON("https://api.themoviedb.org/3/person/"+id+"?api_key="+tmdb+"&language=en-US", function (data) {
+    //
+    //         }).done(function (data) {
+    //             $user_array.push({
+    //                 id: id,
+    //                 name: data.name
+    //             });
+    //             if(s_array.length == $user_array.length) {
+    //                 s_id = [];
+    //                 $.each($user_array, function (i, entry) {
+    //                     s_id.push(entry.id);
+    //                 });
+    //                 $('.cast').flexdatalist('data', $user_array);
+    //                 $('.cast').flexdatalist('value', s_id.toString())
+    //             }
+    //         })
+    //     });
+    //
+    //     if (data['with_crew']){
+    //         c_array = data['with_crew'].split(',');
+    //         $crew_array = [];
+    //         $.each(c_array, function (i, id) {
+    //             $.getJSON("https://api.themoviedb.org/3/person/"+id+"?api_key="+tmdb+"&language=en-US", function (data) {
+    //
+    //             }).done(function (data) {
+    //                 $crew_array.push({
+    //                     id: id,
+    //                     name: data.name
+    //                 });
+    //                 if(c_array.length == $crew_array.length) {
+    //                     c_id = [];
+    //                     $.each($user_array, function (i, entry) {
+    //                         c_id.push(entry.id);
+    //                     });
+    //                     $('.cast').flexdatalist('data', $crew_array);
+    //                     $('.cast').flexdatalist('value', c_id.toString())
+    //                 }
+    //             })
+    //         });
+    //     }
+    // });
+
+    // Get actors for autocpomplete
+    function movie(name, tmdb){
+        if(name.length > 0){
+            var jqxhr = $.getJSON( "https://api.themoviedb.org/3/search/movie?api_key="+tmdb+"&language=en-US&query="+name+"&page=1&include_adult=false", function(data) {
+            })
+                .done(function(data) {
+                    results = [];
+                    $.each(data.results, function(i, item){
+                        results.push(item);
+                        if(i === 4){
+                            return false;
+                        }
+                    });
+                    $('.movie-search').flexdatalist('data', results);
+                })
+                .fail(function() {
+                })
+                .always(function() {
+                });
+        }
+    }
+
     // Get actors for autocpomplete
     function actor(name, tmdb){
         if(name.length > 0){
@@ -215,7 +388,6 @@ $(document).ready(function(){
     }
 
     function doneResizing(){
-        console.log('resize');
         if($(window).width() < 768 && smallScreen){
             $('.form-reset').remove();
             $('.content').append('<button type="button" class="btn btn-secondary btn-left form-reset">Reset Form</button>');

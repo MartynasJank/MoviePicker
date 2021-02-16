@@ -9,10 +9,11 @@ class TMDB extends Model implements ApiMovie
 {
     public function discover($input = [])
     {
+        $smallYear = 1950;
         // Converting genres array to string for api request
         $input = $this->fixMovieArrayKeys($input);
         // SET UP DEFAULT VALUES AND CONVERT VALUES FOR API REQUEST FOR BETTER RESULT EXPERIENCE
-        if (count($input) <= 1 && !isset($input['with_original_language'])) {
+        if (count($input) <= 1) {
             $input['with_original_language'] = 'en';
         }
         if (isset($input['with_genres'])) {
@@ -26,12 +27,16 @@ class TMDB extends Model implements ApiMovie
             $input['primary_release_date.gte'] = $input['primary_release_date.gte'].'-01-01';
         }
         if (isset($input['primary_release_date.lte'])) {
+            if($input['primary_release_date.lte'] < 1950){
+                $smallYear = $input['primary_release_date.lte'];
+            }
             $input['primary_release_date.lte'] = $input['primary_release_date.lte'].'-12-31';
         }
         // if none of dates is set give a default start year
         if(!isset($input['primary_release_date.gte']) && !isset($input['primary_release_date.lte'])){
             $input['primary_release_date.gte'] = '1970-01-01';
         }
+
         if (!isset($input['vote_count.gte'])) {
             $input['vote_count.gte'] = 10;
         }
@@ -40,6 +45,14 @@ class TMDB extends Model implements ApiMovie
         $input['language'] = 'en-US';
         $input['include_adult'] = 'false';
         $input['include_video'] = 'false';
+
+        if($smallYear < 1950){
+            $input['vote_count.gte'] = 0;
+            unset($input['with_runtime.gte']);
+        }
+        if($smallYear == 1874){
+            unset($input['with_original_language']);
+        }
 
         $url = 'https://api.themoviedb.org/3/discover/movie/?api_key='.config('api.TMDB').'&'.http_build_query($input);
         $json = @file_get_contents($url);
@@ -69,9 +82,12 @@ class TMDB extends Model implements ApiMovie
         ];
 
         $url = 'https://api.themoviedb.org/3/movie/'.$movieObj->id.'/similar?api_key='.config('api.TMDB').'&'.http_build_query($append);
-        $json = file_get_contents($url);
-        $similarMovies = json_decode($json);
-        return $similarMovies;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        return json_decode($result);
     }
 
     // Gets Detailed movie info
@@ -82,12 +98,12 @@ class TMDB extends Model implements ApiMovie
         ];
 
         $url = 'https://api.themoviedb.org/3/movie/'.$movieId.'?api_key='.config('api.TMDB').'&'.http_build_query($append);
-        $json = @file_get_contents($url);
-        if ($json == false) {
-            abort(404);
-        }
-        $movieObj = json_decode($json);
-        return $movieObj;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        return json_decode($result);
     }
 
     public function trending()

@@ -68,10 +68,109 @@ class MovieService
         return $trailer;
     }
 
+
+
     protected function sortAssocArrayByValue($array, $value)
     {
         $newArray = array_column($array, $value);
         array_multisort($newArray, SORT_DESC, $array);
         return $array;
+    }
+
+    // GETTING STREAMING LINKS BRUV
+    protected function sanitizedTitle($title)
+    {
+        $movieTitle = strtolower($title);
+        $movieTitle = str_replace(' ', '-', $movieTitle);
+        $movieTitle = preg_replace('/[^A-Za-z0-9\-]/', '', $movieTitle);
+        $movieTitle = str_replace('--', '-', $movieTitle);
+        $movieTitle = str_replace('·', '-', $movieTitle);
+        return $movieTitle;
+    }
+
+    protected function getUserCountry(){
+        $ip = \Request::ip();
+        $data = \Location::get($ip);
+        $country = $data->countryCode ?? 'LT';
+
+        return $country;
+    }
+
+    protected function get_data($url) {
+        $html = file_get_contents($url);
+        $dom = new \DOMDocument();
+        @$dom->loadHTML($html);
+        $xpath = new \DOMXPath($dom);
+        $div = $xpath->query('//div[@class="ott_provider"]');
+
+        $content_stream = '';
+        $content_rent = '';
+        $content_buy = '';
+
+        foreach ($div as $usefulDiv){
+            if(strpos($usefulDiv->nodeValue, 'Stream')){
+                $div_stream = $usefulDiv;
+                $content_stream = $dom->saveXML($div_stream);
+            }
+            if(strpos($usefulDiv->nodeValue, 'Rent')){
+                $div_rent = $usefulDiv;
+                $content_rent = $dom->saveXML($div_rent);
+            }
+            if(strpos($usefulDiv->nodeValue, 'Buy')){
+                $div_buy = $usefulDiv;
+                $content_buy = $dom->saveXML($div_buy);
+            }
+        }
+
+        if (strpos($content_stream, 'Stream') != false) {
+            $content_all['stream'] = $content_stream;
+        } else {
+            $content_all['stream'] = null;
+        }
+
+        if (strpos($content_rent, 'Rent') != false) {
+            $content_all['rent'] = $content_rent;
+        } else {
+            $content_all['rent'] = null;
+        }
+
+        if (strpos($content_buy, 'Buy') != false) {
+            $content_all['buy'] = $content_buy;
+        } else {
+            $content_all['buy'] = null;
+        }
+
+        $return_links = [
+            'stream' => null,
+            'rent' => null,
+            'buy' => null
+        ];
+
+
+        foreach ($content_all as $key => $content){
+            preg_match_all ('/https:\/\/click.justwatch.com\/(.*?)"/s', $content, $streamingLinks);
+            preg_match_all ('/\/t\/p\/original\/(.*?)"/s', $content, $streamingIcons);
+            preg_match_all('/<span class="price">(.*?)<\/span>/', $content, $streamingPrice);
+            $old_icon = '';
+            for ($i = 0; $i < count($streamingLinks[0]); $i++){
+                if($old_icon == 'https://www.themoviedb.org/'.rtrim($streamingIcons[0][$i], "\"")){
+                    continue;
+                }
+                $old_icon = 'https://www.themoviedb.org/'.rtrim($streamingIcons[0][$i], "\"");
+                $return_links[$key][$i]["URL"] = $streamingLinks[0][$i];
+                $return_links[$key][$i]["icon"] = 'https://www.themoviedb.org/'.rtrim($streamingIcons[0][$i], "\"");
+                if($streamingPrice[1] != []){
+                    $return_links[$key][$i]["price"] = $streamingPrice[1][$i] ?? '';
+                } else {
+                    $return_links[$key][$i]["price"] = '';
+                }
+            }
+        }
+        return $return_links;
+    }
+
+    public function linksToStreams($title, $movie_id){
+        $url = "https://www.themoviedb.org/movie/".$movie_id."-".$this->sanitizedTitle($title)."/watch?translate=false&locale=".$this->getUserCountry();
+        return $this->get_data($url);
     }
 }

@@ -12,6 +12,10 @@ body{
     @import 'template/criteria';
     @import 'template/movie';
 
+    .custom-modal{
+        background: var(--bg-front) !important;
+        border-radius: 3rem !important;
+    }
 
     // Carousel
     .owl-carousel {
@@ -36,4 +40,16 @@ body{
         outline: none;
         box-shadow: 0 0 2px 0 var(--boxshadow);
     }
+}
+
+.movie-search{
+    color: var(--text) !important;
+    outline: 0;
+    background: var(--bg-back) !important;
+    border-width: 1px !important;
+    border-color: var(--form-btn-border) !important;
+    border-style: solid !important;
+    border-radius: 1rem !important;
+    padding: 3px;
+    padding-left: 20px;
 }

@@ -135,6 +135,19 @@ footer{
     transition: none;
 }
 
+#movie_search-flexdatalist-results .item{
+    display: block;
+}
+
+#movie_search-flexdatalist-results .item span.item-item-backdrop_path{
+    display: inline-block !important;
+}
+
+.item-meta{
+    display: inline-block !important;
+    margin-left: 10px;
+}
+
 // SWITCH
 
 @import "themes/dark.scss";
