@@ -101,9 +101,9 @@ class RandomMovieController extends Controller
         $testInfo['current'] = $movieCriteria['page'];
 
         // Gets all genres and converts them to workable array
-        $genres = $tmdb->genres();
+        $all_genres = $movieService->genres($tmdb);
         $genres_array = [];
-        foreach ($genres as $genre){
+        foreach ($all_genres as $genre){
             $genres_array[$genre->name] = $genre->id;
         }
 
@@ -122,7 +122,17 @@ class RandomMovieController extends Controller
             }
         }
         $user_input = \Session::get('userInput');
-        $all_genres = $tmdb->genres();
+
+        // FOR FORM
+        $movieProvider = $movieService->getWatchProviders();
+        $providersArray = array();
+        foreach ($movieProvider->results as $key => $provider){
+            $providersArray[] = array(
+                'id' => $provider->provider_id,
+                'name' => $provider->provider_name,
+                'logo' => 'https://image.tmdb.org/t/p/w45'.$provider->logo_path
+            );
+        }
 
         $randomHash = md5(uniqid(rand(), true));
         if (Cookie::get('visitor') === null) {
@@ -135,7 +145,7 @@ class RandomMovieController extends Controller
         $click->save();
 
 
-        return view('multiple', compact('movies', 'user_input', 'all_genres', 'movie_genres', 'testInfo'));
+        return view('multiple', compact('movies', 'user_input', 'all_genres', 'movie_genres', 'testInfo', 'providersArray'));
     }
 
     // Return movie criteria

@@ -9,6 +9,10 @@ class TMDB extends Model implements ApiMovie
 {
     public function discover($input = [])
     {
+        $ip = \Request::ip();
+        $data = \Location::get($ip);
+        $country = $data->countryCode ?? 'LT';
+
         $smallYear = 1950;
         // Converting genres array to string for api request
         $input = $this->fixMovieArrayKeys($input);
@@ -54,6 +58,11 @@ class TMDB extends Model implements ApiMovie
             unset($input['with_original_language']);
         }
 
+        if(isset($input['with_watch_providers'])){
+            $input['with_watch_providers'] = implode(',', $input['with_watch_providers']);
+            $input['watch_region'] = $country;
+        }
+
         $url = 'https://api.themoviedb.org/3/discover/movie/?api_key='.config('api.TMDB').'&'.http_build_query($input);
         $json = @file_get_contents($url);
         if ($json == false) {
@@ -94,10 +103,10 @@ class TMDB extends Model implements ApiMovie
     public function movie($movieId)
     {
         $append = [
-            'append_to_response' => 'videos,credits,similar'
+            'append_to_response' => 'videos,credits,similar,'
         ];
 
-        $url = 'https://api.themoviedb.org/3/movie/'.$movieId.'?api_key='.config('api.TMDB').'&'.http_build_query($append);
+        $url = 'https://api.themoviedb.org/3/movie/'.$movieId.'?api_key='.config('api.TMDB').'&'.http_build_query($append).'%2Cwatch%2Fproviders';
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -119,8 +128,11 @@ class TMDB extends Model implements ApiMovie
     {
         $url = 'https://api.themoviedb.org/3/genre/movie/list?api_key='.config('api.TMDB');
         $json = file_get_contents($url);
-        $genresObj = json_decode($json);
-        return $genresObj->genres;
+        return $json;
+    }
+
+    public function providers(){
+        return null;
     }
 
     // Replaces last _ with . for API request

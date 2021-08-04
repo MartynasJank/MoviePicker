@@ -12,7 +12,7 @@
                     <ul>
                         <li><a href="#step-1">Years</a></li>
                         <li><a href="#step-2">Genres</a></li>
-                        <li><a href="#step-3">Language</a></li>
+                        <li><a href="#step-3">Language / Streaming</a></li>
                         <li><a href="#step-4">People</a></li>
                         <li><a href="#step-5">Scores</a></li>
                     </ul>
@@ -88,6 +88,29 @@
                                 let element = document.getElementById('with_original_language');
                                 element.value = "{{ $user_input['with_original_language'] }}";
                             </script>
+                            @endif
+                            <div class="form-group">
+                                <label for="with_original_language">Original Movie Language</label>
+                                <select
+                                    id="with_watch_providers"
+                                    name="with_watch_providers[]"
+                                    class="selectpicker form-control bg-input"
+                                    data-live-search="true"
+                                    multiple data-actions-box="true"
+                                    data-style="btn"
+                                    multiple>
+                                    <option value="">All</option>
+                                    @foreach($providersArray as $value)
+                                        <option value="{{ $value['id'] }}" data-content="<img src='{{ $value['logo'] }}'><span style='margin-left: 10px'>{{ $value['name'] }}</span>"></option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <small id="genres" class="form-text text-muted">Select a streaming service</small>
+                            @if(array_key_exists('with_watch_providers', $user_input))
+                                <script>
+                                    let element = document.getElementById('with_watch_providers');
+                                    element.value = 8;
+                                </script>
                             @endif
                         </div>
                         <div id="step-4">

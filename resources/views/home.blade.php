@@ -14,7 +14,7 @@
                 </div>
                 <div class="col-lg-8 align-self-baseline">
                     <p class="font-weight-bold mb-5">For evenings when you can't decide what to watch!</p>
-                    <a class="btn btn-xl mb-4 main" href="/movie?i=new">Get a random movie</a>
+                    <a class="btn btn-xl mb-4 main long-single" href="/movie?i=new">Get a random movie</a>
                     <a class="btn btn-xl mb-4 main" href="/multiple?i=new">Get a random movie batch</a>
                     <a class="btn btn-xl mb-4 main" href="/criteria">Enter details for a random movie</a>
                 </div>
@@ -39,7 +39,7 @@
                     <h2 class="mt-0">About Us</h2>
                     <hr class="divider my-4" />
                     <p class="mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-                    <a class="btn btn-xl mb-3" href="/movie">Random Movie</a>
+                    <a class="btn btn-xl mb-3 long-single" href="/movie">Random Movie</a>
                     <a class="btn btn-xl mb-3" href="/criteria">Enter your preference</a>
                 </div>
             </div>

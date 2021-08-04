@@ -37,7 +37,7 @@ $(document).ready(function(){
         toolbarSettings : {
             toolbarButtonPosition: 'right',
             toolbarExtraButtons: [
-                $('<button></button>').text('Find a Movie').addClass('btn btn-secondary'),
+                $('<button></button>').text('Find a Movie').addClass('btn btn-secondary long'),
             ],
         }
     });

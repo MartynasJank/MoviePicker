@@ -104,6 +104,9 @@
                 background-color: var(--bg-dropdown);
                 outline: none;
             }
+            .dropdown-item{
+                color: var(--text);
+            }
 
             // Felxdatalist style
             .flexdatalist-multiple{

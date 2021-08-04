@@ -24,13 +24,29 @@ class MovieController extends Controller
         // MOVIE ID FOR URL
         $movieId = $request['id'];
         $movieCriteria = session('userInput');
-
         // API INFO
         $tmdbInfo = $tmdb->movie($movieId);
         $omdbInfo = $omdb->movie($tmdbInfo->imdb_id);
 
-        // MOVIE RECOMMENDATIONS
+        if(isset($tmdbInfo->{"watch/providers"}->results->{$movieService->getUserCountry()}->flatrate)){
+            $watchProviders = $tmdbInfo->{"watch/providers"}->results->{$movieService->getUserCountry()};
 
+        } else {
+            $watchProviders = null;
+        }
+
+        // FOR FORM
+        $movieProvider = $movieService->getWatchProviders();
+        $providersArray = array();
+        foreach ($movieProvider->results as $key => $provider){
+            $providersArray[] = array(
+                'id' => $provider->provider_id,
+                'name' => $provider->provider_name,
+                'logo' => 'https://image.tmdb.org/t/p/w45'.$provider->logo_path
+            );
+        }
+
+        // MOVIE RECOMMENDATIONS
         if(!empty($movieCriteria)){
             $movieCriteria['page'] = rand(1, $movieCriteria['total_pages']);
             $similarMovies = $tmdb->discover($movieCriteria);
@@ -55,17 +71,11 @@ class MovieController extends Controller
         // GETS  URL TO MOVIE REVIEW WEBSTIES
         $urls = $link->linksArray($omdbInfo);
 
-        // CLEAN TITLE
-        $dirty_title = $tmdbInfo->title ?? $omdbInfo->Title;
-
-        // BIG TESTING HERE
-        $linksToStreams = $movieService->linksToStreams($dirty_title, $tmdbInfo->id);
-
         // GETS TRAILER OF THE MOVIE
         $trailer = $movieService->getTrailer($tmdbInfo->videos->results);
 
         // USER INPUT TO ADJUST FORM
-        $all_genres = $tmdb->genres();
+        $all_genres = $movieService->genres($tmdb);
         $user_input = $request->session()->get('userInput', 'default');
 
         // SAVES INFO FOR STATS WEBSITE
@@ -73,8 +83,7 @@ class MovieController extends Controller
         $click->visitor = Cookie::get('visitor') ?? $randomHash;
         $click->result = $movieId;
         $click->save();
-
-        return view('movie', compact('omdbInfo', 'tmdbInfo', 'urls', 'similarMovies', 'genres', 'trailer', 'user_input', 'all_genres', 'linksToStreams'));
+        return view('movie', compact( 'tmdbInfo', 'omdbInfo', 'urls', 'similarMovies', 'genres', 'trailer', 'user_input', 'all_genres', 'watchProviders', 'providersArray'));
     }
 }
 

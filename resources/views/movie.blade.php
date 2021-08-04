@@ -45,7 +45,7 @@
     <!-- Small screen button -->
     <div class="row mb-4">
         <div class="d-block d-md-none col-md-12">
-            <a href="/movie" class="btn btn-lg btn-block btn-custom">Pick Another Movie</a>
+            <a href="/movie" class="btn btn-lg btn-block btn-custom long-single">Pick Another Movie</a>
         </div>
     </div>
     <!-- Movie poster, movie scores and plot -->
@@ -102,32 +102,21 @@
     <div class="row mb-4">
         <div class="col-md-3 ">
             <div class="d-none d-md-block">
-                <a href="/movie" class="btn btn-lg btn-block btn-custom">Pick Another Movie</a>
+                <a href="/movie" class="btn btn-lg btn-block btn-custom long-single">Pick Another Movie</a>
             </div>
         </div>
     </div>
-    @if ($linksToStreams != null)
-        <div class="row mb-4">
-            @foreach($linksToStreams as $key => $type)
-                <div class="col-md-4 mb-3">
-                    @if($type != null)
-                        <h4>{{ ucfirst($key) }} the movie</h4>
-                        @foreach($type as $link)
-                            <div class="d-inline-block">
-                                <a href="{{ $link['URL']}}" target="_blank" class="mr-2">
-                                    <img src="{{ $link['icon'] }}" style="width: 50px">
-                                </a>
-                                <span class="d-block">{{ ($link['price'] != null) ? $link['price'] : '' }}</span>
-                            </div>
-                        @endforeach
-                    @else
-                        <div class="d-flex h-100">
-                            <span class="btn btn-lg btn-block btn-custom-no align-self-center">No {{ $key }} services were found</span>
-                        </div>
-                    @endif
+    @if ($watchProviders != null)
+        <div class="row mb-1 col-md-12">
+            @foreach($watchProviders->flatrate as $stream)
+                <div class="d-inline-block">
+                    <a href="{{ $watchProviders->link }}" target="_blank" class="mr-2">
+                        <img src="https://image.tmdb.org/t/p/w45{{ $stream->logo_path }}">
+                    </a>
                 </div>
             @endforeach
         </div>
+        <div class="row mb-3 col-md-12"><small id="genres" class="form-text text-muted">Streaming information provided by TMDB and JustWatch. Links on logo redirect to TMDB website which will redirect to your chosen streaming service</small></div>
     @endif
     <!-- General Movie Info -->
     <div class="row">
@@ -245,7 +234,7 @@
 
     <!-- Choose another movie button -->
     <div class="row mb-4">
-        <a href="/movie" class="btn btn-custom btn-lg btn-block">Pick Another Movie</a>
+        <a href="/movie" class="btn btn-custom btn-lg btn-block long-single">Pick Another Movie</a>
     </div>
 
     <!-- Similar movies -->

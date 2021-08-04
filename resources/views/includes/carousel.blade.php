@@ -11,7 +11,7 @@
         @if(array_key_exists('release_date', $result))
             <div class='poster item'>
                 <div class="movie">
-                    <a href="{{ url('movie/'.$result->id) }}" style="flex-grow: 1">
+                    <a href="{{ url('movie/'.$result->id) }}" style="flex-grow: 1" class="long-movie" data-name="{{ $result->title }}">
                         <h4 class="text-decoration-none" style="flex-grow: 1">{{ $result->title }}</h4>
                         <div style="margin-bottom: auto;">
                             <p style="margin-bottom: 0"><span style="font-weight: bold; color: var(--accent)">Year:</span> {{date('Y', strtotime($result->release_date))}}</p>

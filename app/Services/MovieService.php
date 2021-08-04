@@ -2,7 +2,8 @@
 
 namespace App\Services;
 
-use App\Services\Tmdb;
+use App\TMDB;
+use Illuminate\Support\Facades\Storage;
 
 class MovieService
 {
@@ -16,6 +17,17 @@ class MovieService
     {
         $key = array_rand($movieArray);
         return $movieArray[$key];
+    }
+
+    public function genres(TMDB $tmdb){
+        if(!Storage::disk('local')->exists('genres.txt')){
+            $json = $tmdb->genres();
+            Storage::disk('local')->put('genres.txt', $json);
+        } else {
+            $json = Storage::get('genres.txt');
+        }
+        $data = json_decode($json);
+        return $data->genres;
     }
 
     public function genresString($movieObj)
@@ -68,7 +80,21 @@ class MovieService
         return $trailer;
     }
 
-
+    public function movieWatchProviders($movieId){
+        $url = 'https://api.themoviedb.org/3/movie/'.$movieId.'/watch/providers?api_key='.config('api.TMDB');
+        $location = $this->getUserCountry();
+        $final = array();
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        $result = curl_exec($ch);
+        $result = json_decode($result);
+        if(array_key_exists($location, $result->results) && array_key_exists('flatrate', $result->results->$location)){
+            $final['url'] = $result->results->$location->link;
+            $final['streaming'] = $result->results->$location->flatrate;
+        }
+        return $final;
+    }
 
     protected function sortAssocArrayByValue($array, $value)
     {
@@ -88,7 +114,7 @@ class MovieService
         return $movieTitle;
     }
 
-    protected function getUserCountry(){
+    public function getUserCountry(){
         $ip = \Request::ip();
         $data = \Location::get($ip);
         $country = $data->countryCode ?? 'LT';
@@ -97,7 +123,11 @@ class MovieService
     }
 
     protected function get_data($url) {
-        $html = file_get_contents($url);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        $html = curl_exec($ch);
+        curl_close($ch);
         $dom = new \DOMDocument();
         @$dom->loadHTML($html);
         $xpath = new \DOMXPath($dom);
@@ -172,5 +202,20 @@ class MovieService
     public function linksToStreams($title, $movie_id){
         $url = "https://www.themoviedb.org/movie/".$movie_id."-".$this->sanitizedTitle($title)."/watch?translate=false&locale=".$this->getUserCountry();
         return $this->get_data($url);
+    }
+
+    public function getWatchProviders(){
+        if(Storage::makeDirectory('providers')){
+            $country = $this->getUserCountry();
+            if(Storage::disk('local')->missing('providers/'.$country.'.txt') || Storage::disk('local')->size('providers/'.$country.'.txt') == 0){
+                $url = "https://api.themoviedb.org/3/watch/providers/movie?api_key=4d8868b4c38c4a941f15586d824cb806&language=en-US&watch_region=".$this->getUserCountry();
+                $json = file_get_contents($url);
+                Storage::disk('local')->put('providers/'.$country.'.txt', $json);
+            } else {
+                $json = Storage::get('providers/'.$country.'.txt');
+            }
+            $data = json_decode($json);
+            return $data;
+        }
     }
 }

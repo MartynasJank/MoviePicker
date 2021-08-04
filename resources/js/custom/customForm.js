@@ -37,11 +37,15 @@ $(document).ready(function(){
         toolbarSettings : {
             toolbarButtonPosition: 'right',
             toolbarExtraButtons: [
-                $('<button></button>').text('Find a Movie').addClass('btn btn-secondary'),
+                $('<button></button>').text('Find a Movie').addClass('btn btn-secondary long'),
             ],
         }
     });
     $('#smartwizard').show();
+
+    $('.selectpicker').selectpicker({
+        showIcon: true
+    });
 
     // DELETE SELECT ALL BUTTON BECAUSE I DON'T NEED IT AND SELECTPICKER DOESN'T LET YOU CUSTOMIZE IT
     $('.selectpicker').on('loaded.bs.select', function(){

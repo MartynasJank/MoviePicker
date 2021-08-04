@@ -21,3 +21,8 @@ Route::get('/movie', 'RandomMovieController@show');
 Route::get('/movie/{id}', 'MovieController@show')->name('movie');
 Route::get('/multiple', 'RandomMovieController@multiple');
 Route::post('/multiple', 'RandomMovieController@multiple');
+
+Route::get('/asdsadasdasdsadsaghfgh', function (){
+    Artisan::call('schedule:run');
+    die();
+});

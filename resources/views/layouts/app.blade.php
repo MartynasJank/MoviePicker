@@ -20,6 +20,18 @@
     </script>
 </head>
 <body class="{{ Cookie::get('theme') == 'dark' ? 'dark-theme' : 'light-theme' }}">
+    <div class="overlay"></div>
+    <div class='loader'>
+        <h1 class="loading-text">asdasdasdasd</h1>
+        <div style="width: 250px; margin: auto;">
+            <div class='loader--dot'></div>
+            <div class='loader--dot'></div>
+            <div class='loader--dot'></div>
+            <div class='loader--dot'></div>
+            <div class='loader--dot'></div>
+            <div class='loader--dot'></div>
+        </div>
+    </div>
     <nav class="nav-nav navbar-expand-lg">
         <div class="container text-left d-flex custom-nav-container">
             <div class="logo">
@@ -28,7 +40,7 @@
             <div id="mainListDiv" class="main_list flex-grow-1 ml-3">
                 <ul class="navlinks">
                     <li class="flex-grow-1 align-self-center custom-input">
-                        <form action="/movie" method="POST" class="submit-search my-auto d-inline w-100">
+                        <form action="/movie" method="POST" class="submit-search my-auto d-inline w-100" id="movie-search">
                             @csrf
                             <input
                                 type="text"
@@ -41,7 +53,7 @@
                         </form>
                     </li>
                     <a href="/criteria" class="text-decoration-none"><li>Movie Criteria</li></a>
-                    <a href="/movie?i=new" class="text-decoration-none"><li>Random Movie</li></a>
+                    <a href="/movie?i=new" class="text-decoration-none long-single"><li>Random Movie</li></a>
                     <a href="/multiple?i=new" class="text-decoration-none"><li>Random Batch</li></a>
                     <a class="text-decoration-none">
                         <li>

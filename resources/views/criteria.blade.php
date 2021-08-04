@@ -16,7 +16,7 @@
             <ul>
                 <li><a href="#step-1">Years</a></li>
                 <li><a href="#step-2">Genres</a></li>
-                <li><a href="#step-3">Language</a></li>
+                <li><a href="#step-3">Language / Streaming</a></li>
                 <li><a href="#step-4">People</a></li>
                 <li><a href="#step-5">Scores</a></li>
             </ul>
@@ -71,6 +71,23 @@
                 </div>
                 <div id="step-3">
                     @include('includes.languages')
+                    <div class="form-group">
+                        <label for="with_original_language">Original Movie Language</label>
+                        <select
+                            id="with_watch_providers"
+                            name="with_watch_providers[]"
+                            class="selectpicker form-control bg-input"
+                            data-live-search="true"
+                            multiple data-actions-box="true"
+                            data-style="btn"
+                            multiple>
+                            @foreach($providersArray as $value)
+                                <option value="{{ $value['id'] }}" data-content="<img src='{{ $value['logo'] }}'><span style='margin-left: 10px'>{{ $value['name'] }}</span>"></option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <small id="genres" class="form-text text-muted">Select a streaming service</small>
+
                 </div>
                 <div id="step-4">
                     <div class="form-row">
@@ -100,7 +117,7 @@
                 </div>
                 <div id="step-5">
                     <div class="form-row">
-                        <div class="form-group col-md-6 scores">
+                        <div class="form-group col-md-6 scores">Find a Movie
                             <label for="vote_average_gte">Lowest score</label>
                             <input type="text" class="form-control bg-input movie-input border {{ ($errors->has('vote_average_gte')) ?  'border-danger' :  ''}}" id="vote_average_gte" name="vote_average_gte" placeholder="0" value="{{ old('vote_average_gte') }}">
                             <small id="vote_average_gte" class="form-text text-muted">Default: 0</small>

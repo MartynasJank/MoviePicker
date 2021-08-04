@@ -50,6 +50,33 @@ $(document).ready(function(){
     function deleteCookie(cname){
         document.cookie = cname+'=; Max-Age=-99999999;';
     }
-});
 
+    function loadingAnimation(){
+        $('.overlay').fadeIn();
+        $('.loading-text').fadeIn();
+        $('.loader').fadeIn();
+    }
+
+    $('#criteria').submit(function () {
+        $('.loading-text').text('Getting the best result for you!');
+        loadingAnimation();
+    });
+
+    $('#movie-search').submit(function () {
+        $('.loading-text').text('Fetching the movie!');
+        loadingAnimation();
+    });
+
+    $('.long-single').click(function () {
+        $('.loading-text').text('Looking for a perfect movie!');
+        loadingAnimation();
+    });
+
+    $('.long-movie').click(function () {
+        var movieName = $(this).data('name');
+        $('.loading-text').text('Loading '+movieName+'!');
+        loadingAnimation();
+    })
+
+});
 
