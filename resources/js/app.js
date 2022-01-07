@@ -52,31 +52,42 @@ $(document).ready(function(){
     }
 
     function loadingAnimation(){
-        $('.overlay').fadeIn();
-        $('.loading-text').fadeIn();
-        $('.loader').fadeIn();
+            $('.overlay').fadeIn();
+            $('.loading-text').fadeIn();
+            $('.loader').fadeIn();
     }
 
     $('#criteria').submit(function () {
+        window.addEventListener("beforeunload", loadingAnimation);
         $('.loading-text').text('Getting the best result for you!');
-        loadingAnimation();
+        setTimeout(function () {
+            window.removeEventListener("beforeunload", loadingAnimation);
+        }, 500);
     });
 
     $('#movie-search').submit(function () {
+        window.addEventListener("beforeunload", loadingAnimation);
         $('.loading-text').text('Fetching the movie!');
-        loadingAnimation();
+        setTimeout(function () {
+            window.removeEventListener("beforeunload", loadingAnimation);
+        }, 500);
     });
 
     $('.long-single').click(function () {
+        window.addEventListener("beforeunload", loadingAnimation);
         $('.loading-text').text('Looking for a perfect movie!');
-        loadingAnimation();
+        setTimeout(function () {
+            window.removeEventListener("beforeunload", loadingAnimation);
+        }, 100);
     });
 
     $('.long-movie').click(function () {
+        window.addEventListener("beforeunload", loadingAnimation);
         var movieName = $(this).data('name');
-        $('.loading-text').text('Loading '+movieName+'!');
-        loadingAnimation();
-    })
-
+        $('.loading-text').text('Loading ' + movieName + '!');
+        setTimeout(function () {
+            window.removeEventListener("beforeunload", loadingAnimation);
+        }, 100);
+    });
 });
 

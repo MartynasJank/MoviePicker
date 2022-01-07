@@ -8,7 +8,7 @@
         }
     @endphp
     @foreach ($allMovies->results as $result)
-        @if(array_key_exists('release_date', $result))
+        @if(property_exists($result, 'release_date'))
             <div class='poster item'>
                 <div class="movie">
                     <a href="{{ url('movie/'.$result->id) }}" style="flex-grow: 1" class="long-movie" data-name="{{ $result->title }}">

@@ -38,14 +38,14 @@
                 <div class="col-lg-8 text-center">
                     <h2 class="mt-0">About Us</h2>
                     <hr class="divider my-4" />
-                    <p class="mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                    <p class="mb-4">MoviePickr.com helps people to find the perfect movie for everyone. You can select movie dates, streaming platforms, genres, actors and we will find what you're looking for!</p>
                     <a class="btn btn-xl mb-3 long-single" href="/movie">Random Movie</a>
                     <a class="btn btn-xl mb-3" href="/criteria">Enter your preference</a>
                 </div>
             </div>
         </div>
     </section>
-    <section class="page-section" id="contact">
+    <section class="page-section py-5" id="contact">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-8 text-center">
@@ -54,20 +54,30 @@
                     <p class="mb-5"></p>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-lg-4 ml-auto text-center mb-5 mb-lg-0">
-                    <i class="fas fa-phone fa-3x mb-3"></i>
-                    <div>ENTER NUMBER HERE</div>
+            <form method="post" action="/">
+                @csrf
+                <div class="form-row">
+                    <div class="form-group col-lg-6">
+                        <label>Name</label>
+                        <input type="text" name="name" placeholder="Name" class="form-control bg-input movie-input border" value="" required/>
+                    </div>
+                    <div class="form-group col-lg-6">
+                        <label>Email</label>
+                        <input type="text" name="email" placeholder="Email" class="form-control bg-input movie-input border" value="" required/>
+                    </div>
                 </div>
-                <div class="col-lg-4 mr-auto text-center mb-5">
-                    <i class="fas fa-envelope fa-3x mb-3"></i>
-                    <div>EMAIL@EMAIL.EMAIL HERE</div>
+                <div class="form-group">
+                    <label>Subject</label>
+                    <input type="text" name="subject" class="form-control bg-input movie-input border" placeholder="Subject" value="" required/>
                 </div>
-                <div class="col-lg-4 mr-auto text-center">
-                    <i class="fas fa-envelope fa-3x mb-3"></i>
-                    <div>Github</div>
+                <div class="form-groug mb-3">
+                    <label>Message</label>
+                    <textarea style="padding: 10px 20px;" name="message" class="form-control bg-input movie-input border" placeholder="Message..." rows="5" required></textarea>
                 </div>
-            </div>
+                <div class="form-group text-right">
+                    <input type="submit" name="send" class="btn btn-secondary" value="Send" />
+                </div>
+            </form>
         </div>
     </section>
 @endsection

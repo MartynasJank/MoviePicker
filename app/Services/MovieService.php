@@ -10,6 +10,9 @@ class MovieService
     // Gets random page from total pages
     public function randomPage($totalPages)
     {
+        if($totalPages > 500){
+            $totalPages = 500;
+        }
         return rand(1, $totalPages);
     }
 

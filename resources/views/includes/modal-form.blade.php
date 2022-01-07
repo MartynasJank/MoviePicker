@@ -90,16 +90,16 @@
                             </script>
                             @endif
                             <div class="form-group">
-                                <label for="with_original_language">Original Movie Language</label>
+                                <label for="with_original_language">Streaming Services:</label>
                                 <select
                                     id="with_watch_providers"
                                     name="with_watch_providers[]"
                                     class="selectpicker form-control bg-input"
-                                    data-live-search="true"
-                                    multiple data-actions-box="true"
+                                    data-actions-box="true"
+                                    data-size="5"
                                     data-style="btn"
+                                    title="Select streaming services"
                                     multiple>
-                                    <option value="">All</option>
                                     @foreach($providersArray as $value)
                                         <option value="{{ $value['id'] }}" data-content="<img src='{{ $value['logo'] }}'><span style='margin-left: 10px'>{{ $value['name'] }}</span>"></option>
                                     @endforeach
@@ -108,8 +108,7 @@
                             <small id="genres" class="form-text text-muted">Select a streaming service</small>
                             @if(array_key_exists('with_watch_providers', $user_input))
                                 <script>
-                                    let element = document.getElementById('with_watch_providers');
-                                    element.value = 8;
+                                    $('#with_watch_providers').selectpicker('val', [{{ implode(',', $user_input['with_watch_providers']) }}]);
                                 </script>
                             @endif
                         </div>

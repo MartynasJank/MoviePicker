@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html translate="no">
 <head>
-    <title>@yield('page_title', 'MoviePicker')</title>
+    <title>@yield('page_title', 'MoviePickr')</title>
     <link rel="icon" href="{{ URL::asset('/images/icon.png') }}"/>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="description" content="RANDOM MOVIE PICKER">
-    <link href="{{ mix('css/app.css') }}" rel="stylesheet">
-    <script src="{{ mix('js/app.js') }}"></script>
+    <link href="/css/app.css" rel="stylesheet">
+    <script src="/js/app.js"></script>
     @yield('scripts', '')
     <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-176903858-1"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DNGRD3WQTN"></script>
     <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
 
-        gtag('config', 'UA-176903858-1');
+      gtag('config', 'G-DNGRD3WQTN');
     </script>
 </head>
 <body class="{{ Cookie::get('theme') == 'dark' ? 'dark-theme' : 'light-theme' }}">
     <div class="overlay"></div>
     <div class='loader'>
-        <h1 class="loading-text">asdasdasdasd</h1>
+        <div class="loading-text"></div>
         <div style="width: 250px; margin: auto;">
             <div class='loader--dot'></div>
             <div class='loader--dot'></div>

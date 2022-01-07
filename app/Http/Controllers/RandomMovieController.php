@@ -55,6 +55,8 @@ class RandomMovieController extends Controller
     // return multiple results
     public function multiple(CheckFormData $request, MovieService $movieService, TMDB $tmdb, Click $click)
     {
+        $tag = "Movies picked for you";
+
         if ($request->query('i') !== null && session('userInput') !== null) {
             session()->forget('userInput');
             return redirect(url('/multiple'));
@@ -96,7 +98,6 @@ class RandomMovieController extends Controller
         }
 
         $testInfo = [];
-
         $testInfo['total'] = $movieCriteria['total_pages'] ?? $movies->total_pages;
         $testInfo['current'] = $movieCriteria['page'];
 
@@ -139,13 +140,13 @@ class RandomMovieController extends Controller
             Cookie::queue(Cookie::make('visitor', $randomHash, 525600));
         }
         // SAVES INFO FOR STATS WEBSITE
-        $click->input = json_encode(session('userInput'));
-        $click->visitor = Cookie::get('visitor') ?? $randomHash;
-        $click->result = 'Multiple';
-        $click->save();
+//        $click->input = json_encode(session('userInput'));
+//        $click->visitor = Cookie::get('visitor') ?? $randomHash;
+//        $click->result = 'Multiple';
+//        $click->save();
 
 
-        return view('multiple', compact('movies', 'user_input', 'all_genres', 'movie_genres', 'testInfo', 'providersArray'));
+        return view('multiple', compact('movies', 'user_input', 'all_genres', 'movie_genres', 'testInfo', 'providersArray', 'tag'));
     }
 
     // Return movie criteria

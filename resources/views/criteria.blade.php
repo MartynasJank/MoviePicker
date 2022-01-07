@@ -72,14 +72,15 @@
                 <div id="step-3">
                     @include('includes.languages')
                     <div class="form-group">
-                        <label for="with_original_language">Original Movie Language</label>
+                        <label for="with_watch_providers">Streaming Services:</label>
                         <select
                             id="with_watch_providers"
                             name="with_watch_providers[]"
                             class="selectpicker form-control bg-input"
-                            data-live-search="true"
-                            multiple data-actions-box="true"
+                            data-actions-box="true"
+                            data-size="5"
                             data-style="btn"
+                            title="Select streaming services"
                             multiple>
                             @foreach($providersArray as $value)
                                 <option value="{{ $value['id'] }}" data-content="<img src='{{ $value['logo'] }}'><span style='margin-left: 10px'>{{ $value['name'] }}</span>"></option>

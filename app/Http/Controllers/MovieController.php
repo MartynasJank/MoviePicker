@@ -48,6 +48,9 @@ class MovieController extends Controller
 
         // MOVIE RECOMMENDATIONS
         if(!empty($movieCriteria)){
+            if($movieCriteria['total_pages'] > 500){
+                $movieCriteria['total_pages'] = 500;
+            }
             $movieCriteria['page'] = rand(1, $movieCriteria['total_pages']);
             $similarMovies = $tmdb->discover($movieCriteria);
             $similarMovies->type = 'discover';
@@ -68,7 +71,7 @@ class MovieController extends Controller
         // GETS MOVIE GENRES
         $genres = $movieService->genresString($tmdbInfo);
 
-        // GETS  URL TO MOVIE REVIEW WEBSTIES
+        // GETS URL TO MOVIE REVIEW WEBSTIES
         $urls = $link->linksArray($omdbInfo);
 
         // GETS TRAILER OF THE MOVIE
@@ -79,10 +82,10 @@ class MovieController extends Controller
         $user_input = $request->session()->get('userInput', 'default');
 
         // SAVES INFO FOR STATS WEBSITE
-        $click->input = json_encode(session('userInput'));
-        $click->visitor = Cookie::get('visitor') ?? $randomHash;
-        $click->result = $movieId;
-        $click->save();
+//        $click->input = json_encode(session('userInput'));
+//        $click->visitor = Cookie::get('visitor') ?? $randomHash;
+//        $click->result = $movieId;
+//        $click->save();
         return view('movie', compact( 'tmdbInfo', 'omdbInfo', 'urls', 'similarMovies', 'genres', 'trailer', 'user_input', 'all_genres', 'watchProviders', 'providersArray'));
     }
 }
