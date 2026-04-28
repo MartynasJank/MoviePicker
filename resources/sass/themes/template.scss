@@ -7,10 +7,10 @@ body{
         border-color: var(--accent);
     }
 
-    @import 'template/nav';
-    @import 'template/homepage';
-    @import 'template/criteria';
-    @import 'template/movie';
+    @import '../template/nav';
+    @import '../template/homepage';
+    @import '../template/criteria';
+    @import '../template/movie';
 
     .custom-modal{
         background: var(--bg-front) !important;
