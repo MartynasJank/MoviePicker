@@ -5,8 +5,7 @@
 # Laravel
 /public/hot
 /public/storage
-/public/css
-/public/js
+/public/build
 /storage/*.key
 /bootstrap/cache/*.php
 

@@ -1,7 +1,6 @@
 @extends('layouts.app')
 @section('scripts')
-<script src="/js/customOwlCarousel.js"></script>
-<script src="/js/customForm.js"></script>
+@vite(['resources/js/custom/customOwlCarousel.js', 'resources/js/custom/customForm.js'])
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-176903858-1"></script>
 @endsection
 @section('content')

@@ -3,8 +3,7 @@
     @php echo $title ?? "Batch - MoviePicker" @endphp
 @endsection
 @section('scripts')
-    <script src="/js/customOwlCarousel.js"></script>
-    <script src="/js/customModal.js"></script>
+    @vite(['resources/js/custom/customOwlCarousel.js', 'resources/js/custom/customModal.js'])
     <script>
         @if(isset($testInfo))
         console.log('Total pages: {{$testInfo['total']}}');

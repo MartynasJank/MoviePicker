@@ -6,8 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="description" content="RANDOM MOVIE PICKER">
-    <link href="/css/app.css" rel="stylesheet">
-    <script src="/js/app.js"></script>
+    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     @yield('scripts', '')
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-DNGRD3WQTN"></script>
