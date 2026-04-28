@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="description" content="RANDOM MOVIE PICKER">
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    <script>window.TMDB_API_KEY = '{{ config('api.TMDB') }}';</script>
     @yield('scripts', '')
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-DNGRD3WQTN"></script>

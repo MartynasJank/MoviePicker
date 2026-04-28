@@ -6,7 +6,7 @@ import '../jquery.flexdatalist.min';
 $(document).ready(function(){
 
     var animation = true;
-    var tmdb = import.meta.env.VITE_TMDB_API_KEY;
+    var tmdb = window.TMDB_API_KEY;
 
     $(document).on('hide.bs.modal','#myModal', function () {
         $('#trailer').attr("src", jQuery("#trailer").attr("src"));
@@ -222,8 +222,8 @@ $(document).ready(function(){
 
     $.getJSON('/userinput', function(data) {
         if (data['with_cast']){
-            s_array = data['with_cast'].split(',');
-            $user_array = [];
+            var s_array = data['with_cast'].split(',');
+            var $user_array = [];
             $.each(s_array, function (i, id) {
                 $.getJSON("https://api.themoviedb.org/3/person/"+id+"?api_key="+tmdb+"&language=en-US", function (data) {
 
@@ -233,7 +233,7 @@ $(document).ready(function(){
                         name: data.name
                     });
                     if(s_array.length == $user_array.length) {
-                        s_id = [];
+                        var s_id = [];
                         $.each($user_array, function (i, entry) {
                             s_id.push(entry.id);
                         });
@@ -245,8 +245,8 @@ $(document).ready(function(){
         }
 
         if (data['with_crew']){
-            c_array = data['with_crew'].split(',');
-            $crew_array = [];
+            var c_array = data['with_crew'].split(',');
+            var $crew_array = [];
             $.each(c_array, function (i, id) {
                 $.getJSON("https://api.themoviedb.org/3/person/"+id+"?api_key="+tmdb+"&language=en-US", function (data) {
 
@@ -256,12 +256,12 @@ $(document).ready(function(){
                         name: data.name
                     });
                     if(c_array.length == $crew_array.length) {
-                        c_id = [];
-                        $.each($user_array, function (i, entry) {
+                        var c_id = [];
+                        $.each($crew_array, function (i, entry) {
                             c_id.push(entry.id);
                         });
-                        $('.cast').flexdatalist('data', $crew_array);
-                        $('.cast').flexdatalist('value', c_id.toString())
+                        $('.crew').flexdatalist('data', $crew_array);
+                        $('.crew').flexdatalist('value', c_id.toString())
                     }
                 })
             });
@@ -271,7 +271,7 @@ $(document).ready(function(){
     // FUNCTIONS
     // Action after user stops typing
     function done($input, fn, tmdb){
-        val = $input.val();
+        var val = $input.val();
         fn(val, tmdb);
     }
 
@@ -327,7 +327,7 @@ $(document).ready(function(){
             var jqxhr = $.getJSON( "https://api.themoviedb.org/3/search/movie?api_key="+tmdb+"&language=en-US&query="+name+"&page=1&include_adult=false", function(data) {
             })
                 .done(function(data) {
-                    results = [];
+                    var results = [];
                     $.each(data.results, function(i, item){
                         results.push(item);
                         if(i === 4){
@@ -349,7 +349,7 @@ $(document).ready(function(){
             var jqxhr = $.getJSON( "https://api.themoviedb.org/3/search/person?api_key="+tmdb+"&language=en-US&query="+name+"&page=1&include_adult=false", function(data) {
             })
             .done(function(data) {
-                results = [];
+                var results = [];
                 $.each(data.results, function(i, item){
                     if(item.known_for_department === 'Acting'){
                         results.push(item);
@@ -373,7 +373,7 @@ $(document).ready(function(){
             var jqxhr = $.getJSON( "https://api.themoviedb.org/3/search/person?api_key="+tmdb+"&language=en-US&query="+name+"&page=1&include_adult=false", function() {
             })
             .done(function(data) {
-                results = [];
+                var results = [];
                 $.each(data.results, function(i, item){
                     if(item.known_for_department !== 'Acting'){
                         results.push(item);
