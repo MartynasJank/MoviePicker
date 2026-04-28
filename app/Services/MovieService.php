@@ -67,7 +67,13 @@ class MovieService
                 // Checks if video is region restricted and then checks if user is in country where video is allowed to watch
                 if (isset($status->items[0]->contentDetails->regionRestriction->allowed)) {
                     $ip = \Request::ip();
-                    $data = \Location::get($ip);
+                    $data = null;
+
+                    try {
+                        $data = \Location::get($ip);
+                    } catch (\Throwable $e) {
+                        $data = null;
+                    }
 
                     $allowedCountries = $status->items[0]->contentDetails->regionRestriction->allowed;
                     $country = $data->countryCode ?? 'LT';
@@ -119,7 +125,14 @@ class MovieService
 
     public function getUserCountry(){
         $ip = \Request::ip();
-        $data = \Location::get($ip);
+        $data = null;
+
+        try {
+            $data = \Location::get($ip);
+        } catch (\Throwable $e) {
+            $data = null;
+        }
+
         $country = $data->countryCode ?? 'LT';
 
         return $country;

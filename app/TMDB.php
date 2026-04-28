@@ -14,7 +14,13 @@ class TMDB extends Model implements ApiMovie
     public function discover($input = [])
     {
         $ip = \Request::ip();
-        $data = \Location::get($ip);
+        $data = null;
+
+        try {
+            $data = \Location::get($ip);
+        } catch (\Throwable $e) {
+            $data = null;
+        }
         $country = $data->countryCode ?? 'LT';
 
         $smallYear = 1950;
