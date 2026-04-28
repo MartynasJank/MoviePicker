@@ -16,9 +16,9 @@ export default defineConfig({
             refresh: true,
         }),
         inject({
+            include: ['**/*.js'],
             $: 'jquery',
             jQuery: 'jquery',
-            'window.jQuery': 'jquery',
         }),
     ],
 });
