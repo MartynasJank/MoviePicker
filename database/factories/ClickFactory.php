@@ -1,15 +1,20 @@
 <?php
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
+namespace Database\Factories;
 
 use App\Click;
-use App\Model;
-use Faker\Generator as Faker;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
-$factory->define(Click::class, function (Faker $faker) {
-    return [
-        'visitor' => $faker->randomNumber,
-        'input' => $faker->text,
-        'result' => $faker->randomNumber
-    ];
-});
+class ClickFactory extends Factory
+{
+    protected $model = Click::class;
+
+    public function definition()
+    {
+        return [
+            'visitor' => $this->faker->randomNumber(),
+            'input' => $this->faker->text(),
+            'result' => $this->faker->randomNumber(),
+        ];
+    }
+}
