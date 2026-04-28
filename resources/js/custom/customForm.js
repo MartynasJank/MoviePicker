@@ -1,14 +1,12 @@
-require('../bootstrap');
-require('../../../node_modules/bootstrap-select/dist/js/bootstrap-select');
-require('../../../node_modules/smartwizard/dist/js/jquery.smartWizard');
-require('../jquery.flexdatalist.min');
-require('dotenv').config();
-
+import '../bootstrap';
+import 'bootstrap-select';
+import 'smartwizard/dist/js/jquery.smartWizard';
+import '../jquery.flexdatalist.min';
 
 $(document).ready(function(){
 
     var animation = true;
-    var tmdb = process.env.MIX_TMDB_API_KEY;
+    var tmdb = import.meta.env.VITE_TMDB_API_KEY;
 
     $(document).on('hide.bs.modal','#myModal', function () {
         $('#trailer').attr("src", jQuery("#trailer").attr("src"));

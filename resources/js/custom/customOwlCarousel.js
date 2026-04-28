@@ -1,4 +1,5 @@
-require('../../../node_modules/owl.carousel');
+import '../bootstrap';
+import 'owl.carousel';
 
 $(document).ready(function(){
     $('.owl-similar').owlCarousel({

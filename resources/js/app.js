@@ -1,4 +1,5 @@
-require('../../node_modules/bootstrap4-toggle/js/bootstrap4-toggle.min.js');
+import './bootstrap';
+import 'bootstrap4-toggle/js/bootstrap4-toggle.min.js';
 
 $(document).ready(function(){
     // Nav bar
