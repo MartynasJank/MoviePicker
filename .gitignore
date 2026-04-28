@@ -1,14 +1,40 @@
+# Dependencies
 /node_modules
+/vendor
+
+# Laravel
 /public/hot
 /public/storage
-/storage/*.key
-/vendor
-.env
-.env.backup
-.phpunit.result.cache
-Homestead.json
-Homestead.yaml
-npm-debug.log
-yarn-error.log
 /public/css
 /public/js
+/storage/*.key
+/bootstrap/cache/*.php
+
+# Environment
+.env
+.env.backup
+.env.*.local
+
+# Testing
+.phpunit.result.cache
+/coverage
+
+# Build & logs
+npm-debug.log*
+yarn-error.log*
+yarn-debug.log*
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Vagrant / Homestead
+Homestead.json
+Homestead.yaml
+.vagrant/
+
+# Claude Code
+.claude/settings.local.json
