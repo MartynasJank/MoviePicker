@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp -r \"/c/Users/Martynas/Desktop/Projects/moviepickr.com/public_html/images\" \"/c/Users/Martynas/Desktop/Projects/moviepickr.com/moviepicker/public/images\")",
+      "Bash(cp \"/c/Users/Martynas/Desktop/Projects/moviepickr.com/public_html/favicon.ico\" \"/c/Users/Martynas/Desktop/Projects/moviepickr.com/moviepicker/public/favicon.ico\")",
+      "Bash(cp \"/c/Users/Martynas/Desktop/Projects/moviepickr.com/public_html/robots.txt\" \"/c/Users/Martynas/Desktop/Projects/moviepickr.com/moviepicker/public/robots.txt\")",
+      "Bash(cp \"/c/Users/Martynas/Desktop/Projects/moviepickr.com/public_html/sitemap.xml\" \"/c/Users/Martynas/Desktop/Projects/moviepickr.com/moviepicker/public/sitemap.xml\")"
+    ]
+  }
+}

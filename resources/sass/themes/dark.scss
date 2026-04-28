@@ -1,0 +1,22 @@
+.dark-theme{
+    --bg-head: linear-gradient(to bottom, #{fade-out(black, .5)} 0%,#{fade-out(black, .5)} 100%), url('../assets/bg-masthead.jpg');
+    --bg-content: linear-gradient(to bottom, #{fade-out(black, .5)} 0%,#{fade-out(black, .5)} 100%), url('../assets/contact-bg2.jpg');
+
+    --text: #fff;
+    --text-o: #fff;
+    --text-muted: #BDC3C7;
+    --text-accent: #7C2021;
+
+    --bg-back: #000;
+    --bg-front:rgba(20, 20, 20, 1);
+    --bg-nav: #000;
+    --bg-nav-m: rgba(20, 20, 20, 1);;
+    --bg-dropdown: #1f0809;
+    --accent: #7C2021;
+    --accent-dark: #1f0809;
+
+    --form-btn-border: #95a5a6;
+
+    --boxshadow: rgba(255,255,255,1);
+    --accent-boxshadow: rgba(124,32,33,0.5);
+}

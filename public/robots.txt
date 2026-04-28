@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /movie
+Disallow: /movie/*
+Disallow: /index.php
+Disallow: /index.php/criteria
+Disallow: /index.php/movie
+Disallow: /index.php/multiple
+Disallow: /index.php/*

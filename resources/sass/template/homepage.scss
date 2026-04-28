@@ -1,0 +1,39 @@
+.page-section{
+    background-color: var(--bg-back);
+
+    .btn{
+        color: var(--text);
+        background-color: var(--bg-back);
+        border-color: var(--text);
+
+        &:hover{
+            color: #7c2021;
+            border-color: #7c2021;
+        }
+    }
+}
+
+header.masthead {
+    background: var(--bg-head);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+    .btn{
+        color: var(--text);
+        background-color: var(--bg-back);
+        border-color: var(--text);
+
+        &:hover{
+            color: #7c2021;
+            border-color: #7c2021;
+        }
+    }
+}
+
+.custom-bg{
+    background: var(--bg-content);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
