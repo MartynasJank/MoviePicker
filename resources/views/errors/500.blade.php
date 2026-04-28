@@ -3,7 +3,7 @@
 {{ 'OOPS - MoviePicker' }}
 @endsection
 @section('scripts')
-    <script src="/js/customForm.js"></script>
+    @vite(['resources/js/custom/customForm.js'])
 @endsection
 @section('content')
 <div class="container">

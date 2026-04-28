@@ -3,9 +3,7 @@
 {{ $tmdbInfo->title.' - MoviePicker' ?? $omdbInfo->Title.' - MoviePicker' }}
 @endsection
 @section('scripts')
-<script src="/js/showmore.js"></script>
-<script src="/js/customOwlCarousel.js"></script>
-<script src="/js/customModal.js"></script>
+@vite(['resources/js/custom/showmore.js', 'resources/js/custom/customOwlCarousel.js', 'resources/js/custom/customModal.js'])
 <script>
     @if (isset($similarMovies))
         @if ($similarMovies['type'] == 'discover')
