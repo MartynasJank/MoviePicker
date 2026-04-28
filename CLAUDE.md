@@ -4,17 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-MoviePickr is a Laravel 7 PHP application that recommends random movies based on user criteria (genre, year range, streaming provider, rating). It integrates with TMDB, OMDb, and YouTube APIs. The deployed app is at https://martyweb.lt/.
+MoviePickr is a Laravel 12 PHP application that recommends random movies based on user criteria (genre, year range, streaming provider, rating). It integrates with TMDB, OMDb, and YouTube APIs. The deployed app is at https://moviepicker.martybuilds.dev/.
 
 ## Commands
 
-All commands run from `moviepicker/` unless noted.
-
 **Frontend:**
 ```bash
-npm run dev          # development build
-npm run watch        # dev build with file watching
-npm run prod         # production minified build
+npm run dev          # development build with HMR
+npm run build        # production build (also aliased as npm run prod)
 ```
 
 **Backend:**
@@ -36,13 +33,9 @@ Tests use in-memory SQLite (configured in `phpunit.xml`), so no database setup i
 
 ## Architecture
 
-The project root has two key directories:
-- `moviepicker/` — the Laravel application (all source code lives here)
-- `public_html/` — the web server document root; `public_html/index.php` bootstraps Laravel from `moviepicker/`
-
 ### Request Flow
 
-1. `public_html/index.php` → loads `moviepicker/vendor/autoload.php` → bootstraps `moviepicker/bootstrap/app.php`
+1. `public/index.php` bootstraps `bootstrap/app.php`
 2. Routes in `routes/web.php` dispatch to controllers
 3. Controllers delegate to `app/Services/MovieService.php` for business logic
 4. `MovieService` calls `app/TMDB.php` (primary) or `app/OMDB.php` (metadata enrichment)
@@ -57,11 +50,11 @@ The project root has two key directories:
 - **`app/Http/Controllers/RandomMovieController.php`** — Handles single/multiple random movie requests.
 - **`app/Http/Controllers/RoulettesController.php`** — Pre-built curated collections (Netflix Horror, Anime, etc.).
 - **`routes/web.php`** — All web routes; also defines AJAX routes.
-- **`webpack.mix.js`** — Compiles `resources/js/custom/*.js` + `app.js`, Sass, and copies fonts. jQuery is provided globally.
+- **`vite.config.js`** — Vite config; compiles `resources/js/custom/*.js` + `app.js` and Sass. jQuery is injected globally via `@rollup/plugin-inject`.
 
 ### Frontend
 
-Vue 2 is used for reactive components (mounted in `resources/js/app.js`), but most UI logic lives in `resources/js/custom/` as vanilla JS/jQuery. Bootstrap 4 handles layout; OWL Carousel, bootstrap-select, and SmartWizard are used for UI components. Dark mode is handled via `darkmode-js`.
+Most UI logic lives in `resources/js/custom/` as vanilla JS/jQuery. Bootstrap 4 handles layout; OWL Carousel, bootstrap-select, and SmartWizard are used for UI components. Dark/light theme switching is handled via CSS variables in `resources/sass/themes/`.
 
 ### Geolocation
 
@@ -69,14 +62,27 @@ Vue 2 is used for reactive components (mounted in `resources/js/app.js`), but mo
 
 ## Environment Setup
 
-Copy `moviepicker/.env.example` to `moviepicker/.env` and fill in:
+Copy `.env.example` to `.env` and fill in:
 - `TMDB_API_KEY` — TMDB API v3 key
 - `OMDB_API_KEY` — OMDb API key
 - `YOUTUBE_API_KEY` — YouTube Data API key
 - MySQL credentials
 
+For production also set:
+- `APP_ENV=production`
+- `APP_DEBUG=false`
+- `APP_URL=https://moviepicker.martybuilds.dev`
+
 API keys are accessed via `config/api.php`.
 
 ## Deployment
 
-GitHub Actions (`.github/workflows/deploy.yml`) builds assets and deploys via SCP/SSH on push to `main`. Requires `SSH_HOST`, `SSH_USER`, and `SSH_KEY` secrets. The deploy target directory on the server is `/var/www/tiktokshuffle`.
+GitHub Actions (`.github/workflows/deploy.yml`) triggers on push to `master`:
+1. Installs PHP 8.4 and Node 22
+2. Runs `composer install --no-dev` and `npm run build`
+3. SCPs app files to `/var/www/moviepicker` on the VPS
+4. SSHs in to run `php artisan migrate --force`, `config:cache`, `route:cache`, `view:cache`
+
+Required GitHub secrets: `SSH_HOST`, `SSH_USER`, `SSH_KEY`.
+
+The `.env` file is never deployed — it must be created manually on the server once.
