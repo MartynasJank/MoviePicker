@@ -36,7 +36,7 @@ class MoviePickController extends Controller
         return redirect()->route('movie', [$randomMovie['id']]);
     }
 
-    public function multiple(CriteriaRequest $request, MovieService $movieService, TmdbClient $tmdb): View
+    public function multiple(CriteriaRequest $request, MovieService $movieService, TmdbClient $tmdb): View|RedirectResponse
     {
         if ($request->query('i') !== null && session('userInput') !== null) {
             session()->forget('userInput');
