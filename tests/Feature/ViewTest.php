@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Click;
 use App\TMDB;
 use App\Services\MovieService;
 use Tests\TestCase;
@@ -34,12 +33,5 @@ class ViewTest extends TestCase
         $response = $this->get('/criteria');
 
         $response->assertStatus(200)->assertSee($genres[0]->name);
-    }
-
-    /** @test */
-    public function clicks_are_stored_in_database()
-    {
-        $click = Click::factory()->create();
-        $this->assertDatabaseHas('clicks', $click->getAttributes());
     }
 }

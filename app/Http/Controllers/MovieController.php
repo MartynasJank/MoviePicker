@@ -7,17 +7,11 @@ use App\TMDB;
 use Illuminate\Http\Request;
 use App\Services\MovieService;
 use App\Services\UrlGenerator;
-use Illuminate\Support\Facades\Cookie;
 
 class MovieController extends Controller
 {
     public function show(Request $request, TMDB $tmdb, OMDB $omdb, MovieService $movieService, UrlGenerator $link)
     {
-        $randomHash = md5(uniqid(rand(), true));
-        if (Cookie::get('visitor') === null) {
-            Cookie::queue(Cookie::make('visitor', $randomHash, 525600));
-        }
-
         $movieId  = $request['id'];
         $country  = $movieService->getUserCountry();
         $tmdbInfo = $tmdb->movie($movieId);
@@ -44,9 +38,9 @@ class MovieController extends Controller
             $similarMovies = $tmdb->similarMovies($tmdbInfo);
         }
 
-        $genres    = $movieService->genresString($tmdbInfo);
-        $urls      = $link->linksArray($omdbInfo);
-        $trailer   = $movieService->getTrailer($tmdbInfo->videos->results ?? []);
+        $genres     = $movieService->genresString($tmdbInfo);
+        $urls       = $link->linksArray($omdbInfo);
+        $trailer    = $movieService->getTrailer($tmdbInfo->videos->results ?? []);
         $all_genres = $movieService->genres($tmdb);
         $user_input = $request->session()->get('userInput', 'default');
 
