@@ -1,15 +1,15 @@
 @extends('layouts.app')
 @section('page_title', ($tmdbInfo->title ?? $omdbInfo->Title ?? 'Movie').' — MoviePickr')
 @section('scripts')
-    @vite(['resources/js/custom/showmore.js', 'resources/js/custom/customSwiper.js', 'resources/js/custom/customModal.js'])
+    @vite(['resources/js/custom/showMore.js', 'resources/js/custom/carousel.js', 'resources/js/custom/trailerModal.js'])
 @endsection
 @section('content')
 <div class="max-w-7xl mx-auto px-4 py-8">
 
     @if (isset($trailer))
-        @include('includes.modal')
+        @include('includes.trailer-modal')
     @endif
-    @include('includes.modal-form')
+    @include('includes.criteria-modal')
 
     {{-- Title row --}}
     <div class="flex items-start justify-between gap-4 mb-4 flex-wrap">
