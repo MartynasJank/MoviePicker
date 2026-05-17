@@ -2,7 +2,6 @@
 import 'jquery-flexdatalist/jquery.flexdatalist.min';
 
 $(document).ready(function () {
-    const tmdb = window.TMDB_API_KEY;
 
     /* â”€â”€ Step wizard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     let currentStep = 1;
@@ -136,14 +135,11 @@ $(document).ready(function () {
     }).on('keydown', function () { clearTimeout(crewTimer); });
 
     function fetchPeople(name, dept, target) {
-        if (!name || !tmdb) return;
-        $.getJSON('https://api.themoviedb.org/3/search/person?api_key=' + tmdb + '&language=en-US&query=' + encodeURIComponent(name) + '&page=1&include_adult=false')
-            .done(function (data) {
-                const results = [];
-                $.each(data.results, function (i, item) {
-                    if (!dept || item.known_for_department === dept) results.push(item);
-                    if (results.length >= 4) return false;
-                });
+        if (!name) return;
+        const params = { q: name };
+        if (dept) params.dept = dept;
+        $.getJSON('/tmdb/search/people', params)
+            .done(function (results) {
                 $(target).flexdatalist('data', results);
             });
     }
@@ -155,11 +151,11 @@ $(document).ready(function () {
     });
 
     function restorePeople(ids, target) {
-        if (!ids || !tmdb) return;
+        if (!ids) return;
         const idArr = ids.split(',');
         const resolved = [];
         $.each(idArr, function (i, id) {
-            $.getJSON('https://api.themoviedb.org/3/person/' + id + '?api_key=' + tmdb + '&language=en-US')
+            $.getJSON('/tmdb/people/' + id)
                 .done(function (d) {
                     resolved.push({ id: id, name: d.name });
                 })

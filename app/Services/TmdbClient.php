@@ -131,6 +131,36 @@ class TmdbClient implements ApiMovie
         });
     }
 
+    public function searchMovies(string $query): array
+    {
+        $url = 'https://api.themoviedb.org/3/search/movie?' . http_build_query([
+            'language'      => 'en-US',
+            'query'         => $query,
+            'page'          => 1,
+            'include_adult' => 'false',
+        ]);
+        return json_decode($this->client->get($url)->getBody()->getContents(), true);
+    }
+
+    public function searchPeople(string $query): array
+    {
+        $url = 'https://api.themoviedb.org/3/search/person?' . http_build_query([
+            'language'      => 'en-US',
+            'query'         => $query,
+            'page'          => 1,
+            'include_adult' => 'false',
+        ]);
+        return json_decode($this->client->get($url)->getBody()->getContents(), true);
+    }
+
+    public function person(int $id): object
+    {
+        return Cache::remember('tmdb_person_' . $id, now()->addHour(), function () use ($id) {
+            $url = 'https://api.themoviedb.org/3/person/' . $id . '?' . http_build_query(['language' => 'en-US']);
+            return json_decode($this->client->get($url)->getBody()->getContents());
+        });
+    }
+
     /**
      * Genre list — callers should use MovieService::genres() which caches the result.
      */
