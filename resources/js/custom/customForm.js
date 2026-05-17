@@ -1,10 +1,10 @@
-import TomSelect from 'tom-select';
-import '../jquery.flexdatalist.min';
+﻿import TomSelect from 'tom-select';
+import 'jquery-flexdatalist/jquery.flexdatalist.min';
 
 $(document).ready(function () {
     const tmdb = window.TMDB_API_KEY;
 
-    /* ── Step wizard ─────────────────────────────────────────── */
+    /* â”€â”€ Step wizard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     let currentStep = 1;
     const totalSteps = 5;
 
@@ -42,7 +42,7 @@ $(document).ready(function () {
 
     showStep(1);
 
-    /* ── Reset form ──────────────────────────────────────────── */
+    /* â”€â”€ Reset form â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     $('#btn-reset').on('click', function () {
         $('#criteria .bg-input').val('');
         ['#with_genres', '#without_genres', '#with_watch_providers'].forEach(function (sel) {
@@ -58,24 +58,24 @@ $(document).ready(function () {
         setTimeout(function () { $('#criteria .flexdatalist-results').remove(); }, 100);
     });
 
-    /* ── Tom Select: genres ──────────────────────────────────── */
+    /* â”€â”€ Tom Select: genres â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     if (document.getElementById('with_genres')) {
         window['_ts_with_genres'] = new TomSelect('#with_genres', {
             plugins: ['remove_button'],
-            placeholder: 'Select genres…',
+            placeholder: 'Select genresâ€¦',
             maxOptions: null,
-            onInitialize() { this.control_input.placeholder = 'Search or select…'; },
+            onInitialize() { this.control_input.placeholder = 'Search or selectâ€¦'; },
         });
     }
     if (document.getElementById('without_genres')) {
         window['_ts_without_genres'] = new TomSelect('#without_genres', {
             plugins: ['remove_button'],
-            placeholder: 'Exclude genres…',
+            placeholder: 'Exclude genresâ€¦',
             maxOptions: null,
         });
     }
 
-    /* ── Tom Select: language ────────────────────────────────── */
+    /* â”€â”€ Tom Select: language â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     if (document.getElementById('with_original_language')) {
         window['_ts_with_original_language'] = new TomSelect('#with_original_language', {
             maxOptions: null,
@@ -83,11 +83,11 @@ $(document).ready(function () {
         });
     }
 
-    /* ── Tom Select: streaming providers ────────────────────── */
+    /* â”€â”€ Tom Select: streaming providers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     if (document.getElementById('with_watch_providers')) {
         window['_ts_with_watch_providers'] = new TomSelect('#with_watch_providers', {
             plugins: ['remove_button'],
-            placeholder: 'Select services…',
+            placeholder: 'Select servicesâ€¦',
             maxOptions: null,
             render: {
                 option: function (data, escape) {
@@ -106,21 +106,21 @@ $(document).ready(function () {
         });
     }
 
-    /* ── Flexdatalist: cast ──────────────────────────────────── */
+    /* â”€â”€ Flexdatalist: cast â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     $('.cast').flexdatalist({
         minLength: 0, maxShownResults: 4, textProperty: 'name', valueProperty: 'id',
         selectionRequired: true, visibleProperties: ['name'], searchContain: true,
         searchIn: 'name', multiple: true, searchDelay: 800,
     });
 
-    /* ── Flexdatalist: crew ──────────────────────────────────── */
+    /* â”€â”€ Flexdatalist: crew â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     $('.crew').flexdatalist({
         minLength: 0, maxShownResults: 4, textProperty: 'name', valueProperty: 'id',
         selectionRequired: true, visibleProperties: ['name'], searchContain: true,
         searchIn: 'name', multiple: true, searchDelay: 800,
     });
 
-    /* ── Live TMDB lookups ───────────────────────────────────── */
+    /* â”€â”€ Live TMDB lookups â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     let castTimer, crewTimer;
 
     $('#with_cast-flexdatalist').on('keyup', function () {
@@ -148,7 +148,7 @@ $(document).ready(function () {
             });
     }
 
-    /* ── Restore session data via /userinput ─────────────────── */
+    /* â”€â”€ Restore session data via /userinput â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     $.getJSON('/userinput', function (data) {
         restorePeople(data['with_cast'], '.cast');
         restorePeople(data['with_crew'], '.crew');
@@ -170,7 +170,7 @@ $(document).ready(function () {
         });
     }
 
-    /* ── Validation: remove error border on change ───────────── */
+    /* â”€â”€ Validation: remove error border on change â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     $(document).on('change', '.input-dark', function () {
         $(this).removeClass('border-danger');
     });
