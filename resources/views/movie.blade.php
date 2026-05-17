@@ -42,7 +42,7 @@
                 <img src="https://image.tmdb.org/t/p/original{{ $tmdbInfo->poster_path }}"
                     alt="{{ $tmdbInfo->title }}"
                     class="w-full rounded-xl border border-white/10 object-cover">
-            @elseif(isset($omdbInfo->Poster) && $omdbInfo->Poster !== 'N/A' && @getimagesize($omdbInfo->Poster))
+            @elseif(isset($omdbInfo->Poster) && $omdbInfo->Poster !== 'N/A')
                 <img src="{{ $omdbInfo->Poster }}" class="w-full rounded-xl border border-white/10 object-cover">
             @else
                 <div class="w-full aspect-[2/3] card flex items-center justify-center text-gray-600 text-sm text-center px-4">
