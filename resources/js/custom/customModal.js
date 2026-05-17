@@ -1,408 +1,166 @@
-import '../bootstrap';
-import 'bootstrap-select';
-import 'smartwizard/dist/js/jquery.smartWizard';
+import TomSelect from 'tom-select';
 import '../jquery.flexdatalist.min';
 
-$(document).ready(function(){
+$(document).ready(function () {
+    const tmdb = window.TMDB_API_KEY;
 
-    var animation = true;
-    var tmdb = import.meta.env.VITE_TMDB_API_KEY;
+    /* ── Step wizard inside the adjust-form modal ────────────── */
+    let currentStep = 1;
+    const totalSteps = 5;
 
-    $(document).on('hide.bs.modal','#myModal', function () {
-        $('#trailer').attr("src", jQuery("#trailer").attr("src"));
-    });
+    function showStep(step) {
+        currentStep = step;
+        $('.modal-step-panel').addClass('hidden');
+        $('#modal-step-' + step).removeClass('hidden');
 
-    $('.modal').on('show.bs.modal', function (e) {
-        if ($(document).height() > $(window).height() ) {
-            $('.nav-nav').css('padding-right', '17px');
+        for (let i = 1; i <= totalSteps; i++) {
+            const $dot   = $('#modal-step-dot-' + i);
+            const $label = $('#modal-step-label-' + i);
+            const $line  = $('#modal-step-line-' + i);
+            $dot.removeClass('active done');
+            $label.removeClass('active done');
+            if ($line.length) $line.removeClass('done');
+            if (i < step) { $dot.addClass('done');   $label.addClass('done');   if ($line.length) $line.addClass('done'); }
+            if (i === step) { $dot.addClass('active'); $label.addClass('active'); }
         }
-        $('.nav-nav').css('transition', 'all 0s ease');
-    });
 
-    $('.modal').on('hidden.bs.modal', function (e) {
-        $('.nav-nav').css('padding-right', '0');
-    });
-
-    $('#smartwizard').smartWizard({
-        selected: 0,
-        cycleSteps: true,
-        autoAdjustHeight: false,
-        showStepURLhash: false,
-        anchorSettings : {
-            enableAllAnchors: true,
-            markDoneStep: false,
-            markAllPreviousStepsAsDone: false,
-            enableAnchorOnDoneStep: false,
-        },
-        toolbarSettings : {
-            toolbarButtonPosition: 'right',
-            toolbarExtraButtons: [
-                $('<button></button>').text('Find a Movie').addClass('btn btn-secondary long'),
-            ],
-        }
-    });
-    $('#smartwizard').show();
-
-    // DELETE SELECT ALL BUTTON BECAUSE I DON'T NEED IT AND SELECTPICKER DOESN'T LET YOU CUSTOMIZE IT
-    $('.selectpicker').on('loaded.bs.select', function(){
-        $('.bs-select-all').remove();
-    });
-
-    if($(window).width() < 768){
-        var smallScreen = false;
-        // $('.content').append('<button type="button" class="btn btn-secondary btn-left form-reset">Reset Form</button>');
-        $('.sw-btn-group-extra').append('<button type="submit" class="btn btn-secondary btn-left mr-auto" style="margin-left: 8px" formaction="/multiple?a=true">Find Multiple</button>');
-    } else {
-        var smallScreen = true;
-        $('.btn-toolbar').prepend('<button type="button" class="btn btn-secondary btn-left form-reset mr-auto d-none d-lg-block d-xl-block">Reset Form</button>');
-        $('.sw-btn-group-extra').append('<button type="submit" class="btn btn-secondary btn-left mr-auto" style="margin-left: 8px" formaction="/multiple?a=true">Find Multiple</button>');
+        $('#modal-btn-prev').toggleClass('hidden', step === 1);
+        $('#modal-btn-next').toggleClass('hidden', step === totalSteps);
+        $('#modal-btn-find-movie').toggleClass('hidden', step !== totalSteps);
+        $('#modal-btn-find-multiple').toggleClass('hidden', step !== totalSteps);
     }
-    formReset();
 
-    var resizeId;
-    $(window).resize(function(){
-        clearTimeout(resizeId);
-        resizeId = setTimeout(doneResizing, 200);
-    });
+    $('#modal-btn-next').on('click', function () { if (currentStep < totalSteps) showStep(currentStep + 1); });
+    $('#modal-btn-prev').on('click', function () { if (currentStep > 1) showStep(currentStep - 1); });
 
-    // DELETE SELECT ALL BUTTON BECAUSE I DON'T NEED IT AND SELECTPICKER DOESN'T LET YOU CUSTOMIZE IT
-    $('.selectpicker').on('loaded.bs.select', function(){
-        $('.bs-select-all').remove();
-    });
+    if ($('#modal-step-1').length) showStep(1);
 
-    // Deletes error mesesages after 5s
-    setTimeout(function(){
-        $("div.alert").remove();
-    }, 1000 );
-
-    // Removes red border from input if input was changed
-    $('.movie-input').change(function()
-    {
-        if( $(this).hasClass('border-danger') ) {
-            $(this).removeClass('border-danger');
-        }
-    });
-
-    function formReset(){
-        $('.form-reset').click(function(){
-            animation = false;
-            $('#criteria .flexdatalist-alias').val('');
-            $('.fdl-remove').click();
-            $('#criteria .flexdatalist-alias').blur();
-            $('.selectpicker').selectpicker('deselectAll');
-            $('#criteria .bg-input').val('');
-            $('#with_original_language').val('en').trigger('change');
-            $('#criteria .flexdatalist-results').remove();
-            animation = true;
+    /* ── Tom Select: genres ──────────────────────────────────── */
+    if (document.getElementById('modal-with_genres')) {
+        window._ts_modal_with_genres = new TomSelect('#modal-with_genres', {
+            plugins: ['remove_button'], placeholder: 'Select genres…', maxOptions: null,
+        });
+    }
+    if (document.getElementById('modal-without_genres')) {
+        window._ts_modal_without_genres = new TomSelect('#modal-without_genres', {
+            plugins: ['remove_button'], placeholder: 'Exclude genres…', maxOptions: null,
         });
     }
 
-    // Custom select for cast in form
-    $('.cast').flexdatalist({
-        minLength: 0,
-        maxShownResults: 3,
-        textProperty: 'name',
-        valueProperty: 'id',
-        selectionRequired: true,
-        visibleProperties: ["name"],
-        searchContain: true,
-        searchIn: 'name',
-        multiple: true,
-        searchDelay: 1000,
-    });
-
-    // Custom select for crew in form
-    $('.crew').flexdatalist({
-        minLength: 0,
-        maxShownResults: 3,
-        textProperty: 'name',
-        valueProperty: 'id',
-        selectionRequired: true,
-        visibleProperties: ["name"],
-        searchContain: true,
-        searchIn: 'name',
-        multiple: true,
-        searchDelay: 1000
-    });
-
-    $('.movie-search').flexdatalist({
-        minLength: 1,
-        maxShownResults: 3,
-        textProperty: '{title}',
-        valueProperty: 'id',
-        selectionRequired: true,
-        visibleProperties: ["item-backdrop_path", "meta"],
-        searchContain: true,
-        searchByWord: true,
-        searchIn: 'title',
-        multiple: false,
-        cacheLifetime: 5,
-        searchDelay: 1000
-    }).on("show:flexdatalist.results",function(ev,result){
-        $.each(result,function(key,value){
-            console.log(value);
-            if(value.backdrop_path != null) {
-                result[key]['item-backdrop_path'] = '<img src="https://image.tmdb.org/t/p/w92' + value.backdrop_path + '">';
-            }
-            if(value.title != null || value.release_date != null) {
-                result[key]['meta'] = '<div class="movie-meta"><span class="item">'+value.title_highlight+'</span><span class="item">'+value.release_date+'</span></div>';
-            }
+    /* ── Tom Select: language ────────────────────────────────── */
+    if (document.getElementById('modal-with_original_language')) {
+        window._ts_modal_lang = new TomSelect('#modal-with_original_language', {
+            maxOptions: null, create: false,
         });
-    }).on('select:flexdatalist', function () {
-        $('.submit-search').submit();
-    });
-
-
-    // Delete autocomplete data on select
-    $('input.flexdatalist').on('select:flexdatalist', function(event, set, options) {
-        $('.cast').flexdatalist('data', []);
-        $('.crew').flexdatalist('data', []);
-    });
-
-    var typingTimer;
-    var doneTypingInterval = 500;
-    var $input1 = $('#with_cast-flexdatalist');
-    var $input2 = $('#with_crew-flexdatalist');
-    var $input3 = $('#movie_search-flexdatalist');
-
-    // Find when user stops typing
-    //on keyup, start the countdown
-    $input1.on('keyup', function () {
-        clearTimeout(typingTimer);
-        typingTimer = setTimeout(done($input1, actor, tmdb), doneTypingInterval);
-    });
-
-    //on keydown, clear the countdown
-    $input1.on('keydown', function () {
-        clearTimeout(typingTimer);
-    });
-
-
-    $input2.on('keyup', function () {
-        clearTimeout(typingTimer);
-        typingTimer = setTimeout(done($input2, crew, tmdb), doneTypingInterval);
-    });
-
-    //on keydown, clear the countdown
-    $input2.on('keydown', function () {
-        clearTimeout(typingTimer);
-    });
-
-    $input3.on('keyup', function () {
-        clearTimeout(typingTimer);
-        typingTimer = setTimeout(done($input3, movie, tmdb), doneTypingInterval);
-    });
-
-    //on keydown, clear the countdown
-    $input3.on('keydown', function () {
-        clearTimeout(typingTimer);
-    });
-
-    // $('#with_cast-flexdatalist').parent().parent().click(function(){
-    //     if(animation){
-    //         $("body,html").animate({
-    //                 scrollTop: $(this).offset().top - $(this).height()*3
-    //             },
-    //             200
-    //         );
-    //     }
-    // });
-    //
-    // $('#with_crew-flexdatalist').parent().parent().click(function(){
-    //     if(animation){
-    //         $("body,html").animate({
-    //                 scrollTop: $(this).offset().top - $(this).height()*3
-    //             },
-    //             200
-    //         );
-    //     }
-    // });
-
-    $.getJSON('/userinput', function(data) {
-        if (data['with_cast']){
-            s_array = data['with_cast'].split(',');
-            $user_array = [];
-            $.each(s_array, function (i, id) {
-                $.getJSON("https://api.themoviedb.org/3/person/"+id+"?api_key="+tmdb+"&language=en-US", function (data) {
-
-                }).done(function (data) {
-                    $user_array.push({
-                        id: id,
-                        name: data.name
-                    });
-                    if(s_array.length == $user_array.length) {
-                        s_id = [];
-                        $.each($user_array, function (i, entry) {
-                            s_id.push(entry.id);
-                        });
-                        $('.cast').flexdatalist('data', $user_array);
-                        $('.cast').flexdatalist('value', s_id.toString())
-                    }
-                })
-            });
-        }
-
-        if (data['with_crew']){
-            c_array = data['with_crew'].split(',');
-            $crew_array = [];
-            $.each(c_array, function (i, id) {
-                $.getJSON("https://api.themoviedb.org/3/person/"+id+"?api_key="+tmdb+"&language=en-US", function (data) {
-
-                }).done(function (data) {
-                    $crew_array.push({
-                        id: id,
-                        name: data.name
-                    });
-                    if(c_array.length == $crew_array.length) {
-                        c_id = [];
-                        $.each($user_array, function (i, entry) {
-                            c_id.push(entry.id);
-                        });
-                        $('.cast').flexdatalist('data', $crew_array);
-                        $('.cast').flexdatalist('value', c_id.toString())
-                    }
-                })
-            });
-        }
-    });
-
-    // FUNCTIONS
-    // Action after user stops typing
-    function done($input, fn, tmdb){
-        val = $input.val();
-        fn(val, tmdb);
     }
 
-    $.getJSON('/userinput', function(data) {
-        if (data['with_cast']){
-            s_array = data['with_cast'].split(',');
-            $user_array = [];
-            $.each(s_array, function (i, id) {
-                $.getJSON("https://api.themoviedb.org/3/person/"+id+"?api_key="+tmdb+"&language=en-US", function (data) {
+    /* ── Tom Select: streaming providers ────────────────────── */
+    if (document.getElementById('modal-with_watch_providers')) {
+        window._ts_modal_providers = new TomSelect('#modal-with_watch_providers', {
+            plugins: ['remove_button'],
+            placeholder: 'Select services…',
+            maxOptions: null,
+            render: {
+                option: function (data, escape) {
+                    const logo = data.$option ? data.$option.dataset.logo : '';
+                    return logo
+                        ? '<div class="option-with-logo"><img src="' + escape(logo) + '"><span>' + escape(data.text) + '</span></div>'
+                        : '<div>' + escape(data.text) + '</div>';
+                },
+                item: function (data, escape) {
+                    const logo = data.$option ? data.$option.dataset.logo : '';
+                    return logo
+                        ? '<div class="option-with-logo" style="display:flex;align-items:center;gap:6px"><img src="' + escape(logo) + '" style="height:16px;width:auto"><span>' + escape(data.text) + '</span></div>'
+                        : '<div>' + escape(data.text) + '</div>';
+                },
+            },
+        });
+    }
 
-                }).done(function (data) {
-                    $user_array.push({
-                        id: id,
-                        name: data.name
-                    });
-                    if(s_array.length == $user_array.length) {
-                        s_id = [];
-                        $.each($user_array, function (i, entry) {
-                            s_id.push(entry.id);
-                        });
-                        $('.cast').flexdatalist('data', $user_array);
-                        $('.cast').flexdatalist('value', s_id.toString())
-                    }
-                })
-            });
-        }
+    /* ── Flexdatalist: cast & crew in modal ──────────────────── */
+    if ($('.modal-cast').length) {
+        $('.modal-cast').flexdatalist({
+            minLength: 0, maxShownResults: 4, textProperty: 'name', valueProperty: 'id',
+            selectionRequired: true, visibleProperties: ['name'], searchContain: true,
+            searchIn: 'name', multiple: true, searchDelay: 800,
+        });
+    }
+    if ($('.modal-crew').length) {
+        $('.modal-crew').flexdatalist({
+            minLength: 0, maxShownResults: 4, textProperty: 'name', valueProperty: 'id',
+            selectionRequired: true, visibleProperties: ['name'], searchContain: true,
+            searchIn: 'name', multiple: true, searchDelay: 800,
+        });
+    }
 
-        if (data['with_crew']){
-            c_array = data['with_crew'].split(',');
-            $crew_array = [];
-            $.each(c_array, function (i, id) {
-                $.getJSON("https://api.themoviedb.org/3/person/"+id+"?api_key="+tmdb+"&language=en-US", function (data) {
+    let castTimer, crewTimer;
+    $('#modal-with_cast-flexdatalist').on('keyup', function () {
+        clearTimeout(castTimer);
+        const val = $(this).val();
+        castTimer = setTimeout(function () { fetchPeople(val, 'Acting', '.modal-cast'); }, 500);
+    }).on('keydown', function () { clearTimeout(castTimer); });
 
-                }).done(function (data) {
-                    $crew_array.push({
-                        id: id,
-                        name: data.name
-                    });
-                    if(c_array.length == $crew_array.length) {
-                        c_id = [];
-                        $.each($user_array, function (i, entry) {
-                            c_id.push(entry.id);
-                        });
-                        $('.cast').flexdatalist('data', $crew_array);
-                        $('.cast').flexdatalist('value', c_id.toString())
-                    }
-                })
-            });
-        }
-    });
+    $('#modal-with_crew-flexdatalist').on('keyup', function () {
+        clearTimeout(crewTimer);
+        const val = $(this).val();
+        crewTimer = setTimeout(function () { fetchPeople(val, null, '.modal-crew'); }, 500);
+    }).on('keydown', function () { clearTimeout(crewTimer); });
 
-    movie('avengers', tmdb);
-    // Get actors for autocpomplete
-    function movie(name, tmdb){
-        if(name.length > 0){
-            var jqxhr = $.getJSON( "https://api.themoviedb.org/3/search/movie?api_key="+tmdb+"&language=en-US&query="+name+"&page=1&include_adult=false", function(data) {
-            })
-                .done(function(data) {
-                    results = [];
-                    $.each(data.results, function(i, item){
-                        results.push(item);
-                        if(i === 2){
-                            return false;
-                        }
-                    });
-                    $('.movie-search').flexdatalist('data', results);
-                })
-                .fail(function() {
-                })
-                .always(function() {
+    function fetchPeople(name, dept, target) {
+        if (!name || !tmdb) return;
+        $.getJSON('https://api.themoviedb.org/3/search/person?api_key=' + tmdb + '&language=en-US&query=' + encodeURIComponent(name) + '&page=1&include_adult=false')
+            .done(function (data) {
+                const results = [];
+                $.each(data.results, function (i, item) {
+                    if (!dept || item.known_for_department === dept) results.push(item);
+                    if (results.length >= 4) return false;
                 });
-        }
+                $(target).flexdatalist('data', results);
+            });
     }
 
-    // Get actors for autocpomplete
-    function actor(name, tmdb){
-        if(name.length > 0){
-            var jqxhr = $.getJSON( "https://api.themoviedb.org/3/search/person?api_key="+tmdb+"&language=en-US&query="+name+"&page=1&include_adult=false", function(data) {
-            })
-                .done(function(data) {
-                    results = [];
-                    $.each(data.results, function(i, item){
-                        if(item.known_for_department === 'Acting'){
-                            results.push(item);
-                        }
-                        if(i === 2){
-                            return false;
-                        }
-                    });
-                    $('.cast').flexdatalist('data', results);
-                })
-                .fail(function() {
-                })
-                .always(function() {
+    /* ── Restore session data ────────────────────────────────── */
+    $.getJSON('/userinput', function (data) {
+        restorePeople(data['with_cast'], '.modal-cast');
+        restorePeople(data['with_crew'], '.modal-crew');
+
+        if (data['with_genres'] && window._ts_modal_with_genres) {
+            window._ts_modal_with_genres.setValue(data['with_genres'].split(','), true);
+        }
+        if (data['without_genres'] && window._ts_modal_without_genres) {
+            window._ts_modal_without_genres.setValue(data['without_genres'].split(','), true);
+        }
+        if (data['with_original_language'] && window._ts_modal_lang) {
+            window._ts_modal_lang.setValue(data['with_original_language'], true);
+        }
+        if (data['with_watch_providers'] && window._ts_modal_providers) {
+            window._ts_modal_providers.setValue(data['with_watch_providers'].split(','), true);
+        }
+        if (data['primary_release_date_gte']) $('#modal-primary_release_date_gte').val(data['primary_release_date_gte']);
+        if (data['primary_release_date_lte']) $('#modal-primary_release_date_lte').val(data['primary_release_date_lte']);
+        if (data['vote_average_gte'])         $('#modal-vote_average_gte').val(data['vote_average_gte']);
+        if (data['vote_average_lte'])         $('#modal-vote_average_lte').val(data['vote_average_lte']);
+        if (data['vote_count_gte'])           $('#modal-vote_count_gte').val(data['vote_count_gte']);
+    });
+
+    function restorePeople(ids, target) {
+        if (!ids || !tmdb) return;
+        const idArr = ids.split(',');
+        const resolved = [];
+        $.each(idArr, function (i, id) {
+            $.getJSON('https://api.themoviedb.org/3/person/' + id + '?api_key=' + tmdb + '&language=en-US')
+                .done(function (d) {
+                    resolved.push({ id: id, name: d.name });
+                    if (resolved.length === idArr.length) {
+                        $(target).flexdatalist('data', resolved);
+                        $(target).flexdatalist('value', resolved.map(r => r.id).join(','));
+                    }
                 });
-        }
+        });
     }
 
-    // Get crew members for autocpomplete
-    function crew(name, tmdb){
-        if(name.length > 0){
-            var jqxhr = $.getJSON( "https://api.themoviedb.org/3/search/person?api_key="+tmdb+"&language=en-US&query="+name+"&page=1&include_adult=false", function() {
-            })
-                .done(function(data) {
-                    results = [];
-                    $.each(data.results, function(i, item){
-                        if(item.known_for_department !== 'Acting'){
-                            results.push(item);
-                        }
-                        if(i === 3){
-                            return false;
-                        }
-                    });
-                    $('.crew').flexdatalist('data', results);
-                })
-                .fail(function() {
-                })
-                .always(function() {
-                });
-        }
-    }
-
-    function doneResizing(){
-        if($(window).width() < 768 && smallScreen){
-            $('.form-reset').remove();
-            $('.content').append('<button type="button" class="btn btn-secondary btn-left form-reset d-none d-lg-block d-xl-block">Reset Form</button>');
-            formReset();
-            smallScreen = false;
-        } else if($(window).width() > 768 && !smallScreen){
-            $('.form-reset').remove();
-            $('.btn-toolbar').prepend('<button type="button" class="btn btn-secondary btn-left form-reset mr-auto d-none d-lg-block d-xl-block">Reset Form</button>');
-            formReset();
-            smallScreen = true;
-        }
-    }
+    /* ── Auto-dismiss errors ─────────────────────────────────── */
+    setTimeout(function () {
+        $('.alert-msg').fadeOut(400, function () { $(this).remove(); });
+    }, 4000);
 });
