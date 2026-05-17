@@ -8,17 +8,6 @@ use Illuminate\Http\Request;
 
 class TmdbProxyController extends Controller
 {
-    public function searchMovies(Request $request, TmdbClient $tmdb): JsonResponse
-    {
-        $query = trim($request->string('q'));
-        if (!$query) {
-            return response()->json([]);
-        }
-
-        $results = $tmdb->searchMovies($query)['results'] ?? [];
-        return response()->json(array_slice($results, 0, 5));
-    }
-
     public function searchPeople(Request $request, TmdbClient $tmdb): JsonResponse
     {
         $query = trim($request->string('q'));

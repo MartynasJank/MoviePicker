@@ -17,7 +17,6 @@ Route::post('/', ContactController::class);
 Route::get('/userinput', UserInputController::class);
 
 Route::prefix('tmdb')->group(function () {
-    Route::get('/search/movies', [TmdbProxyController::class, 'searchMovies']);
     Route::get('/search/people', [TmdbProxyController::class, 'searchPeople']);
     Route::get('/people/{id}',   [TmdbProxyController::class, 'person']);
 });

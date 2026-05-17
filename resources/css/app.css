@@ -380,16 +380,6 @@
         background: rgba(255,255,255,0.06);
         color: #fff;
     }
-    .flexdatalist-results ul li img {
-        width: 52px;
-        height: 33px;
-        object-fit: cover;
-        border-radius: 3px;
-        flex-shrink: 0;
-    }
-    .movie-meta { display: flex; flex-direction: column; }
-    .item-meta { font-size: 0.7rem; color: #6b7280; }
-    #movie_search-flexdatalist-results .item { display: block; }
 
     /* Swiper overrides */
     .swiper-button-next,

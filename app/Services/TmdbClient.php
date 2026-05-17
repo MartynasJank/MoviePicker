@@ -131,17 +131,6 @@ class TmdbClient implements ApiMovie
         });
     }
 
-    public function searchMovies(string $query): array
-    {
-        $url = 'https://api.themoviedb.org/3/search/movie?' . http_build_query([
-            'language'      => 'en-US',
-            'query'         => $query,
-            'page'          => 1,
-            'include_adult' => 'false',
-        ]);
-        return json_decode($this->client->get($url)->getBody()->getContents(), true);
-    }
-
     public function searchPeople(string $query): array
     {
         $url = 'https://api.themoviedb.org/3/search/person?' . http_build_query([
