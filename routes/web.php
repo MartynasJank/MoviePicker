@@ -16,8 +16,8 @@ Route::post('/', ContactController::class);
 Route::get('/userinput', UserInputController::class);
 Route::get('/criteria',  CriteriaController::class);
 
-Route::match(['get', 'post'], '/movie',    [MoviePickController::class, 'show']);
-Route::match(['get', 'post'], '/multiple', [MoviePickController::class, 'multiple']);
+Route::match(['get', 'post'], '/movie',    [MoviePickController::class, 'single']);
+Route::match(['get', 'post'], '/multiple', [MoviePickController::class, 'batch']);
 Route::get('/movie/{id}', MovieController::class)->name('movie');
 
 Route::get('/roulettes',                [RouletteController::class, 'index']);
