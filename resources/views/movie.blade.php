@@ -4,7 +4,7 @@
     @vite(['resources/js/custom/showMore.js', 'resources/js/custom/carousel.js', 'resources/js/custom/trailerModal.js'])
 @endsection
 @section('content')
-<div class="max-w-7xl mx-auto px-4 py-8">
+<div class="max-w-7xl mx-auto px-4 py-8 pb-24 md:pb-8">
 
     @if (isset($trailer))
         @include('includes.trailer-modal')
@@ -27,17 +27,17 @@
                 @endif
             </p>
         </div>
-        <div class="flex gap-2 flex-wrap">
+        <div class="hidden sm:flex gap-2 flex-wrap">
             <a href="/movie" class="btn-accent long-single">Pick Another</a>
             <button type="button" class="btn-secondary" data-modal-open="modal-form">Adjust Criteria</button>
         </div>
     </div>
 
     {{-- Main content grid --}}
-    <div class="grid md:grid-cols-[220px_1fr] gap-6 mb-8">
+    <div class="flex gap-3 md:grid md:grid-cols-[220px_1fr] md:gap-6 mb-8">
 
         {{-- Poster --}}
-        <div class="flex-shrink-0">
+        <div class="w-[38%] md:w-auto flex-shrink-0">
             @if($tmdbInfo->poster_path)
                 <img src="https://image.tmdb.org/t/p/original{{ $tmdbInfo->poster_path }}"
                     alt="{{ $tmdbInfo->title }}"
@@ -45,36 +45,36 @@
             @elseif(isset($omdbInfo->Poster) && $omdbInfo->Poster !== 'N/A')
                 <img src="{{ $omdbInfo->Poster }}" class="w-full rounded-xl border border-white/10 object-cover">
             @else
-                <div class="w-full aspect-[2/3] card flex items-center justify-center text-gray-600 text-sm text-center px-4">
+                <div class="w-full aspect-[2/3] card flex items-center justify-center text-gray-600 text-xs text-center px-2">
                     No poster available
                 </div>
             @endif
         </div>
 
         {{-- Ratings + Plot --}}
-        <div class="flex flex-col gap-6">
+        <div class="flex-1 min-w-0 flex flex-col gap-3 md:gap-6">
 
             {{-- Ratings --}}
             @if(isset($omdbInfo->Ratings) && count($omdbInfo->Ratings) > 0)
             <div>
-                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Ratings</h3>
+                <h3 class="text-xs sm:text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2 md:mb-3">Ratings</h3>
                 @foreach ($omdbInfo->Ratings as $rating)
                     @php $url = $urls[$rating->Source] ?? '#'; @endphp
                     <a class="rating-pill" href="{{ $url }}"
                         {{ $url !== '#' ? 'target="_blank"' : '' }}>
-                        <span class="text-gray-400 text-sm">{{ $rating->Source }}</span>
-                        <span class="ml-auto font-semibold text-accent text-sm">{{ $rating->Value }}</span>
+                        <span class="text-gray-400 text-xs sm:text-sm truncate">{{ $rating->Source }}</span>
+                        <span class="ml-auto font-semibold text-accent text-xs sm:text-sm flex-shrink-0">{{ $rating->Value }}</span>
                     </a>
                 @endforeach
             </div>
             @endif
 
             {{-- Trailer + streaming --}}
-            <div class="flex flex-wrap gap-3 items-center">
+            <div class="flex flex-wrap gap-2 md:gap-3 items-center">
                 @if(isset($trailer))
-                    <button type="button" class="btn-accent" data-modal-open="trailer-modal">▶ Trailer</button>
+                    <button type="button" class="btn-accent text-sm" data-modal-open="trailer-modal">▶ Trailer</button>
                 @else
-                    <button class="btn-secondary opacity-50 cursor-default" disabled>No Trailer</button>
+                    <button class="btn-secondary text-sm opacity-50 cursor-default" disabled>No Trailer</button>
                 @endif
 
                 @if ($watchProviders != null)
@@ -91,7 +91,7 @@
 
             {{-- Plot --}}
             <div>
-                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Plot</h3>
+                <h3 class="text-xs sm:text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Plot</h3>
                 <p class="text-gray-300 leading-relaxed text-sm">
                     {{ ($omdbInfo->Plot ?? $tmdbInfo->overview) ?? 'No description available.' }}
                 </p>
@@ -202,8 +202,8 @@
         </div>
     </div>
 
-    {{-- Pick another --}}
-    <div class="mb-10">
+    {{-- Pick another (desktop) --}}
+    <div class="mb-10 hidden sm:block">
         <a href="/movie" class="btn-accent long-single w-full md:w-auto text-center">Pick Another Movie</a>
     </div>
 
@@ -219,4 +219,13 @@
     @endif
 
 </div>
+
+{{-- Mobile sticky bottom bar --}}
+<div class="fixed bottom-0 left-0 right-0 sm:hidden bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 px-4 py-3 z-40">
+    <div class="flex gap-3">
+        <a href="/movie" class="btn-accent long-single flex-1 text-center">Pick Another</a>
+        <button type="button" class="btn-secondary flex-1" data-modal-open="modal-form">Adjust</button>
+    </div>
+</div>
+
 @endsection

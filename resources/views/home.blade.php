@@ -14,10 +14,10 @@
                 <span class="text-accent">Movie Picker</span>
             </h1>
             <p class="text-gray-400 text-lg mb-10">For evenings when you can't decide what to watch.</p>
-            <div class="flex flex-wrap gap-3 justify-center">
-                <a href="/movie?i=new" class="btn-accent long-single">Get a random movie</a>
-                <a href="/multiple?i=new" class="btn-secondary">Random batch</a>
-                <a href="/criteria" class="btn-secondary">Enter criteria</a>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center items-stretch sm:items-center">
+                <a href="/movie?i=new" class="btn-accent long-single text-center">Get a random movie</a>
+                <a href="/multiple?i=new" class="btn-secondary text-center">Random batch</a>
+                <a href="/criteria" class="btn-secondary text-center">Enter criteria</a>
             </div>
         </div>
     </section>
@@ -40,9 +40,9 @@
                 MoviePickr helps you find the perfect film for any occasion. Pick by streaming platform,
                 genre, decade, cast, or just let us surprise you.
             </p>
-            <div class="flex flex-wrap gap-3 justify-center">
-                <a href="/movie?i=new" class="btn-accent long-single">Random Movie</a>
-                <a href="/criteria" class="btn-secondary">Set Preferences</a>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center items-stretch sm:items-center">
+                <a href="/movie?i=new" class="btn-accent long-single text-center">Random Movie</a>
+                <a href="/criteria" class="btn-secondary text-center">Set Preferences</a>
             </div>
         </div>
     </section>
