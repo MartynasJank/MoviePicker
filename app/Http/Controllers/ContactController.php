@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\SendMail;
+use App\Mail\ContactMail;
 
-class SendEmailController extends Controller
+class ContactController extends Controller
 {
     public function send(Request $request)
     {
@@ -17,7 +17,7 @@ class SendEmailController extends Controller
             'message' => 'required',
         ]);
 
-        Mail::to(env('CONTACT_EMAIL', 'info@moviepickr.com'))->send(new SendMail([
+        Mail::to(env('CONTACT_EMAIL', 'info@moviepickr.com'))->send(new ContactMail([
             'name'    => $request->name,
             'email'   => $request->email,
             'subject' => $request->subject,

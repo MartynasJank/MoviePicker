@@ -3,17 +3,17 @@
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\SendEmailController;
-use App\Http\Controllers\AjaxController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\UserInputController;
 use App\Http\Controllers\CriteriaController;
 use App\Http\Controllers\RandomMovieController;
 use App\Http\Controllers\MovieController;
 use App\Http\Controllers\RoulettesController;
 
 Route::get('/',  [HomeController::class, 'index']);
-Route::post('/', [SendEmailController::class, 'send']);
+Route::post('/', [ContactController::class, 'send']);
 
-Route::get('/userinput', [AjaxController::class, 'index']);
+Route::get('/userinput', [UserInputController::class, 'index']);
 Route::get('/criteria', [CriteriaController::class, 'index']);
 
 Route::match(['get', 'post'], '/movie',    [RandomMovieController::class, 'show']);
