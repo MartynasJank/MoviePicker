@@ -63,7 +63,6 @@ class MovieService
             return null;
         }
 
-        // Collect trailer keys sorted by quality (highest first)
         $trailers = [];
         foreach ($videos as $video) {
             if ($video->type === 'Trailer') {
@@ -77,34 +76,31 @@ class MovieService
 
         usort($trailers, fn($a, $b) => $b['size'] <=> $a['size']);
 
-        // Batch all keys into one YouTube API request
-        $ids    = implode(',', array_column($trailers, 'key'));
-        $url    = 'https://www.googleapis.com/youtube/v3/videos?part=contentDetails,status&id='
-                  . $ids . '&key=' . config('api.YOUTUBE');
+        $ids = implode(',', array_column($trailers, 'key'));
+        $url = 'https://www.googleapis.com/youtube/v3/videos?part=contentDetails,status&id='
+             . $ids . '&key=' . config('api.YOUTUBE');
 
-        $json   = @file_get_contents($url);
-        if (!$json) {
+        try {
+            $json = (new Client())->get($url)->getBody()->getContents();
+        } catch (\Throwable) {
             return $trailers[0]['key'] ?? null;
         }
 
-        $status  = json_decode($json);
         $videoMap = [];
-        foreach ($status->items ?? [] as $item) {
+        foreach (json_decode($json)->items ?? [] as $item) {
             $videoMap[$item->id] = $item;
         }
 
         $country = $this->getUserCountry();
 
         foreach ($trailers as $trailer) {
-            $item = $videoMap[$trailer['key']] ?? null;
+            $item    = $videoMap[$trailer['key']] ?? null;
+            $allowed = $item->contentDetails->regionRestriction->allowed ?? null;
 
-            // Not found in YouTube means unavailable
             if (!$item) {
                 continue;
             }
 
-            // Check region whitelist
-            $allowed = $item->contentDetails->regionRestriction->allowed ?? null;
             if ($allowed !== null && !in_array($country, $allowed)) {
                 continue;
             }
@@ -115,25 +111,6 @@ class MovieService
         return null;
     }
 
-    /** Watch providers for a single movie, keyed by the user's country. */
-    public function movieWatchProviders(int $movieId): array
-    {
-        $country = $this->getUserCountry();
-        $url     = 'https://api.themoviedb.org/3/movie/' . $movieId . '/watch/providers?api_key=' . config('api.TMDB');
-
-        $client  = new Client();
-        $result  = json_decode($client->get($url)->getBody()->getContents());
-
-        if (isset($result->results->$country->flatrate)) {
-            return [
-                'url'       => $result->results->$country->link,
-                'streaming' => $result->results->$country->flatrate,
-            ];
-        }
-
-        return [];
-    }
-
     /**
      * Full watch-provider list for the user's region, cached per country for one week.
      */
@@ -142,10 +119,10 @@ class MovieService
         $country = $this->getUserCountry();
 
         return Cache::remember('tmdb_providers_' . $country, now()->addWeek(), function () use ($country) {
-            $url  = 'https://api.themoviedb.org/3/watch/providers/movie?'
-                  . http_build_query(['api_key' => config('api.TMDB'), 'language' => 'en-US', 'watch_region' => $country]);
-            $json = file_get_contents($url);
-            return json_decode($json);
+            $url = 'https://api.themoviedb.org/3/watch/providers/movie?'
+                 . http_build_query(['api_key' => config('api.TMDB'), 'language' => 'en-US', 'watch_region' => $country]);
+
+            return json_decode((new Client())->get($url)->getBody()->getContents());
         });
     }
 
@@ -175,14 +152,5 @@ class MovieService
         }
 
         return $result;
-    }
-
-    // ── Private helpers ───────────────────────────────────────────────────────
-
-    protected function sortAssocArrayByValue(array $array, string $value): array
-    {
-        $col = array_column($array, $value);
-        array_multisort($col, SORT_DESC, $array);
-        return $array;
     }
 }
