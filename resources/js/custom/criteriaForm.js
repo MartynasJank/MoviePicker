@@ -14,18 +14,17 @@ $(document).ready(function () {
         window['_ts_' + id] = new TomSelect('#' + id, {
             plugins: ['remove_button'],
             placeholder: dept ? 'Search actors…' : 'Search directors, writers…',
-            valueField: 'id',
-            labelField: 'name',
-            searchField: 'name',
-            maxOptions: 6,
+            maxOptions: null,
             create: false,
             load: function (query, callback) {
-                if (!query.length) return callback();
+                if (!query.length) return callback([]);
                 const params = { q: query };
                 if (dept) params.dept = dept;
                 $.getJSON('/tmdb/search/people', params)
-                    .done(callback)
-                    .fail(function () { callback(); });
+                    .done(function (data) {
+                        callback(data.map(function (p) { return { value: String(p.id), text: p.name }; }));
+                    })
+                    .fail(function () { callback([]); });
             },
         });
     }
@@ -96,7 +95,7 @@ $(document).ready(function () {
         idArr.forEach(function (id) {
             $.getJSON('/tmdb/people/' + id)
                 .done(function (d) {
-                    ts.addOption({ id: String(d.id), name: d.name });
+                    ts.addOption({ value: String(d.id), text: d.name });
                     ts.addItem(String(d.id), true);
                 });
         });
