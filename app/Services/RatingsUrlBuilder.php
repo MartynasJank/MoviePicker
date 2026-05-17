@@ -2,11 +2,11 @@
 
 namespace App\Services;
 
-class UrlGenerator
+class RatingsUrlBuilder
 {
-    protected function metacritic($movieObj): ?string
+    private function metacritic(?object $movieObj): ?string
     {
-        if (!property_exists($movieObj, 'Title')) {
+        if ($movieObj === null || !property_exists($movieObj, 'Title')) {
             return null;
         }
 
@@ -14,20 +14,18 @@ class UrlGenerator
         return 'https://www.metacritic.com/movie/' . $slug;
     }
 
-    protected function rottenTomatoes($movieObj): string
+    private function rottenTomatoes(?object $movieObj): string
     {
-        // If OMDb already returned a direct URL, use it.
+        if ($movieObj === null || !property_exists($movieObj, 'Title')) {
+            return '#';
+        }
+
         if (isset($movieObj->tomatoURL)) {
             return $movieObj->tomatoURL;
         }
 
-        if (!property_exists($movieObj, 'Title')) {
-            return '#';
-        }
-
         $string = strtolower($movieObj->Title);
 
-        // Strip leading "the "
         if (str_starts_with($string, 'the ')) {
             $string = ltrim(substr($string, 4));
         }
@@ -35,19 +33,18 @@ class UrlGenerator
         $string = str_replace('&', 'and', $string);
         $slug   = preg_replace('/[^a-z0-9\_]/', '', str_replace(' ', '_', $string));
 
-        // Return the year-suffixed guess; browser handles any 404.
         return 'https://www.rottentomatoes.com/m/' . $slug . '_' . $movieObj->Year;
     }
 
-    protected function imdb($movieObj): ?string
+    private function imdb(?object $movieObj): ?string
     {
-        if (!property_exists($movieObj, 'imdbID')) {
+        if ($movieObj === null || !property_exists($movieObj, 'imdbID')) {
             return null;
         }
         return 'https://www.imdb.com/title/' . $movieObj->imdbID;
     }
 
-    public function linksArray($movieObj): array
+    public function linksArray(?object $movieObj): array
     {
         return [
             'Internet Movie Database' => $this->imdb($movieObj),
