@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Services\TmdbClient;
 use App\Services\MovieService;
+use Illuminate\View\View;
 
 class CriteriaController extends Controller
 {
-    public function index(TmdbClient $tmdb, MovieService $ms)
+    public function __invoke(TmdbClient $tmdb, MovieService $ms): View
     {
         session()->forget('userInput');
 
