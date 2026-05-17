@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('scripts')
-    @vite(['resources/js/custom/customSwiper.js'])
+    @vite(['resources/js/custom/carousel.js'])
 @endsection
 @section('content')
 
