@@ -92,7 +92,7 @@
                 {{-- People --}}
                 <div class="border-t border-white/5 pt-4">
                     <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">People</h3>
-                    <div class="grid md:grid-cols-2 gap-3">
+                    <div class="flex flex-col gap-3">
                         <div>
                             <label class="block text-sm text-gray-400 mb-1">Actors</label>
                             <input placeholder="Search actors…" type="text" class="modal-cast"
