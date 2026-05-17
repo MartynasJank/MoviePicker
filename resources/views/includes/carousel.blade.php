@@ -1,40 +1,43 @@
-<div class="owl-carousel owl-theme {{ $name }} mt-3">
-    @php
-        $height = 'auto';
-        foreach ($genres as $genre) {
-            if(strlen($genre) > 25){
-                $height = '46px';
-            }
-        }
-    @endphp
-    @foreach ($allMovies['results'] as $result)
-        @if(isset($result['release_date']))
-            <div class='poster item'>
-                <div class="movie">
-                    <a href="{{ url('movie/'.$result['id']) }}" style="flex-grow: 1" class="long-movie" data-name="{{ $result['title'] }}">
-                        <h4 class="text-decoration-none" style="flex-grow: 1">{{ $result['title'] }}</h4>
-                        <div style="margin-bottom: auto;">
-                            <p style="margin-bottom: 0"><span style="font-weight: bold; color: var(--accent)">Year:</span> {{date('Y', strtotime($result['release_date']))}}</p>
-                            @if($genres !== [] || $genres !== null)
-                                @if(in_array($result['id'], array_keys($genres)))
-                                    <p style="height: {{ $height }}">
-                                        <span style="font-weight: bold; color: var(--accent)">Genres:</span> {{ $genres[$result['id']] }}
-                                    </p>
-                                @endif
+<div class="swiper {{ $name }} w-full">
+    <div class="swiper-wrapper">
+        @foreach ($allMovies['results'] as $result)
+            @if(isset($result['release_date']))
+            <div class="swiper-slide h-auto">
+                <a href="{{ url('movie/'.$result['id']) }}" class="block group long-movie" data-name="{{ $result['title'] }}">
+                    <div class="card card-hover h-full flex flex-col overflow-hidden">
+                        {{-- Poster --}}
+                        <div class="aspect-[2/3] bg-white/[0.03] overflow-hidden">
+                            @if($result['poster_path'])
+                                <img
+                                    src="https://image.tmdb.org/t/p/w300{{ $result['poster_path'] }}"
+                                    alt="{{ $result['title'] }}"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    loading="lazy"
+                                >
+                            @else
+                                <div class="w-full h-full flex items-center justify-center text-gray-600 text-xs text-center px-3">
+                                    No poster
+                                </div>
                             @endif
                         </div>
-                        @if ($result['poster_path'] !== null)
-                            <div class="poster-img" style="background-image: url({{ 'https://image.tmdb.org/t/p/w300'.$result['poster_path'] }})"></div>
-                        @else
-                            <div class="poster-img poster-placeholder text-center">
-                                <h4 class="mx-4">Movie poster was not found :(</h4>
-                            </div>
-                        @endif
-                    </a>
-                </div>
+                        {{-- Info --}}
+                        <div class="p-3 flex flex-col gap-1 flex-1">
+                            <h4 class="text-sm font-medium text-white leading-snug line-clamp-2 group-hover:text-accent transition-colors duration-200">
+                                {{ $result['title'] }}
+                            </h4>
+                            <p class="text-xs text-gray-500 mt-auto">
+                                {{ date('Y', strtotime($result['release_date'])) }}
+                                @if($genres !== [] && isset($genres[$result['id']]))
+                                    · <span class="text-gray-600">{{ $genres[$result['id']] }}</span>
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                </a>
             </div>
-        @endif
-    @endforeach
+            @endif
+        @endforeach
+    </div>
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-button-next"></div>
 </div>
-
-

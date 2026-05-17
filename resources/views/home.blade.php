@@ -1,82 +1,82 @@
 @extends('layouts.app')
 @section('scripts')
-@vite(['resources/js/custom/customOwlCarousel.js', 'resources/js/custom/customForm.js'])
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-176903858-1"></script>
+    @vite(['resources/js/custom/customSwiper.js'])
 @endsection
 @section('content')
-    <header class="masthead">
-        <div class="container h-100">
-            <div class="row h-100 align-items-center justify-content-center text-center">
-                <div class="col-lg-10 align-self-end">
-                    <h1 class="text-uppercase font-weight-bold">Random Movie Picker</h1>
-                    <hr class="divider my-4" />
-                </div>
-                <div class="col-lg-8 align-self-baseline">
-                    <p class="font-weight-bold mb-5">For evenings when you can't decide what to watch!</p>
-                    <a class="btn btn-xl mb-4 main long-single" href="/movie?i=new">Get a random movie</a>
-                    <a class="btn btn-xl mb-4 main" href="/multiple?i=new">Get a random movie batch</a>
-                    <a class="btn btn-xl mb-4 main" href="/criteria">Enter details for a random movie</a>
-                </div>
-            </div>
-        </div>
-    </header>
-    <section class="page-section py-5" id="about">
-            <div class="row justify-content-center">
-                <div class="container">
-                <div class="col-lg-12">
-                    <h2 class="text-center mt-0">Movies Trending Today</h2>
-                    <hr class="divider my-4"/>
-                    @include('includes.carousel', ['allMovies' => $trending, 'name' => 'owl-trending', 'genres' => []])
-                </div>
-                </div>
-        </div>
-    </section>
-    <section class="page-section custom-bg" id="about">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-8 text-center">
-                    <h2 class="mt-0">About Us</h2>
-                    <hr class="divider my-4" />
-                    <p class="mb-4">MoviePickr.com helps people to find the perfect movie for everyone. You can select movie dates, streaming platforms, genres, actors and we will find what you're looking for!</p>
-                    <a class="btn btn-xl mb-3 long-single" href="/movie">Random Movie</a>
-                    <a class="btn btn-xl mb-3" href="/criteria">Enter your preference</a>
-                </div>
+
+    {{-- Hero --}}
+    <section class="relative min-h-[88vh] flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(192,57,58,0.12)_0%,transparent_65%)]"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-[#0f0f0f]/40 to-[#0f0f0f]"></div>
+        <div class="relative z-10 text-center px-4 py-20 max-w-3xl mx-auto">
+            <h1 class="text-5xl md:text-7xl font-bold tracking-tight mb-5 leading-tight">
+                <span class="text-white">Random</span><br>
+                <span class="text-accent">Movie Picker</span>
+            </h1>
+            <p class="text-gray-400 text-lg mb-10">For evenings when you can't decide what to watch.</p>
+            <div class="flex flex-wrap gap-3 justify-center">
+                <a href="/movie?i=new" class="btn-accent long-single">Get a random movie</a>
+                <a href="/multiple?i=new" class="btn-secondary">Random batch</a>
+                <a href="/criteria" class="btn-secondary">Enter criteria</a>
             </div>
         </div>
     </section>
-    <section class="page-section py-5" id="contact">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-8 text-center">
-                    <h2 class="mt-0">Contact Me</h2>
-                    <hr class="divider my-4" />
-                    <p class="mb-5"></p>
-                </div>
+
+    {{-- Trending --}}
+    <section class="max-w-7xl mx-auto px-4 py-12">
+        <div class="section-header">
+            <h2 class="text-2xl font-bold text-white mb-3">Trending Today</h2>
+            <div class="section-divider"></div>
+        </div>
+        @include('includes.carousel', ['allMovies' => $trending, 'name' => 'swiper-trending', 'genres' => []])
+    </section>
+
+    {{-- About --}}
+    <section class="bg-white/[0.02] border-y border-white/5 py-16">
+        <div class="max-w-2xl mx-auto px-4 text-center">
+            <h2 class="text-2xl font-bold text-white mb-3">About MoviePickr</h2>
+            <div class="section-divider mb-6"></div>
+            <p class="text-gray-400 leading-relaxed mb-8">
+                MoviePickr helps you find the perfect film for any occasion. Pick by streaming platform,
+                genre, decade, cast, or just let us surprise you.
+            </p>
+            <div class="flex flex-wrap gap-3 justify-center">
+                <a href="/movie?i=new" class="btn-accent long-single">Random Movie</a>
+                <a href="/criteria" class="btn-secondary">Set Preferences</a>
             </div>
-            <form method="post" action="/">
-                @csrf
-                <div class="form-row">
-                    <div class="form-group col-lg-6">
-                        <label>Name</label>
-                        <input type="text" name="name" placeholder="Name" class="form-control bg-input movie-input border" value="" required/>
-                    </div>
-                    <div class="form-group col-lg-6">
-                        <label>Email</label>
-                        <input type="text" name="email" placeholder="Email" class="form-control bg-input movie-input border" value="" required/>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Subject</label>
-                    <input type="text" name="subject" class="form-control bg-input movie-input border" placeholder="Subject" value="" required/>
-                </div>
-                <div class="form-groug mb-3">
-                    <label>Message</label>
-                    <textarea style="padding: 10px 20px;" name="message" class="form-control bg-input movie-input border" placeholder="Message..." rows="5" required></textarea>
-                </div>
-                <div class="form-group text-right">
-                    <input type="submit" name="send" class="btn btn-secondary" value="Send" />
-                </div>
-            </form>
         </div>
     </section>
+
+    {{-- Contact --}}
+    <section class="max-w-2xl mx-auto px-4 py-16">
+        <div class="section-header text-center">
+            <h2 class="text-2xl font-bold text-white mb-3">Contact</h2>
+            <div class="section-divider mb-8"></div>
+        </div>
+        <form method="POST" action="/" class="flex flex-col gap-4">
+            @csrf
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1.5">Name</label>
+                    <input type="text" name="name" placeholder="Your name" class="input-dark" required>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1.5">Email</label>
+                    <input type="email" name="email" placeholder="your@email.com" class="input-dark" required>
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm text-gray-400 mb-1.5">Subject</label>
+                <input type="text" name="subject" placeholder="Subject" class="input-dark" required>
+            </div>
+            <div>
+                <label class="block text-sm text-gray-400 mb-1.5">Message</label>
+                <textarea name="message" placeholder="Your message…" rows="5" class="input-dark resize-none" required></textarea>
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" name="send" class="btn-accent">Send Message</button>
+            </div>
+        </form>
+    </section>
+
 @endsection

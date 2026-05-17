@@ -1,53 +1,30 @@
 @extends('layouts.app')
-@section('page_title')
-    @php echo $title ?? "Batch - MoviePicker" @endphp
-@endsection
+@section('page_title', $title ?? 'Batch — MoviePickr')
 @section('scripts')
-    @vite(['resources/js/custom/customOwlCarousel.js', 'resources/js/custom/customModal.js'])
-    <script>
-        @if(isset($testInfo))
-        console.log('Total pages: {{$testInfo['total']}}');
-        console.log('Current page: {{$testInfo['current']}}');
-        @endif
-    </script>
+    @vite(['resources/js/custom/customSwiper.js', 'resources/js/custom/customModal.js'])
 @endsection
 @section('content')
-    <div class="container content" style="padding-top: 80px;">
-        @if(Request::url() == 'https://moviepickr.com/multiple')
-            @include('includes.modal-form')
-        @endif
-        <div class="row py-2 mb-2 justify-content-md-center">
-            {{-- New batch button --}}
-            <div class="col-md-4">
-                <a href="{{ Request::url() }}" class="btn btn-lg btn-block btn-custom">Get a new batch</a>
-            </div>
-            @if(Request::url() == 'https://moviepickr.com/multiple')
-            <div class="col-md-4 d-none d-lg-block d-xl-block">
-                <button id="modal-btn" type="button" class="btn btn-lg btn-block btn-custom" data-toggle="modal" data-target="#modal-form">
-                    <span>Adjust Form</span>
-                </button>
-            </div>
-            @endif
+<div class="max-w-7xl mx-auto px-4 py-8">
+
+    @if(isset($providersArray) && isset($all_genres))
+        @include('includes.modal-form')
+    @endif
+
+    {{-- Header row --}}
+    <div class="flex items-center justify-between gap-4 mb-6 flex-wrap">
+        <div>
+            <h1 class="text-2xl font-bold text-white">{{ $tag ?? 'Movie Batch' }}</h1>
         </div>
-        {{-- Movies --}}
-        <div class="row justify-content-center">
-            <div class="container">
-                    <h2 class="text-center mt-0">
-                        {{ $tag }}
-                    </h2>
-                    <hr class="divider my-4"/>
-                    @include('includes.carousel', ['allMovies' => $movies, 'name' => 'owl-multiple', 'genres' => $movie_genres])
-            </div>
-        </div>
-        <div class="row mb-4 py-4 justify-content-md-center">
-            {{-- Adjust form button --}}
-            @if(Request::url() == 'https://moviepickr.com/multiple')
-            <div class="col-md-4 d-lg-none d-xl-none">
-                <button id="modal-btn" type="button" class="btn btn-lg btn-block btn-custom" data-toggle="modal" data-target="#modal-form">
-                    <span>Adjust Form</span>
-                </button>
-            </div>
+        <div class="flex gap-2 flex-wrap">
+            <a href="{{ Request::url() }}" class="btn-accent">New Batch</a>
+            @if(isset($providersArray) && isset($all_genres))
+                <button type="button" class="btn-secondary" data-modal-open="modal-form">Adjust Criteria</button>
             @endif
         </div>
     </div>
+
+    {{-- Carousel --}}
+    @include('includes.carousel', ['allMovies' => $movies, 'name' => 'swiper-multiple', 'genres' => $movie_genres])
+
+</div>
 @endsection
