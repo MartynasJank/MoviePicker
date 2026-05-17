@@ -35,7 +35,8 @@ class OMDB implements ApiMovie
                 'tomatoes' => 'true',
             ]);
             $response = $this->client->get($url);
-            return json_decode($response->getBody()->getContents());
+            $data = json_decode($response->getBody()->getContents());
+            return (isset($data->Response) && $data->Response === 'False') ? null : $data;
         });
     }
 }
