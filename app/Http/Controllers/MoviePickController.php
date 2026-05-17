@@ -52,7 +52,7 @@ class MoviePickController extends Controller
 
     private function submitted(CriteriaRequest $request): array
     {
-        return $request->except(['_token', 'flexdatalist-with_cast', 'flexdatalist-with_crew', 'i', 'total_pages']);
+        return $request->except(['_token', 'i', 'total_pages']);
     }
 
     private function handleSessionReset(CriteriaRequest $request, string $redirectTo): ?RedirectResponse

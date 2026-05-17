@@ -93,15 +93,13 @@
                 <div class="flex flex-col gap-4">
                     <div>
                         <label class="block text-sm text-gray-400 mb-1.5">Actors</label>
-                        <input placeholder="Search actors…" type="text" class="cast"
-                            multiple="multiple" name="with_cast" id="with_cast">
-                        <p class="text-xs text-gray-600 mt-1">You can add multiple</p>
+                        <select id="with_cast" name="with_cast[]" multiple></select>
+                        <p class="text-xs text-gray-600 mt-1">Type to search, you can add multiple</p>
                     </div>
                     <div>
                         <label class="block text-sm text-gray-400 mb-1.5">Crew</label>
-                        <input placeholder="Director, writer…" type="text" class="crew"
-                            multiple="multiple" name="with_crew" id="with_crew">
-                        <p class="text-xs text-gray-600 mt-1">You can add multiple</p>
+                        <select id="with_crew" name="with_crew[]" multiple></select>
+                        <p class="text-xs text-gray-600 mt-1">Directors, writers, producers — you can add multiple</p>
                     </div>
                 </div>
             </div>
