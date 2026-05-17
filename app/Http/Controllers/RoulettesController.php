@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\TMDB;
+use App\Services\TmdbClient;
 use App\Services\MovieService;
 
 class RoulettesController extends Controller
@@ -12,7 +12,7 @@ class RoulettesController extends Controller
         return view('roulettes');
     }
 
-    public function netflixHorror(MovieService $movieService, TMDB $tmdb)
+    public function netflixHorror(MovieService $movieService, TmdbClient $tmdb)
     {
         $country  = $movieService->getUserCountry();
         $criteria = ['with_genres' => [27], 'with_watch_providers' => [8]];
@@ -30,7 +30,7 @@ class RoulettesController extends Controller
         ]);
     }
 
-    public function netflixDoc(MovieService $movieService, TMDB $tmdb)
+    public function netflixDoc(MovieService $movieService, TmdbClient $tmdb)
     {
         $country  = $movieService->getUserCountry();
         $criteria = ['with_genres' => [99], 'with_watch_providers' => [8]];
@@ -48,7 +48,7 @@ class RoulettesController extends Controller
         ]);
     }
 
-    public function netflixAnimeMovies(MovieService $movieService, TMDB $tmdb)
+    public function netflixAnimeMovies(MovieService $movieService, TmdbClient $tmdb)
     {
         $country  = $movieService->getUserCountry();
         $criteria = ['with_genres' => [16], 'with_watch_providers' => [8], 'with_original_language' => 'ja'];
@@ -66,7 +66,7 @@ class RoulettesController extends Controller
         ]);
     }
 
-    private function getMovieCriteria(MovieService $movieService, TMDB $tmdb, string $type, array $criteria, string $country): array
+    private function getMovieCriteria(MovieService $movieService, TmdbClient $tmdb, string $type, array $criteria, string $country): array
     {
         if (session('roulette.type') !== $type) {
             session()->forget('roulette');
@@ -83,7 +83,7 @@ class RoulettesController extends Controller
         return $criteria;
     }
 
-    private function getMovies(TMDB $tmdb, array $criteria, string $country): array
+    private function getMovies(TmdbClient $tmdb, array $criteria, string $country): array
     {
         $movies = $tmdb->discover($criteria, $country);
 

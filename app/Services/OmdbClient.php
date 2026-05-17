@@ -1,13 +1,13 @@
 <?php
 
-namespace App;
+namespace App\Services;
 
 use App\Interfaces\ApiMovieInterface as ApiMovie;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Cache;
 
-class OMDB implements ApiMovie
+class OmdbClient implements ApiMovie
 {
     private Client $client;
 

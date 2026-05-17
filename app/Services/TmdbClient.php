@@ -1,13 +1,13 @@
 <?php
 
-namespace App;
+namespace App\Services;
 
 use App\Interfaces\ApiMovieInterface as ApiMovie;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Cache;
 
-class TMDB implements ApiMovie
+class TmdbClient implements ApiMovie
 {
     // Read-access token — not secret, already public in repo history.
     private const BEARER = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0ZDg4NjhiNGMzOGM0YTk0MWYxNTU4NmQ4MjRjYjgwNiIsInN1YiI6IjVlOGFmYTZjYzRhZDU5MDAxM2ZmM2IyOCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.SOJk4kMLahEcmJf9riMYfZL1pnb7YwuLWosSdFfNLwU';

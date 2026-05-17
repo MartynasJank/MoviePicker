@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\TMDB;
+use App\Services\TmdbClient;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Cache;
 
@@ -19,7 +19,7 @@ class MovieService
     }
 
     /** Genre list, cached for one week. */
-    public function genres(TMDB $tmdb): array
+    public function genres(TmdbClient $tmdb): array
     {
         return Cache::remember('tmdb_genres', now()->addWeek(), function () use ($tmdb) {
             return json_decode($tmdb->genres())->genres;
@@ -138,7 +138,7 @@ class MovieService
     }
 
     /** Build the $providersArray shape expected by every view that shows the form. */
-    public function buildProvidersArray(TMDB $tmdb): array
+    public function buildProvidersArray(TmdbClient $tmdb): array
     {
         $providers = $this->getWatchProviders();
         $result    = [];
