@@ -116,7 +116,7 @@
     </main>
 
     <footer class="border-t border-white/5 mt-16 py-6 text-center text-xs text-gray-600">
-        © Martynas Jankauskas 2024
+        © Martynas Jankauskas {{ date('Y') }}
     </footer>
 
 </body>
