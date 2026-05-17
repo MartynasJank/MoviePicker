@@ -7,7 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="description" content="Random Movie Picker — find the perfect film for tonight.">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script>window.TMDB_API_KEY = '{{ config('api.TMDB') }}';</script>
     @yield('scripts', '')
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-204204564-1"></script>
     <script>

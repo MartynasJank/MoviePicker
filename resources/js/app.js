@@ -88,9 +88,7 @@ $(document).ready(function () {
     });
 
     /* â”€â”€ Nav movie search (flexdatalist) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-    const tmdb = window.TMDB_API_KEY;
-
-    if ($('.movie-search').length && tmdb) {
+    if ($('.movie-search').length) {
         $('.movie-search').flexdatalist({
             minLength: 1,
             maxShownResults: 5,
@@ -107,10 +105,10 @@ $(document).ready(function () {
         }).on('show:flexdatalist.results', function (ev, result) {
             $.each(result, function (key, value) {
                 if (value.backdrop_path) {
-                    result[key]['item-backdrop_path'] = '<img src="https://image.tmdb.org/t/p/w92' + value.backdrop_path + '">';
+                    result[key]['item-backdrop_path'] = '<img src=”https://image.tmdb.org/t/p/w92' + value.backdrop_path + '”>';
                 }
                 if (value.title || value.release_date) {
-                    result[key]['meta'] = '<div class="movie-meta"><span class="item">' + value.title_highlight + '</span><span class="item-meta">' + (value.release_date || '') + '</span></div>';
+                    result[key]['meta'] = '<div class=”movie-meta”><span class=”item”>' + value.title_highlight + '</span><span class=”item-meta”>' + (value.release_date || '') + '</span></div>';
                 }
             });
         }).on('select:flexdatalist', function () {
@@ -123,9 +121,8 @@ $(document).ready(function () {
             const val = $(this).val();
             searchTimer = setTimeout(function () {
                 if (val.length > 0) {
-                    $.getJSON('https://api.themoviedb.org/3/search/movie?api_key=' + tmdb + '&language=en-US&query=' + encodeURIComponent(val) + '&page=1&include_adult=false')
-                        .done(function (data) {
-                            const results = data.results.slice(0, 5);
+                    $.getJSON('/tmdb/search/movies?q=' + encodeURIComponent(val))
+                        .done(function (results) {
                             $('.movie-search').flexdatalist('data', results);
                         });
                 }

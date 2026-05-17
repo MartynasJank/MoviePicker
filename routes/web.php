@@ -9,11 +9,18 @@ use App\Http\Controllers\CriteriaController;
 use App\Http\Controllers\MoviePickController;
 use App\Http\Controllers\MovieController;
 use App\Http\Controllers\RouletteController;
+use App\Http\Controllers\TmdbProxyController;
 
 Route::get('/',  HomeController::class);
 Route::post('/', ContactController::class);
 
 Route::get('/userinput', UserInputController::class);
+
+Route::prefix('tmdb')->group(function () {
+    Route::get('/search/movies', [TmdbProxyController::class, 'searchMovies']);
+    Route::get('/search/people', [TmdbProxyController::class, 'searchPeople']);
+    Route::get('/people/{id}',   [TmdbProxyController::class, 'person']);
+});
 Route::get('/criteria',  CriteriaController::class);
 
 Route::match(['get', 'post'], '/movie',    [MoviePickController::class, 'single']);
