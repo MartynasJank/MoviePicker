@@ -6,7 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class SendMail extends Mailable
+class ContactMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -20,7 +20,7 @@ class SendMail extends Mailable
     public function build(): static
     {
         return $this->subject($this->data['subject'])
-                    ->view('dynamic_email_template')
+                    ->view('includes.contact-email')
                     ->with('data', $this->data);
     }
 }
