@@ -1,47 +1,38 @@
 <?php
 
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\SendEmailController;
+use App\Http\Controllers\AjaxController;
+use App\Http\Controllers\CriteriaController;
+use App\Http\Controllers\RandomMovieController;
+use App\Http\Controllers\MovieController;
+use App\Http\Controllers\RoulettesController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
+Route::get('/',  [HomeController::class, 'index']);
+Route::post('/', [SendEmailController::class, 'send']);
 
-Route::get('/', 'HomeController@index');
-Route::post('/', 'SendEmailController@send');
-Route::get('/userinput', 'AjaxController@index');
-Route::get('/criteria', 'CriteriaController@index');
-Route::post('/movie', 'RandomMovieController@show');
-Route::get('/movie', 'RandomMovieController@show');
-Route::get('/movie/{id}', 'MovieController@show')->name('movie');
-Route::get('/multiple', 'RandomMovieController@multiple');
-Route::post('/multiple', 'RandomMovieController@multiple');
+Route::get('/userinput', [AjaxController::class, 'index']);
+Route::get('/criteria', [CriteriaController::class, 'index']);
 
-// Roulettes
-Route::get('/roulettes', 'RoulettesController@show');
-Route::get('/roulettes/netflix', 'RouletteController@netflix');
+Route::match(['get', 'post'], '/movie',    [RandomMovieController::class, 'show']);
+Route::match(['get', 'post'], '/multiple', [RandomMovieController::class, 'multiple']);
+Route::get('/movie/{id}', [MovieController::class, 'show'])->name('movie');
 
-// Roulettes Netflix
-Route::get('/roulettes/netflix/horror', 'RoulettesController@netflixHorror');
-Route::get('/roulettes/netflix/doc', 'RoulettesController@netflixDoc');
-Route::get('/roulettes/netflix/animovies', 'RoulettesController@netflixAnimeMovies');
+Route::get('/roulettes',                      [RoulettesController::class, 'show']);
+Route::get('/roulettes/netflix/horror',       [RoulettesController::class, 'netflixHorror']);
+Route::get('/roulettes/netflix/doc',          [RoulettesController::class, 'netflixDoc']);
+Route::get('/roulettes/netflix/animovies',    [RoulettesController::class, 'netflixAnimeMovies']);
 
-// Utility
-Route::get('/fdsdfsds', function (){
-        Artisan::call('config:clear');
-        Artisan::call('view:clear');
-        Artisan::call('cache:clear');
-        Artisan::call('config:cache');
-
+// Obfuscated utility routes (cache/config clear, scheduler trigger)
+Route::get('/fdsdfsds', function () {
+    Artisan::call('config:clear');
+    Artisan::call('view:clear');
+    Artisan::call('cache:clear');
+    Artisan::call('config:cache');
 });
 
-Route::get('/asdsadasdasdsadsaghfgh', function (){
-   Artisan::call('schedule:run');
-    die();
+Route::get('/asdsadasdasdsadsaghfgh', function () {
+    Artisan::call('schedule:run');
 });
