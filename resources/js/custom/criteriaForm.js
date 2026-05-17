@@ -11,22 +11,27 @@ $(document).ready(function () {
     function makePeopleTs(id, dept) {
         const el = document.getElementById(id);
         if (!el) return;
-        window['_ts_' + id] = new TomSelect('#' + id, {
+        const ts = new TomSelect('#' + id, {
             plugins: ['remove_button'],
             placeholder: dept ? 'Search actors…' : 'Search directors, writers…',
             maxOptions: null,
             create: false,
-            load: function (query, callback) {
-                if (!query.length) return callback([]);
+        });
+        let timer;
+        ts.on('type', function (query) {
+            clearTimeout(timer);
+            if (!query) return;
+            timer = setTimeout(function () {
                 const params = { q: query };
                 if (dept) params.dept = dept;
-                $.getJSON('/tmdb/search/people', params)
-                    .done(function (data) {
-                        callback(data.map(function (p) { return { value: String(p.id), text: p.name }; }));
-                    })
-                    .fail(function () { callback([]); });
-            },
+                $.getJSON('/tmdb/search/people', params).done(function (data) {
+                    ts.clearOptions();
+                    data.forEach(function (p) { ts.addOption({ value: String(p.id), text: p.name }); });
+                    ts.refreshOptions(true);
+                });
+            }, 400);
         });
+        window['_ts_' + id] = ts;
     }
 
     /* ── Genres ─────────────────────────────────────────────────── */
@@ -58,11 +63,17 @@ $(document).ready(function () {
     initTs('with_watch_providers',       { plugins: ['remove_button'], placeholder: 'Select services…', maxOptions: null, render: logoRender });
     initTs('modal-with_watch_providers', { plugins: ['remove_button'], placeholder: 'Select services…', maxOptions: null, render: logoRender });
 
-    /* ── People (TomSelect with remote load) ─────────────────────── */
-    makePeopleTs('with_cast',       'Acting');
-    makePeopleTs('with_crew',       null);
-    makePeopleTs('modal-with_cast', 'Acting');
-    makePeopleTs('modal-with_crew', null);
+    /* ── People — criteria page (visible on load) ───────────────── */
+    makePeopleTs('with_cast', 'Acting');
+    makePeopleTs('with_crew', null);
+
+    /* ── People — modal (initialize only when modal opens) ──────── */
+    $(document).on('click', '[data-modal-open="modal-form"]', function () {
+        if (!window['_ts_modal-with_cast']) {
+            makePeopleTs('modal-with_cast', 'Acting');
+            makePeopleTs('modal-with_crew', null);
+        }
+    });
 
     /* ── Reset ──────────────────────────────────────────────────── */
     function resetForm(formId, prefix) {
