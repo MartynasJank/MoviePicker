@@ -67,24 +67,24 @@ $(document).ready(function () {
     }
 
     $('#criteria').on('submit', function () {
-        window.addEventListener('beforeunload', () => showLoading('Finding the best match for you!'));
-        setTimeout(() => window.removeEventListener('beforeunload', () => {}), 500);
+        window.addEventListener('beforeunload', () => showLoading('Finding the best match for you!'), { once: true });
     });
 
     $('#movie-search').on('submit', function () {
-        window.addEventListener('beforeunload', () => showLoading('Fetching the movie!'));
-        setTimeout(() => window.removeEventListener('beforeunload', () => {}), 500);
+        window.addEventListener('beforeunload', () => showLoading('Fetching the movie!'), { once: true });
     });
 
     $(document).on('click', '.long-single', function () {
-        window.addEventListener('beforeunload', () => showLoading('Looking for a perfect movie!'));
-        setTimeout(() => window.removeEventListener('beforeunload', () => {}), 150);
+        const handler = () => showLoading('Looking for a perfect movie!');
+        window.addEventListener('beforeunload', handler, { once: true });
+        setTimeout(() => window.removeEventListener('beforeunload', handler), 150);
     });
 
     $(document).on('click', '.long-movie', function () {
         const name = $(this).data('name');
-        window.addEventListener('beforeunload', () => showLoading('Loading ' + name + '!'));
-        setTimeout(() => window.removeEventListener('beforeunload', () => {}), 150);
+        const handler = () => showLoading('Loading ' + name + '!');
+        window.addEventListener('beforeunload', handler, { once: true });
+        setTimeout(() => window.removeEventListener('beforeunload', handler), 150);
     });
 
     /* â”€â”€ Nav movie search (flexdatalist) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
