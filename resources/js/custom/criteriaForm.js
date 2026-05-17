@@ -5,7 +5,19 @@ $(document).ready(function () {
     /* ── Tom Select helper ──────────────────────────────────────── */
     function initTs(id, opts) {
         const el = document.getElementById(id);
-        if (el) window['_ts_' + id] = new TomSelect('#' + id, opts);
+
+        if (!el) return;
+
+        // Prevent double initialization
+        if (el.tomselect) {
+            return el.tomselect;
+        }
+
+        const ts = new TomSelect(el, opts);
+
+        window['_ts_' + id] = ts;
+
+        return ts;
     }
 
     function makePeopleTs(id, dept) {
