@@ -96,6 +96,20 @@
         </div>
     </nav>
 
+    {{-- Flash messages --}}
+    @if(session('success'))
+        <div class="alert-msg fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-green-900/80 border border-green-700/50 text-green-300 text-sm px-5 py-3 rounded-lg backdrop-blur-sm cursor-pointer"
+             onclick="this.remove()">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="alert-msg fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-red-900/80 border border-red-700/50 text-red-300 text-sm px-5 py-3 rounded-lg backdrop-blur-sm cursor-pointer"
+             onclick="this.remove()">
+            {{ session('error') }}
+        </div>
+    @endif
+
     {{-- Page content --}}
     <main class="pt-16">
         @yield('content')
