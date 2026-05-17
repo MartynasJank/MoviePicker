@@ -55,6 +55,7 @@
         </div>
         <form method="POST" action="/" class="flex flex-col gap-4">
             @csrf
+            @include('errors.error')
             <div class="grid md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm text-gray-400 mb-1.5">Name</label>
