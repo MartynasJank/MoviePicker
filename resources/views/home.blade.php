@@ -59,20 +59,20 @@
             <div class="grid md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm text-gray-400 mb-1.5">Name</label>
-                    <input type="text" name="name" placeholder="Your name" class="input-dark" required>
+                    <input type="text" name="name" value="{{ old('name') }}" placeholder="Your name" class="input-dark" required>
                 </div>
                 <div>
                     <label class="block text-sm text-gray-400 mb-1.5">Email</label>
-                    <input type="email" name="email" placeholder="your@email.com" class="input-dark" required>
+                    <input type="email" name="email" value="{{ old('email') }}" placeholder="your@email.com" class="input-dark" required>
                 </div>
             </div>
             <div>
                 <label class="block text-sm text-gray-400 mb-1.5">Subject</label>
-                <input type="text" name="subject" placeholder="Subject" class="input-dark" required>
+                <input type="text" name="subject" value="{{ old('subject') }}" placeholder="Subject" class="input-dark" required>
             </div>
             <div>
                 <label class="block text-sm text-gray-400 mb-1.5">Message</label>
-                <textarea name="message" placeholder="Your message…" rows="5" class="input-dark resize-none" required></textarea>
+                <textarea name="message" placeholder="Your message…" rows="5" class="input-dark resize-none" required>{{ old('message') }}</textarea>
             </div>
             <div class="flex justify-end">
                 <button type="submit" name="send" class="btn-accent">Send Message</button>
