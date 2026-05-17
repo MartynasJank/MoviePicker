@@ -59,8 +59,9 @@
             <div>
                 <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Ratings</h3>
                 @foreach ($omdbInfo->Ratings as $rating)
-                    <a class="rating-pill" href="{{ $urls[$rating->Source] }}"
-                        {{ $urls[$rating->Source] !== '#' ? 'target="_blank"' : '' }}>
+                    @php $url = $urls[$rating->Source] ?? '#'; @endphp
+                    <a class="rating-pill" href="{{ $url }}"
+                        {{ $url !== '#' ? 'target="_blank"' : '' }}>
                         <span class="text-gray-400 text-sm">{{ $rating->Source }}</span>
                         <span class="ml-auto font-semibold text-accent text-sm">{{ $rating->Value }}</span>
                     </a>
