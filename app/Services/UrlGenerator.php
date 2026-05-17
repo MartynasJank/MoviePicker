@@ -2,84 +2,57 @@
 
 namespace App\Services;
 
-class UrlGenerator{
-
-    // Gueses Metacritic URL
-    protected function metacritic($movieObj)
+class UrlGenerator
+{
+    protected function metacritic($movieObj): ?string
     {
         if (!property_exists($movieObj, 'Title')) {
             return null;
         }
 
-        $movieTitle = strtolower($movieObj->Title);
-        $movieTitle = str_replace(' ', '-', $movieTitle);
-        $movieTitle = preg_replace('/[^A-Za-z0-9\-]/', '', $movieTitle);
-        $movieTitle = str_replace('--', '-', $movieTitle);
-        return 'https://www.metacritic.com/movie/'.$movieTitle;
+        $slug = preg_replace('/[^a-z0-9\-]/', '', str_replace([' ', '--'], ['-', '-'], strtolower($movieObj->Title)));
+        return 'https://www.metacritic.com/movie/' . $slug;
     }
 
-    // Guesses Rotten Tomatoes URL
-    protected function rottenTomatoes($movieObj)
+    protected function rottenTomatoes($movieObj): string
     {
-        $url = '';
-
+        // If OMDb already returned a direct URL, use it.
         if (isset($movieObj->tomatoURL)) {
-            $url = $movieObj->tomatoURL;
-            return $url;
+            return $movieObj->tomatoURL;
         }
 
         if (!property_exists($movieObj, 'Title')) {
-            return null;
+            return '#';
         }
 
         $string = strtolower($movieObj->Title);
-        $stringArray = explode(' ', $string);
-        if ($stringArray[0] == "the") {
-            $string = trim(strstr($string, " "));
+
+        // Strip leading "the "
+        if (str_starts_with($string, 'the ')) {
+            $string = ltrim(substr($string, 4));
         }
-        if (in_array ('&', $stringArray)) {
-            $string = str_replace('&', 'and', $string);
-        }
-        $string = str_replace(' ', '_', $string);
-        $string = preg_replace('/[^A-Za-z0-9\_]/', '', $string);
-        $url = "https://www.rottentomatoes.com/m/".$string.'_'.$movieObj->Year;
-        $handle = curl_init($url);
-        curl_setopt($handle,  CURLOPT_RETURNTRANSFER, TRUE);
-        $response = curl_exec($handle);
-        $httpCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
-        curl_close($handle);
-        if ($httpCode == 404) {
-            $url = "https://www.rottentomatoes.com/m/".$string;
-            $handle = curl_init($url);
-            curl_setopt($handle,  CURLOPT_RETURNTRANSFER, TRUE);
-            $response = curl_exec($handle);
-            $httpCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
-            curl_close($handle);
-            if ($httpCode == 404) {
-                return '#';
-            }
-        }
-        return $url;
+
+        $string = str_replace('&', 'and', $string);
+        $slug   = preg_replace('/[^a-z0-9\_]/', '', str_replace(' ', '_', $string));
+
+        // Return the year-suffixed guess; browser handles any 404.
+        return 'https://www.rottentomatoes.com/m/' . $slug . '_' . $movieObj->Year;
     }
 
-    // Gets IMDB URL
-    protected function Imdb($movieObj)
+    protected function imdb($movieObj): ?string
     {
         if (!property_exists($movieObj, 'imdbID')) {
             return null;
         }
-        return 'https://www.imdb.com/title/'.$movieObj->imdbID;
+        return 'https://www.imdb.com/title/' . $movieObj->imdbID;
     }
 
-    // Returns all 3 links to a movie
-    public function linksArray($movieObj)
+    public function linksArray($movieObj): array
     {
-        $linksToMovies = [
-            'Internet Movie Database' => $this->Imdb($movieObj),
-            'Rotten Tomatoes' => $this->rottenTomatoes($movieObj),
-            'Metacritic' => $this->metacritic($movieObj),
+        return [
+            'Internet Movie Database' => $this->imdb($movieObj),
+            'Rotten Tomatoes'         => $this->rottenTomatoes($movieObj),
+            'Metacritic'              => $this->metacritic($movieObj),
         ];
-
-        return $linksToMovies;
     }
 }
