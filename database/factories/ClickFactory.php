@@ -9,12 +9,12 @@ class ClickFactory extends Factory
 {
     protected $model = Click::class;
 
-    public function definition()
+    public function definition(): array
     {
         return [
-            'visitor' => $this->faker->randomNumber(),
-            'input' => $this->faker->text(),
-            'result' => $this->faker->randomNumber(),
+            'visitor' => $this->faker->md5(),
+            'input'   => $this->faker->text(),
+            'result'  => (string) $this->faker->randomNumber(6, true),
         ];
     }
 }
