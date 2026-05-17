@@ -4,15 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Services\OmdbClient;
 use App\Services\TmdbClient;
-use Illuminate\Http\Request;
 use App\Services\MovieService;
-use App\Services\UrlGenerator;
+use App\Services\RatingsUrlBuilder;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class MovieController extends Controller
 {
-    public function show(Request $request, TmdbClient $tmdb, OmdbClient $omdb, MovieService $movieService, UrlGenerator $link)
+    public function __invoke(Request $request, TmdbClient $tmdb, OmdbClient $omdb, MovieService $movieService, RatingsUrlBuilder $link): View
     {
-        $movieId  = $request['id'];
+        $movieId  = $request->route('id');
         $country  = $movieService->getUserCountry();
         $tmdbInfo = $tmdb->movie($movieId);
         $omdbInfo = $omdb->movie($tmdbInfo->imdb_id);

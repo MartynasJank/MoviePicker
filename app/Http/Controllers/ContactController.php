@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ContactMail;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\ContactMail;
 
 class ContactController extends Controller
 {
-    public function send(Request $request)
+    public function __invoke(Request $request): RedirectResponse
     {
         $request->validate([
             'name'    => 'required',
@@ -17,7 +18,7 @@ class ContactController extends Controller
             'message' => 'required',
         ]);
 
-        Mail::to(env('CONTACT_EMAIL', 'info@moviepickr.com'))->send(new ContactMail([
+        Mail::to(config('api.contact_email'))->send(new ContactMail([
             'name'    => $request->name,
             'email'   => $request->email,
             'subject' => $request->subject,
