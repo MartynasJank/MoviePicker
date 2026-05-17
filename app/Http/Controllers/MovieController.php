@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\OMDB;
-use App\TMDB;
+use App\Services\OmdbClient;
+use App\Services\TmdbClient;
 use Illuminate\Http\Request;
 use App\Services\MovieService;
 use App\Services\UrlGenerator;
 
 class MovieController extends Controller
 {
-    public function show(Request $request, TMDB $tmdb, OMDB $omdb, MovieService $movieService, UrlGenerator $link)
+    public function show(Request $request, TmdbClient $tmdb, OmdbClient $omdb, MovieService $movieService, UrlGenerator $link)
     {
         $movieId  = $request['id'];
         $country  = $movieService->getUserCountry();

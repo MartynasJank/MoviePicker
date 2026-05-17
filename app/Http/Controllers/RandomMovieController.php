@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\TMDB;
+use App\Services\TmdbClient;
 use App\Services\MovieService;
 use App\Http\Requests\CheckFormData;
 
 class RandomMovieController extends Controller
 {
-    public function show(CheckFormData $request, MovieService $movieService, TMDB $tmdb)
+    public function show(CheckFormData $request, MovieService $movieService, TmdbClient $tmdb)
     {
         if ($request->query('i') !== null && session('userInput') !== null) {
             session()->forget('userInput');
@@ -34,7 +34,7 @@ class RandomMovieController extends Controller
         return redirect()->route('movie', [$randomMovie['id']]);
     }
 
-    public function multiple(CheckFormData $request, MovieService $movieService, TMDB $tmdb)
+    public function multiple(CheckFormData $request, MovieService $movieService, TmdbClient $tmdb)
     {
         if ($request->query('i') !== null && session('userInput') !== null) {
             session()->forget('userInput');
@@ -80,7 +80,7 @@ class RandomMovieController extends Controller
         return $movieCriteria;
     }
 
-    private function resolvePage(CheckFormData $request, MovieService $movieService, TMDB $tmdb, array $criteria, string $country): int
+    private function resolvePage(CheckFormData $request, MovieService $movieService, TmdbClient $tmdb, array $criteria, string $country): int
     {
         if (empty($criteria)) {
             return $movieService->randomPage(500);
