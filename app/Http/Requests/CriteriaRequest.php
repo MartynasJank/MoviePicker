@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
-class CheckFormData extends FormRequest
+class CriteriaRequest extends FormRequest
 {
     public function authorize(): bool
     {
