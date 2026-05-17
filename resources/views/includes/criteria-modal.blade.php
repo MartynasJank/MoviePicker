@@ -94,14 +94,16 @@
                     <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">People</h3>
                     <div class="grid md:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-sm text-gray-400 mb-1">Actor</label>
-                            <input placeholder="Actor name" type="text" class="modal-cast"
+                            <label class="block text-sm text-gray-400 mb-1">Actors</label>
+                            <input placeholder="Search actors…" type="text" class="modal-cast"
                                 multiple="multiple" name="with_cast" id="modal-with_cast">
+                            <p class="text-xs text-gray-600 mt-1">You can add multiple</p>
                         </div>
                         <div>
                             <label class="block text-sm text-gray-400 mb-1">Crew</label>
                             <input placeholder="Director, writer…" type="text" class="modal-crew"
                                 multiple="multiple" name="with_crew" id="modal-with_crew">
+                            <p class="text-xs text-gray-600 mt-1">You can add multiple</p>
                         </div>
                     </div>
                 </div>
