@@ -43,22 +43,40 @@ Tests use in-memory SQLite (configured in `phpunit.xml`), so no database setup i
 
 ### Key Files
 
-- **`app/TMDB.php`** — TMDB API client (discovery, trending, genres, watch providers, trailers). Implements `ApiMovieInterface`.
-- **`app/OMDB.php`** — OMDb API client (Rotten Tomatoes scores, detailed plot). Implements `ApiMovieInterface`.
+- **`app/TMDB.php`** — TMDB API client (discover, trending, genres, watch providers, trailers). Uses Bearer token auth + GuzzleHTTP. Implements `ApiMovieInterface`.
+- **`app/OMDB.php`** — OMDb API client (Rotten Tomatoes scores, detailed plot) via cURL. Implements `ApiMovieInterface`.
+- **`app/Interfaces/ApiMovieInterface.php`** — Interface enforcing `movie($id)` on both API clients.
 - **`app/Services/MovieService.php`** — Core business logic: random movie selection, genre caching, trailer region filtering, streaming provider links.
-- **`app/Services/UrlGenerator.php`** — Builds external URLs (review sites, streaming platforms).
-- **`app/Http/Controllers/RandomMovieController.php`** — Handles single/multiple random movie requests.
-- **`app/Http/Controllers/RoulettesController.php`** — Pre-built curated collections (Netflix Horror, Anime, etc.).
-- **`routes/web.php`** — All web routes; also defines AJAX routes.
-- **`vite.config.js`** — Vite config; compiles `resources/js/custom/*.js` + `app.js` and Sass. jQuery is injected globally via `@rollup/plugin-inject`.
+- **`app/Services/UrlGenerator.php`** — Builds URLs for IMDb, Rotten Tomatoes (with slug fallbacks), and Metacritic.
+- **`app/Http/Controllers/RandomMovieController.php`** — Handles single/multiple random movie requests; saves `Click` records.
+- **`app/Http/Controllers/RoulettesController.php`** — Pre-built curated collections (Netflix Horror, Documentaries, Anime).
+- **`app/Http/Controllers/MovieController.php`** — Detailed movie view: ratings, cast, crew, watch providers, similar movies, trailers, reviews.
+- **`app/Http/Controllers/HomeController.php`** — Homepage with trending movies from TMDB.
+- **`app/Http/Controllers/CriteriaController.php`** — Renders search form with genres and streaming providers.
+- **`app/Http/Controllers/AjaxController.php`** — `GET /userinput` returns session-stored form values as JSON (used by JS to repopulate the form on page load).
+- **`app/Http/Requests/CheckFormData.php`** — Validates search input: year range bounds (1874–current), year_from ≤ year_to, vote average 0–10.
+- **`app/Models/Click.php`** — Records each movie discovery: visitor hash (cookie), JSON input criteria, resulting movie ID. Used for analytics.
+- **`routes/web.php`** — All web routes; also defines AJAX routes and obfuscated utility routes for cache/schedule clearing.
 
 ### Frontend
 
-Most UI logic lives in `resources/js/custom/` as vanilla JS/jQuery. Bootstrap 4 handles layout; OWL Carousel, bootstrap-select, and SmartWizard are used for UI components. Dark/light theme switching is handled via CSS variables in `resources/sass/themes/`.
+Most UI logic lives in `resources/js/custom/` as vanilla JS/jQuery:
+- **`customForm.js`** — SmartWizard 5-step form, bootstrap-select dropdowns, Flexdatalist autocomplete for actors/crew/movies (calls TMDB API directly from the browser).
+- **`customModal.js`** — YouTube trailer modal with region restriction checking; prevents scrollbar jump on modal open.
+- **`customOwlCarousel.js`** — Three OWL Carousel instances: similar movies, homepage trending, multiple results.
+- **`showMore.js`** — Expands truncated lists (cast, crew, production companies) with "Show All" toggle.
+
+Bootstrap 4 handles layout. Dark/light theme switching uses CSS variables in `resources/sass/themes/`. jQuery is injected globally via `@rollup/plugin-inject` in `vite.config.js`.
 
 ### Geolocation
 
-`stevebauman/location` (IP geolocation) determines the user's country to filter TMDB watch providers so only locally available streaming options are shown. Country detection is used in `MovieService` before calling the TMDB watch providers endpoint.
+`stevebauman/location` (IP geolocation) determines the user's country in `MovieService::getUserCountry()` to filter TMDB watch providers so only locally available streaming options are shown.
+
+### Database
+
+Two tables:
+- **`users`** — Standard Laravel auth table (not actively used for authentication in current app).
+- **`clicks`** — Analytics: `visitor` (cookie hash), `input` (JSON search criteria), `result` (TMDB movie ID).
 
 ## Environment Setup
 
