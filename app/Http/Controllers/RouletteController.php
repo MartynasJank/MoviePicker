@@ -8,91 +8,44 @@ use Illuminate\View\View;
 
 class RouletteController extends Controller
 {
-    public function show(): View
+    private const ROULETTES = [
+        'horror' => [
+            'criteria' => ['with_genres' => [27], 'with_watch_providers' => [8]],
+            'tag'      => 'Netflix Horror Movies',
+            'title'    => 'Netflix Horror — MoviePickr',
+        ],
+        'doc' => [
+            'criteria' => ['with_genres' => [99], 'with_watch_providers' => [8]],
+            'tag'      => 'Netflix Documentaries',
+            'title'    => 'Netflix Documentaries — MoviePickr',
+        ],
+        'animovies' => [
+            'criteria' => ['with_genres' => [16], 'with_watch_providers' => [8], 'with_original_language' => 'ja'],
+            'tag'      => 'Netflix Anime Movies',
+            'title'    => 'Netflix Anime Movies — MoviePickr',
+        ],
+    ];
+
+    public function index(): View
     {
         return view('roulettes');
     }
 
-    public function netflixHorror(MovieService $movieService, TmdbClient $tmdb): View
+    public function pick(string $type, MovieService $movieService, TmdbClient $tmdb): View
     {
-        $country  = $movieService->getUserCountry();
-        $criteria = ['with_genres' => [27], 'with_watch_providers' => [8]];
-        $criteria = $this->getMovieCriteria($movieService, $tmdb, 'netflixHorror', $criteria, $country);
-        $movies   = $this->getMovies($tmdb, $criteria, $country);
+        $config  = self::ROULETTES[$type] ?? abort(404);
+        $country = $movieService->getUserCountry();
 
-        $all_genres   = $movieService->genres($tmdb);
-        $movie_genres = $movieService->movieGenresMap($movies['results'], $all_genres);
+        $criteria            = $movieService->resolveRoulettePage($tmdb, $config['criteria'], $type, $country);
+        $movies              = $tmdb->discover($criteria, $country);
+        $movies['results']   = $movieService->pickBatch($movies['results']);
+        $all_genres          = $movieService->genres($tmdb);
 
         return view('batch', [
             'movies'       => $movies,
-            'movie_genres' => $movie_genres,
-            'tag'          => 'Netflix Horror Movies',
-            'title'        => 'Netflix Horror — MoviePickr',
+            'movie_genres' => $movieService->movieGenresMap($movies['results'], $all_genres),
+            'tag'          => $config['tag'],
+            'title'        => $config['title'],
         ]);
-    }
-
-    public function netflixDoc(MovieService $movieService, TmdbClient $tmdb): View
-    {
-        $country  = $movieService->getUserCountry();
-        $criteria = ['with_genres' => [99], 'with_watch_providers' => [8]];
-        $criteria = $this->getMovieCriteria($movieService, $tmdb, 'netflixDoc', $criteria, $country);
-        $movies   = $this->getMovies($tmdb, $criteria, $country);
-
-        $all_genres   = $movieService->genres($tmdb);
-        $movie_genres = $movieService->movieGenresMap($movies['results'], $all_genres);
-
-        return view('batch', [
-            'movies'       => $movies,
-            'movie_genres' => $movie_genres,
-            'tag'          => 'Netflix Documentaries',
-            'title'        => 'Netflix Documentaries — MoviePickr',
-        ]);
-    }
-
-    public function netflixAnimeMovies(MovieService $movieService, TmdbClient $tmdb): View
-    {
-        $country  = $movieService->getUserCountry();
-        $criteria = ['with_genres' => [16], 'with_watch_providers' => [8], 'with_original_language' => 'ja'];
-        $criteria = $this->getMovieCriteria($movieService, $tmdb, 'netflixAnime', $criteria, $country);
-        $movies   = $this->getMovies($tmdb, $criteria, $country);
-
-        $all_genres   = $movieService->genres($tmdb);
-        $movie_genres = $movieService->movieGenresMap($movies['results'], $all_genres);
-
-        return view('batch', [
-            'movies'       => $movies,
-            'movie_genres' => $movie_genres,
-            'tag'          => 'Netflix Anime Movies',
-            'title'        => 'Netflix Anime Movies — MoviePickr',
-        ]);
-    }
-
-    private function getMovieCriteria(MovieService $movieService, TmdbClient $tmdb, string $type, array $criteria, string $country): array
-    {
-        if (session('roulette.type') !== $type) {
-            session()->forget('roulette');
-        }
-
-        if (session()->has('roulette.total_pages')) {
-            $criteria['page'] = $movieService->randomPage(session('roulette.total_pages'));
-        } else {
-            $all = $tmdb->discover($criteria, $country);
-            session()->put('roulette', ['type' => $type, 'total_pages' => $all['total_pages']]);
-            $criteria['page'] = $movieService->randomPage($all['total_pages']);
-        }
-
-        return $criteria;
-    }
-
-    private function getMovies(TmdbClient $tmdb, array $criteria, string $country): array
-    {
-        $movies = $tmdb->discover($criteria, $country);
-
-        if (count($movies['results']) > 4) {
-            shuffle($movies['results']);
-            $movies['results'] = array_slice($movies['results'], 0, 4);
-        }
-
-        return $movies;
     }
 }

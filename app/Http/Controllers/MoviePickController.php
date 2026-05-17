@@ -12,13 +12,8 @@ class MoviePickController extends Controller
 {
     public function show(CriteriaRequest $request, MovieService $movieService, TmdbClient $tmdb): RedirectResponse
     {
-        if ($request->query('i') !== null && session('userInput') !== null) {
-            session()->forget('userInput');
-            return redirect(url('/movie'));
-        }
-
-        if ($request->query('a') !== null) {
-            session()->forget('userInput');
+        if ($redirect = $this->handleSessionReset($request, '/movie')) {
+            return $redirect;
         }
 
         if ($request->input('movie_search')) {
@@ -26,74 +21,56 @@ class MoviePickController extends Controller
             return redirect(url('/movie/' . $request->input('movie_search')));
         }
 
-        $country       = $movieService->getUserCountry();
-        $movieCriteria = $this->movieCriteria($request);
-        $movieCriteria['page'] = $this->resolvePage($request, $movieService, $tmdb, $movieCriteria, $country);
+        $country  = $movieService->getUserCountry();
+        $criteria = $movieService->resolveSessionCriteria($this->submitted($request));
+        $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country);
 
-        $results     = $tmdb->discover($movieCriteria, $country);
-        $randomMovie = $movieService->randomMovie($results['results']);
+        $results = $tmdb->discover($criteria, $country);
 
-        return redirect()->route('movie', [$randomMovie['id']]);
+        return redirect()->route('movie', [$movieService->randomMovie($results['results'])['id']]);
     }
 
     public function multiple(CriteriaRequest $request, MovieService $movieService, TmdbClient $tmdb): View|RedirectResponse
     {
+        if ($redirect = $this->handleSessionReset($request, '/multiple')) {
+            return $redirect;
+        }
+
+        $country  = $movieService->getUserCountry();
+        $criteria = $movieService->resolveSessionCriteria($this->submitted($request));
+        $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country);
+
+        $movies             = $tmdb->discover($criteria, $country);
+        $movies['results']  = $movieService->pickBatch($movies['results']);
+        $all_genres         = $movieService->genres($tmdb);
+        $movie_genres       = $movieService->movieGenresMap($movies['results'], $all_genres);
+
+        return view('batch', [
+            'movies'        => $movies,
+            'user_input'    => session('userInput'),
+            'all_genres'    => $all_genres,
+            'movie_genres'  => $movie_genres,
+            'providersArray' => $movieService->buildProvidersArray($tmdb),
+            'tag'           => 'Movies picked for you',
+        ]);
+    }
+
+    private function submitted(CriteriaRequest $request): array
+    {
+        return $request->except(['_token', 'flexdatalist-with_cast', 'flexdatalist-with_crew', 'i', 'total_pages']);
+    }
+
+    private function handleSessionReset(CriteriaRequest $request, string $redirectTo): ?RedirectResponse
+    {
         if ($request->query('i') !== null && session('userInput') !== null) {
             session()->forget('userInput');
-            return redirect(url('/multiple'));
+            return redirect(url($redirectTo));
         }
 
         if ($request->query('a') !== null) {
             session()->forget('userInput');
         }
 
-        $country       = $movieService->getUserCountry();
-        $movieCriteria = $this->movieCriteria($request);
-        $movieCriteria['page'] = $this->resolvePage($request, $movieService, $tmdb, $movieCriteria, $country);
-
-        $movies = $tmdb->discover($movieCriteria, $country);
-
-        if (count($movies['results']) > 4) {
-            shuffle($movies['results']);
-            $movies['results'] = array_slice($movies['results'], 0, 4);
-        }
-
-        $all_genres     = $movieService->genres($tmdb);
-        $movie_genres   = $movieService->movieGenresMap($movies['results'], $all_genres);
-        $user_input     = session('userInput');
-        $providersArray = $movieService->buildProvidersArray($tmdb);
-        $tag            = 'Movies picked for you';
-
-        return view('batch', compact('movies', 'user_input', 'all_genres', 'movie_genres', 'providersArray', 'tag'));
-    }
-
-    private function movieCriteria(CriteriaRequest $request): array
-    {
-        $movieCriteria = $request->except(['_token', 'flexdatalist-with_cast', 'flexdatalist-with_crew', 'i', 'total_pages']);
-
-        if (session('userInput') === null) {
-            $request->session()->put('userInput', $movieCriteria);
-        }
-
-        if ($movieCriteria != session('userInput')) {
-            $movieCriteria = session('userInput');
-        }
-
-        return $movieCriteria;
-    }
-
-    private function resolvePage(CriteriaRequest $request, MovieService $movieService, TmdbClient $tmdb, array $criteria, string $country): int
-    {
-        if (empty($criteria)) {
-            return $movieService->randomPage(500);
-        }
-
-        if (isset($criteria['total_pages'])) {
-            return $movieService->randomPage($criteria['total_pages']);
-        }
-
-        $all = $tmdb->discover($criteria, $country);
-        $request->session()->put('userInput.total_pages', $all['total_pages']);
-        return $movieService->randomPage($all['total_pages']);
+        return null;
     }
 }

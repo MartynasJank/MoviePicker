@@ -20,10 +20,8 @@ Route::match(['get', 'post'], '/movie',    [MoviePickController::class, 'show'])
 Route::match(['get', 'post'], '/multiple', [MoviePickController::class, 'multiple']);
 Route::get('/movie/{id}', MovieController::class)->name('movie');
 
-Route::get('/roulettes',                   [RouletteController::class, 'show']);
-Route::get('/roulettes/netflix/horror',    [RouletteController::class, 'netflixHorror']);
-Route::get('/roulettes/netflix/doc',       [RouletteController::class, 'netflixDoc']);
-Route::get('/roulettes/netflix/animovies', [RouletteController::class, 'netflixAnimeMovies']);
+Route::get('/roulettes',                [RouletteController::class, 'index']);
+Route::get('/roulettes/netflix/{type}', [RouletteController::class, 'pick']);
 
 // Obfuscated utility routes (cache/config clear, scheduler trigger)
 Route::get('/fdsdfsds', function () {
