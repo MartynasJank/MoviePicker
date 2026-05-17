@@ -4,25 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Services\TmdbClient;
 use App\Services\MovieService;
+use Illuminate\View\View;
 
-class RoulettesController extends Controller
+class RouletteController extends Controller
 {
-    public function show()
+    public function show(): View
     {
         return view('roulettes');
     }
 
-    public function netflixHorror(MovieService $movieService, TmdbClient $tmdb)
+    public function netflixHorror(MovieService $movieService, TmdbClient $tmdb): View
     {
         $country  = $movieService->getUserCountry();
         $criteria = ['with_genres' => [27], 'with_watch_providers' => [8]];
         $criteria = $this->getMovieCriteria($movieService, $tmdb, 'netflixHorror', $criteria, $country);
         $movies   = $this->getMovies($tmdb, $criteria, $country);
 
-        $all_genres  = $movieService->genres($tmdb);
+        $all_genres   = $movieService->genres($tmdb);
         $movie_genres = $movieService->movieGenresMap($movies['results'], $all_genres);
 
-        return view('multiple', [
+        return view('batch', [
             'movies'       => $movies,
             'movie_genres' => $movie_genres,
             'tag'          => 'Netflix Horror Movies',
@@ -30,17 +31,17 @@ class RoulettesController extends Controller
         ]);
     }
 
-    public function netflixDoc(MovieService $movieService, TmdbClient $tmdb)
+    public function netflixDoc(MovieService $movieService, TmdbClient $tmdb): View
     {
         $country  = $movieService->getUserCountry();
         $criteria = ['with_genres' => [99], 'with_watch_providers' => [8]];
         $criteria = $this->getMovieCriteria($movieService, $tmdb, 'netflixDoc', $criteria, $country);
         $movies   = $this->getMovies($tmdb, $criteria, $country);
 
-        $all_genres  = $movieService->genres($tmdb);
+        $all_genres   = $movieService->genres($tmdb);
         $movie_genres = $movieService->movieGenresMap($movies['results'], $all_genres);
 
-        return view('multiple', [
+        return view('batch', [
             'movies'       => $movies,
             'movie_genres' => $movie_genres,
             'tag'          => 'Netflix Documentaries',
@@ -48,17 +49,17 @@ class RoulettesController extends Controller
         ]);
     }
 
-    public function netflixAnimeMovies(MovieService $movieService, TmdbClient $tmdb)
+    public function netflixAnimeMovies(MovieService $movieService, TmdbClient $tmdb): View
     {
         $country  = $movieService->getUserCountry();
         $criteria = ['with_genres' => [16], 'with_watch_providers' => [8], 'with_original_language' => 'ja'];
         $criteria = $this->getMovieCriteria($movieService, $tmdb, 'netflixAnime', $criteria, $country);
         $movies   = $this->getMovies($tmdb, $criteria, $country);
 
-        $all_genres  = $movieService->genres($tmdb);
+        $all_genres   = $movieService->genres($tmdb);
         $movie_genres = $movieService->movieGenresMap($movies['results'], $all_genres);
 
-        return view('multiple', [
+        return view('batch', [
             'movies'       => $movies,
             'movie_genres' => $movie_genres,
             'tag'          => 'Netflix Anime Movies',
