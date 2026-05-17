@@ -33,9 +33,7 @@
         {{-- Netflix Documentaries --}}
         <div class="card card-hover overflow-hidden flex flex-col">
             <div class="relative h-44 overflow-hidden">
-                <img src="http://hawkeyefilms.ca/wpsite/wp-content/uploads/2018/07/Documentary-Banner.jpg"
-                    class="w-full h-full object-cover opacity-70"
-                    alt="Documentary">
+                <div class="w-full h-full bg-gradient-to-br from-slate-700 to-slate-900"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-[#111]/90 to-transparent"></div>
                 <img src="https://cdn4.iconfinder.com/data/icons/logos-and-brands/512/227_Netflix_logo-512.png"
                     class="absolute bottom-3 right-3 h-8 drop-shadow-lg">
