@@ -18,7 +18,7 @@ class MovieService
     }
 
     /** Shuffle results and return at most $size items. */
-    public function pickBatch(array $results, int $size = 4): array
+    public function pickBatch(array $results, int $size = 10): array
     {
         if (count($results) <= $size) {
             return $results;
