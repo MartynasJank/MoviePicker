@@ -1,17 +1,14 @@
 @extends('layouts.app')
-@section('page_title')
-{{ 'OOPS - MoviePicker' }}
-@endsection
-@section('scripts')
-    @vite(['resources/js/custom/customForm.js'])
-@endsection
+@section('page_title', '500 — MoviePickr')
 @section('content')
-<div class="container">
-    <div class="row" style="padding-top: 80px;">
-        <h3 class="w-100 text-center mb-4">Couldn't find any matching results (500)</h3>
-        <div class="m-auto text-center">
-            <a href="/criteria" class="btn btn-xl btn-secondary d-flex flex-column mb-4">Movie Preference</a>
-            <a href="/movie?i=new" class="btn btn-xl btn-secondary d-flex flex-column">Random Movie</a>
+<div class="min-h-[70vh] flex items-center justify-center px-4">
+    <div class="text-center">
+        <p class="text-8xl font-bold text-accent mb-4">500</p>
+        <h1 class="text-2xl font-bold text-white mb-2">Something went wrong</h1>
+        <p class="text-gray-500 mb-8">A server error occurred. Try again in a moment.</p>
+        <div class="flex flex-wrap gap-3 justify-center">
+            <a href="/movie?i=new" class="btn-accent">Random Movie</a>
+            <a href="/criteria" class="btn-secondary">Set Criteria</a>
         </div>
     </div>
 </div>
