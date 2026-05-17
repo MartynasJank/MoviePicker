@@ -47,7 +47,7 @@
                 <a href="/movie?i=new" class="nav-link text-sm long-single">Random</a>
                 <a href="/multiple?i=new" class="nav-link text-sm">Batch</a>
                 <button id="theme-toggle"
-                    class="p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-white/5 transition-all"
+                    class="theme-toggle p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-white/5 transition-all"
                     aria-label="Toggle theme" title="Toggle theme">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
@@ -63,11 +63,20 @@
 
         {{-- Mobile menu --}}
         <div id="mobile-menu" class="hidden md:hidden bg-[#0f0f0f]/98 border-b border-white/5">
-            <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-1">
-                <a href="/roulettes" class="py-2 text-sm text-gray-400 hover:text-white transition-colors">Roulettes</a>
-                <a href="/criteria"  class="py-2 text-sm text-gray-400 hover:text-white transition-colors">Criteria</a>
-                <a href="/movie?i=new" class="py-2 text-sm text-gray-400 hover:text-white transition-colors long-single">Random Movie</a>
-                <a href="/multiple?i=new" class="py-2 text-sm text-gray-400 hover:text-white transition-colors">Random Batch</a>
+            <div class="max-w-7xl mx-auto px-4 flex flex-col">
+                <a href="/roulettes" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">Roulettes</a>
+                <a href="/criteria"  class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">Criteria</a>
+                <a href="/movie?i=new" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5 long-single">Random Movie</a>
+                <a href="/multiple?i=new" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">Random Batch</a>
+                <div class="py-3 flex items-center justify-between">
+                    <span class="text-xs text-gray-600">Appearance</span>
+                    <button class="theme-toggle flex items-center gap-2 text-xs text-gray-400 hover:text-white transition-colors py-1.5 px-3 rounded-lg hover:bg-white/5" aria-label="Toggle theme">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                        </svg>
+                        Toggle theme
+                    </button>
+                </div>
             </div>
         </div>
     </nav>

@@ -13,7 +13,7 @@
 
     <form method="POST" autocomplete="off" action="/movie" id="criteria">
         @csrf
-        <div class="card p-6">
+        <div class="card p-6 pb-20 sm:pb-6">
 
             {{-- Step indicators --}}
             <div class="flex items-start justify-center gap-1 mb-8">
@@ -21,7 +21,7 @@
                     @php $n = $i + 1; @endphp
                     <div class="flex flex-col items-center">
                         <div class="step-dot {{ $n === 1 ? 'active' : '' }}" id="step-dot-{{ $n }}" data-step="{{ $n }}">{{ $n }}</div>
-                        <div class="step-label {{ $n === 1 ? 'active' : '' }}" id="step-label-{{ $n }}">{{ $label }}</div>
+                        <div class="step-label {{ $n === 1 ? 'active' : '' }} hidden sm:block" id="step-label-{{ $n }}">{{ $label }}</div>
                     </div>
                     @if($n < 5)
                         <div class="step-line" id="step-line-{{ $n }}"></div>
@@ -154,13 +154,16 @@
             @include('errors.error')
 
             {{-- Navigation --}}
-            <div class="flex items-center justify-between mt-8 pt-5 border-t border-white/5">
-                <button type="button" id="btn-reset" class="btn-secondary text-sm">Reset</button>
-                <div class="flex gap-2">
-                    <button type="button" id="btn-prev" class="btn-secondary hidden">← Back</button>
-                    <button type="button" id="btn-next" class="btn-accent">Next →</button>
-                    <button type="submit" id="btn-find-movie" class="btn-accent hidden" formaction="/movie">Find Movie</button>
-                    <button type="submit" id="btn-find-multiple" class="btn-secondary hidden" formaction="/multiple">Find Multiple</button>
+            <div class="fixed bottom-0 left-0 right-0 z-40 bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 px-4 py-3
+                        sm:static sm:bg-transparent sm:backdrop-blur-none sm:border-t sm:border-white/5 sm:mt-8 sm:pt-5 sm:px-0 sm:py-0">
+                <div class="flex items-center justify-between">
+                    <button type="button" id="btn-reset" class="btn-secondary text-sm">Reset</button>
+                    <div class="flex gap-2">
+                        <button type="button" id="btn-prev" class="btn-secondary hidden">← Back</button>
+                        <button type="button" id="btn-next" class="btn-accent">Next →</button>
+                        <button type="submit" id="btn-find-movie" class="btn-accent hidden" formaction="/movie">Find Movie</button>
+                        <button type="submit" id="btn-find-multiple" class="btn-secondary hidden" formaction="/multiple">Find Multiple</button>
+                    </div>
                 </div>
             </div>
 
