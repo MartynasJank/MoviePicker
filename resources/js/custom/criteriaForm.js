@@ -63,11 +63,10 @@ $(document).ready(function () {
     initTs('with_watch_providers',       { plugins: ['remove_button'], placeholder: 'Select services…', maxOptions: null, render: logoRender });
     initTs('modal-with_watch_providers', { plugins: ['remove_button'], placeholder: 'Select services…', maxOptions: null, render: logoRender });
 
-    /* ── People — criteria page (visible on load) ───────────────── */
+    /* ── People ─────────────────────────────────────────────────── */
     makePeopleTs('with_cast', 'Acting');
     makePeopleTs('with_crew', null);
 
-    /* ── People — modal (initialize only when modal opens) ──────── */
     $(document).on('click', '[data-modal-open="modal-form"]', function () {
         if (!window['_ts_modal-with_cast']) {
             makePeopleTs('modal-with_cast', 'Acting');
