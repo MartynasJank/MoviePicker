@@ -39,7 +39,7 @@ class TmdbClient implements ApiMovie
         }
 
         // Implode array values to comma-separated strings
-        foreach (['with_genres', 'without_genres', 'with_watch_providers'] as $key) {
+        foreach (['with_genres', 'without_genres', 'with_watch_providers', 'with_cast', 'with_crew'] as $key) {
             if (isset($input[$key]) && is_array($input[$key])) {
                 $input[$key] = implode(',', $input[$key]);
             }
