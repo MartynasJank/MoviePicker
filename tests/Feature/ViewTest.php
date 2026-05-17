@@ -2,35 +2,34 @@
 
 namespace Tests\Feature;
 
-use App\TMDB;
 use App\Click;
+use App\TMDB;
+use App\Services\MovieService;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ViewTest extends TestCase
 {
     use RefreshDatabase;
+
     /** @test */
-    public function test_search_movie_by_id()
+    public function homepage_returns_200()
+    {
+        $response = $this->get('/');
+        $response->assertStatus(200);
+    }
+
+    /** @test */
+    public function movie_page_returns_200()
     {
         $response = $this->get('/movie/769');
-
         $response->assertStatus(200);
     }
 
     /** @test */
-    public function trending_gets_passed_to_homepage(){
-        $response = $this->get('/');
-
-        $response->assertStatus(200);
-    }
-
-
-    /** @test */
-    public function genres_get_passed_to_view(){
-        $tmdb = new TMDB;
-        $genres = $tmdb->genres();
+    public function criteria_page_returns_200_and_shows_genres()
+    {
+        $genres = app(MovieService::class)->genres(app(TMDB::class));
 
         $response = $this->get('/criteria');
 
@@ -38,9 +37,9 @@ class ViewTest extends TestCase
     }
 
     /** @test */
-    public function test_if_clicks_get_added_to_db(){
-        $click = factory(Click::class)->create();
+    public function clicks_are_stored_in_database()
+    {
+        $click = Click::factory()->create();
         $this->assertDatabaseHas('clicks', $click->getAttributes());
     }
-
 }
