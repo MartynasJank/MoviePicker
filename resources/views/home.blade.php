@@ -37,8 +37,9 @@
             <h2 class="text-2xl font-bold text-white mb-3">About MoviePickr</h2>
             <div class="section-divider mb-6"></div>
             <p class="text-gray-400 leading-relaxed mb-8">
-                MoviePickr helps you find the perfect film for any occasion. Pick by streaming platform,
-                genre, decade, cast, or just let us surprise you.
+                Sometimes the best movie is one you never would have chosen yourself.
+                Tell MoviePickr what you're in the mood for and it'll find something worth watching.
+                Filter by genre, decade, streaming service, or cast, or skip the filters entirely and let it surprise you.
             </p>
             <div class="flex flex-col sm:flex-row gap-3 justify-center items-stretch sm:items-center">
                 <a href="/movie?i=new" class="btn-accent long-single text-center">Random Movie</a>
