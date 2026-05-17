@@ -1,24 +1,19 @@
-import '../bootstrap';
+$(document).ready(function () {
+    initShowMore('ul.crew-list');
+    initShowMore('ul.cast-list');
+    initShowMore('ul.production-list');
 
-$(document).ready(function(){
-    showMore('ul.crew-list')
-    showMore('ul.cast-list')
-    showMore('ul.production-list');
-
-    // Show more controls
-    function toggleShow(){
-        var opened = $(this).hasClass('less');
-        $(this).text(opened ? 'Show All' : 'Hide').toggleClass('less', !opened);
-        $(this).siblings('li.toggleable').slideToggle();
-    }
-
-    function showMore(eleString){
-        $(eleString).each(function(){
-            if( $(this).find('li').length > 3){
+    function initShowMore(selector) {
+        $(selector).each(function () {
+            if ($(this).find('li').length > 3) {
                 $('li', this).eq(2).nextAll().hide().addClass('toggleable');
-                $(this).append('<li class="more">Show all</li>');
+                $(this).append('<li class="toggle-more" style="cursor:pointer;color:#c0393a;font-size:0.8rem;padding-top:6px;">Show all</li>');
             }
-            $(this).on('click','.more', toggleShow);
+            $(this).on('click', '.toggle-more', function () {
+                const isOpen = $(this).hasClass('less');
+                $(this).text(isOpen ? 'Show all' : 'Show less').toggleClass('less', !isOpen);
+                $(this).siblings('li.toggleable').slideToggle(200);
+            });
         });
     }
 });
