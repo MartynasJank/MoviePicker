@@ -8,6 +8,7 @@
                     id="trailer"
                     class="absolute inset-0 w-full h-full"
                     src="https://www.youtube.com/embed/{{ $trailer }}"
+                    title="Movie Trailer"
                     allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
                     allowfullscreen>
                 </iframe>
