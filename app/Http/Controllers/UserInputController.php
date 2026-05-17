@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-class AjaxController extends Controller
+class UserInputController extends Controller
 {
     public function index()
     {
