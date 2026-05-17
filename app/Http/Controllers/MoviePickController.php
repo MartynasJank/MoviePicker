@@ -10,7 +10,7 @@ use Illuminate\View\View;
 
 class MoviePickController extends Controller
 {
-    public function show(CriteriaRequest $request, MovieService $movieService, TmdbClient $tmdb): RedirectResponse
+    public function single(CriteriaRequest $request, MovieService $movieService, TmdbClient $tmdb): RedirectResponse
     {
         if ($redirect = $this->handleSessionReset($request, '/movie')) {
             return $redirect;
@@ -30,7 +30,7 @@ class MoviePickController extends Controller
         return redirect()->route('movie', [$movieService->randomMovie($results['results'])['id']]);
     }
 
-    public function multiple(CriteriaRequest $request, MovieService $movieService, TmdbClient $tmdb): View|RedirectResponse
+    public function batch(CriteriaRequest $request, MovieService $movieService, TmdbClient $tmdb): View|RedirectResponse
     {
         if ($redirect = $this->handleSessionReset($request, '/multiple')) {
             return $redirect;
