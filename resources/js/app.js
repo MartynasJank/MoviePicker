@@ -1,8 +1,8 @@
-import './jquery.flexdatalist.min';
+﻿import 'jquery-flexdatalist/jquery.flexdatalist.min';
 
 $(document).ready(function () {
 
-    /* ── Nav hamburger ─────────────────────────────────── */
+    /* â”€â”€ Nav hamburger â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     $('.hamburger').on('click', function () {
         $(this).toggleClass('active');
         $('#mobile-menu').slideToggle(200);
@@ -15,7 +15,7 @@ $(document).ready(function () {
         }
     });
 
-    /* ── Theme toggle ──────────────────────────────────── */
+    /* â”€â”€ Theme toggle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     function applyTheme(theme) {
         $('body').attr('data-theme', theme);
         $('#theme-toggle').attr('data-theme', theme);
@@ -27,7 +27,7 @@ $(document).ready(function () {
         applyTheme(current === 'dark' ? 'light' : 'dark');
     });
 
-    /* ── Custom modals ─────────────────────────────────── */
+    /* â”€â”€ Custom modals â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     $(document).on('click', '[data-modal-open]', function () {
         const id = $(this).data('modal-open');
         $('#' + id).removeClass('hidden');
@@ -58,7 +58,7 @@ $(document).ready(function () {
         $('body').css('overflow', '');
     });
 
-    /* ── Loading overlay ───────────────────────────────── */
+    /* â”€â”€ Loading overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     function showLoading(text) {
         $('.loading-text').text(text);
         $('.overlay').fadeIn(150);
@@ -87,7 +87,7 @@ $(document).ready(function () {
         setTimeout(() => window.removeEventListener('beforeunload', () => {}), 150);
     });
 
-    /* ── Nav movie search (flexdatalist) ───────────────── */
+    /* â”€â”€ Nav movie search (flexdatalist) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     const tmdb = window.TMDB_API_KEY;
 
     if ($('.movie-search').length && tmdb) {
@@ -133,7 +133,7 @@ $(document).ready(function () {
         });
     }
 
-    /* ── Auto-dismiss alerts ───────────────────────────── */
+    /* â”€â”€ Auto-dismiss alerts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     setTimeout(function () {
         $('.alert-msg').fadeOut(400, function () { $(this).remove(); });
     }, 4000);

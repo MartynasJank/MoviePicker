@@ -1,10 +1,10 @@
-import TomSelect from 'tom-select';
-import '../jquery.flexdatalist.min';
+﻿import TomSelect from 'tom-select';
+import 'jquery-flexdatalist/jquery.flexdatalist.min';
 
 $(document).ready(function () {
     const tmdb = window.TMDB_API_KEY;
 
-    /* ── Step wizard inside the adjust-form modal ────────────── */
+    /* â”€â”€ Step wizard inside the adjust-form modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     let currentStep = 1;
     const totalSteps = 5;
 
@@ -35,30 +35,30 @@ $(document).ready(function () {
 
     if ($('#modal-step-1').length) showStep(1);
 
-    /* ── Tom Select: genres ──────────────────────────────────── */
+    /* â”€â”€ Tom Select: genres â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     if (document.getElementById('modal-with_genres')) {
         window._ts_modal_with_genres = new TomSelect('#modal-with_genres', {
-            plugins: ['remove_button'], placeholder: 'Select genres…', maxOptions: null,
+            plugins: ['remove_button'], placeholder: 'Select genresâ€¦', maxOptions: null,
         });
     }
     if (document.getElementById('modal-without_genres')) {
         window._ts_modal_without_genres = new TomSelect('#modal-without_genres', {
-            plugins: ['remove_button'], placeholder: 'Exclude genres…', maxOptions: null,
+            plugins: ['remove_button'], placeholder: 'Exclude genresâ€¦', maxOptions: null,
         });
     }
 
-    /* ── Tom Select: language ────────────────────────────────── */
+    /* â”€â”€ Tom Select: language â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     if (document.getElementById('modal-with_original_language')) {
         window._ts_modal_lang = new TomSelect('#modal-with_original_language', {
             maxOptions: null, create: false,
         });
     }
 
-    /* ── Tom Select: streaming providers ────────────────────── */
+    /* â”€â”€ Tom Select: streaming providers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     if (document.getElementById('modal-with_watch_providers')) {
         window._ts_modal_providers = new TomSelect('#modal-with_watch_providers', {
             plugins: ['remove_button'],
-            placeholder: 'Select services…',
+            placeholder: 'Select servicesâ€¦',
             maxOptions: null,
             render: {
                 option: function (data, escape) {
@@ -77,7 +77,7 @@ $(document).ready(function () {
         });
     }
 
-    /* ── Flexdatalist: cast & crew in modal ──────────────────── */
+    /* â”€â”€ Flexdatalist: cast & crew in modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     if ($('.modal-cast').length) {
         $('.modal-cast').flexdatalist({
             minLength: 0, maxShownResults: 4, textProperty: 'name', valueProperty: 'id',
@@ -119,7 +119,7 @@ $(document).ready(function () {
             });
     }
 
-    /* ── Restore session data ────────────────────────────────── */
+    /* â”€â”€ Restore session data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     $.getJSON('/userinput', function (data) {
         restorePeople(data['with_cast'], '.modal-cast');
         restorePeople(data['with_crew'], '.modal-crew');
@@ -159,7 +159,7 @@ $(document).ready(function () {
         });
     }
 
-    /* ── Auto-dismiss errors ─────────────────────────────────── */
+    /* â”€â”€ Auto-dismiss errors â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     setTimeout(function () {
         $('.alert-msg').fadeOut(400, function () { $(this).remove(); });
     }, 4000);
