@@ -6,24 +6,24 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\UserInputController;
 use App\Http\Controllers\CriteriaController;
-use App\Http\Controllers\RandomMovieController;
+use App\Http\Controllers\MoviePickController;
 use App\Http\Controllers\MovieController;
-use App\Http\Controllers\RoulettesController;
+use App\Http\Controllers\RouletteController;
 
-Route::get('/',  [HomeController::class, 'index']);
-Route::post('/', [ContactController::class, 'send']);
+Route::get('/',  HomeController::class);
+Route::post('/', ContactController::class);
 
-Route::get('/userinput', [UserInputController::class, 'index']);
-Route::get('/criteria', [CriteriaController::class, 'index']);
+Route::get('/userinput', UserInputController::class);
+Route::get('/criteria',  CriteriaController::class);
 
-Route::match(['get', 'post'], '/movie',    [RandomMovieController::class, 'show']);
-Route::match(['get', 'post'], '/multiple', [RandomMovieController::class, 'multiple']);
-Route::get('/movie/{id}', [MovieController::class, 'show'])->name('movie');
+Route::match(['get', 'post'], '/movie',    [MoviePickController::class, 'show']);
+Route::match(['get', 'post'], '/multiple', [MoviePickController::class, 'multiple']);
+Route::get('/movie/{id}', MovieController::class)->name('movie');
 
-Route::get('/roulettes',                      [RoulettesController::class, 'show']);
-Route::get('/roulettes/netflix/horror',       [RoulettesController::class, 'netflixHorror']);
-Route::get('/roulettes/netflix/doc',          [RoulettesController::class, 'netflixDoc']);
-Route::get('/roulettes/netflix/animovies',    [RoulettesController::class, 'netflixAnimeMovies']);
+Route::get('/roulettes',                   [RouletteController::class, 'show']);
+Route::get('/roulettes/netflix/horror',    [RouletteController::class, 'netflixHorror']);
+Route::get('/roulettes/netflix/doc',       [RouletteController::class, 'netflixDoc']);
+Route::get('/roulettes/netflix/animovies', [RouletteController::class, 'netflixAnimeMovies']);
 
 // Obfuscated utility routes (cache/config clear, scheduler trigger)
 Route::get('/fdsdfsds', function () {

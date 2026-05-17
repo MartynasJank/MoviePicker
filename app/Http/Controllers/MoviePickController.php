@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Services\TmdbClient;
 use App\Services\MovieService;
 use App\Http\Requests\CriteriaRequest;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
-class RandomMovieController extends Controller
+class MoviePickController extends Controller
 {
-    public function show(CriteriaRequest $request, MovieService $movieService, TmdbClient $tmdb)
+    public function show(CriteriaRequest $request, MovieService $movieService, TmdbClient $tmdb): RedirectResponse
     {
         if ($request->query('i') !== null && session('userInput') !== null) {
             session()->forget('userInput');
@@ -24,7 +26,7 @@ class RandomMovieController extends Controller
             return redirect(url('/movie/' . $request->input('movie_search')));
         }
 
-        $country      = $movieService->getUserCountry();
+        $country       = $movieService->getUserCountry();
         $movieCriteria = $this->movieCriteria($request);
         $movieCriteria['page'] = $this->resolvePage($request, $movieService, $tmdb, $movieCriteria, $country);
 
@@ -34,7 +36,7 @@ class RandomMovieController extends Controller
         return redirect()->route('movie', [$randomMovie['id']]);
     }
 
-    public function multiple(CriteriaRequest $request, MovieService $movieService, TmdbClient $tmdb)
+    public function multiple(CriteriaRequest $request, MovieService $movieService, TmdbClient $tmdb): View
     {
         if ($request->query('i') !== null && session('userInput') !== null) {
             session()->forget('userInput');
@@ -45,7 +47,7 @@ class RandomMovieController extends Controller
             session()->forget('userInput');
         }
 
-        $country      = $movieService->getUserCountry();
+        $country       = $movieService->getUserCountry();
         $movieCriteria = $this->movieCriteria($request);
         $movieCriteria['page'] = $this->resolvePage($request, $movieService, $tmdb, $movieCriteria, $country);
 
@@ -56,16 +58,16 @@ class RandomMovieController extends Controller
             $movies['results'] = array_slice($movies['results'], 0, 4);
         }
 
-        $all_genres   = $movieService->genres($tmdb);
-        $movie_genres = $movieService->movieGenresMap($movies['results'], $all_genres);
-        $user_input   = session('userInput');
+        $all_genres     = $movieService->genres($tmdb);
+        $movie_genres   = $movieService->movieGenresMap($movies['results'], $all_genres);
+        $user_input     = session('userInput');
         $providersArray = $movieService->buildProvidersArray($tmdb);
-        $tag          = 'Movies picked for you';
+        $tag            = 'Movies picked for you';
 
-        return view('multiple', compact('movies', 'user_input', 'all_genres', 'movie_genres', 'providersArray', 'tag'));
+        return view('batch', compact('movies', 'user_input', 'all_genres', 'movie_genres', 'providersArray', 'tag'));
     }
 
-    protected function movieCriteria(CriteriaRequest $request): array
+    private function movieCriteria(CriteriaRequest $request): array
     {
         $movieCriteria = $request->except(['_token', 'flexdatalist-with_cast', 'flexdatalist-with_crew', 'i', 'total_pages']);
 
