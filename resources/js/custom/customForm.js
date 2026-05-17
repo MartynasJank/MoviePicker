@@ -162,6 +162,11 @@ $(document).ready(function () {
             $.getJSON('https://api.themoviedb.org/3/person/' + id + '?api_key=' + tmdb + '&language=en-US')
                 .done(function (d) {
                     resolved.push({ id: id, name: d.name });
+                })
+                .fail(function () {
+                    resolved.push({ id: id, name: 'Unknown' });
+                })
+                .always(function () {
                     if (resolved.length === idArr.length) {
                         $(target).flexdatalist('data', resolved);
                         $(target).flexdatalist('value', resolved.map(r => r.id).join(','));
