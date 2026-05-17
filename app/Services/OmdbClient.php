@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Interfaces\ApiMovieInterface as ApiMovie;
+use App\Interfaces\MovieApiInterface as ApiMovie;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Cache;
