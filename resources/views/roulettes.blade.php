@@ -1,94 +1,73 @@
 @extends('layouts.app')
-@section('page_title')
-    Roulettes - MoviePickr
-@endsection
-@section('scripts')
-@endsection
+@section('page_title', 'Roulettes — MoviePickr')
 @section('content')
-<div class="container content" style="padding-top: 80px;">
+<div class="max-w-7xl mx-auto px-4 py-10">
 
-    <div class="col-lg-12">
-        <h1 class="font-weight-bold text-center">Movie Roulettes</h1>
-        <hr class="divider my-4" />
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-white">Movie Roulettes</h1>
+        <p class="text-gray-500 text-sm mt-1">Curated collections — just hit Roll</p>
+        <div class="section-divider mt-3"></div>
     </div>
 
-    {{--  First Row  --}}
-    <div class="card-deck mb-3">
-        <div class="card">
-{{--            <img class="card-img-top" src="..." alt="Card image cap">--}}
-            <div class="card-img-top" style="position: relative; height: 200px; background-image: url('https://static1.srcdn.com/wordpress/wp-content/uploads/2019/10/the-grudge-banner.jpg?q=50&fit=crop&w=740&h=370&dpr=1.5'); background-size: cover">
-                <img src="https://cdn4.iconfinder.com/data/icons/logos-and-brands/512/227_Netflix_logo-512.png" style="position: absolute; right: 10px; bottom: 10px; height: 50px">
+    <div class="grid md:grid-cols-3 gap-5">
+
+        {{-- Netflix Horror --}}
+        <div class="card card-hover overflow-hidden flex flex-col">
+            <div class="relative h-44 overflow-hidden">
+                <img src="https://static1.srcdn.com/wordpress/wp-content/uploads/2019/10/the-grudge-banner.jpg?q=50&fit=crop&w=740&h=370&dpr=1.5"
+                    class="w-full h-full object-cover opacity-70"
+                    alt="Horror">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#111]/90 to-transparent"></div>
+                <img src="https://cdn4.iconfinder.com/data/icons/logos-and-brands/512/227_Netflix_logo-512.png"
+                    class="absolute bottom-3 right-3 h-8 drop-shadow-lg">
             </div>
-            <div class="card-body">
-                <h5 class="card-title">Netflix horror</h5>
-                <p class="card-text">Netflix's horror movie selection offers a diverse range of chilling tales, spanning supernatural encounters, psychological thrills, and international scares.</p>
-            </div>
-            <div class="card-footer">
-                <a href="/roulettes/netflix/horror" class="btn btn-secondary">Roll</a>
-            </div>
-        </div>
-        <div class="card">
-{{--            <img class="card-img-top" src="..." alt="Card image cap">--}}
-            <div class="card-img-top" style="position: relative; height: 200px; background-image: url('http://hawkeyefilms.ca/wpsite/wp-content/uploads/2018/07/Documentary-Banner.jpg'); background-size: cover">
-                <img src="https://cdn4.iconfinder.com/data/icons/logos-and-brands/512/227_Netflix_logo-512.png" style="position: absolute; right: 10px; bottom: 10px; height: 50px">
-            </div>
-            <div class="card-body">
-                <h5 class="card-title">Netflix documentaries</h5>
-                <p class="card-text">Netflix boasts a wide array of documentaries covering diverse topics, ranging from true crime and environmental issues to social justice and historical events. With compelling storytelling and thought-provoking narratives, Netflix documentaries offer audiences an engaging and informative viewing experience.</p>
-            </div>
-            <div class="card-footer">
-                <a href="/roulettes/netflix/doc" class="btn btn-secondary">Roll</a>
+            <div class="p-5 flex flex-col flex-1">
+                <h2 class="text-base font-semibold text-white mb-2">Netflix Horror</h2>
+                <p class="text-sm text-gray-400 leading-relaxed flex-1">
+                    Supernatural encounters, psychological thrillers, and international scares from Netflix's horror selection.
+                </p>
+                <a href="/roulettes/netflix/horror" class="btn-accent mt-4 self-start">Roll</a>
             </div>
         </div>
-        <div class="card">
-{{--            <img class="card-img-top" src="..." alt="Card image cap">--}}
-            <div class="card-img-top" style="position: relative; height: 200px; background-image: url('https://i.pinimg.com/originals/4c/8e/26/4c8e267ee4446e733bb17564337083f7.jpg'); background-size: cover">
-                <img src="https://cdn4.iconfinder.com/data/icons/logos-and-brands/512/227_Netflix_logo-512.png" style="position: absolute; right: 10px; bottom: 10px; height: 50px">
+
+        {{-- Netflix Documentaries --}}
+        <div class="card card-hover overflow-hidden flex flex-col">
+            <div class="relative h-44 overflow-hidden">
+                <img src="http://hawkeyefilms.ca/wpsite/wp-content/uploads/2018/07/Documentary-Banner.jpg"
+                    class="w-full h-full object-cover opacity-70"
+                    alt="Documentary">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#111]/90 to-transparent"></div>
+                <img src="https://cdn4.iconfinder.com/data/icons/logos-and-brands/512/227_Netflix_logo-512.png"
+                    class="absolute bottom-3 right-3 h-8 drop-shadow-lg">
             </div>
-            <div class="card-body">
-                <h5 class="card-title">Netflix anime movies</h5>
-                <p class="card-text">Netflix offers a rich selection of anime movies that cater to various tastes and preferences. From beloved classics to exciting originals, Netflix's anime lineup includes a diverse range of genres such as action, fantasy, romance, and science fiction.</p>
-            </div>
-            <div class="card-footer">
-                <a href="/roulettes/netflix/animovies" class="btn btn-secondary">Roll</a>
+            <div class="p-5 flex flex-col flex-1">
+                <h2 class="text-base font-semibold text-white mb-2">Netflix Documentaries</h2>
+                <p class="text-sm text-gray-400 leading-relaxed flex-1">
+                    True crime, environmental issues, social justice, and historical events — told with compelling narratives.
+                </p>
+                <a href="/roulettes/netflix/doc" class="btn-accent mt-4 self-start">Roll</a>
             </div>
         </div>
+
+        {{-- Netflix Anime --}}
+        <div class="card card-hover overflow-hidden flex flex-col">
+            <div class="relative h-44 overflow-hidden">
+                <img src="https://i.pinimg.com/originals/4c/8e/26/4c8e267ee4446e733bb17564337083f7.jpg"
+                    class="w-full h-full object-cover opacity-70"
+                    alt="Anime">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#111]/90 to-transparent"></div>
+                <img src="https://cdn4.iconfinder.com/data/icons/logos-and-brands/512/227_Netflix_logo-512.png"
+                    class="absolute bottom-3 right-3 h-8 drop-shadow-lg">
+            </div>
+            <div class="p-5 flex flex-col flex-1">
+                <h2 class="text-base font-semibold text-white mb-2">Netflix Anime Movies</h2>
+                <p class="text-sm text-gray-400 leading-relaxed flex-1">
+                    Action, fantasy, romance, sci-fi — a rich selection of anime films spanning classics and Netflix originals.
+                </p>
+                <a href="/roulettes/netflix/animovies" class="btn-accent mt-4 self-start">Roll</a>
+            </div>
+        </div>
+
     </div>
-    {{--  Second Row  --}}
-{{--    <div class="card-deck">--}}
-{{--        <div class="card">--}}
-{{--            <img class="card-img-top" src="..." alt="Card image cap">--}}
-{{--            <div class="card-img-top" style="height: 200px; background: black"></div>--}}
-{{--            <div class="card-body">--}}
-{{--                <h5 class="card-title">Card title</h5>--}}
-{{--                <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>--}}
-{{--            </div>--}}
-{{--            <div class="card-footer">--}}
-{{--                <a href="#" class="btn btn-secondary">Go somewhere</a>--}}
-{{--            </div>--}}
-{{--        </div>--}}
-{{--        <div class="card">--}}
-{{--            <img class="card-img-top" src="..." alt="Card image cap">--}}
-{{--            <div class="card-img-top" style="height: 200px; background: black"></div>--}}
-{{--            <div class="card-body">--}}
-{{--                <h5 class="card-title">Card title</h5>--}}
-{{--                <p class="card-text">This card has supporting text below as a natural lead-in to additional content.</p>--}}
-{{--            </div>--}}
-{{--            <div class="card-footer">--}}
-{{--                <a href="#" class="btn btn-secondary">Go somewhere</a>--}}
-{{--            </div>--}}
-{{--        </div>--}}
-{{--        <div class="card">--}}
-{{--            <img class="card-img-top" src="..." alt="Card image cap">--}}
-{{--            <div class="card-img-top" style="height: 200px; background: black"></div>--}}
-{{--            <div class="card-body">--}}
-{{--                <h5 class="card-title">Card title</h5>--}}
-{{--                <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.</p>--}}
-{{--            </div>--}}
-{{--            <div class="card-footer">--}}
-{{--                <a href="#" class="btn btn-secondary">Go somewhere</a>--}}
-{{--            </div>--}}
-{{--        </div>--}}
-{{--    </div>--}}
 </div>
 @endsection
