@@ -1,8 +1,6 @@
-﻿import 'jquery-flexdatalist/jquery.flexdatalist.min';
-
 $(document).ready(function () {
 
-    /* â”€â”€ Nav hamburger â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    /* ── Nav hamburger ─────────────────────────────────────────────────── */
     $('.hamburger').on('click', function () {
         $(this).toggleClass('active');
         $('#mobile-menu').slideToggle(200);
@@ -15,7 +13,7 @@ $(document).ready(function () {
         }
     });
 
-    /* â”€â”€ Theme toggle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    /* ── Theme toggle ──────────────────────────────────────────────────── */
     function applyTheme(theme) {
         $('body').attr('data-theme', theme);
         $('#theme-toggle').attr('data-theme', theme);
@@ -27,7 +25,7 @@ $(document).ready(function () {
         applyTheme(current === 'dark' ? 'light' : 'dark');
     });
 
-    /* â”€â”€ Custom modals â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    /* ── Custom modals ─────────────────────────────────────────────────── */
     $(document).on('click', '[data-modal-open]', function () {
         const id = $(this).data('modal-open');
         $('#' + id).removeClass('hidden');
@@ -58,7 +56,7 @@ $(document).ready(function () {
         $('body').css('overflow', '');
     });
 
-    /* â”€â”€ Loading overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    /* ── Loading overlay ───────────────────────────────────────────────── */
     function showLoading(text) {
         $('.loading-text').text(text);
         $('.overlay').fadeIn(150);
@@ -68,10 +66,6 @@ $(document).ready(function () {
 
     $('#criteria').on('submit', function () {
         window.addEventListener('beforeunload', () => showLoading('Finding the best match for you!'), { once: true });
-    });
-
-    $('#movie-search').on('submit', function () {
-        window.addEventListener('beforeunload', () => showLoading('Fetching the movie!'), { once: true });
     });
 
     $(document).on('click', '.long-single', function () {
@@ -87,50 +81,7 @@ $(document).ready(function () {
         setTimeout(() => window.removeEventListener('beforeunload', handler), 150);
     });
 
-    /* â”€â”€ Nav movie search (flexdatalist) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-    if ($('.movie-search').length) {
-        $('.movie-search').flexdatalist({
-            minLength: 1,
-            maxShownResults: 5,
-            textProperty: '{title}',
-            valueProperty: 'id',
-            selectionRequired: true,
-            visibleProperties: ['item-backdrop_path', 'meta'],
-            searchContain: true,
-            searchByWord: true,
-            searchIn: 'title',
-            multiple: false,
-            cacheLifetime: 5,
-            searchDelay: 600,
-        }).on('show:flexdatalist.results', function (ev, result) {
-            $.each(result, function (key, value) {
-                if (value.backdrop_path) {
-                    result[key]['item-backdrop_path'] = '<img src=”https://image.tmdb.org/t/p/w92' + value.backdrop_path + '”>';
-                }
-                if (value.title || value.release_date) {
-                    result[key]['meta'] = '<div class=”movie-meta”><span class=”item”>' + value.title_highlight + '</span><span class=”item-meta”>' + (value.release_date || '') + '</span></div>';
-                }
-            });
-        }).on('select:flexdatalist', function () {
-            $('.submit-search').trigger('submit');
-        });
-
-        var searchTimer;
-        $('#movie_search-flexdatalist').on('keyup', function () {
-            clearTimeout(searchTimer);
-            const val = $(this).val();
-            searchTimer = setTimeout(function () {
-                if (val.length > 0) {
-                    $.getJSON('/tmdb/search/movies?q=' + encodeURIComponent(val))
-                        .done(function (results) {
-                            $('.movie-search').flexdatalist('data', results);
-                        });
-                }
-            }, 500);
-        });
-    }
-
-    /* â”€â”€ Auto-dismiss alerts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    /* ── Auto-dismiss alerts ───────────────────────────────────────────── */
     setTimeout(function () {
         $('.alert-msg').fadeOut(400, function () { $(this).remove(); });
     }, 4000);

@@ -42,18 +42,6 @@
 
             {{-- Desktop nav --}}
             <div class="hidden md:flex items-center gap-5 flex-1 justify-end">
-                {{-- Search --}}
-                <form action="/movie" method="POST" class="submit-search relative" id="movie-search">
-                    @csrf
-                    <input
-                        type="text"
-                        id="movie_search"
-                        name="movie_search"
-                        placeholder="Search movies…"
-                        class="movie-search bg-white/5 border border-white/10 rounded-lg pl-3 pr-3 py-1.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-accent/40 w-44 transition-all focus:w-52"
-                        autocomplete="off"
-                    >
-                </form>
                 <a href="/roulettes" class="nav-link text-sm">Roulettes</a>
                 <a href="/criteria"  class="nav-link text-sm">Criteria</a>
                 <a href="/movie?i=new" class="nav-link text-sm long-single">Random</a>
@@ -76,17 +64,6 @@
         {{-- Mobile menu --}}
         <div id="mobile-menu" class="hidden md:hidden bg-[#0f0f0f]/98 border-b border-white/5">
             <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-1">
-                <form action="/movie" method="POST" class="submit-search" id="movie-search-mobile">
-                    @csrf
-                    <input
-                        type="text"
-                        id="movie_search_mobile"
-                        name="movie_search"
-                        placeholder="Search movies…"
-                        class="movie-search input-dark text-sm w-full mb-2"
-                        autocomplete="off"
-                    >
-                </form>
                 <a href="/roulettes" class="py-2 text-sm text-gray-400 hover:text-white transition-colors">Roulettes</a>
                 <a href="/criteria"  class="py-2 text-sm text-gray-400 hover:text-white transition-colors">Criteria</a>
                 <a href="/movie?i=new" class="py-2 text-sm text-gray-400 hover:text-white transition-colors long-single">Random Movie</a>

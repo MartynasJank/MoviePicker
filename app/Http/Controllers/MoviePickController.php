@@ -16,11 +16,6 @@ class MoviePickController extends Controller
             return $redirect;
         }
 
-        if ($request->input('movie_search')) {
-            session()->forget('userInput');
-            return redirect(url('/movie/' . $request->input('movie_search')));
-        }
-
         $country  = $movieService->getUserCountry();
         $criteria = $movieService->resolveSessionCriteria($this->submitted($request));
         $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country);
