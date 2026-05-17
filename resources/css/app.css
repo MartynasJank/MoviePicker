@@ -332,6 +332,7 @@
         border-radius: 0.5rem;
         min-height: 44px;
         align-items: center;
+        width: 100%;
     }
     .flexdatalist-multiple li { list-style: none; }
     .flexdatalist-multiple li.value {
