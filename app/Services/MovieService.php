@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Services\TmdbClient;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Cache;
 
@@ -16,6 +15,70 @@ class MovieService
     public function randomMovie(array $movieArray): array
     {
         return $movieArray[array_rand($movieArray)];
+    }
+
+    /** Shuffle results and return at most $size items. */
+    public function pickBatch(array $results, int $size = 4): array
+    {
+        if (count($results) <= $size) {
+            return $results;
+        }
+        shuffle($results);
+        return array_slice($results, 0, $size);
+    }
+
+    /**
+     * Resolve the criteria array to use for discovery.
+     * On first visit stores submitted criteria in session; subsequent visits
+     * always return the session copy so "pick another" keeps the same filters.
+     */
+    public function resolveSessionCriteria(array $submitted): array
+    {
+        if (session('userInput') === null) {
+            session()->put('userInput', $submitted);
+        }
+
+        return session('userInput');
+    }
+
+    /**
+     * Resolve the page number to discover.
+     * Uses the cached total_pages if available, otherwise fetches it and caches it.
+     */
+    public function resolvePage(TmdbClient $tmdb, array $criteria, string $country): int
+    {
+        if (empty($criteria)) {
+            return $this->randomPage(500);
+        }
+
+        if (isset($criteria['total_pages'])) {
+            return $this->randomPage($criteria['total_pages']);
+        }
+
+        $all = $tmdb->discover($criteria, $country);
+        session()->put('userInput.total_pages', $all['total_pages']);
+        return $this->randomPage($all['total_pages']);
+    }
+
+    /**
+     * Resolve criteria with a random page for a named roulette type.
+     * Caches total_pages in session so repeated rolls skip the extra API call.
+     */
+    public function resolveRoulettePage(TmdbClient $tmdb, array $criteria, string $type, string $country): array
+    {
+        if (session('roulette.type') !== $type) {
+            session()->forget('roulette');
+        }
+
+        if (session()->has('roulette.total_pages')) {
+            $criteria['page'] = $this->randomPage(session('roulette.total_pages'));
+        } else {
+            $all = $tmdb->discover($criteria, $country);
+            session()->put('roulette', ['type' => $type, 'total_pages' => $all['total_pages']]);
+            $criteria['page'] = $this->randomPage($all['total_pages']);
+        }
+
+        return $criteria;
     }
 
     /** Genre list, cached for one week. */
