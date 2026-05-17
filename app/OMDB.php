@@ -3,25 +3,39 @@
 namespace App;
 
 use App\Interfaces\ApiMovieInterface as ApiMovie;
-use Illuminate\Database\Eloquent\Model;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Support\Facades\Cache;
 
-class OMDB extends Model implements ApiMovie
+class OMDB implements ApiMovie
 {
-    public function movie($imdbId)
-    {
-        $apiData = [
-            'apikey' => config('api.OMDB'),
-            'i' => $imdbId,
-            'tomatoes' => 'true',
-        ];
+    private Client $client;
 
-        // Request OMDB api for more detailed movie information
-        $url = 'https://private.omdbapi.com/?'.http_build_query($apiData);
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        $result = curl_exec($ch);
-        curl_close($ch);
-        return json_decode($result);
+    public function __construct()
+    {
+        $this->client = new Client();
+    }
+
+    /**
+     * Fetch full movie details from OMDb including Rotten Tomatoes data.
+     * Cached per IMDb ID for 6 hours.
+     *
+     * @throws GuzzleException
+     */
+    public function movie($imdbId): ?object
+    {
+        if (empty($imdbId)) {
+            return null;
+        }
+
+        return Cache::remember('omdb_movie_' . $imdbId, now()->addHours(6), function () use ($imdbId) {
+            $url      = 'https://private.omdbapi.com/?' . http_build_query([
+                'apikey'   => config('api.OMDB'),
+                'i'        => $imdbId,
+                'tomatoes' => 'true',
+            ]);
+            $response = $this->client->get($url);
+            return json_decode($response->getBody()->getContents());
+        });
     }
 }

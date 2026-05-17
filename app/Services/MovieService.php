@@ -3,235 +3,186 @@
 namespace App\Services;
 
 use App\TMDB;
-use Illuminate\Support\Facades\Storage;
+use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Cache;
 
 class MovieService
 {
-    // Gets random page from total pages
-    public function randomPage($totalPages)
+    public function randomPage(int $totalPages): int
     {
-        if($totalPages > 500){
-            $totalPages = 500;
-        }
-        return rand(1, $totalPages);
+        return rand(1, min($totalPages, 500));
     }
 
-    public function randomMovie($movieArray)
+    public function randomMovie(array $movieArray): array
     {
-        $key = array_rand($movieArray);
-        return $movieArray[$key];
+        return $movieArray[array_rand($movieArray)];
     }
 
-    public function genres(TMDB $tmdb){
-        if(!Storage::disk('local')->exists('genres.txt')){
-            $json = $tmdb->genres();
-            Storage::disk('local')->put('genres.txt', $json);
-        } else {
-            $json = Storage::get('genres.txt');
-        }
-        $data = json_decode($json);
-        return $data->genres;
+    /** Genre list, cached for one week. */
+    public function genres(TMDB $tmdb): array
+    {
+        return Cache::remember('tmdb_genres', now()->addWeek(), function () use ($tmdb) {
+            return json_decode($tmdb->genres())->genres;
+        });
     }
 
-    public function genresString($movieObj)
+    public function genresString(object $movieObj): string
     {
-        if ($movieObj->genres === []) {
+        if (empty($movieObj->genres)) {
             return 'No Info';
         }
 
-        foreach ($movieObj->genres as $genre) {
-            $genresArray[] = $genre->name;
-        }
-
-        return implode(', ', $genresArray);
+        return implode(', ', array_column((array) $movieObj->genres, 'name'));
     }
 
-    public function getTrailer($array)
+    /** Map discover results to a movieId => 'Genre1, Genre2' string lookup. */
+    public function movieGenresMap(array $results, array $allGenres): array
     {
-        $maxSize = [];
-        $trailer = null;
-        $allowed = true;
+        $idToName = [];
+        foreach ($allGenres as $genre) {
+            $idToName[$genre->id] = $genre->name;
+        }
 
-        if (!empty($array)) {
-            foreach ($array as $key => $video) {
-                if ($video->type == 'Trailer') {
-                    $maxSize[$key]['size'] = $video->size;
-                    $maxSize[$key]['key'] = $video->key;
-                }
-            }
-            $maxSize = $this->sortAssocArrayByValue($maxSize, 'size');
-            foreach ($maxSize as $video) {
-                $json = file_get_contents('https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id='.$video['key'].'&part=status&key='.config('api.YOUTUBE'));
-                $status = json_decode($json);
-
-                // Checks if video is region restricted and then checks if user is in country where video is allowed to watch
-                if (isset($status->items[0]->contentDetails->regionRestriction->allowed)) {
-                    $ip = \Request::ip();
-                    $data = null;
-
-                    try {
-                        $data = \Location::get($ip);
-                    } catch (\Throwable $e) {
-                        $data = null;
-                    }
-
-                    $allowedCountries = $status->items[0]->contentDetails->regionRestriction->allowed;
-                    $country = $data->countryCode ?? 'LT';
-                    $allowed = in_array($country, $allowedCountries);
-                }
-
-                if ($status->pageInfo->totalResults > 0 && $allowed) {
-                    $trailer = $video['key'];
-                    break;
-                }
+        $map = [];
+        foreach ($results as $movie) {
+            $names = array_filter(array_map(fn($id) => $idToName[$id] ?? null, $movie['genre_ids']));
+            if ($names) {
+                $map[$movie['id']] = implode(', ', $names);
             }
         }
-        return $trailer;
+        return $map;
     }
 
-    public function movieWatchProviders($movieId){
-        $url = 'https://api.themoviedb.org/3/movie/'.$movieId.'/watch/providers?api_key='.config('api.TMDB');
-        $location = $this->getUserCountry();
-        $final = array();
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        $result = curl_exec($ch);
-        $result = json_decode($result);
-        if(array_key_exists($location, $result->results) && array_key_exists('flatrate', $result->results->$location)){
-            $final['url'] = $result->results->$location->link;
-            $final['streaming'] = $result->results->$location->flatrate;
+    /**
+     * Find the best available trailer key from a list of video objects.
+     * All YouTube status checks are batched into a single API call.
+     */
+    public function getTrailer(array $videos): ?string
+    {
+        if (empty($videos) || empty(config('api.YOUTUBE'))) {
+            return null;
         }
-        return $final;
+
+        // Collect trailer keys sorted by quality (highest first)
+        $trailers = [];
+        foreach ($videos as $video) {
+            if ($video->type === 'Trailer') {
+                $trailers[] = ['key' => $video->key, 'size' => $video->size];
+            }
+        }
+
+        if (empty($trailers)) {
+            return null;
+        }
+
+        usort($trailers, fn($a, $b) => $b['size'] <=> $a['size']);
+
+        // Batch all keys into one YouTube API request
+        $ids    = implode(',', array_column($trailers, 'key'));
+        $url    = 'https://www.googleapis.com/youtube/v3/videos?part=contentDetails,status&id='
+                  . $ids . '&key=' . config('api.YOUTUBE');
+
+        $json   = @file_get_contents($url);
+        if (!$json) {
+            return $trailers[0]['key'] ?? null;
+        }
+
+        $status  = json_decode($json);
+        $videoMap = [];
+        foreach ($status->items ?? [] as $item) {
+            $videoMap[$item->id] = $item;
+        }
+
+        $country = $this->getUserCountry();
+
+        foreach ($trailers as $trailer) {
+            $item = $videoMap[$trailer['key']] ?? null;
+
+            // Not found in YouTube means unavailable
+            if (!$item) {
+                continue;
+            }
+
+            // Check region whitelist
+            $allowed = $item->contentDetails->regionRestriction->allowed ?? null;
+            if ($allowed !== null && !in_array($country, $allowed)) {
+                continue;
+            }
+
+            return $trailer['key'];
+        }
+
+        return null;
     }
 
-    protected function sortAssocArrayByValue($array, $value)
+    /** Watch providers for a single movie, keyed by the user's country. */
+    public function movieWatchProviders(int $movieId): array
     {
-        $newArray = array_column($array, $value);
-        array_multisort($newArray, SORT_DESC, $array);
-        return $array;
+        $country = $this->getUserCountry();
+        $url     = 'https://api.themoviedb.org/3/movie/' . $movieId . '/watch/providers?api_key=' . config('api.TMDB');
+
+        $client  = new Client();
+        $result  = json_decode($client->get($url)->getBody()->getContents());
+
+        if (isset($result->results->$country->flatrate)) {
+            return [
+                'url'       => $result->results->$country->link,
+                'streaming' => $result->results->$country->flatrate,
+            ];
+        }
+
+        return [];
     }
 
-    // GETTING STREAMING LINKS BRUV
-    protected function sanitizedTitle($title)
+    /**
+     * Full watch-provider list for the user's region, cached per country for one week.
+     */
+    public function getWatchProviders(): object
     {
-        $movieTitle = strtolower($title);
-        $movieTitle = str_replace(' ', '-', $movieTitle);
-        $movieTitle = preg_replace('/[^A-Za-z0-9\-]/', '', $movieTitle);
-        $movieTitle = str_replace('--', '-', $movieTitle);
-        $movieTitle = str_replace('·', '-', $movieTitle);
-        return $movieTitle;
+        $country = $this->getUserCountry();
+
+        return Cache::remember('tmdb_providers_' . $country, now()->addWeek(), function () use ($country) {
+            $url  = 'https://api.themoviedb.org/3/watch/providers/movie?'
+                  . http_build_query(['api_key' => config('api.TMDB'), 'language' => 'en-US', 'watch_region' => $country]);
+            $json = file_get_contents($url);
+            return json_decode($json);
+        });
     }
 
-    public function getUserCountry(){
-        $ip = \Request::ip();
-        $data = null;
-
+    public function getUserCountry(): string
+    {
         try {
-            $data = \Location::get($ip);
-        } catch (\Throwable $e) {
+            $data = \Location::get(\Request::ip());
+        } catch (\Throwable) {
             $data = null;
         }
 
-        $country = $data->countryCode ?? 'LT';
-
-        return $country;
+        return $data->countryCode ?? 'LT';
     }
 
-    protected function get_data($url) {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        $html = curl_exec($ch);
-        curl_close($ch);
-        $dom = new \DOMDocument();
-        @$dom->loadHTML($html);
-        $xpath = new \DOMXPath($dom);
-        $div = $xpath->query('//div[@class="ott_provider"]');
+    /** Build the $providersArray shape expected by every view that shows the form. */
+    public function buildProvidersArray(TMDB $tmdb): array
+    {
+        $providers = $this->getWatchProviders();
+        $result    = [];
 
-        $content_stream = '';
-        $content_rent = '';
-        $content_buy = '';
-
-        foreach ($div as $usefulDiv){
-            if(strpos($usefulDiv->nodeValue, 'Stream')){
-                $div_stream = $usefulDiv;
-                $content_stream = $dom->saveXML($div_stream);
-            }
-            if(strpos($usefulDiv->nodeValue, 'Rent')){
-                $div_rent = $usefulDiv;
-                $content_rent = $dom->saveXML($div_rent);
-            }
-            if(strpos($usefulDiv->nodeValue, 'Buy')){
-                $div_buy = $usefulDiv;
-                $content_buy = $dom->saveXML($div_buy);
-            }
+        foreach ($providers->results as $provider) {
+            $result[] = [
+                'id'   => $provider->provider_id,
+                'name' => $provider->provider_name,
+                'logo' => 'https://image.tmdb.org/t/p/w45' . $provider->logo_path,
+            ];
         }
 
-        if (strpos($content_stream, 'Stream') != false) {
-            $content_all['stream'] = $content_stream;
-        } else {
-            $content_all['stream'] = null;
-        }
-
-        if (strpos($content_rent, 'Rent') != false) {
-            $content_all['rent'] = $content_rent;
-        } else {
-            $content_all['rent'] = null;
-        }
-
-        if (strpos($content_buy, 'Buy') != false) {
-            $content_all['buy'] = $content_buy;
-        } else {
-            $content_all['buy'] = null;
-        }
-
-        $return_links = [
-            'stream' => null,
-            'rent' => null,
-            'buy' => null
-        ];
-
-
-        foreach ($content_all as $key => $content){
-            preg_match_all ('/https:\/\/click.justwatch.com\/(.*?)"/s', $content, $streamingLinks);
-            preg_match_all ('/\/t\/p\/original\/(.*?)"/s', $content, $streamingIcons);
-            preg_match_all('/<span class="price">(.*?)<\/span>/', $content, $streamingPrice);
-            $old_icon = '';
-            for ($i = 0; $i < count($streamingLinks[0]); $i++){
-                if($old_icon == 'https://www.themoviedb.org/'.rtrim($streamingIcons[0][$i], "\"")){
-                    continue;
-                }
-                $old_icon = 'https://www.themoviedb.org/'.rtrim($streamingIcons[0][$i], "\"");
-                $return_links[$key][$i]["URL"] = $streamingLinks[0][$i];
-                $return_links[$key][$i]["icon"] = 'https://www.themoviedb.org/'.rtrim($streamingIcons[0][$i], "\"");
-                if($streamingPrice[1] != []){
-                    $return_links[$key][$i]["price"] = $streamingPrice[1][$i] ?? '';
-                } else {
-                    $return_links[$key][$i]["price"] = '';
-                }
-            }
-        }
-        return $return_links;
+        return $result;
     }
 
-    public function linksToStreams($title, $movie_id){
-        $url = "https://www.themoviedb.org/movie/".$movie_id."-".$this->sanitizedTitle($title)."/watch?translate=false&locale=".$this->getUserCountry();
-        return $this->get_data($url);
-    }
+    // ── Private helpers ───────────────────────────────────────────────────────
 
-    public function getWatchProviders(){
-        if(Storage::makeDirectory('providers')){
-            $country = $this->getUserCountry();
-            if(Storage::disk('local')->missing('providers/'.$country.'.txt') || Storage::disk('local')->size('providers/'.$country.'.txt') == 0){
-                $url = "https://api.themoviedb.org/3/watch/providers/movie?api_key=4d8868b4c38c4a941f15586d824cb806&language=en-US&watch_region=".$this->getUserCountry();
-                $json = file_get_contents($url);
-                Storage::disk('local')->put('providers/'.$country.'.txt', $json);
-            } else {
-                $json = Storage::get('providers/'.$country.'.txt');
-            }
-            $data = json_decode($json);
-            return $data;
-        }
+    protected function sortAssocArrayByValue(array $array, string $value): array
+    {
+        $col = array_column($array, $value);
+        array_multisort($col, SORT_DESC, $array);
+        return $array;
     }
 }
