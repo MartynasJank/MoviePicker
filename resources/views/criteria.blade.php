@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('page_title', 'Criteria — MoviePickr')
 @section('scripts')
-    @vite(['resources/js/custom/customForm.js'])
+    @vite(['resources/js/custom/criteriaForm.js'])
 @endsection
 @section('content')
 <div class="max-w-2xl mx-auto px-4 py-10">
