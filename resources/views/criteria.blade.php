@@ -90,7 +90,7 @@
             {{-- People --}}
             <div class="card p-5">
                 <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">People</h3>
-                <div class="grid md:grid-cols-2 gap-4">
+                <div class="flex flex-col gap-4">
                     <div>
                         <label class="block text-sm text-gray-400 mb-1.5">Actors</label>
                         <input placeholder="Search actors…" type="text" class="cast"
