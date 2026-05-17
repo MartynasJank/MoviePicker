@@ -3,198 +3,164 @@
 namespace App;
 
 use App\Interfaces\ApiMovieInterface as ApiMovie;
+use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
-class TMDB extends Model implements ApiMovie
+class TMDB implements ApiMovie
 {
+    // Read-access token — not secret, already public in repo history.
+    private const BEARER = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0ZDg4NjhiNGMzOGM0YTk0MWYxNTU4NmQ4MjRjYjgwNiIsInN1YiI6IjVlOGFmYTZjYzRhZDU5MDAxM2ZmM2IyOCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.SOJk4kMLahEcmJf9riMYfZL1pnb7YwuLWosSdFfNLwU';
+
+    private Client $client;
+
+    public function __construct()
+    {
+        $this->client = new Client([
+            'headers' => [
+                'Authorization' => 'Bearer ' . self::BEARER,
+                'Accept'        => 'application/json',
+            ],
+        ]);
+    }
+
     /**
+     * Discover movies by arbitrary filter criteria.
+     *
      * @throws GuzzleException
      */
-    public function discover($input = [])
+    public function discover(array $input = [], string $country = 'LT'): array
     {
-        $ip = \Request::ip();
-        $data = null;
-
-        try {
-            $data = \Location::get($ip);
-        } catch (\Throwable $e) {
-            $data = null;
-        }
-        $country = $data->countryCode ?? 'LT';
-
-        $smallYear = 1950;
-        // Converting genres array to string for api request
         $input = $this->fixMovieArrayKeys($input);
-        // SET UP DEFAULT VALUES AND CONVERT VALUES FOR API REQUEST FOR BETTER RESULT EXPERIENCE
+
+        // Default language when no filters are set
         if (count($input) <= 1) {
             $input['with_original_language'] = 'en';
         }
-        if (isset($input['with_genres'])) {
-            $input['with_genres'] = implode(',', $input['with_genres']);
+
+        // Implode array values to comma-separated strings
+        foreach (['with_genres', 'without_genres', 'with_watch_providers'] as $key) {
+            if (isset($input[$key]) && is_array($input[$key])) {
+                $input[$key] = implode(',', $input[$key]);
+            }
         }
-        if (isset($input['without_genres'])) {
-            $input['without_genres'] = implode(',', $input['without_genres']);
-        }
-        // Checks what values were submitted and adds default values for api request
+
+        // Date range formatting
+        $smallYear = 1950;
         if (isset($input['primary_release_date.gte'])) {
-            $input['primary_release_date.gte'] = $input['primary_release_date.gte'].'-01-01';
+            $input['primary_release_date.gte'] .= '-01-01';
         }
         if (isset($input['primary_release_date.lte'])) {
-            if($input['primary_release_date.lte'] < 1950){
-                $smallYear = $input['primary_release_date.lte'];
+            if ($input['primary_release_date.lte'] < 1950) {
+                $smallYear = (int) $input['primary_release_date.lte'];
             }
-            $input['primary_release_date.lte'] = $input['primary_release_date.lte'].'-12-31';
+            $input['primary_release_date.lte'] .= '-12-31';
         }
-        // if none of dates is set give a default start year
-        if(!isset($input['primary_release_date.gte']) && !isset($input['primary_release_date.lte'])){
+        if (!isset($input['primary_release_date.gte']) && !isset($input['primary_release_date.lte'])) {
             $input['primary_release_date.gte'] = '1970-01-01';
         }
 
-        if (!isset($input['vote_count.gte'])) {
-            $input['vote_count.gte'] = 10;
-        }
-        $input['sort_by'] = $this->randomSort();
+        $input['vote_count.gte']  ??= 10;
+        $input['sort_by']           = $this->randomSort();
         $input['with_runtime.gte'] = 40;
-        $input['language'] = 'en-US';
-        $input['include_adult'] = 'false';
-        $input['include_video'] = 'false';
+        $input['language']          = 'en-US';
+        $input['include_adult']     = 'false';
+        $input['include_video']     = 'false';
 
-        if($smallYear < 1950){
+        // Relax constraints for very old films
+        if ($smallYear < 1950) {
             $input['vote_count.gte'] = 0;
             unset($input['with_runtime.gte']);
         }
-        if($smallYear == 1874){
+        if ($smallYear == 1874) {
             unset($input['with_original_language']);
         }
 
-        if(isset($input['with_watch_providers'])){
-            $input['with_watch_providers'] = implode(',', $input['with_watch_providers']);
+        if (isset($input['with_watch_providers'])) {
             $input['watch_region'] = $country;
         }
 
-        $url = 'https://api.themoviedb.org/3/discover/movie?'.http_build_query($input);
+        $url      = 'https://api.themoviedb.org/3/discover/movie?' . http_build_query($input);
+        $response = $this->client->get($url);
 
-        $client = new \GuzzleHttp\Client();
-        $response = $client->request('GET', $url, [
-            'headers' => [
-                'Authorization' => 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0ZDg4NjhiNGMzOGM0YTk0MWYxNTU4NmQ4MjRjYjgwNiIsInN1YiI6IjVlOGFmYTZjYzRhZDU5MDAxM2ZmM2IyOCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.SOJk4kMLahEcmJf9riMYfZL1pnb7YwuLWosSdFfNLwU',
-                'accept' => 'application/json',
-            ],
-        ]);
-
-        $responseBody = $response->getBody()->getContents();
-        $data = json_decode($responseBody, true);
-
-        return $data;
+        return json_decode($response->getBody()->getContents(), true);
     }
 
-    // Uses some information from movie() method to get total pages of similar movies to make results more random
-    public function similarMovies($movieObj)
+    /**
+     * Full movie details with videos, credits, similar, and watch/providers appended.
+     * Cached per movie ID for 6 hours.
+     */
+    public function movie($movieId): object
     {
-        // Returns null if movie doesn't have any similar movies
+        return Cache::remember('tmdb_movie_' . $movieId, now()->addHours(6), function () use ($movieId) {
+            $url = 'https://api.themoviedb.org/3/movie/' . $movieId . '?'
+                . http_build_query(['append_to_response' => 'videos,credits,similar,watch/providers']);
+
+            $response = $this->client->get($url);
+            return json_decode($response->getBody()->getContents());
+        });
+    }
+
+    /**
+     * A random page of similar movies. Not cached — randomness is the point.
+     *
+     * @throws GuzzleException
+     */
+    public function similarMovies(object $movieObj): ?array
+    {
         if ($movieObj->similar->total_results == 0) {
             return null;
         }
 
-        $page = $movieObj->similar->total_pages > 20 ? rand(1, 20) : rand(1, $movieObj->similar->total_pages);
+        $maxPage = min($movieObj->similar->total_pages, 20);
+        $url     = 'https://api.themoviedb.org/3/movie/' . $movieObj->id . '/similar?'
+            . http_build_query(['language' => 'en-US', 'page' => rand(1, $maxPage)]);
 
-        $append = [
-            'language' => 'en-US',
-            'page' => $page
-        ];
-
-        $url = 'https://api.themoviedb.org/3/movie/'.$movieObj->id.'/similar?api_key='.config('api.TMDB').'&'.http_build_query($append);
-
-        $client = new \GuzzleHttp\Client();
-        $response = $client->request('GET', $url, [
-            'headers' => [
-                'Authorization' => 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0ZDg4NjhiNGMzOGM0YTk0MWYxNTU4NmQ4MjRjYjgwNiIsInN1YiI6IjVlOGFmYTZjYzRhZDU5MDAxM2ZmM2IyOCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.SOJk4kMLahEcmJf9riMYfZL1pnb7YwuLWosSdFfNLwU',
-                'accept' => 'application/json',
-            ],
-        ]);
-
-        $responseBody = $response->getBody()->getContents();
-        $data = json_decode($responseBody, true);
-
-        return $data;
+        $response = $this->client->get($url);
+        return json_decode($response->getBody()->getContents(), true);
     }
 
-    // Gets Detailed movie info
-    public function movie($movieId)
+    /**
+     * Daily trending movies, cached for 30 minutes.
+     */
+    public function trending(): array
     {
-        $append = [
-            'append_to_response' => 'videos,credits,similar,'
-        ];
-
-        $url = 'https://api.themoviedb.org/3/movie/'.$movieId.'?api_key='.config('api.TMDB').'&'.http_build_query($append).'%2Cwatch%2Fproviders';
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        $result = curl_exec($ch);
-        curl_close($ch);
-        return json_decode($result);
+        return Cache::remember('tmdb_trending', now()->addMinutes(30), function () {
+            $response = $this->client->get('https://api.themoviedb.org/3/trending/movie/day');
+            return json_decode($response->getBody()->getContents(), true);
+        });
     }
 
-    public function trending()
+    /**
+     * Genre list — callers should use MovieService::genres() which caches the result.
+     */
+    public function genres(): string
     {
-        $url = 'https://api.themoviedb.org/3/trending/movie/day?api_key='.config('api.TMDB');
-
-        $client = new \GuzzleHttp\Client();
-        $response = $client->request('GET', $url, [
-            'headers' => [
-                'Authorization' => 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0ZDg4NjhiNGMzOGM0YTk0MWYxNTU4NmQ4MjRjYjgwNiIsInN1YiI6IjVlOGFmYTZjYzRhZDU5MDAxM2ZmM2IyOCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.SOJk4kMLahEcmJf9riMYfZL1pnb7YwuLWosSdFfNLwU',
-                'accept' => 'application/json',
-            ],
-        ]);
-
-        $responseBody = $response->getBody()->getContents();
-        return json_decode($responseBody, true);
+        $url = 'https://api.themoviedb.org/3/genre/movie/list?' . http_build_query(['language' => 'en-US']);
+        $response = $this->client->get($url);
+        return $response->getBody()->getContents();
     }
 
-    // Gets all genres from TMDB api
-    public function genres()
-    {
-        $url = 'https://api.themoviedb.org/3/genre/movie/list?api_key='.config('api.TMDB');
-        $json = file_get_contents($url);
-        return $json;
-    }
+    // ── Helpers ──────────────────────────────────────────────────────────────
 
-    public function providers(){
-        return null;
-    }
-
-    // Replaces last _ with . for API request
-    protected function fixMovieArrayKeys($data = [])
+    /** Rename form keys like `vote_count_gte` → `vote_count.gte` for the API. */
+    protected function fixMovieArrayKeys(array $data): array
     {
         foreach ($data as $key => $value) {
             if (preg_match('/_(?=gte|lte)/', $key)) {
-                $newKey = preg_replace('/_(?=gte|lte)/', '.', $key);
-                $data[$newKey] = $data[$key];
+                $newKey        = preg_replace('/_(?=gte|lte)/', '.', $key);
+                $data[$newKey] = $value;
                 unset($data[$key]);
             }
         }
         return $data;
     }
 
-    // Chooses random sort method for api to make results more random
-    protected function randomSort()
+    /** Random sort order so repeated requests return different results. */
+    protected function randomSort(): string
     {
-        $start = [
-            'popularity',
-            'release_date',
-            'revenue',
-            'primary_release_date',
-            'original_title',
-            'vote_average',
-            'vote_count'
-        ];
-
-        $end = [
-            '.asc',
-            '.desc'
-        ];
-
-        return $start[array_rand($start)].$end[array_rand($end)];
+        $fields = ['popularity', 'release_date', 'revenue', 'primary_release_date',
+                   'original_title', 'vote_average', 'vote_count'];
+        return $fields[array_rand($fields)] . (rand(0, 1) ? '.asc' : '.desc');
     }
 }
