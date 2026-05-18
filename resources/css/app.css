@@ -402,6 +402,18 @@ html[data-theme="light"] {
     padding-bottom: 0.75rem;
     padding-bottom: env(safe-area-inset-bottom, 0.75rem);
     padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    overflow: visible;
+}
+/* Extend the bar's background into the home-indicator zone regardless of viewport-fit */
+.sticky-bar-safe::after {
+    content: '';
+    position: absolute;
+    bottom: -60px;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: #0f0f0f;
+    pointer-events: none;
 }
 
 /* ─── Tom Select ─────────────────────────────────────────────── */
