@@ -1,10 +1,10 @@
-﻿import TomSelect from 'tom-select';
+import TomSelect from 'tom-select';
 import 'jquery-flexdatalist/jquery.flexdatalist.min';
 
 $(document).ready(function () {
     const tmdb = window.TMDB_API_KEY;
 
-    /* â”€â”€ Step wizard inside the adjust-form modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    /* -- Step wizard inside the adjust-form modal -------------- */
     let currentStep = 1;
     const totalSteps = 5;
 
@@ -35,7 +35,7 @@ $(document).ready(function () {
 
     if ($('#modal-step-1').length) showStep(1);
 
-    /* â”€â”€ Tom Select: genres â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    /* -- Tom Select: genres ------------------------------------ */
     if (document.getElementById('modal-with_genres')) {
         window._ts_modal_with_genres = new TomSelect('#modal-with_genres', {
             plugins: ['remove_button'], placeholder: 'Select genres...', maxOptions: null,
@@ -47,14 +47,14 @@ $(document).ready(function () {
         });
     }
 
-    /* â”€â”€ Tom Select: language â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    /* -- Tom Select: language ---------------------------------- */
     if (document.getElementById('modal-with_original_language')) {
         window._ts_modal_lang = new TomSelect('#modal-with_original_language', {
             maxOptions: null, create: false,
         });
     }
 
-    /* â”€â”€ Tom Select: streaming providers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    /* -- Tom Select: streaming providers ---------------------- */
     if (document.getElementById('modal-with_watch_providers')) {
         window._ts_modal_providers = new TomSelect('#modal-with_watch_providers', {
             plugins: ['remove_button'],
@@ -77,52 +77,8 @@ $(document).ready(function () {
         });
     }
 
-    /* â”€â”€ Flexdatalist: cast & crew in modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-    if ($('.modal-cast').length) {
-        $('.modal-cast').flexdatalist({
-            minLength: 0, maxShownResults: 4, textProperty: 'name', valueProperty: 'id',
-            selectionRequired: true, visibleProperties: ['name'], searchContain: true,
-            searchIn: 'name', multiple: true, searchDelay: 800,
-        });
-    }
-    if ($('.modal-crew').length) {
-        $('.modal-crew').flexdatalist({
-            minLength: 0, maxShownResults: 4, textProperty: 'name', valueProperty: 'id',
-            selectionRequired: true, visibleProperties: ['name'], searchContain: true,
-            searchIn: 'name', multiple: true, searchDelay: 800,
-        });
-    }
-
-    let castTimer, crewTimer;
-    $('#modal-with_cast-flexdatalist').on('keyup', function () {
-        clearTimeout(castTimer);
-        const val = $(this).val();
-        castTimer = setTimeout(function () { fetchPeople(val, 'Acting', '.modal-cast'); }, 500);
-    }).on('keydown', function () { clearTimeout(castTimer); });
-
-    $('#modal-with_crew-flexdatalist').on('keyup', function () {
-        clearTimeout(crewTimer);
-        const val = $(this).val();
-        crewTimer = setTimeout(function () { fetchPeople(val, null, '.modal-crew'); }, 500);
-    }).on('keydown', function () { clearTimeout(crewTimer); });
-
-    function fetchPeople(name, dept, target) {
-        if (!name || !tmdb) return;
-        $.getJSON('https://api.themoviedb.org/3/search/person?api_key=' + tmdb + '&language=en-US&query=' + encodeURIComponent(name) + '&page=1&include_adult=false')
-            .done(function (data) {
-                const results = [];
-                $.each(data.results, function (i, item) {
-                    if (!dept || item.known_for_department === dept) results.push(item);
-                    if (results.length >= 4) return false;
-                });
-                $(target).flexdatalist('data', results);
-            });
-    }
-
-    /* â”€â”€ Restore session data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    /* -- Restore session data ---------------------------------- */
     $.getJSON('/userinput', function (data) {
-        restorePeople(data['with_cast'], '.modal-cast');
-        restorePeople(data['with_crew'], '.modal-crew');
 
         if (data['with_genres'] && window._ts_modal_with_genres) {
             window._ts_modal_with_genres.setValue(data['with_genres'].split(','), true);
@@ -143,23 +99,7 @@ $(document).ready(function () {
         if (data['vote_count_gte'])           $('#modal-vote_count_gte').val(data['vote_count_gte']);
     });
 
-    function restorePeople(ids, target) {
-        if (!ids || !tmdb) return;
-        const idArr = ids.split(',');
-        const resolved = [];
-        $.each(idArr, function (i, id) {
-            $.getJSON('https://api.themoviedb.org/3/person/' + id + '?api_key=' + tmdb + '&language=en-US')
-                .done(function (d) {
-                    resolved.push({ id: id, name: d.name });
-                    if (resolved.length === idArr.length) {
-                        $(target).flexdatalist('data', resolved);
-                        $(target).flexdatalist('value', resolved.map(r => r.id).join(','));
-                    }
-                });
-        });
-    }
-
-    /* â”€â”€ Auto-dismiss errors â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    /* -- Auto-dismiss errors ----------------------------------- */
     setTimeout(function () {
         $('.alert-msg').fadeOut(400, function () { $(this).remove(); });
     }, 4000);

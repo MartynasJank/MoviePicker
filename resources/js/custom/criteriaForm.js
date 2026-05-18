@@ -83,6 +83,10 @@ $(document).ready(function () {
         if (!window['_ts_modal-with_cast']) {
             makePeopleTs('modal-with_cast', 'Acting');
             makePeopleTs('modal-with_crew', null);
+            $.getJSON('/userinput', function (data) {
+                restorePeople(data['with_cast'], 'modal-with_cast');
+                restorePeople(data['with_crew'], 'modal-with_crew');
+            });
         }
     });
 
