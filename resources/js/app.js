@@ -15,12 +15,12 @@ $(document).ready(function () {
 
     /* ── Theme toggle ──────────────────────────────────────────────────── */
     function applyTheme(theme) {
-        $('body').attr('data-theme', theme);
+        document.documentElement.dataset.theme = theme;
         document.cookie = 'theme=' + theme + ';max-age=' + (30 * 24 * 3600) + ';path=/';
     }
 
     $(document).on('click', '.theme-toggle', function () {
-        const current = $('body').attr('data-theme') === 'light' ? 'light' : 'dark';
+        const current = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
         applyTheme(current === 'dark' ? 'light' : 'dark');
     });
 

@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" translate="no">
+<html lang="en" translate="no" data-theme="dark">
 <head>
     <title>@yield('page_title', 'MoviePickr')</title>
     <link rel="icon" href="{{ URL::asset('/images/icon.png') }}"/>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="description" content="Random Movie Picker — find the perfect film for tonight.">
+    <script>!function(){var m=document.cookie.match(/(?:^|; )theme=([^;]+)/);if(m)document.documentElement.dataset.theme=m[1]}()</script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @yield('scripts', '')
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-204204564-1"></script>
@@ -16,7 +17,7 @@
         gtag('config', 'UA-204204564-1');
     </script>
 </head>
-<body data-theme="dark">
+<body>
 
     {{-- Loading overlay --}}
     <div class="overlay"></div>
