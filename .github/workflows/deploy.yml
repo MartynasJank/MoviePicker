@@ -39,7 +39,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: 2244
-          source: "app/,bootstrap/,config/,database/,public/,resources/views/,routes/,storage/,vendor/,composer.json,composer.lock,artisan"
+          source: "app/,bootstrap/,config/,database/,public/,resources/views/,routes/,vendor/,composer.json,composer.lock,artisan"
           target: "/var/www/moviepicker"
 
       - name: Run post-deploy commands
