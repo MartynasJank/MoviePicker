@@ -3,7 +3,7 @@
         @foreach ($allMovies['results'] as $result)
             @if(isset($result['release_date']))
             <div class="swiper-slide h-auto">
-                <a href="{{ url('movie/'.$result['id']) }}" class="block group long-movie" data-name="{{ $result['title'] }}">
+                <a href="{{ url('movie/'.$result['id']) }}{{ !empty($clearCriteria) ? '?i=new' : '' }}" class="block group long-movie" data-name="{{ $result['title'] }}">
                     <div class="card card-hover h-full flex flex-col overflow-hidden">
                         {{-- Poster --}}
                         <div class="aspect-[2/3] bg-white/[0.03] overflow-hidden">

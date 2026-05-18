@@ -24,6 +24,10 @@ class MovieController extends Controller
 
         $providersArray = $movieService->buildProvidersArray($tmdb);
 
+        if ($request->query('i') !== null) {
+            session()->forget('userInput');
+        }
+
         $movieCriteria = session('userInput');
         $similarMovies = null;
 
