@@ -6,7 +6,7 @@
                 <a href="{{ url('movie/'.$result['id']) }}{{ !empty($clearCriteria) ? '?i=new' : '' }}" class="block group long-movie" data-name="{{ $result['title'] }}">
                     <div class="card card-hover h-full flex flex-col overflow-hidden">
                         {{-- Poster --}}
-                        <div class="aspect-[2/3] bg-white/[0.03] overflow-hidden">
+                        <div class="carousel-poster aspect-[2/3] bg-white/[0.03] overflow-hidden">
                             @if($result['poster_path'])
                                 <img
                                     src="https://image.tmdb.org/t/p/w300{{ $result['poster_path'] }}"

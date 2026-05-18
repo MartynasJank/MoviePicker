@@ -350,6 +350,32 @@ html[data-theme="light"] {
         40% { transform: scale(1); opacity: 1; }
     }
 
+    /* Carousel: full-height cards on mobile */
+    @media (max-width: 639px) {
+        /* Batch: fills viewport minus nav (64) + page header (~90) + sticky bar (~90) */
+        .swiper-multiple {
+            height: calc(100dvh - 244px);
+        }
+        /* Trending / similar: generous cap so the card never spills off screen */
+        .swiper-trending,
+        .swiper-similar {
+            height: calc(100dvh - 220px);
+        }
+        .swiper-multiple .swiper-slide,
+        .swiper-trending .swiper-slide,
+        .swiper-similar .swiper-slide {
+            height: 100%;
+        }
+        /* Poster: drop fixed aspect-ratio and fill available flex space */
+        .swiper-multiple .carousel-poster,
+        .swiper-trending .carousel-poster,
+        .swiper-similar .carousel-poster {
+            aspect-ratio: unset;
+            flex: 1;
+            min-height: 0;
+        }
+    }
+
     /* Swiper overrides */
     .swiper-button-next,
     .swiper-button-prev {

@@ -3,6 +3,8 @@ import { Navigation, Autoplay } from 'swiper/modules';
 
 $(document).ready(function () {
 
+    const isMobile = () => window.innerWidth < 600;
+
     if ($('.swiper-trending').length) {
         new Swiper('.swiper-trending', {
             modules: [Navigation, Autoplay],
@@ -45,6 +47,7 @@ $(document).ready(function () {
             slidesPerView: 1,
             spaceBetween: 12,
             loop: false,
+            autoHeight: false,
             navigation: {
                 prevEl: '.swiper-multiple .swiper-button-prev',
                 nextEl: '.swiper-multiple .swiper-button-next',
