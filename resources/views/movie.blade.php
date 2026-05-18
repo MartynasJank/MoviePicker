@@ -221,10 +221,10 @@
 </div>
 
 {{-- Mobile sticky bottom bar --}}
-<div class="fixed bottom-0 left-0 right-0 sm:hidden bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 px-4 py-3 z-40">
+<div class="fixed bottom-0 left-0 right-0 sm:hidden bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 px-4 z-40 sticky-bar-safe">
     <div class="flex gap-3">
-        <a href="/movie" class="btn-accent long-single flex-1 text-center">Pick Another</a>
         <button type="button" class="btn-secondary flex-1" data-modal-open="modal-form">Adjust</button>
+        <a href="/movie" class="btn-accent long-single flex-1 text-center">Pick Another</a>
     </div>
 </div>
 
