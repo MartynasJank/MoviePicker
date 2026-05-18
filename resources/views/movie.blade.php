@@ -36,8 +36,8 @@
     {{-- Main content grid --}}
     <div class="flex gap-3 md:grid md:grid-cols-[220px_1fr] md:gap-6 mb-8">
 
-        {{-- Poster --}}
-        <div class="w-[38%] md:w-auto flex-shrink-0">
+        {{-- Poster + trailer button --}}
+        <div class="w-[38%] md:w-auto flex-shrink-0 flex flex-col gap-2">
             @if($tmdbInfo->poster_path)
                 <img src="https://image.tmdb.org/t/p/original{{ $tmdbInfo->poster_path }}"
                     alt="{{ $tmdbInfo->title }}"
@@ -48,6 +48,9 @@
                 <div class="w-full aspect-[2/3] card flex items-center justify-center text-gray-600 text-xs text-center px-2">
                     No poster available
                 </div>
+            @endif
+            @if(isset($trailer))
+                <button type="button" class="btn-accent text-sm w-full" data-modal-open="trailer-modal">▶ Trailer</button>
             @endif
         </div>
 
@@ -69,25 +72,17 @@
             </div>
             @endif
 
-            {{-- Trailer + streaming --}}
-            <div class="flex flex-wrap gap-2 md:gap-3 items-center">
-                @if(isset($trailer))
-                    <button type="button" class="btn-accent text-sm" data-modal-open="trailer-modal">▶ Trailer</button>
-                @else
-                    <button class="btn-secondary text-sm opacity-50 cursor-default" disabled>No Trailer</button>
-                @endif
-
-                @if ($watchProviders != null)
-                    <div class="flex items-center gap-2 flex-wrap">
-                        @foreach($watchProviders->flatrate as $stream)
-                            <a href="{{ $watchProviders->link }}" target="_blank" title="Watch on streaming">
-                                <img src="https://image.tmdb.org/t/p/w45{{ $stream->logo_path }}"
-                                    class="h-8 w-8 rounded-md border border-white/10 hover:border-white/30 transition-colors">
-                            </a>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
+            {{-- Streaming --}}
+            @if ($watchProviders != null)
+                <div class="flex items-center gap-2 flex-wrap">
+                    @foreach($watchProviders->flatrate as $stream)
+                        <a href="{{ $watchProviders->link }}" target="_blank" title="Watch on streaming">
+                            <img src="https://image.tmdb.org/t/p/w45{{ $stream->logo_path }}"
+                                class="h-8 w-8 rounded-md border border-white/10 hover:border-white/30 transition-colors">
+                        </a>
+                    @endforeach
+                </div>
+            @endif
 
             {{-- Plot --}}
             <div>
