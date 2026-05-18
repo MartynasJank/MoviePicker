@@ -390,16 +390,18 @@ html[data-theme="light"] {
         transform: rotate(180deg);
     }
 
-    /* Mobile sticky bar — safe area aware bottom padding */
-    .sticky-bar-safe {
-        padding-top: 0.75rem;
-        padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
-    }
-
     /* Hero gradient */
     .hero-fade {
         background: linear-gradient(to bottom, transparent, rgba(15,15,15,0.4), #0f0f0f);
     }
+}
+
+/* Mobile sticky bar — outside @layer so env() is picked up reliably on iOS Safari */
+.sticky-bar-safe {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    padding-bottom: env(safe-area-inset-bottom, 0.75rem);
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
 
 /* ─── Tom Select ─────────────────────────────────────────────── */
