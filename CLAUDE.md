@@ -38,35 +38,38 @@ Tests use in-memory SQLite (configured in `phpunit.xml`), so no database setup i
 1. `public/index.php` bootstraps `bootstrap/app.php`
 2. Routes in `routes/web.php` dispatch to controllers
 3. Controllers delegate to `app/Services/MovieService.php` for business logic
-4. `MovieService` calls `app/TMDB.php` (primary) or `app/OMDB.php` (metadata enrichment)
+4. `MovieService` uses `app/Services/TmdbClient.php` (primary) or `app/Services/OmdbClient.php` (metadata enrichment)
 5. Blade templates in `resources/views/` render the response
 
 ### Key Files
 
-- **`app/TMDB.php`** — TMDB API client (discover, trending, genres, watch providers, trailers). Uses Bearer token auth + GuzzleHTTP. Implements `ApiMovieInterface`.
-- **`app/OMDB.php`** — OMDb API client (Rotten Tomatoes scores, detailed plot) via cURL. Implements `ApiMovieInterface`.
-- **`app/Interfaces/ApiMovieInterface.php`** — Interface enforcing `movie($id)` on both API clients.
-- **`app/Services/MovieService.php`** — Core business logic: random movie selection, genre caching, trailer region filtering, streaming provider links.
-- **`app/Services/UrlGenerator.php`** — Builds URLs for IMDb, Rotten Tomatoes (with slug fallbacks), and Metacritic.
-- **`app/Http/Controllers/RandomMovieController.php`** — Handles single/multiple random movie requests; saves `Click` records.
-- **`app/Http/Controllers/RoulettesController.php`** — Pre-built curated collections (Netflix Horror, Documentaries, Anime).
+- **`app/Services/TmdbClient.php`** — TMDB API client (discover, trending, genres, watch providers, trailers, people). Bearer token auth + GuzzleHTTP. Implements `MovieApiInterface`.
+- **`app/Services/OmdbClient.php`** — OMDb API client (Rotten Tomatoes scores, detailed plot) via cURL. Implements `MovieApiInterface`.
+- **`app/Interfaces/MovieApiInterface.php`** — Interface enforcing `movie($id)` on both API clients.
+- **`app/Services/MovieService.php`** — Core business logic: random movie selection, genre caching, page resolution, batch picking, streaming provider links, geolocation.
+- **`app/Services/RatingsUrlBuilder.php`** — Builds URLs for IMDb, Rotten Tomatoes (with slug fallbacks), and Metacritic.
+- **`app/Http/Controllers/MoviePickController.php`** — Handles single (`/movie`) and batch (`/multiple`) random movie requests.
 - **`app/Http/Controllers/MovieController.php`** — Detailed movie view: ratings, cast, crew, watch providers, similar movies, trailers, reviews.
+- **`app/Http/Controllers/RouletteController.php`** — Pre-built curated collections (Netflix Horror, Documentaries, Anime).
 - **`app/Http/Controllers/HomeController.php`** — Homepage with trending movies from TMDB.
 - **`app/Http/Controllers/CriteriaController.php`** — Renders search form with genres and streaming providers.
-- **`app/Http/Controllers/AjaxController.php`** — `GET /userinput` returns session-stored form values as JSON (used by JS to repopulate the form on page load).
-- **`app/Http/Requests/CheckFormData.php`** — Validates search input: year range bounds (1874–current), year_from ≤ year_to, vote average 0–10.
+- **`app/Http/Controllers/UserInputController.php`** — `GET /userinput` returns session-stored form values as JSON (used by JS to repopulate the form on page load).
+- **`app/Http/Controllers/TmdbProxyController.php`** — Server-side proxy for TMDB people search (`/tmdb/search/people`, `/tmdb/people/{id}`), keeping the API key off the browser.
+- **`app/Http/Controllers/ContactController.php`** — Handles contact form POST to `/`, sends email via `ContactMail`.
+- **`app/Http/Requests/CriteriaRequest.php`** — Validates search input: year range bounds (1874–current), vote average 0–10.
 - **`app/Models/Click.php`** — Records each movie discovery: visitor hash (cookie), JSON input criteria, resulting movie ID. Used for analytics.
-- **`routes/web.php`** — All web routes; also defines AJAX routes and obfuscated utility routes for cache/schedule clearing.
+- **`routes/web.php`** — All web routes; includes obfuscated utility routes for cache clearing and scheduler triggering.
 
 ### Frontend
 
-Most UI logic lives in `resources/js/custom/` as vanilla JS/jQuery:
-- **`customForm.js`** — SmartWizard 5-step form, bootstrap-select dropdowns, Flexdatalist autocomplete for actors/crew/movies (calls TMDB API directly from the browser).
-- **`customModal.js`** — YouTube trailer modal with region restriction checking; prevents scrollbar jump on modal open.
-- **`customOwlCarousel.js`** — Three OWL Carousel instances: similar movies, homepage trending, multiple results.
-- **`showMore.js`** — Expands truncated lists (cast, crew, production companies) with "Show All" toggle.
+JS lives in `resources/js/custom/`, bundled by Vite. jQuery is injected globally via `@rollup/plugin-inject`.
 
-Bootstrap 4 handles layout. Dark/light theme switching uses CSS variables in `resources/sass/themes/`. jQuery is injected globally via `@rollup/plugin-inject` in `vite.config.js`.
+- **`criteriaForm.js`** — 5-step criteria form using TomSelect for genre/provider dropdowns and Flexdatalist autocomplete for actor/crew/movie search (proxied through `/tmdb/search/people`).
+- **`trailerModal.js`** — YouTube trailer modal with region restriction checking; also contains the step wizard for the "adjust criteria" modal.
+- **`carousel.js`** — Three Swiper instances: similar movies, homepage trending, batch results.
+- **`showMore.js`** — Expands truncated lists (cast, crew, production companies) with a "Show All" toggle.
+
+Bootstrap 4 handles layout; Tailwind CSS 4 is also included. Dark/light theme switching uses CSS custom properties.
 
 ### Geolocation
 
@@ -75,7 +78,7 @@ Bootstrap 4 handles layout. Dark/light theme switching uses CSS variables in `re
 ### Database
 
 Two tables:
-- **`users`** — Standard Laravel auth table (not actively used for authentication in current app).
+- **`users`** — Standard Laravel auth table (not actively used for authentication).
 - **`clicks`** — Analytics: `visitor` (cookie hash), `input` (JSON search criteria), `result` (TMDB movie ID).
 
 ## Environment Setup
@@ -86,10 +89,7 @@ Copy `.env.example` to `.env` and fill in:
 - `YOUTUBE_API_KEY` — YouTube Data API key
 - MySQL credentials
 
-For production also set:
-- `APP_ENV=production`
-- `APP_DEBUG=false`
-- `APP_URL=https://moviepicker.martybuilds.dev`
+For production also set `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://moviepicker.martybuilds.dev`.
 
 API keys are accessed via `config/api.php`.
 
@@ -101,6 +101,4 @@ GitHub Actions (`.github/workflows/deploy.yml`) triggers on push to `master`:
 3. SCPs app files to `/var/www/moviepicker` on the VPS
 4. SSHs in to run `php artisan migrate --force`, `config:cache`, `route:cache`, `view:cache`
 
-Required GitHub secrets: `SSH_HOST`, `SSH_USER`, `SSH_KEY`.
-
-The `.env` file is never deployed — it must be created manually on the server once.
+Required GitHub secrets: `SSH_HOST`, `SSH_USER`, `SSH_KEY`. The `.env` file is never deployed — it must be created manually on the server once.
