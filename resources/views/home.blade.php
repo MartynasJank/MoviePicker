@@ -6,8 +6,22 @@
 
     {{-- Hero --}}
     <section class="relative min-h-[88vh] flex items-center justify-center overflow-hidden">
+
+        {{-- Poster collage background --}}
+        @php $bgPosters = array_values(array_filter(array_slice($trending['results'] ?? [], 0, 12), fn($m) => !empty($m['poster_path']))); @endphp
+        @if(count($bgPosters) >= 3)
+            <div class="absolute inset-0 grid grid-cols-4 md:grid-cols-6 opacity-[0.18] pointer-events-none overflow-hidden" aria-hidden="true">
+                @foreach($bgPosters as $m)
+                    <img src="https://image.tmdb.org/t/p/w342{{ $m['poster_path'] }}"
+                         alt=""
+                         class="w-full h-full object-cover"
+                         loading="lazy">
+                @endforeach
+            </div>
+        @endif
+
         <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(192,57,58,0.12)_0%,transparent_65%)]"></div>
-        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-[#0f0f0f]/40 to-[#0f0f0f]"></div>
+        <div class="hero-fade absolute inset-0"></div>
         <div class="relative z-10 text-center px-4 py-20 max-w-3xl mx-auto">
             <h1 class="text-5xl md:text-7xl font-bold tracking-tight mb-5 leading-tight">
                 <span class="text-white">Random</span><br>
