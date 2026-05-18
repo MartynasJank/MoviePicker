@@ -80,6 +80,11 @@ $(document).ready(function () {
         setTimeout(() => window.removeEventListener('beforeunload', handler), 150);
     });
 
+    /* ── Accordion ─────────────────────────────────────────────────────── */
+    $(document).on('click', '.accordion-header', function () {
+        $(this).closest('.accordion-section').toggleClass('accordion-open');
+    });
+
     /* ── Auto-dismiss alerts ───────────────────────────────────────────── */
     setTimeout(function () {
         $('.alert-msg').fadeOut(400, function () { $(this).remove(); });
