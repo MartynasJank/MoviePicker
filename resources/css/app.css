@@ -373,6 +373,29 @@ html[data-theme="light"] {
     }
     .swiper-button-disabled { opacity: 0.25 !important; }
 
+    /* Accordion */
+    .accordion-body {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.25s ease;
+    }
+    .accordion-section.accordion-open .accordion-body {
+        max-height: 600px;
+        overflow: visible;
+    }
+    .accordion-chevron {
+        transition: transform 0.25s ease;
+    }
+    .accordion-section.accordion-open .accordion-chevron {
+        transform: rotate(180deg);
+    }
+
+    /* Mobile sticky bar — safe area aware bottom padding */
+    .sticky-bar-safe {
+        padding-top: 0.75rem;
+        padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    }
+
     /* Hero gradient */
     .hero-fade {
         background: linear-gradient(to bottom, transparent, rgba(15,15,15,0.4), #0f0f0f);

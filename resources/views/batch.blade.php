@@ -29,12 +29,12 @@
 </div>
 
 {{-- Mobile sticky bottom bar --}}
-<div class="fixed bottom-0 left-0 right-0 sm:hidden bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 px-4 py-3 z-40">
+<div class="fixed bottom-0 left-0 right-0 sm:hidden bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 px-4 z-40 sticky-bar-safe">
     <div class="flex gap-3">
-        <a href="{{ Request::url() }}" class="btn-accent flex-1 text-center">New Batch</a>
         @if(isset($providersArray) && isset($all_genres))
             <button type="button" class="btn-secondary flex-1" data-modal-open="modal-form">Adjust</button>
         @endif
+        <a href="{{ Request::url() }}" class="btn-accent flex-1 text-center">New Batch</a>
     </div>
 </div>
 
