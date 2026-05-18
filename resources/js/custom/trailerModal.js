@@ -38,12 +38,12 @@ $(document).ready(function () {
     /* â”€â”€ Tom Select: genres â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     if (document.getElementById('modal-with_genres')) {
         window._ts_modal_with_genres = new TomSelect('#modal-with_genres', {
-            plugins: ['remove_button'], placeholder: 'Select genresâ€¦', maxOptions: null,
+            plugins: ['remove_button'], placeholder: 'Select genres...', maxOptions: null,
         });
     }
     if (document.getElementById('modal-without_genres')) {
         window._ts_modal_without_genres = new TomSelect('#modal-without_genres', {
-            plugins: ['remove_button'], placeholder: 'Exclude genresâ€¦', maxOptions: null,
+            plugins: ['remove_button'], placeholder: 'Exclude genres...', maxOptions: null,
         });
     }
 
@@ -58,7 +58,7 @@ $(document).ready(function () {
     if (document.getElementById('modal-with_watch_providers')) {
         window._ts_modal_providers = new TomSelect('#modal-with_watch_providers', {
             plugins: ['remove_button'],
-            placeholder: 'Select servicesâ€¦',
+            placeholder: 'Select services...',
             maxOptions: null,
             render: {
                 option: function (data, escape) {
