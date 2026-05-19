@@ -9,7 +9,7 @@ class AdminMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        if (!auth()->check() || auth()->user()->email !== env('ADMIN_EMAIL')) {
+        if (!auth()->check() || auth()->user()->email !== config('api.admin_email')) {
             abort(403);
         }
 

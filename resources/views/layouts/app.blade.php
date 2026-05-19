@@ -51,7 +51,7 @@
 
                 {{-- User section --}}
                 @auth
-                    @if(auth()->user()->email === env('ADMIN_EMAIL'))
+                    @if(auth()->user()->email === config('api.admin_email'))
                         <a href="{{ route('admin.dashboard') }}" class="text-xs font-medium px-2 py-1 rounded-md bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-colors">Admin</a>
                     @endif
                     <a href="{{ route('my-roulettes.index') }}" class="nav-link text-sm">My Roulettes</a>
@@ -99,7 +99,16 @@
 
                 {{-- Account --}}
                 @auth
-                    @if(auth()->user()->email === env('ADMIN_EMAIL'))
+                    <div class="flex items-center gap-3 py-3 mt-1 border-t border-white/10">
+                        @if(Auth::user()->avatar)
+                            <img src="{{ Auth::user()->avatar }}" class="w-8 h-8 rounded-full ring-1 ring-white/10" alt="">
+                        @endif
+                        <div>
+                            <div class="text-sm text-white font-medium">{{ Auth::user()->name }}</div>
+                            <div class="text-xs text-gray-500">{{ Auth::user()->email }}</div>
+                        </div>
+                    </div>
+                    @if(auth()->user()->email === config('api.admin_email'))
                         <a href="{{ route('admin.dashboard') }}" class="py-4 text-sm text-red-400 hover:text-red-300 transition-colors border-b border-white/5 border-t border-t-white/10 mt-1">Admin</a>
                         <a href="{{ route('my-roulettes.index') }}" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">My Roulettes</a>
                     @else
