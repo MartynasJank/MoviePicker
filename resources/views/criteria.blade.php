@@ -5,7 +5,7 @@
     @vite(['resources/js/custom/criteriaForm.js'])
 @endsection
 @section('content')
-<div class="max-w-2xl mx-auto px-4 py-10 pb-24 sm:pb-4">
+<div class="max-w-2xl mx-auto px-4 py-10 pb-24">
 
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-white">Movie Criteria</h1>
@@ -135,25 +135,16 @@
 
             @include('errors.error')
 
-            {{-- Desktop actions --}}
-            <div class="hidden sm:flex items-center justify-between">
-                <button type="button" id="btn-reset" class="btn-secondary text-sm">Reset</button>
-                <div class="flex gap-2">
-                    <button type="submit" class="btn-accent" formaction="/movie">Find Movie</button>
-                    <button type="submit" class="btn-secondary" formaction="/multiple">Find Multiple</button>
-                </div>
-            </div>
-
         </div>
     </form>
 </div>
 
-{{-- Mobile sticky bottom bar --}}
-<div class="fixed bottom-0 left-0 right-0 sm:hidden bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 px-4 py-3 z-40">
-    <div class="flex gap-2">
-        <button type="button" id="btn-reset-mobile" class="btn-secondary text-sm px-4">Reset</button>
-        <button type="submit" form="criteria" formaction="/movie" class="btn-accent flex-1 text-center">Find Movie</button>
-        <button type="submit" form="criteria" formaction="/multiple" class="btn-secondary flex-1 text-center">Multiple</button>
+{{-- Sticky bottom bar --}}
+<div class="fixed bottom-0 left-0 right-0 bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 px-4 py-3 z-40">
+    <div class="max-w-2xl mx-auto flex gap-2 sm:justify-end">
+        <button type="button" id="btn-reset-mobile" class="btn-secondary text-sm px-4 sm:hidden">Reset</button>
+        <button type="submit" form="criteria" formaction="/multiple" class="btn-secondary flex-1 sm:flex-none text-center">Multiple</button>
+        <button type="submit" form="criteria" formaction="/movie" class="btn-accent long-single flex-1 sm:flex-none text-center">Find Movie</button>
     </div>
 </div>
 
