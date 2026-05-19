@@ -68,7 +68,12 @@ class RouletteController extends Controller
 
     public function pick(string $slug, MovieService $movieService, TmdbClient $tmdb): View
     {
-        $roulette = Roulette::where('slug', $slug)->where('is_public', true)->firstOrFail();
+        $roulette = Roulette::where('slug', $slug)
+            ->where(function ($q) {
+                $q->where('is_public', true)
+                  ->orWhere('user_id', auth()->id());
+            })
+            ->firstOrFail();
 
         $mapper   = new RouletteTagMapper();
         $base     = $mapper->toCriteria($roulette->tags);

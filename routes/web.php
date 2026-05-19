@@ -12,6 +12,7 @@ use App\Http\Controllers\RouletteController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\WatchlistController;
 use App\Http\Controllers\TmdbProxyController;
+use App\Http\Controllers\UserRouletteController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminRouletteController;
 use App\Http\Controllers\Admin\RowOrderController;
@@ -43,6 +44,19 @@ Route::get('/criteria',  CriteriaController::class);
 Route::match(['get', 'post'], '/movie',    [MoviePickController::class, 'single']);
 Route::match(['get', 'post'], '/multiple', [MoviePickController::class, 'batch']);
 Route::get('/movie/{id}', MovieController::class)->name('movie');
+
+// My Roulettes (auth required — must be before /roulettes/{slug} wildcard)
+Route::middleware('auth')->prefix('my-roulettes')->name('my-roulettes.')->group(function () {
+    Route::get('/',                              [UserRouletteController::class, 'index'])->name('index');
+    Route::get('/manage',                        [UserRouletteController::class, 'manage'])->name('manage');
+    Route::get('/manage/create',                 [UserRouletteController::class, 'create'])->name('create');
+    Route::post('/manage',                       [UserRouletteController::class, 'store'])->name('store');
+    Route::get('/manage/{roulette}/edit',        [UserRouletteController::class, 'edit'])->name('edit');
+    Route::put('/manage/{roulette}',             [UserRouletteController::class, 'update'])->name('update');
+    Route::delete('/manage/{roulette}',          [UserRouletteController::class, 'destroy'])->name('destroy');
+    Route::patch('/manage/{roulette}/toggle',    [UserRouletteController::class, 'togglePublic'])->name('toggle');
+    Route::post('/manage/rows/reorder',          [UserRouletteController::class, 'reorderRows'])->name('rows.reorder');
+});
 
 // Admin (must be before /roulettes/{slug} wildcard)
 Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(function () {
