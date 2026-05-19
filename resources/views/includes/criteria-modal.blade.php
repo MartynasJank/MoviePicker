@@ -156,8 +156,8 @@
                 {{-- Actions --}}
                 <div class="flex gap-2 pt-4 border-t border-white/5">
                     <button type="button" id="modal-btn-reset" class="btn-secondary flex-1 text-sm">Reset</button>
-                    <button type="submit" class="btn-accent flex-1 text-sm" formaction="/movie?a=true">Find Movie</button>
                     <button type="submit" class="btn-secondary flex-1 text-sm" formaction="/multiple?a=true">Multiple</button>
+                    <button type="submit" class="btn-accent flex-1 text-sm long-single" formaction="/movie?a=true">Find Movie</button>
                 </div>
 
             </div>

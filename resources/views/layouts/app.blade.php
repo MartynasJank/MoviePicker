@@ -101,7 +101,7 @@
         @yield('content')
     </main>
 
-    <footer class="border-t border-white/5 mt-16 py-6 text-center text-xs text-gray-600">
+    <footer class="border-t border-white/5 mt-8 pt-6 @yield('footer_pb', 'pb-6') text-center text-xs text-gray-600">
         © Martynas Jankauskas {{ date('Y') }}
     </footer>
 
