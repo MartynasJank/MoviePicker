@@ -48,6 +48,8 @@
             <form method="POST" action="/movie?a=1">
                 @csrf
                 <input type="hidden" name="with_genres[]" value="35">
+                <input type="hidden" name="without_genres[]" value="27">
+                <input type="hidden" name="without_genres[]" value="53">
                 <button type="submit" class="mood-tile long-single" data-loading="Finding something to laugh at!">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"/>
@@ -63,6 +65,9 @@
             <form method="POST" action="/movie?a=1">
                 @csrf
                 <input type="hidden" name="with_genres[]" value="53">
+                <input type="hidden" name="without_genres[]" value="35">
+                <input type="hidden" name="without_genres[]" value="16">
+                <input type="hidden" name="without_genres[]" value="10749">
                 <button type="submit" class="mood-tile long-single" data-loading="Finding something to keep you on edge!">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
@@ -76,6 +81,9 @@
                 @csrf
                 <input type="hidden" name="with_genres[]" value="18">
                 <input type="hidden" name="vote_average_gte" value="7.5">
+                <input type="hidden" name="without_genres[]" value="27">
+                <input type="hidden" name="without_genres[]" value="53">
+                <input type="hidden" name="without_genres[]" value="80">
                 <button type="submit" class="mood-tile long-single" data-loading="Finding something to warm your heart!">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="5"/>
@@ -96,6 +104,9 @@
             <form method="POST" action="/movie?a=1">
                 @csrf
                 <input type="hidden" name="with_genres[]" value="27">
+                <input type="hidden" name="without_genres[]" value="35">
+                <input type="hidden" name="without_genres[]" value="16">
+                <input type="hidden" name="without_genres[]" value="10751">
                 <button type="submit" class="mood-tile long-single" data-loading="Finding something to haunt you!">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
@@ -108,6 +119,9 @@
             <form method="POST" action="/movie?a=1">
                 @csrf
                 <input type="hidden" name="with_genres[]" value="10749">
+                <input type="hidden" name="without_genres[]" value="27">
+                <input type="hidden" name="without_genres[]" value="53">
+                <input type="hidden" name="without_genres[]" value="28">
                 <button type="submit" class="mood-tile long-single" data-loading="Finding something to fall in love with!">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
@@ -120,6 +134,8 @@
             <form method="POST" action="/movie?a=1">
                 @csrf
                 <input type="hidden" name="with_genres[]" value="28">
+                <input type="hidden" name="without_genres[]" value="27">
+                <input type="hidden" name="without_genres[]" value="18">
                 <button type="submit" class="mood-tile long-single" data-loading="Finding something to just enjoy!">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"/>
