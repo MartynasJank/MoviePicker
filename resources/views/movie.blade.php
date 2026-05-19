@@ -1,26 +1,5 @@
 @extends('layouts.app')
 @section('page_title', ($tmdbInfo->title ?? $omdbInfo->Title ?? 'Movie').' — MoviePickr')
-@php
-    $ogTitle       = ($tmdbInfo->title ?? $omdbInfo->Title ?? 'Movie') . ' — MoviePickr';
-    $ogDescription = $omdbInfo->Plot && $omdbInfo->Plot !== 'N/A' ? $omdbInfo->Plot : ($tmdbInfo->overview ?? 'Discover this movie on MoviePickr.');
-    $ogImage       = $tmdbInfo->poster_path ? 'https://image.tmdb.org/t/p/w780' . $tmdbInfo->poster_path : '';
-    $ogUrl         = url()->current();
-@endphp
-@section('meta')
-    <meta property="og:type"        content="video.movie">
-    <meta property="og:url"         content="{{ $ogUrl }}">
-    <meta property="og:title"       content="{{ $ogTitle }}">
-    <meta property="og:description" content="{{ $ogDescription }}">
-    @if($ogImage)
-    <meta property="og:image"       content="{{ $ogImage }}">
-    @endif
-    <meta name="twitter:card"        content="summary_large_image">
-    <meta name="twitter:title"       content="{{ $ogTitle }}">
-    <meta name="twitter:description" content="{{ $ogDescription }}">
-    @if($ogImage)
-    <meta name="twitter:image"       content="{{ $ogImage }}">
-    @endif
-@endsection
 @section('scripts')
     @vite(['resources/js/custom/showMore.js', 'resources/js/custom/carousel.js', 'resources/js/custom/trailerModal.js', 'resources/js/custom/criteriaForm.js'])
 @endsection
@@ -35,16 +14,8 @@
     {{-- Title row --}}
     <div class="flex items-start justify-between gap-4 mb-4 flex-wrap">
         <div>
-            <h1 class="text-3xl md:text-4xl font-bold text-white leading-tight flex items-center gap-3 flex-wrap">
+            <h1 class="text-3xl md:text-4xl font-bold text-white leading-tight">
                 {{ $tmdbInfo->title ?? $omdbInfo->Title }}
-                <button type="button" id="share-btn" title="Copy link"
-                    class="text-gray-600 hover:text-gray-300 transition-colors shrink-0"
-                    style="line-height:1">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-                    </svg>
-                </button>
             </h1>
             <p class="text-gray-500 text-sm mt-1">
                 {{ $omdbInfo->Year ?? date('Y', strtotime($tmdbInfo->release_date ?? '')) }}

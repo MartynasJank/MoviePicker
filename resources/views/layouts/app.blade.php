@@ -6,7 +6,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="description" content="Random Movie Picker — find the perfect film for tonight.">
-    @yield('meta')
     <script>!function(){var m=document.cookie.match(/(?:^|; )theme=([^;]+)/);if(m)document.documentElement.dataset.theme=m[1]}()</script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @yield('scripts', '')
