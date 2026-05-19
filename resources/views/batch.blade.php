@@ -1,10 +1,11 @@
 @extends('layouts.app')
 @section('page_title', $title ?? 'Batch — MoviePickr')
+@section('footer_pb', 'pb-20')
 @section('scripts')
     @vite(['resources/js/custom/carousel.js', 'resources/js/custom/trailerModal.js', 'resources/js/custom/criteriaForm.js'])
 @endsection
 @section('content')
-<div class="max-w-7xl mx-auto px-4 py-8 pb-36">
+<div class="max-w-7xl mx-auto px-4 py-8 pb-36 sm:pb-20">
 
     @if(isset($providersArray) && isset($all_genres))
         @include('includes.criteria-modal')

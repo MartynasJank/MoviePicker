@@ -175,7 +175,7 @@
     </section>
 
     {{-- Contact --}}
-    <section class="max-w-2xl mx-auto px-4 py-16">
+    <section class="max-w-2xl mx-auto px-4 pt-16 pb-8">
         <div class="section-header text-center">
             <h2 class="text-2xl font-bold text-white mb-3">Contact</h2>
             <div class="section-divider mb-8"></div>

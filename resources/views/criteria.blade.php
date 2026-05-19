@@ -1,10 +1,11 @@
 @extends('layouts.app')
 @section('page_title', 'Criteria — MoviePickr')
+@section('footer_pb', 'pb-20 sm:pb-6')
 @section('scripts')
     @vite(['resources/js/custom/criteriaForm.js'])
 @endsection
 @section('content')
-<div class="max-w-2xl mx-auto px-4 py-10 pb-24 sm:pb-10">
+<div class="max-w-2xl mx-auto px-4 py-10 pb-24 sm:pb-4">
 
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-white">Movie Criteria</h1>
