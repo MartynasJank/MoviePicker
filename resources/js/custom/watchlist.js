@@ -71,17 +71,19 @@ $(document).ready(function () {
         });
     });
 
-    // Combined filter: status tab + genre dropdown
+    // Combined filter: status tab + genre chips
     function applyFilters() {
         const status = $('.watchlist-filter.active').data('filter');
-        const genre  = $('#genre-filter').val();
+        const activeGenres = new Set(
+            $('.genre-chip.active').map(function () { return $(this).data('genre'); }).get()
+        );
 
         $('.watchlist-card').each(function () {
             const cardStatus = $(this).attr('data-status');
-            const cardGenres = $(this).attr('data-genres') || '';
+            const cardGenres = ($(this).attr('data-genres') || '').split(',').map(g => g.trim());
 
             const statusMatch = status === 'all' || cardStatus === status;
-            const genreMatch  = !genre || cardGenres.split(',').map(g => g.trim()).includes(genre);
+            const genreMatch  = activeGenres.size === 0 || cardGenres.some(g => activeGenres.has(g));
 
             $(this).toggle(statusMatch && genreMatch);
         });
@@ -93,6 +95,9 @@ $(document).ready(function () {
         applyFilters();
     });
 
-    $(document).on('change', '#genre-filter', applyFilters);
+    $(document).on('click', '.genre-chip', function () {
+        $(this).toggleClass('active border-accent text-accent bg-accent/10 border-white/10 bg-white/5 text-gray-400');
+        applyFilters();
+    });
 
 });

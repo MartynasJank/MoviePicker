@@ -3,23 +3,24 @@
 @section('content')
 <div class="max-w-7xl mx-auto px-4 py-8">
 
-    <div class="flex items-center justify-between mb-6 gap-4 flex-wrap">
-        <h1 class="text-2xl font-bold text-white">My Watchlist</h1>
-        @if($items->isNotEmpty())
-            <div class="flex items-center gap-2 flex-wrap">
-                @if($genres->isNotEmpty())
-                    <select id="genre-filter" class="input-dark text-xs py-1.5 pr-8">
-                        <option value="">All genres</option>
-                        @foreach($genres as $genre)
-                            <option value="{{ $genre }}">{{ $genre }}</option>
-                        @endforeach
-                    </select>
-                @endif
+    <div class="mb-6">
+        <div class="flex items-center justify-between gap-4 flex-wrap mb-3">
+            <h1 class="text-2xl font-bold text-white">My Watchlist</h1>
+            @if($items->isNotEmpty())
                 <div class="flex gap-1 bg-white/5 p-1 rounded-lg">
                     <button class="watchlist-filter active text-xs px-3 py-1.5 rounded-md transition-all" data-filter="all">All</button>
                     <button class="watchlist-filter text-xs px-3 py-1.5 rounded-md transition-all text-gray-400" data-filter="saved">To Watch</button>
                     <button class="watchlist-filter text-xs px-3 py-1.5 rounded-md transition-all text-gray-400" data-filter="watched">Watched</button>
                 </div>
+            @endif
+        </div>
+        @if($items->isNotEmpty() && $genres->isNotEmpty())
+            <div class="flex flex-wrap gap-1.5">
+                @foreach($genres as $genre)
+                    <button type="button"
+                            class="genre-chip text-xs px-2.5 py-1 rounded-full border border-white/10 bg-white/5 text-gray-400 hover:text-white hover:border-white/20 transition-all"
+                            data-genre="{{ $genre }}">{{ $genre }}</button>
+                @endforeach
             </div>
         @endif
     </div>
