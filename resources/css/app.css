@@ -546,6 +546,9 @@ html[data-theme="light"] {
     object-fit: contain;
     border-radius: 4px;
 }
+.ts-wrapper .ts-dropdown .spinner::after {
+    border-color: #c0393a transparent #c0393a transparent;
+}
 
 /* ─── Light mode overrides ───────────────────────────────────── */
 html[data-theme="light"] .hero-fade {

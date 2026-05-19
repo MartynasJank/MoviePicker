@@ -36,11 +36,19 @@ $(document).ready(function () {
             timer = setTimeout(function () {
                 const params = { q: query };
                 if (dept) params.dept = dept;
-                $.getJSON('/tmdb/search/people', params).done(function (data) {
-                    ts.clearOptions();
-                    data.forEach(function (p) { ts.addOption({ value: String(p.id), text: p.name }); });
-                    ts.refreshOptions(true);
-                });
+                ts.loading++;
+                ts.wrapper.classList.add(ts.settings.loadingClass);
+                ts.clearOptions();
+                ts.refreshOptions(false);
+                $.getJSON('/tmdb/search/people', params)
+                    .done(function (data) {
+                        data.forEach(function (p) { ts.addOption({ value: String(p.id), text: p.name }); });
+                    })
+                    .always(function () {
+                        ts.loading = Math.max(ts.loading - 1, 0);
+                        if (!ts.loading) ts.wrapper.classList.remove(ts.settings.loadingClass);
+                        ts.refreshOptions(true);
+                    });
             }, 400);
         });
         window['_ts_' + id] = ts;
