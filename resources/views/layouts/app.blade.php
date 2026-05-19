@@ -45,23 +45,24 @@
             {{-- Desktop nav --}}
             <div class="hidden md:flex items-center gap-5 flex-1 justify-end">
                 <a href="/roulettes" class="nav-link text-sm">Roulettes</a>
-                <a href="/criteria"  class="nav-link text-sm">Criteria</a>
-                <a href="/movie?i=new" class="nav-link text-sm long-single">Random</a>
-                <a href="/multiple?i=new" class="nav-link text-sm">Batch</a>
+
+                {{-- User section --}}
                 @auth
                     <a href="{{ route('watchlist') }}" class="nav-link text-sm">Watchlist</a>
                     <form method="POST" action="{{ route('logout') }}" class="flex items-center">
                         @csrf
                         <button type="submit" class="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
                             @if(Auth::user()->avatar)
-                                <img src="{{ Auth::user()->avatar }}" class="w-6 h-6 rounded-full" alt="">
+                                <img src="{{ Auth::user()->avatar }}" class="w-6 h-6 rounded-full ring-1 ring-white/10" alt="">
                             @endif
                             Sign out
                         </button>
                     </form>
                 @else
-                    <a href="{{ route('auth.google') }}" class="nav-link text-sm">Sign in</a>
+                    <a href="{{ route('auth.google') }}" class="text-sm px-3 py-1.5 rounded-lg border border-white/10 text-gray-300 hover:text-white hover:border-white/25 transition-all">Sign in</a>
                 @endauth
+
+                {{-- Theme toggle --}}
                 <button id="theme-toggle"
                     class="theme-toggle p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-white/5 transition-all"
                     aria-label="Toggle theme" title="Toggle theme">
