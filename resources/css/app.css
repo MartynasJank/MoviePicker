@@ -381,14 +381,14 @@ html[data-theme="light"] {
 
     /* Carousel: full-height cards on mobile */
     @media (max-width: 639px) {
-        /* Batch: nav(64) + top padding(32) + header(~60) + sticky bar(~70) */
+        /* Batch: nav(64) + top padding(32) + header(56) + bar(55) + safe-area */
         .swiper-multiple {
-            height: calc(100dvh - 226px);
+            height: calc(100dvh - 207px - max(0.75rem, env(safe-area-inset-bottom, 0px)));
         }
-        /* Trending / similar: nav(64) + section header(~80) + breathing room */
+        /* Trending / similar: nav(64) + section header(~80) + safe-area for movie page bar */
         .swiper-trending,
         .swiper-similar {
-            height: calc(100dvh - 200px);
+            height: calc(100dvh - 188px - max(0.75rem, env(safe-area-inset-bottom, 0px)));
         }
         .swiper-multiple .swiper-slide,
         .swiper-trending .swiper-slide,
