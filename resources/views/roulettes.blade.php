@@ -8,67 +8,90 @@
             <h1 class="text-3xl font-bold text-white">Movie Roulettes</h1>
             <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-accent/15 text-accent border border-accent/20">Beta</span>
         </div>
-        <p class="text-gray-500 text-sm mt-1">Curated collections — just hit Roll. More coming soon.</p>
+        <p class="text-gray-500 text-sm mt-1">Curated collections — just hit Roll.</p>
         <div class="section-divider mt-3"></div>
     </div>
 
-    <div class="grid md:grid-cols-3 gap-4 md:gap-5">
+    @php
+        $platformLogos = [
+            'netflix' => 'https://image.tmdb.org/t/p/w92/pbpMk2JmcoNnQwx5JGpXngfoWtp.jpg',
+            'prime'   => 'https://image.tmdb.org/t/p/w92/pvske1MyAoymrs5bguRfVqYiM9a.jpg',
+            'hbo'     => 'https://image.tmdb.org/t/p/w92/jbe4gVSfRlbPTdESXhEKpornsfu.jpg',
+            'disney'  => 'https://image.tmdb.org/t/p/w92/97yvRBw1GzX7fXprcF80er19ot.jpg',
+            'apple'   => 'https://image.tmdb.org/t/p/w92/mcbz1LgtErU9p4UdbZ0rG6RTWHX.jpg',
+        ];
+        $tagLabels = [
+            'netflix' => 'Netflix', 'prime' => 'Prime', 'hbo' => 'HBO', 'disney' => 'Disney+', 'apple' => 'Apple TV+',
+            'action' => 'Action', 'adventure' => 'Adventure', 'animation' => 'Animation', 'comedy' => 'Comedy',
+            'crime' => 'Crime', 'documentary' => 'Documentary', 'drama' => 'Drama', 'family' => 'Family',
+            'fantasy' => 'Fantasy', 'history' => 'History', 'horror' => 'Horror', 'mystery' => 'Mystery',
+            'romance' => 'Romance', 'sci-fi' => 'Sci-Fi', 'thriller' => 'Thriller', 'war' => 'War', 'western' => 'Western',
+            'pre-1950' => 'Classic', '1950s' => '50s', '1960s' => '60s', '1970s' => '70s',
+            '1980s' => '80s', '1990s' => '90s', '2000s' => '2000s', '2010s' => '2010s', '2020s' => '2020s', 'recent' => 'Recent',
+            'ko' => 'Korean', 'ja' => 'Japanese', 'fr' => 'French', 'es' => 'Spanish',
+            'de' => 'German', 'it' => 'Italian', 'zh' => 'Chinese', 'hi' => 'Hindi',
+            'tr' => 'Turkish', 'pt' => 'Portuguese',
+        ];
+    @endphp
 
-        {{-- Netflix Horror --}}
-        <div class="card card-hover overflow-hidden flex flex-row md:flex-col">
-            <div class="relative w-28 flex-shrink-0 md:w-auto md:h-44 self-stretch overflow-hidden">
-                <img src="https://static1.srcdn.com/wordpress/wp-content/uploads/2019/10/the-grudge-banner.jpg?q=50&fit=crop&w=740&h=370&dpr=1.5"
-                    class="absolute inset-0 w-full h-full object-cover opacity-70"
-                    alt="Horror">
-                <div class="absolute inset-0 bg-gradient-to-r md:bg-gradient-to-t from-[#111]/90 to-transparent"></div>
-                <img src="https://cdn4.iconfinder.com/data/icons/logos-and-brands/512/227_Netflix_logo-512.png"
-                    class="absolute bottom-2 right-2 h-5 md:h-8 drop-shadow-lg">
-            </div>
-            <div class="p-4 md:p-5 flex flex-col flex-1">
-                <h2 class="text-base font-semibold text-white mb-1.5 md:mb-2">Netflix Horror</h2>
-                <p class="text-sm text-gray-400 leading-relaxed flex-1">
-                    Supernatural encounters, psychological thrillers, and international scares from Netflix's horror selection.
-                </p>
-                <a href="/roulettes/netflix/horror" class="btn-accent mt-3 md:mt-4 self-start text-sm">Roll</a>
+    @foreach ($grouped as $groupName => $roulettes)
+        <div class="mb-10">
+            <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-4">{{ $groupName }}</h2>
+
+            <div class="flex gap-3 overflow-x-auto pb-2 roulette-row">
+                @foreach ($roulettes as $roulette)
+                    @php
+                        $tags     = $roulette->tags;
+                        $platform = $tags['platform'][0] ?? null;
+                        $logo     = $platform ? ($platformLogos[$platform] ?? null) : null;
+                        $allTags  = collect($tags)->flatten()
+                                        ->reject(fn($v) => isset($tags['platform']) && in_array($v, $tags['platform']))
+                                        ->map(fn($v) => $tagLabels[$v] ?? $v);
+                        $poster   = $roulette->poster_paths[0] ?? null;
+                    @endphp
+
+                    <a href="/roulettes/{{ $roulette->slug }}"
+                       class="group relative flex-shrink-0 w-36 md:w-44 rounded-xl overflow-hidden block bg-slate-900">
+                        <div class="aspect-[2/3] relative overflow-hidden">
+
+                            @if($poster)
+                                <img src="https://image.tmdb.org/t/p/w342{{ $poster }}"
+                                     class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                     loading="lazy">
+                            @else
+                                <div class="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900"></div>
+                            @endif
+
+                            {{-- Gradient overlay --}}
+                            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
+
+                            {{-- Platform logo --}}
+                            @if($logo)
+                                <img src="{{ $logo }}"
+                                     class="absolute top-2 right-2 h-5 drop-shadow-lg"
+                                     loading="lazy">
+                            @endif
+
+                            {{-- Bottom content --}}
+                            <div class="absolute bottom-0 left-0 right-0 p-3">
+                                @if($allTags->isNotEmpty())
+                                    <div class="flex gap-1 mb-1.5 flex-wrap">
+                                        @foreach($allTags as $tag)
+                                            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 text-gray-400 border border-white/10">{{ $tag }}</span>
+                                        @endforeach
+                                    </div>
+                                @endif
+                                <h3 class="text-sm font-semibold text-white leading-snug">{{ $roulette->name }}</h3>
+                                <span class="text-xs text-accent font-medium mt-1 block group-hover:underline">Roll →</span>
+                            </div>
+
+                        </div>
+                    </a>
+
+                @endforeach
             </div>
         </div>
+    @endforeach
 
-        {{-- Netflix Documentaries --}}
-        <div class="card card-hover overflow-hidden flex flex-row md:flex-col">
-            <div class="relative w-28 flex-shrink-0 md:w-auto md:h-44 self-stretch overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900"></div>
-                <div class="absolute inset-0 bg-gradient-to-r md:bg-gradient-to-t from-[#111]/90 to-transparent"></div>
-                <img src="https://cdn4.iconfinder.com/data/icons/logos-and-brands/512/227_Netflix_logo-512.png"
-                    class="absolute bottom-2 right-2 h-5 md:h-8 drop-shadow-lg">
-            </div>
-            <div class="p-4 md:p-5 flex flex-col flex-1">
-                <h2 class="text-base font-semibold text-white mb-1.5 md:mb-2">Netflix Documentaries</h2>
-                <p class="text-sm text-gray-400 leading-relaxed flex-1">
-                    True crime, environmental issues, social justice, and historical events — told with compelling narratives.
-                </p>
-                <a href="/roulettes/netflix/doc" class="btn-accent mt-3 md:mt-4 self-start text-sm">Roll</a>
-            </div>
-        </div>
-
-        {{-- Netflix Anime --}}
-        <div class="card card-hover overflow-hidden flex flex-row md:flex-col">
-            <div class="relative w-28 flex-shrink-0 md:w-auto md:h-44 self-stretch overflow-hidden">
-                <img src="https://i.pinimg.com/originals/4c/8e/26/4c8e267ee4446e733bb17564337083f7.jpg"
-                    class="absolute inset-0 w-full h-full object-cover opacity-70"
-                    alt="Anime">
-                <div class="absolute inset-0 bg-gradient-to-r md:bg-gradient-to-t from-[#111]/90 to-transparent"></div>
-                <img src="https://cdn4.iconfinder.com/data/icons/logos-and-brands/512/227_Netflix_logo-512.png"
-                    class="absolute bottom-2 right-2 h-5 md:h-8 drop-shadow-lg">
-            </div>
-            <div class="p-4 md:p-5 flex flex-col flex-1">
-                <h2 class="text-base font-semibold text-white mb-1.5 md:mb-2">Netflix Anime Movies</h2>
-                <p class="text-sm text-gray-400 leading-relaxed flex-1">
-                    Action, fantasy, romance, sci-fi — a rich selection of anime films spanning classics and Netflix originals.
-                </p>
-                <a href="/roulettes/netflix/animovies" class="btn-accent mt-3 md:mt-4 self-start text-sm">Roll</a>
-            </div>
-        </div>
-
-    </div>
 </div>
 @endsection

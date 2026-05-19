@@ -41,8 +41,13 @@ Route::match(['get', 'post'], '/movie',    [MoviePickController::class, 'single'
 Route::match(['get', 'post'], '/multiple', [MoviePickController::class, 'batch']);
 Route::get('/movie/{id}', MovieController::class)->name('movie');
 
-Route::get('/roulettes',                [RouletteController::class, 'index']);
-Route::get('/roulettes/netflix/{type}', [RouletteController::class, 'pick']);
+Route::get('/roulettes',        [RouletteController::class, 'index']);
+Route::get('/roulettes/{slug}', [RouletteController::class, 'pick']);
+
+// Legacy roulette URLs → redirect to new slugs
+Route::get('/roulettes/netflix/horror',    fn() => redirect('/roulettes/netflix-horror', 301));
+Route::get('/roulettes/netflix/doc',       fn() => redirect('/roulettes/netflix-docs', 301));
+Route::get('/roulettes/netflix/animovies', fn() => redirect('/roulettes/netflix-anime', 301));
 
 // Obfuscated utility routes (cache/config clear, scheduler trigger)
 Route::get('/fdsdfsds', function () {
