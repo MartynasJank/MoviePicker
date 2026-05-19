@@ -9,7 +9,7 @@
                         <div class="carousel-poster aspect-[2/3] bg-white/[0.03] overflow-hidden">
                             @if($result['poster_path'])
                                 <img
-                                    src="https://image.tmdb.org/t/p/w300{{ $result['poster_path'] }}"
+                                    src="https://image.tmdb.org/t/p/w500{{ $result['poster_path'] }}"
                                     alt="{{ $result['title'] }}"
                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                     loading="lazy"

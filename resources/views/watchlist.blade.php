@@ -39,7 +39,7 @@
                     <a href="{{ url('movie/'.$item->tmdb_id) }}" class="block group">
                         <div class="aspect-[2/3] rounded-xl overflow-hidden relative bg-white/[0.03]">
                             @if($item->poster_path)
-                                <img src="https://image.tmdb.org/t/p/w300{{ $item->poster_path }}"
+                                <img src="https://image.tmdb.org/t/p/w500{{ $item->poster_path }}"
                                     alt="{{ $item->title }}"
                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                     loading="lazy">
