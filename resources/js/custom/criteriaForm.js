@@ -33,13 +33,15 @@ $(document).ready(function () {
         ts.on('type', function (query) {
             clearTimeout(timer);
             if (!query) return;
-            timer = setTimeout(function () {
-                const params = { q: query };
-                if (dept) params.dept = dept;
+            if (!ts.loading) {
                 ts.loading++;
                 ts.wrapper.classList.add(ts.settings.loadingClass);
                 ts.clearOptions();
                 ts.refreshOptions(false);
+            }
+            timer = setTimeout(function () {
+                const params = { q: query };
+                if (dept) params.dept = dept;
                 $.getJSON('/tmdb/search/people', params)
                     .done(function (data) {
                         data.forEach(function (p) { ts.addOption({ value: String(p.id), text: p.name }); });
