@@ -15,6 +15,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'provider',
+        'provider_id',
+        'avatar',
     ];
 
     protected $hidden = [
@@ -25,4 +28,9 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function watchlist()
+    {
+        return $this->hasMany(Watchlist::class);
+    }
 }

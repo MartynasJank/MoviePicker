@@ -9,10 +9,24 @@ use App\Http\Controllers\CriteriaController;
 use App\Http\Controllers\MoviePickController;
 use App\Http\Controllers\MovieController;
 use App\Http\Controllers\RouletteController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\WatchlistController;
 use App\Http\Controllers\TmdbProxyController;
 
 Route::get('/',  HomeController::class);
 Route::post('/', ContactController::class);
+
+// Auth
+Route::get('/auth/google',          [AuthController::class, 'redirect'])->name('auth.google');
+Route::get('/auth/google/callback', [AuthController::class, 'callback']);
+Route::post('/logout',              [AuthController::class, 'logout'])->name('logout');
+
+// Watchlist (auth required)
+Route::middleware('auth')->group(function () {
+    Route::get('/watchlist',                   [WatchlistController::class, 'index'])->name('watchlist');
+    Route::post('/watchlist/toggle',           [WatchlistController::class, 'toggle'])->name('watchlist.toggle');
+    Route::post('/watchlist/{tmdbId}/watched', [WatchlistController::class, 'markWatched'])->name('watchlist.watched');
+});
 
 Route::get('/userinput', UserInputController::class);
 
