@@ -3,13 +3,23 @@
 @section('content')
 <div class="max-w-7xl mx-auto px-4 py-8">
 
-    <div class="flex items-center justify-between mb-6">
-        <h1 class="text-3xl font-bold text-white">My Watchlist</h1>
+    <div class="flex items-center justify-between mb-6 gap-4 flex-wrap">
+        <h1 class="text-2xl font-bold text-white">My Watchlist</h1>
         @if($items->isNotEmpty())
-            <div class="flex gap-2">
-                <button class="btn-secondary text-sm watchlist-filter active" data-filter="all">All</button>
-                <button class="btn-secondary text-sm watchlist-filter" data-filter="saved">To Watch</button>
-                <button class="btn-secondary text-sm watchlist-filter" data-filter="watched">Watched</button>
+            <div class="flex items-center gap-2 flex-wrap">
+                @if($genres->isNotEmpty())
+                    <select id="genre-filter" class="input-dark text-xs py-1.5 pr-8">
+                        <option value="">All genres</option>
+                        @foreach($genres as $genre)
+                            <option value="{{ $genre }}">{{ $genre }}</option>
+                        @endforeach
+                    </select>
+                @endif
+                <div class="flex gap-1 bg-white/5 p-1 rounded-lg">
+                    <button class="watchlist-filter active text-xs px-3 py-1.5 rounded-md transition-all" data-filter="all">All</button>
+                    <button class="watchlist-filter text-xs px-3 py-1.5 rounded-md transition-all text-gray-400" data-filter="saved">To Watch</button>
+                    <button class="watchlist-filter text-xs px-3 py-1.5 rounded-md transition-all text-gray-400" data-filter="watched">Watched</button>
+                </div>
             </div>
         @endif
     </div>
@@ -21,48 +31,55 @@
             <a href="/movie?i=new" class="btn-accent long-single">Pick a Movie</a>
         </div>
     @else
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4" id="watchlist-grid">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
             @foreach($items as $item)
-                <div class="watchlist-card group" data-status="{{ $item->status }}" data-id="{{ $item->id }}">
-                    <a href="{{ url('movie/'.$item->tmdb_id) }}" class="block">
-                        <div class="card card-hover overflow-hidden">
-                            <div class="aspect-[2/3] bg-white/[0.03] overflow-hidden relative">
-                                @if($item->poster_path)
-                                    <img src="https://image.tmdb.org/t/p/w300{{ $item->poster_path }}"
-                                        alt="{{ $item->title }}"
-                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                        loading="lazy">
-                                @else
-                                    <div class="w-full h-full flex items-center justify-center text-gray-600 text-xs text-center px-3">No poster</div>
-                                @endif
-                                <div class="watched-overlay absolute inset-0 bg-black/50 flex items-center justify-center {{ $item->status === 'watched' ? '' : 'hidden' }}">
-                                    <span class="text-white text-2xl">✓</span>
+                <div class="watchlist-card" data-status="{{ $item->status }}" data-genres="{{ $item->genres }}">
+
+                    {{-- Poster --}}
+                    <a href="{{ url('movie/'.$item->tmdb_id) }}" class="block group">
+                        <div class="aspect-[2/3] rounded-xl overflow-hidden relative bg-white/[0.03]">
+                            @if($item->poster_path)
+                                <img src="https://image.tmdb.org/t/p/w300{{ $item->poster_path }}"
+                                    alt="{{ $item->title }}"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    loading="lazy">
+                            @else
+                                <div class="w-full h-full flex items-center justify-center text-gray-600 text-xs text-center px-3">No poster</div>
+                            @endif
+
+                            {{-- Title gradient --}}
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent pointer-events-none">
+                                <div class="absolute bottom-0 left-0 right-0 p-3">
+                                    <h4 class="text-sm font-semibold text-white leading-snug line-clamp-2">{{ $item->title }}</h4>
+                                    <p class="text-xs text-gray-400 mt-0.5 line-clamp-1">
+                                        {{ $item->year }}@if($item->genres) · {{ $item->genres }}@endif
+                                    </p>
                                 </div>
                             </div>
-                            <div class="p-3">
-                                <h4 class="text-sm font-medium text-white leading-snug line-clamp-2 group-hover:text-accent transition-colors">
-                                    {{ $item->title }}
-                                </h4>
-                                <p class="text-xs text-gray-500 mt-1">
-                                    {{ $item->year }}
-                                    @if($item->genres)
-                                        · {{ $item->genres }}
-                                    @endif
-                                </p>
+
+                            {{-- Watched badge --}}
+                            <div class="watched-overlay absolute inset-0 bg-black/50 flex items-center justify-center {{ $item->status === 'watched' ? '' : 'hidden' }} pointer-events-none">
+                                <span class="bg-black/60 text-white text-xs font-medium px-3 py-1.5 rounded-full border border-white/20">✓ Watched</span>
                             </div>
                         </div>
                     </a>
-                    <div class="flex gap-1 mt-1">
-                        <button class="flex-1 text-xs py-1.5 px-2 rounded-md bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all toggle-watched"
+
+                    {{-- Action buttons --}}
+                    <div class="flex gap-1.5 mt-2">
+                        <button class="toggle-watched flex-1 text-xs py-2 rounded-lg transition-all text-center
+                            {{ $item->status === 'watched'
+                                ? 'bg-white/10 text-white hover:bg-white/5 hover:text-gray-400'
+                                : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white' }}"
                             data-tmdb-id="{{ $item->tmdb_id }}"
                             data-status="{{ $item->status }}">
                             {{ $item->status === 'watched' ? '✓ Watched' : 'Mark watched' }}
                         </button>
-                        <button class="text-xs py-1.5 px-2 rounded-md bg-white/5 hover:bg-red-900/40 text-gray-500 hover:text-red-400 transition-all remove-from-watchlist"
+                        <button class="remove-from-watchlist text-xs py-2 px-3 rounded-lg bg-white/5 text-gray-500 hover:bg-red-900/30 hover:text-red-400 transition-all"
                             data-tmdb-id="{{ $item->tmdb_id }}">
-                            ✕
+                            Remove
                         </button>
                     </div>
+
                 </div>
             @endforeach
         </div>

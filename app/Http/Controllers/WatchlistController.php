@@ -15,7 +15,14 @@ class WatchlistController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        return view('watchlist', ['items' => $items]);
+        $genres = $items->pluck('genres')
+            ->filter()
+            ->flatMap(fn($g) => array_map('trim', explode(',', $g)))
+            ->unique()
+            ->sort()
+            ->values();
+
+        return view('watchlist', ['items' => $items, 'genres' => $genres]);
     }
 
     public function toggle(Request $request)
