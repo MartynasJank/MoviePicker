@@ -8,7 +8,7 @@ $(document).ready(function () {
     if ($('.swiper-trending').length) {
         new Swiper('.swiper-trending', {
             modules: [Navigation, Autoplay],
-            slidesPerView: 1,
+            slidesPerView: 1.15,
             spaceBetween: 12,
             loop: true,
             autoplay: { delay: 7000, disableOnInteraction: false, pauseOnMouseEnter: true },
@@ -26,7 +26,7 @@ $(document).ready(function () {
     if ($('.swiper-similar').length) {
         new Swiper('.swiper-similar', {
             modules: [Navigation, Autoplay],
-            slidesPerView: 1,
+            slidesPerView: 1.15,
             spaceBetween: 12,
             loop: true,
             autoplay: { delay: 7000, disableOnInteraction: false, pauseOnMouseEnter: true },
@@ -44,10 +44,9 @@ $(document).ready(function () {
     if ($('.swiper-multiple').length) {
         new Swiper('.swiper-multiple', {
             modules: [Navigation],
-            slidesPerView: 1,
+            slidesPerView: 1.15,
             spaceBetween: 12,
-            loop: false,
-            autoHeight: false,
+            loop: true,
             navigation: {
                 prevEl: '.swiper-multiple .swiper-button-prev',
                 nextEl: '.swiper-multiple .swiper-button-next',
