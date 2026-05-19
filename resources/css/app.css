@@ -381,9 +381,17 @@ html[data-theme="light"] {
 
     /* Carousel: full-height cards on mobile */
     @media (max-width: 639px) {
-        /* Batch: nav(64) + top padding(32) + header(56) + bar(55) + safe-area */
+        /* Batch: flex layout fills remaining space — no pixel math needed */
+        .batch-wrapper {
+            display: flex;
+            flex-direction: column;
+            height: calc(100dvh - 64px);
+            padding-bottom: calc(3.5rem + max(0.75rem, env(safe-area-inset-bottom, 0px)));
+            overflow: hidden;
+        }
         .swiper-multiple {
-            height: calc(100dvh - 207px - max(0.75rem, env(safe-area-inset-bottom, 0px)));
+            flex: 1;
+            min-height: 0;
         }
         /* Trending / similar: nav(64) + section header(~80) + safe-area for movie page bar */
         .swiper-trending,
