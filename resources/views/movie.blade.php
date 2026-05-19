@@ -4,7 +4,7 @@
     @vite(['resources/js/custom/showMore.js', 'resources/js/custom/carousel.js', 'resources/js/custom/trailerModal.js', 'resources/js/custom/criteriaForm.js'])
 @endsection
 @section('content')
-<div class="max-w-7xl mx-auto px-4 py-8 pb-36 md:pb-8">
+<div class="max-w-7xl mx-auto px-4 py-8 pb-36">
 
     @if (isset($trailer))
         @include('includes.trailer-modal')
@@ -26,10 +26,6 @@
                     · <span class="text-gray-600">{{ $omdbInfo->Rated }}</span>
                 @endif
             </p>
-        </div>
-        <div class="hidden sm:flex gap-2 flex-wrap">
-            <a href="/movie" class="btn-accent long-single">Pick Another</a>
-            <button type="button" class="btn-secondary" data-modal-open="modal-form">Adjust Criteria</button>
         </div>
     </div>
 
@@ -197,11 +193,6 @@
         </div>
     </div>
 
-    {{-- Pick another (desktop) --}}
-    <div class="mb-10 hidden sm:block">
-        <a href="/movie" class="btn-accent long-single w-full md:w-auto text-center">Pick Another Movie</a>
-    </div>
-
     {{-- Similar movies --}}
     @if ($similarMovies != null)
     <div>
@@ -215,11 +206,11 @@
 
 </div>
 
-{{-- Mobile sticky bottom bar --}}
-<div class="fixed bottom-0 left-0 right-0 sm:hidden bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 px-4 z-40 sticky-bar-safe">
-    <div class="flex gap-3">
-        <button type="button" class="btn-secondary flex-1" data-modal-open="modal-form">Adjust</button>
-        <a href="/movie" class="btn-accent long-single flex-1 text-center">Pick Another</a>
+{{-- Sticky bottom bar --}}
+<div class="fixed bottom-0 left-0 right-0 bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 px-4 z-40 sticky-bar-safe">
+    <div class="max-w-7xl mx-auto flex gap-3 sm:justify-end">
+        <button type="button" class="btn-secondary flex-1 sm:flex-none" data-modal-open="modal-form">Adjust Criteria</button>
+        <a href="/movie" class="btn-accent long-single flex-1 sm:flex-none text-center">Pick Another</a>
     </div>
 </div>
 
