@@ -48,12 +48,20 @@ class WatchlistController extends Controller
         return response()->json(['saved' => true]);
     }
 
-    public function markWatched(Request $request, $tmdbId)
+    public function remove(Request $request, $tmdbId)
     {
+        Auth::user()->watchlist()->where('tmdb_id', $tmdbId)->delete();
+        return response()->json(['ok' => true]);
+    }
+
+    public function setStatus(Request $request, $tmdbId)
+    {
+        $request->validate(['status' => 'required|in:saved,watched']);
+
         Auth::user()
             ->watchlist()
             ->where('tmdb_id', $tmdbId)
-            ->update(['status' => 'watched']);
+            ->update(['status' => $request->status]);
 
         return response()->json(['ok' => true]);
     }
