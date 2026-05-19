@@ -15,6 +15,7 @@ use App\Http\Controllers\TmdbProxyController;
 use App\Http\Controllers\UserRouletteController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminRouletteController;
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\RowOrderController;
 
 Route::get('/',  HomeController::class);
@@ -65,8 +66,11 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     Route::patch('roulettes/{roulette}/toggle',  [AdminRouletteController::class, 'togglePublic'])->name('roulettes.toggle');
     Route::patch('roulettes/{roulette}/system',  [AdminRouletteController::class, 'toggleSystem'])->name('roulettes.system');
     Route::resource('roulettes', AdminRouletteController::class)->except(['show']);
-    Route::get('rows',                          [RowOrderController::class, 'index'])->name('rows.index');
-    Route::post('rows/reorder',                 [RowOrderController::class, 'reorder'])->name('rows.reorder');
+    Route::get('rows',                                          [RowOrderController::class, 'index'])->name('rows.index');
+    Route::post('rows/reorder',                               [RowOrderController::class, 'reorder'])->name('rows.reorder');
+    Route::get('users',                                        [AdminUserController::class, 'index'])->name('users.index');
+    Route::get('users/{user}',                                 [AdminUserController::class, 'show'])->name('users.show');
+    Route::delete('users/{user}/roulettes/{roulette}',         [AdminUserController::class, 'destroyRoulette'])->name('users.roulettes.destroy');
 });
 
 Route::get('/roulettes',        [RouletteController::class, 'index']);

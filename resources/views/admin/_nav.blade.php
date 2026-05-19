@@ -11,4 +11,8 @@
        class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.rows.*') ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white hover:bg-white/5' }}">
         Row Order
     </a>
+    <a href="{{ route('admin.users.index') }}"
+       class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.users.*') ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white hover:bg-white/5' }}">
+        Users
+    </a>
 </nav>
