@@ -68,7 +68,8 @@ $(document).ready(function () {
     });
 
     $(document).on('click', '.long-single', function () {
-        const handler = () => showLoading('Looking for a perfect movie!');
+        const text = $(this).data('loading') || 'Looking for a perfect movie!';
+        const handler = () => showLoading(text);
         window.addEventListener('beforeunload', handler, { once: true });
         setTimeout(() => window.removeEventListener('beforeunload', handler), 150);
     });
