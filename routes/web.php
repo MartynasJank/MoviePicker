@@ -12,6 +12,9 @@ use App\Http\Controllers\RouletteController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\WatchlistController;
 use App\Http\Controllers\TmdbProxyController;
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\AdminRouletteController;
+use App\Http\Controllers\Admin\RowOrderController;
 
 Route::get('/',  HomeController::class);
 Route::post('/', ContactController::class);
@@ -40,6 +43,17 @@ Route::get('/criteria',  CriteriaController::class);
 Route::match(['get', 'post'], '/movie',    [MoviePickController::class, 'single']);
 Route::match(['get', 'post'], '/multiple', [MoviePickController::class, 'batch']);
 Route::get('/movie/{id}', MovieController::class)->name('movie');
+
+// Admin (must be before /roulettes/{slug} wildcard)
+Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(function () {
+    Route::get('/',                             [AdminController::class, 'index'])->name('dashboard');
+    Route::post('roulettes/reorder',            [AdminRouletteController::class, 'reorder'])->name('roulettes.reorder');
+    Route::patch('roulettes/{roulette}/toggle',  [AdminRouletteController::class, 'togglePublic'])->name('roulettes.toggle');
+    Route::patch('roulettes/{roulette}/system',  [AdminRouletteController::class, 'toggleSystem'])->name('roulettes.system');
+    Route::resource('roulettes', AdminRouletteController::class)->except(['show']);
+    Route::get('rows',                          [RowOrderController::class, 'index'])->name('rows.index');
+    Route::post('rows/reorder',                 [RowOrderController::class, 'reorder'])->name('rows.reorder');
+});
 
 Route::get('/roulettes',        [RouletteController::class, 'index']);
 Route::get('/roulettes/{slug}', [RouletteController::class, 'pick']);

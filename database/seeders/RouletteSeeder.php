@@ -41,7 +41,7 @@ class RouletteSeeder extends Seeder
             'western'     => 'Gunslingers, outlaws, lawmen, and the wide-open frontier.',
         ];
 
-        $slugGenre = fn(string $g) => str_replace('sci-fi', 'scifi', $g);
+        $slugGenre = static fn(string $g) => str_replace('sci-fi', 'scifi', $g);
 
         // Genres per platform in popularity order for that platform
         $platforms = [
@@ -67,13 +67,11 @@ class RouletteSeeder extends Seeder
             ],
         ];
 
-        // Generated slug → existing DB slug (preserves bookmarkable URLs)
         $slugOverrides = [
             'netflix-documentary' => 'netflix-docs',
             'prime-thriller'      => 'prime-thrillers',
         ];
 
-        // Custom names for entries with existing branding
         $customNames = [
             'netflix-horror'  => 'Netflix Horror',
             'netflix-docs'    => 'Netflix Documentaries',
@@ -84,7 +82,6 @@ class RouletteSeeder extends Seeder
             'disney-family'   => 'Disney+ Family',
         ];
 
-        // Custom descriptions for entries with existing copy
         $customDescs = [
             'netflix-horror'  => 'Supernatural encounters, psychological thrillers, and international scares from Netflix\'s horror selection.',
             'netflix-docs'    => 'True crime, environmental issues, social justice, and historical events — told with compelling narratives.',
@@ -97,20 +94,27 @@ class RouletteSeeder extends Seeder
 
         $roulettes = [];
 
-        // ── Era: newest to oldest ─────────────────────────────────────────────
-        $roulettes[] = ['name' => 'New Releases',     'slug' => 'new-releases',     'description' => 'Hot off the press — films from the last two years.',                                           'tags' => ['era' => ['recent']]];
-        $roulettes[] = ['name' => 'The 2020s',        'slug' => '2020s-picks',      'description' => 'Contemporary cinema — from pandemic-era stories to today\'s global hits.',                    'tags' => ['era' => ['2020s']]];
-        $roulettes[] = ['name' => 'The 2010s',        'slug' => '2010s-picks',      'description' => 'A defining decade of superhero epics, streaming originals, and award-winning indie hits.',    'tags' => ['era' => ['2010s']]];
-        $roulettes[] = ['name' => 'The 2000s',        'slug' => '2000s-gems',       'description' => 'Overlooked and beloved films from the early 2000s you might have missed.',                   'tags' => ['era' => ['2000s']]];
-        $roulettes[] = ['name' => 'The Nineties',     'slug' => '90s-nostalgia',    'description' => 'Blockbusters and indie gems from cinema\'s golden decade — grunge, CGI breakthroughs, and classics.', 'tags' => ['era' => ['1990s']]];
-        $roulettes[] = ['name' => 'The Eighties',     'slug' => '80s-classics',     'description' => 'Iconic films that defined a decade — blockbuster action, cult horror, and coming-of-age gems.', 'tags' => ['era' => ['1980s']]];
-        $roulettes[] = ['name' => 'The Seventies',    'slug' => '70s-picks',        'description' => 'Raw, gritty, and groundbreaking — the golden age of New Hollywood.',                         'tags' => ['era' => ['1970s']]];
-        $roulettes[] = ['name' => 'The Sixties',      'slug' => '60s-picks',        'description' => 'Revolution on and off screen — the bold, rule-breaking cinema of the 1960s.',                'tags' => ['era' => ['1960s']]];
-        $roulettes[] = ['name' => 'The Fifties',      'slug' => '50s-picks',        'description' => 'Post-war optimism, sci-fi paranoia, and enduring beauty — cinema of the 1950s.',              'tags' => ['era' => ['1950s']]];
-        $roulettes[] = ['name' => 'Classic Hollywood','slug' => 'classic-hollywood','description' => 'Golden age masterpieces — timeless cinema from the earliest era of film.',                    'tags' => ['era' => ['pre-1950']]];
+        // ── Era: newest to oldest (sort_order 0–9) ────────────────────────────
+        $eraEntries = [
+            ['name' => 'New Releases',      'slug' => 'new-releases',      'description' => 'Hot off the press — films from the last two years.',                                                  'tags' => ['era' => ['recent']]],
+            ['name' => 'The 2020s',         'slug' => '2020s-picks',       'description' => 'Contemporary cinema — from pandemic-era stories to today\'s global hits.',                           'tags' => ['era' => ['2020s']]],
+            ['name' => 'The 2010s',         'slug' => '2010s-picks',       'description' => 'A defining decade of superhero epics, streaming originals, and award-winning indie hits.',           'tags' => ['era' => ['2010s']]],
+            ['name' => 'The 2000s',         'slug' => '2000s-gems',        'description' => 'Overlooked and beloved films from the early 2000s you might have missed.',                           'tags' => ['era' => ['2000s']]],
+            ['name' => 'The Nineties',      'slug' => '90s-nostalgia',     'description' => 'Blockbusters and indie gems from cinema\'s golden decade — grunge, CGI breakthroughs, and classics.','tags' => ['era' => ['1990s']]],
+            ['name' => 'The Eighties',      'slug' => '80s-classics',      'description' => 'Iconic films that defined a decade — blockbuster action, cult horror, and coming-of-age gems.',      'tags' => ['era' => ['1980s']]],
+            ['name' => 'The Seventies',     'slug' => '70s-picks',         'description' => 'Raw, gritty, and groundbreaking — the golden age of New Hollywood.',                                 'tags' => ['era' => ['1970s']]],
+            ['name' => 'The Sixties',       'slug' => '60s-picks',         'description' => 'Revolution on and off screen — the bold, rule-breaking cinema of the 1960s.',                       'tags' => ['era' => ['1960s']]],
+            ['name' => 'The Fifties',       'slug' => '50s-picks',         'description' => 'Post-war optimism, sci-fi paranoia, and enduring beauty — cinema of the 1950s.',                    'tags' => ['era' => ['1950s']]],
+            ['name' => 'Classic Hollywood', 'slug' => 'classic-hollywood', 'description' => 'Golden age masterpieces — timeless cinema from the earliest era of film.',                           'tags' => ['era' => ['pre-1950']]],
+        ];
+        foreach ($eraEntries as $so => $entry) {
+            $roulettes[] = array_merge($entry, ['sort_order' => $so]);
+        }
 
         // ── Platform × Genre (all 17 genres each) ────────────────────────────
+        // Apple TV+ Originals is sort_order 0; genre entries start at 1
         foreach ($platforms as $platformKey => $config) {
+            $so = ($platformKey === 'apple') ? 1 : 0;
             foreach ($config['genres'] as $genre) {
                 $generatedSlug = $platformKey . '-' . $slugGenre($genre);
                 $slug = $slugOverrides[$generatedSlug] ?? $generatedSlug;
@@ -119,48 +123,52 @@ class RouletteSeeder extends Seeder
                     'slug'        => $slug,
                     'description' => $customDescs[$slug]  ?? $genreDesc[$genre],
                     'tags'        => ['platform' => [$platformKey], 'genre' => [$genre]],
+                    'sort_order'  => $so++,
                 ];
             }
         }
 
-        // ── Special platform entries (unique tag combinations) ────────────────
-        $roulettes[] = [
-            'name'        => 'Netflix Anime Movies',
-            'slug'        => 'netflix-anime',
-            'description' => 'Action, fantasy, romance, sci-fi — a rich selection of anime films spanning classics and Netflix originals.',
-            'tags'        => ['platform' => ['netflix'], 'genre' => ['animation'], 'language' => ['ja']],
-        ];
+        // ── Special platform entries ──────────────────────────────────────────
         $roulettes[] = [
             'name'        => 'Apple TV+ Originals',
             'slug'        => 'apple-originals',
             'description' => 'Award-winning originals from Apple\'s growing library — from intimate dramas to epic sci-fi.',
             'tags'        => ['platform' => ['apple']],
+            'sort_order'  => 0,
+        ];
+        $roulettes[] = [
+            'name'        => 'Netflix Anime Movies',
+            'slug'        => 'netflix-anime',
+            'description' => 'Action, fantasy, romance, sci-fi — a rich selection of anime films spanning classics and Netflix originals.',
+            'tags'        => ['platform' => ['netflix'], 'genre' => ['animation'], 'language' => ['ja']],
+            'sort_order'  => 17, // after all 17 Netflix genre entries
         ];
 
         // ── World Cinema ──────────────────────────────────────────────────────
         $worldCinema = [
-            ['name' => 'Korean Cinema',      'slug' => 'korean-cinema',      'lang' => 'ko', 'desc' => 'From revenge thrillers to romantic dramas — the best of Korean film, new wave and beyond.'],
-            ['name' => 'Japanese Cinema',    'slug' => 'japanese-cinema',    'lang' => 'ja', 'desc' => 'Art house gems, animated masterpieces, and genre-defining classics from Japan.'],
-            ['name' => 'French Cinema',      'slug' => 'french-cinema',      'lang' => 'fr', 'desc' => 'Romance, philosophy, and cinematic flair — from the French New Wave to modern auteurs.'],
-            ['name' => 'Spanish Cinema',     'slug' => 'spanish-cinema',     'lang' => 'es', 'desc' => 'Passion, intensity, and dark humour — the best of Spanish-language film.'],
-            ['name' => 'Italian Cinema',     'slug' => 'italian-cinema',     'lang' => 'it', 'desc' => 'From neorealism to Fellini and beyond — the enduring richness of Italian film.'],
-            ['name' => 'Chinese Cinema',     'slug' => 'chinese-cinema',     'lang' => 'zh', 'desc' => 'Epic historical dramas, martial arts, and contemporary art house from China.'],
-            ['name' => 'Bollywood',          'slug' => 'bollywood',          'lang' => 'hi', 'desc' => 'Colour, music, drama, and spectacle — the infectious energy of Hindi cinema.'],
-            ['name' => 'German Cinema',      'slug' => 'german-cinema',      'lang' => 'de', 'desc' => 'From Expressionism to New German Cinema — powerful and distinctive storytelling.'],
-            ['name' => 'Turkish Cinema',     'slug' => 'turkish-cinema',     'lang' => 'tr', 'desc' => 'A rising force in world cinema — gripping dramas and genre films from Turkey.'],
-            ['name' => 'Portuguese Cinema',  'slug' => 'portuguese-cinema',  'lang' => 'pt', 'desc' => 'Brazilian and Portuguese film — from vibrant dramas to quiet, moving art house.'],
-            ['name' => 'Lithuanian Cinema',  'slug' => 'lithuanian-cinema',  'lang' => 'lt', 'desc' => 'Intimate dramas, dark comedies, and quietly powerful stories from Lithuania.'],
+            ['name' => 'Korean Cinema',     'slug' => 'korean-cinema',     'lang' => 'ko', 'desc' => 'From revenge thrillers to romantic dramas — the best of Korean film, new wave and beyond.'],
+            ['name' => 'Japanese Cinema',   'slug' => 'japanese-cinema',   'lang' => 'ja', 'desc' => 'Art house gems, animated masterpieces, and genre-defining classics from Japan.'],
+            ['name' => 'French Cinema',     'slug' => 'french-cinema',     'lang' => 'fr', 'desc' => 'Romance, philosophy, and cinematic flair — from the French New Wave to modern auteurs.'],
+            ['name' => 'Spanish Cinema',    'slug' => 'spanish-cinema',    'lang' => 'es', 'desc' => 'Passion, intensity, and dark humour — the best of Spanish-language film.'],
+            ['name' => 'Italian Cinema',    'slug' => 'italian-cinema',    'lang' => 'it', 'desc' => 'From neorealism to Fellini and beyond — the enduring richness of Italian film.'],
+            ['name' => 'Chinese Cinema',    'slug' => 'chinese-cinema',    'lang' => 'zh', 'desc' => 'Epic historical dramas, martial arts, and contemporary art house from China.'],
+            ['name' => 'Bollywood',         'slug' => 'bollywood',         'lang' => 'hi', 'desc' => 'Colour, music, drama, and spectacle — the infectious energy of Hindi cinema.'],
+            ['name' => 'German Cinema',     'slug' => 'german-cinema',     'lang' => 'de', 'desc' => 'From Expressionism to New German Cinema — powerful and distinctive storytelling.'],
+            ['name' => 'Turkish Cinema',    'slug' => 'turkish-cinema',    'lang' => 'tr', 'desc' => 'A rising force in world cinema — gripping dramas and genre films from Turkey.'],
+            ['name' => 'Portuguese Cinema', 'slug' => 'portuguese-cinema', 'lang' => 'pt', 'desc' => 'Brazilian and Portuguese film — from vibrant dramas to quiet, moving art house.'],
+            ['name' => 'Lithuanian Cinema', 'slug' => 'lithuanian-cinema', 'lang' => 'lt', 'desc' => 'Intimate dramas, dark comedies, and quietly powerful stories from Lithuania.'],
         ];
-        foreach ($worldCinema as $entry) {
+        foreach ($worldCinema as $so => $entry) {
             $roulettes[] = [
                 'name'        => $entry['name'],
                 'slug'        => $entry['slug'],
                 'description' => $entry['desc'],
                 'tags'        => ['language' => [$entry['lang']]],
+                'sort_order'  => $so,
             ];
         }
 
-        // ── Anime (animation + Japanese language, sorted by popularity) ──────
+        // ── Anime (animation + Japanese language) ─────────────────────────────
         $animeGenres = ['action', 'fantasy', 'adventure', 'drama', 'sci-fi', 'comedy', 'romance', 'horror', 'thriller', 'mystery', 'crime', 'family', 'history', 'war', 'western', 'documentary'];
         $animeDescs  = [
             'action'      => 'High-energy battles, epic heroes, and relentless action — the best anime action films.',
@@ -181,20 +189,20 @@ class RouletteSeeder extends Seeder
             'documentary' => 'Behind-the-scenes, nature, and real-world stories told through animation.',
         ];
 
-        // General anime entry (all animation, Japanese language)
         $roulettes[] = [
             'name'        => 'Anime Films',
             'slug'        => 'anime',
             'description' => 'The best of Japanese animation — from Studio Ghibli classics to modern hits across every genre.',
             'tags'        => ['genre' => ['animation'], 'language' => ['ja']],
+            'sort_order'  => 0,
         ];
-
-        foreach ($animeGenres as $genre) {
+        foreach ($animeGenres as $so => $genre) {
             $roulettes[] = [
                 'name'        => 'Anime ' . $genreLabel[$genre],
                 'slug'        => 'anime-' . $slugGenre($genre),
                 'description' => $animeDescs[$genre],
                 'tags'        => ['genre' => ['animation', $genre], 'language' => ['ja']],
+                'sort_order'  => $so + 1,
             ];
         }
 
@@ -202,12 +210,13 @@ class RouletteSeeder extends Seeder
         $standaloneGenres = ['action', 'adventure', 'animation', 'comedy', 'crime', 'documentary', 'drama', 'family', 'fantasy', 'history', 'horror', 'mystery', 'romance', 'sci-fi', 'thriller', 'war', 'western'];
         $standaloneNames  = ['crime' => 'Crime & Heist', 'romance' => 'Feel-Good Romance'];
         $standaloneSlugs  = ['crime' => 'crime-heist',   'romance' => 'feel-good-romance'];
-        foreach ($standaloneGenres as $genre) {
+        foreach ($standaloneGenres as $so => $genre) {
             $roulettes[] = [
                 'name'        => $standaloneNames[$genre] ?? $genreLabel[$genre] . ' Films',
                 'slug'        => $standaloneSlugs[$genre] ?? 'genre-' . $slugGenre($genre),
                 'description' => $genreDesc[$genre],
                 'tags'        => ['genre' => [$genre]],
+                'sort_order'  => $so,
             ];
         }
 

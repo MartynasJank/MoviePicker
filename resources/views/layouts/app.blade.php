@@ -51,6 +51,9 @@
 
                 {{-- User section --}}
                 @auth
+                    @if(auth()->user()->email === env('ADMIN_EMAIL'))
+                        <a href="{{ route('admin.dashboard') }}" class="text-xs font-medium px-2 py-1 rounded-md bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-colors">Admin</a>
+                    @endif
                     <a href="{{ route('watchlist') }}" class="nav-link text-sm">Watchlist</a>
                     <form method="POST" action="{{ route('logout') }}" class="flex items-center">
                         @csrf

@@ -1,0 +1,67 @@
+<div class="bg-white/3 rounded-xl overflow-hidden border border-white/5">
+    <table class="w-full text-sm">
+        <thead>
+            <tr class="border-b border-white/5 text-left">
+                <th class="w-8 py-2.5 px-3"></th>
+                <th class="py-2.5 px-3 text-xs font-medium text-gray-500">Name</th>
+                <th class="py-2.5 px-3 text-xs font-medium text-gray-500 hidden md:table-cell">Slug</th>
+                <th class="py-2.5 px-3 text-xs font-medium text-gray-500 hidden lg:table-cell">Tags</th>
+                <th class="py-2.5 px-3 text-xs font-medium text-gray-500 text-center">Public</th>
+                <th class="py-2.5 px-3 text-xs font-medium text-gray-500 text-right">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="{{ $sortable ? 'sortable-tbody' : '' }}">
+            @foreach($roulettes as $roulette)
+                <tr class="border-b border-white/5 last:border-0 hover:bg-white/2 transition-colors"
+                    data-id="{{ $roulette->id }}">
+                    <td class="py-3 px-3 text-gray-600 {{ $sortable ? 'cursor-grab drag-handle' : '' }} select-none">
+                        @if($sortable)
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 6a2 2 0 110-4 2 2 0 010 4zm0 8a2 2 0 110-4 2 2 0 010 4zm0 8a2 2 0 110-4 2 2 0 010 4zm8-16a2 2 0 110-4 2 2 0 010 4zm0 8a2 2 0 110-4 2 2 0 010 4zm0 8a2 2 0 110-4 2 2 0 010 4z"/>
+                        </svg>
+                        @endif
+                    </td>
+                    <td class="py-3 px-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-white font-medium">{{ $roulette->name }}</span>
+                            @if($roulette->is_system)
+                                <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/20">system</span>
+                            @endif
+                        </div>
+                    </td>
+                    <td class="py-3 px-3 text-gray-500 font-mono text-xs hidden md:table-cell">{{ $roulette->slug }}</td>
+                    <td class="py-3 px-3 hidden lg:table-cell">
+                        <div class="flex flex-wrap gap-1">
+                            @foreach(collect($roulette->tags)->flatten() as $tag)
+                                <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-white/5 text-gray-400 border border-white/10">{{ $tag }}</span>
+                            @endforeach
+                        </div>
+                    </td>
+                    <td class="py-3 px-3 text-center">
+                        <form method="POST" action="{{ route('admin.roulettes.toggle', $roulette) }}">
+                            @csrf @method('PATCH')
+                            <button type="submit"
+                                    class="w-8 h-4 rounded-full transition-colors {{ $roulette->is_public ? 'bg-accent' : 'bg-white/10' }} relative inline-block"
+                                    title="{{ $roulette->is_public ? 'Public — click to hide' : 'Hidden — click to publish' }}">
+                                <span class="absolute top-0.5 {{ $roulette->is_public ? 'right-0.5' : 'left-0.5' }} w-3 h-3 rounded-full bg-white shadow transition-all"></span>
+                            </button>
+                        </form>
+                    </td>
+                    <td class="py-3 px-3 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <a href="/roulettes/{{ $roulette->slug }}" target="_blank"
+                               class="text-xs text-gray-500 hover:text-white transition-colors">Roll</a>
+                            <a href="{{ route('admin.roulettes.edit', $roulette) }}"
+                               class="text-xs text-gray-400 hover:text-accent transition-colors">Edit</a>
+                            <form method="POST" action="{{ route('admin.roulettes.destroy', $roulette) }}"
+                                  onsubmit="return confirm('Delete {{ addslashes($roulette->name) }}?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="text-xs text-gray-600 hover:text-red-400 transition-colors">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>

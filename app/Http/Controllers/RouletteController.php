@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Roulette;
+use App\Models\Setting;
 use App\Services\TmdbClient;
 use App\Services\MovieService;
 use App\Services\RouletteTagMapper;
@@ -13,7 +14,8 @@ class RouletteController extends Controller
     public function index(TmdbClient $tmdb): View
     {
         $roulettes = Roulette::where('is_public', true)
-            ->orderBy('is_system', 'desc')
+            ->where('is_system', true)
+            ->orderBy('sort_order')
             ->orderBy('id')
             ->get();
 
@@ -41,55 +43,27 @@ class RouletteController extends Controller
             }
         }
 
-        $platformLabels = [
-            'netflix' => 'Netflix',
-            'prime'   => 'Prime Video',
-            'hbo'     => 'HBO',
-            'disney'  => 'Disney+',
-            'apple'   => 'Apple TV+',
-        ];
+        $grouped = $roulettes->groupBy(fn(Roulette $r) => $r->groupName());
 
-        $grouped = $roulettes->groupBy(function (Roulette $r) use ($platformLabels) {
-            $tags = $r->tags;
-            if (!empty($tags['platform'])) {
-                return $platformLabels[$tags['platform'][0]] ?? 'Other';
-            }
-            if (!empty($tags['era'])) return 'By Decade';
-            // Anime: animation genre + Japanese language (without platform)
-            if (!empty($tags['language']) && in_array('ja', (array) $tags['language'])
-                && !empty($tags['genre']) && in_array('animation', (array) $tags['genre'])) {
-                return 'Anime';
-            }
-            if (!empty($tags['language'])) return 'World Cinema';
-            return 'By Genre';
-        });
+        $defaultRowOrder = ['By Decade', 'Netflix', 'Prime Video', 'HBO', 'Disney+', 'Apple TV+', 'World Cinema', 'Anime', 'Community', 'By Genre'];
+        $rowOrder = Setting::get('roulette_row_order', $defaultRowOrder);
 
-        $groupOrder = ['By Decade', ...array_values($platformLabels), 'World Cinema', 'Anime', 'By Genre'];
-        $grouped    = collect($groupOrder)
+        $grouped = collect($rowOrder)
             ->filter(fn($g) => $grouped->has($g))
-            ->mapWithKeys(fn($g) => [$g => $grouped[$g]]);
+            ->mapWithKeys(fn($g) => [$g => $grouped[$g]->sortBy('sort_order')->values()]);
 
-        $sortKeys = [
-            'By Decade'    => ['new-releases','2020s-picks','2010s-picks','2000s-gems','90s-nostalgia','80s-classics','70s-picks','60s-picks','50s-picks','classic-hollywood'],
-            'Netflix'      => ['netflix-drama','netflix-comedy','netflix-thriller','netflix-action','netflix-romance','netflix-horror','netflix-scifi','netflix-docs','netflix-crime','netflix-mystery','netflix-fantasy','netflix-animation','netflix-adventure','netflix-family','netflix-history','netflix-war','netflix-western','netflix-anime'],
-            'Prime Video'  => ['prime-action','prime-drama','prime-thrillers','prime-comedy','prime-horror','prime-scifi','prime-adventure','prime-romance','prime-documentary','prime-crime','prime-mystery','prime-fantasy','prime-family','prime-history','prime-animation','prime-war','prime-western'],
-            'HBO'          => ['hbo-drama','hbo-thriller','hbo-crime','hbo-comedy','hbo-action','hbo-horror','hbo-scifi','hbo-romance','hbo-documentary','hbo-mystery','hbo-adventure','hbo-fantasy','hbo-history','hbo-family','hbo-war','hbo-animation','hbo-western'],
-            'Disney+'      => ['disney-family','disney-action','disney-adventure','disney-animation','disney-fantasy','disney-comedy','disney-scifi','disney-drama','disney-romance','disney-mystery','disney-history','disney-documentary','disney-thriller','disney-crime','disney-war','disney-horror','disney-western'],
-            'Apple TV+'    => ['apple-originals','apple-drama','apple-thriller','apple-scifi','apple-action','apple-comedy','apple-romance','apple-mystery','apple-documentary','apple-adventure','apple-crime','apple-fantasy','apple-history','apple-family','apple-animation','apple-war','apple-horror','apple-western'],
-            'World Cinema' => ['korean-cinema','japanese-cinema','french-cinema','spanish-cinema','italian-cinema','chinese-cinema','bollywood','german-cinema','turkish-cinema','portuguese-cinema','lithuanian-cinema'],
-            'Anime'        => ['anime','anime-action','anime-fantasy','anime-adventure','anime-drama','anime-scifi','anime-comedy','anime-romance','anime-horror','anime-thriller','anime-mystery','anime-crime','anime-family','anime-history','anime-war','anime-western','anime-documentary'],
-            'By Genre'     => ['genre-action','genre-drama','genre-comedy','genre-thriller','genre-horror','genre-scifi','feel-good-romance','crime-heist','genre-mystery','genre-adventure','genre-animation','genre-documentary','genre-fantasy','genre-family','genre-history','genre-war','genre-western'],
-        ];
+        // Community: public user-created roulettes
+        $communityRoulettes = Roulette::where('is_system', false)
+            ->where('is_public', true)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        $grouped = $grouped->map(function ($items, $groupName) use ($sortKeys) {
-            if (!isset($sortKeys[$groupName])) {
-                return $items;
-            }
-            $order = array_flip($sortKeys[$groupName]);
-            return $items->sortBy(fn($r) => $order[$r->slug] ?? 999)->values();
-        });
+        // My Roulettes: current user's own (auth-gated)
+        $myRoulettes = auth()->check()
+            ? Roulette::where('user_id', auth()->id())->orderBy('created_at', 'desc')->get()
+            : collect();
 
-        return view('roulettes', compact('grouped'));
+        return view('roulettes', compact('grouped', 'communityRoulettes', 'myRoulettes'));
     }
 
     public function pick(string $slug, MovieService $movieService, TmdbClient $tmdb): View
