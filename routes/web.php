@@ -23,9 +23,10 @@ Route::post('/logout',              [AuthController::class, 'logout'])->name('lo
 
 // Watchlist (auth required)
 Route::middleware('auth')->group(function () {
-    Route::get('/watchlist',                   [WatchlistController::class, 'index'])->name('watchlist');
-    Route::post('/watchlist/toggle',           [WatchlistController::class, 'toggle'])->name('watchlist.toggle');
-    Route::post('/watchlist/{tmdbId}/watched', [WatchlistController::class, 'markWatched'])->name('watchlist.watched');
+    Route::get('/watchlist',                    [WatchlistController::class, 'index'])->name('watchlist');
+    Route::post('/watchlist/toggle',            [WatchlistController::class, 'toggle'])->name('watchlist.toggle');
+    Route::delete('/watchlist/{tmdbId}',        [WatchlistController::class, 'remove'])->name('watchlist.remove');
+    Route::patch('/watchlist/{tmdbId}/status',  [WatchlistController::class, 'setStatus'])->name('watchlist.status');
 });
 
 Route::get('/userinput', UserInputController::class);

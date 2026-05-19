@@ -35,11 +35,9 @@
                                 @else
                                     <div class="w-full h-full flex items-center justify-center text-gray-600 text-xs text-center px-3">No poster</div>
                                 @endif
-                                @if($item->status === 'watched')
-                                    <div class="absolute inset-0 bg-black/50 flex items-center justify-center">
-                                        <span class="text-white text-2xl">✓</span>
-                                    </div>
-                                @endif
+                                <div class="watched-overlay absolute inset-0 bg-black/50 flex items-center justify-center {{ $item->status === 'watched' ? '' : 'hidden' }}">
+                                    <span class="text-white text-2xl">✓</span>
+                                </div>
                             </div>
                             <div class="p-3">
                                 <h4 class="text-sm font-medium text-white leading-snug line-clamp-2 group-hover:text-accent transition-colors">
@@ -55,14 +53,11 @@
                         </div>
                     </a>
                     <div class="flex gap-1 mt-1">
-                        @if($item->status === 'saved')
-                            <button class="flex-1 text-xs py-1.5 px-2 rounded-md bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all mark-watched"
-                                data-tmdb-id="{{ $item->tmdb_id }}">
-                                Mark watched
-                            </button>
-                        @else
-                            <span class="flex-1 text-xs py-1.5 px-2 text-center text-gray-600">Watched</span>
-                        @endif
+                        <button class="flex-1 text-xs py-1.5 px-2 rounded-md bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all toggle-watched"
+                            data-tmdb-id="{{ $item->tmdb_id }}"
+                            data-status="{{ $item->status }}">
+                            {{ $item->status === 'watched' ? '✓ Watched' : 'Mark watched' }}
+                        </button>
                         <button class="text-xs py-1.5 px-2 rounded-md bg-white/5 hover:bg-red-900/40 text-gray-500 hover:text-red-400 transition-all remove-from-watchlist"
                             data-tmdb-id="{{ $item->tmdb_id }}">
                             ✕
