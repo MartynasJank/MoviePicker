@@ -14,6 +14,7 @@ export default defineConfig({
                 'resources/js/custom/carousel.js',
                 'resources/js/custom/criteriaForm.js',
                 'resources/js/custom/trailerModal.js',
+                'resources/js/custom/watchlist.js',
             ],
             refresh: true,
         }),
