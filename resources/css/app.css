@@ -405,29 +405,6 @@ html[data-theme="light"] {
         }
     }
 
-    /* Swiper overrides */
-    .swiper-button-next,
-    .swiper-button-prev {
-        color: #c0393a !important;
-        background: var(--bg-overlay-btn);
-        width: 36px !important;
-        height: 36px !important;
-        border-radius: 50%;
-        border: 1px solid var(--border);
-        transition: border-color 0.2s, background 0.2s;
-    }
-    .swiper-button-next:hover,
-    .swiper-button-prev:hover {
-        background: var(--bg-overlay-hover);
-        border-color: rgba(192,57,58,0.4);
-    }
-    .swiper-button-next::after,
-    .swiper-button-prev::after {
-        font-size: 13px !important;
-        font-weight: 800;
-    }
-    .swiper-button-disabled { opacity: 0.25 !important; }
-
     /* Accordion */
     .accordion-body {
         max-height: 0;
