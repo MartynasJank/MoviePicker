@@ -13,6 +13,13 @@ $(document).ready(function () {
         }
     });
 
+    $(document).on('click', function (e) {
+        if ($('#mobile-menu').is(':visible') && !$(e.target).closest('nav').length) {
+            $('.hamburger').removeClass('active');
+            $('#mobile-menu').slideUp(200);
+        }
+    });
+
     /* ── Theme toggle ──────────────────────────────────────────────────── */
     function applyTheme(theme) {
         document.documentElement.dataset.theme = theme;

@@ -99,7 +99,13 @@
 
                 {{-- Account --}}
                 @auth
-                    <a href="{{ route('watchlist') }}" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5 border-t border-t-white/10 mt-1">Watchlist</a>
+                    @if(auth()->user()->email === env('ADMIN_EMAIL'))
+                        <a href="{{ route('admin.dashboard') }}" class="py-4 text-sm text-red-400 hover:text-red-300 transition-colors border-b border-white/5 border-t border-t-white/10 mt-1">Admin</a>
+                        <a href="{{ route('my-roulettes.index') }}" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">My Roulettes</a>
+                    @else
+                        <a href="{{ route('my-roulettes.index') }}" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5 border-t border-t-white/10 mt-1">My Roulettes</a>
+                    @endif
+                    <a href="{{ route('watchlist') }}" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">Watchlist</a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="w-full text-left py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">
