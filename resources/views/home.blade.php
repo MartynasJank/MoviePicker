@@ -201,8 +201,9 @@
                 <label class="block text-sm text-gray-400 mb-1.5">Message</label>
                 <textarea name="message" placeholder="Your message…" rows="5" class="input-dark resize-none" required>{{ old('message') }}</textarea>
             </div>
-            <div class="flex justify-end">
-                <button type="submit" name="send" class="btn-accent">Send Message</button>
+            <div class="flex items-center justify-end gap-3">
+                <p class="text-xs text-gray-600">Contact is currently under maintenance</p>
+                <button type="submit" name="send" class="btn-accent opacity-40 cursor-not-allowed" disabled>Send Message</button>
             </div>
         </form>
     </section>

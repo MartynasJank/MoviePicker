@@ -44,7 +44,10 @@
 
             {{-- Desktop nav --}}
             <div class="hidden md:flex items-center gap-5 flex-1 justify-end">
-                <a href="/roulettes" class="nav-link text-sm">Roulettes</a>
+                <a href="/roulettes" class="nav-link text-sm flex items-center gap-1.5">
+                    Roulettes
+                    <span class="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-accent/15 text-accent border border-accent/20 leading-none">Beta</span>
+                </a>
 
                 {{-- User section --}}
                 @auth
@@ -84,7 +87,10 @@
                 {{-- Primary actions --}}
                 <a href="/movie?i=new" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5 long-single">Random Movie</a>
                 <a href="/multiple?i=new" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">Random Batch</a>
-                <a href="/roulettes" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">Roulettes</a>
+                <a href="/roulettes" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5 flex items-center gap-2">
+                    Roulettes
+                    <span class="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-accent/15 text-accent border border-accent/20 leading-none">Beta</span>
+                </a>
                 <a href="/criteria"  class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">Criteria</a>
 
                 {{-- Account --}}
