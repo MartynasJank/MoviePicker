@@ -13,8 +13,11 @@ A Laravel app that picks random movies based on your mood — filter by genre, d
 - **Random pick** — one-click random movie, with or without criteria
 - **Batch mode** — get a curated set of random picks at once
 - **Criteria search** — filter by genre, year range, streaming provider, vote score, vote count, actor, or director
-- **Roulettes** — curated collections (Netflix Horror, Documentaries, Anime) for quick picks
+- **Roulettes** — 140+ curated collections grouped by platform, decade, genre, language, and anime; DB-driven ordering
+- **My Roulettes** — logged-in users can create personal roulettes with full tag freedom, organise them into custom rows, and optionally make them public
 - **Movie detail page** — ratings from IMDb, Rotten Tomatoes, and Metacritic; cast & crew; trailer; similar movies; where to watch (filtered to your country)
+- **Watchlist** — save movies to watch later, mark as watched
+- **Admin dashboard** — manage roulettes and row order, view and moderate user-created roulettes
 - **Light / dark theme** — persisted across sessions
 
 ---
@@ -24,8 +27,9 @@ A Laravel app that picks random movies based on your mood — filter by genre, d
 | Layer | Tools |
 |---|---|
 | Backend | Laravel 12, PHP 8.4 |
-| Frontend | Bootstrap 4, Tailwind CSS 4, jQuery, Swiper, Tom Select, Vite |
+| Frontend | Bootstrap 4, Tailwind CSS 4, jQuery, Swiper, SortableJS, Vite |
 | APIs | TMDB (movies, providers, trailers), OMDb (RT/Metacritic scores), YouTube Data API |
+| Auth | Google OAuth via Laravel Socialite |
 | Deployment | GitHub Actions → SCP to VPS |
 
 ---
@@ -56,17 +60,18 @@ TMDB_API_KEY=        # tmdb.org → Settings → API
 OMDB_API_KEY=        # omdbapi.com
 YOUTUBE_API_KEY=     # console.cloud.google.com → YouTube Data API v3
 
-# Contact form (optional)
-MAIL_MAILER=smtp
-MAIL_HOST=
-MAIL_PORT=587
-MAIL_USERNAME=
-MAIL_PASSWORD=
-MAIL_FROM_ADDRESS=
+# Auth
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI=http://localhost:8000/auth/google/callback
+
+# Admin
+ADMIN_EMAIL=         # Google account email that gets admin access
 ```
 
 ```bash
 php artisan migrate
+php artisan db:seed
 npm run dev
 php artisan serve
 ```
