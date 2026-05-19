@@ -385,26 +385,24 @@ html[data-theme="light"] {
         .batch-wrapper {
             padding-bottom: calc(3.5rem + max(0.75rem, env(safe-area-inset-bottom, 0px)));
         }
-        .swiper-multiple {
-            height: 65dvh;
-        }
-        /* Trending / similar: nav(64) + section header(~80) + safe-area for movie page bar */
+        /* Trending / similar: fill viewport height */
         .swiper-trending,
         .swiper-similar {
             height: calc(100dvh - 188px - max(0.75rem, env(safe-area-inset-bottom, 0px)));
         }
-        .swiper-multiple .swiper-slide,
         .swiper-trending .swiper-slide,
         .swiper-similar .swiper-slide {
             height: 100%;
         }
-        /* Poster: drop fixed aspect-ratio and fill available flex space */
-        .swiper-multiple .carousel-poster,
         .swiper-trending .carousel-poster,
         .swiper-similar .carousel-poster {
             aspect-ratio: unset;
             flex: 1;
             min-height: 0;
+        }
+        /* Batch: natural aspect-ratio sizing, poster capped so card fits any phone */
+        .swiper-multiple .carousel-poster {
+            max-height: 52dvh;
         }
     }
 

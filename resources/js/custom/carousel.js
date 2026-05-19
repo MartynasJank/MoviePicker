@@ -5,7 +5,7 @@ $(document).ready(function () {
 
     const sharedConfig = {
         modules: [Mousewheel],
-        slidesPerView: 1.2,
+        slidesPerView: 1.4,
         centeredSlides: true,
         spaceBetween: 12,
         loop: true,
