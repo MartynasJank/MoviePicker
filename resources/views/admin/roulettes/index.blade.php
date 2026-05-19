@@ -10,12 +10,12 @@
 
     @include('admin._nav')
 
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <h2 class="text-lg font-semibold text-white">Roulettes</h2>
         <div class="flex items-center gap-3">
             <form method="GET" class="flex items-center gap-2">
                 <input type="text" name="q" value="{{ $q }}" placeholder="Search…"
-                       class="input-dark text-sm w-44">
+                       class="input-dark text-sm w-36 sm:w-44">
                 <button type="submit" class="btn-secondary text-sm px-3 py-2">Search</button>
                 @if($q) <a href="{{ route('admin.roulettes.index') }}" class="text-sm text-gray-500 hover:text-white">Clear</a> @endif
             </form>
@@ -35,17 +35,17 @@
         @endforeach
     @else
         {{-- Sidebar + panel layout --}}
-        <div class="flex gap-6">
+        <div class="flex flex-col md:flex-row gap-6">
 
             {{-- Sidebar --}}
-            <div class="w-48 flex-shrink-0">
-                <nav id="group-nav" class="space-y-0.5 sticky top-20">
+            <div class="md:w-48 flex-shrink-0">
+                <nav id="group-nav" class="flex md:flex-col gap-1 overflow-x-auto pb-1 md:pb-0 md:sticky md:top-20">
                     @foreach($ordered as $groupName => $roulettes)
                         <button type="button"
-                                class="group-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors text-gray-500 hover:text-white hover:bg-white/5 text-left"
+                                class="group-btn flex-shrink-0 flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors text-gray-500 hover:text-white hover:bg-white/5 text-left whitespace-nowrap"
                                 data-panel="{{ $loop->index }}">
-                            <span class="truncate">{{ $groupName }}</span>
-                            <span class="ml-2 text-xs text-gray-600 flex-shrink-0">{{ $roulettes->count() }}</span>
+                            <span>{{ $groupName }}</span>
+                            <span class="ml-2 text-xs text-gray-600">{{ $roulettes->count() }}</span>
                         </button>
                     @endforeach
                 </nav>
