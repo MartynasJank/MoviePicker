@@ -39,14 +39,18 @@ $(document).ready(function () {
             card.attr('data-status', next);
 
             if (next === 'watched') {
-                btn.text('✓ Watched');
+                btn.text('✓ Watched')
+                   .removeClass('bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white')
+                   .addClass('bg-white/10 text-white hover:bg-white/5 hover:text-gray-400');
                 card.find('.watched-overlay').removeClass('hidden');
             } else {
-                btn.text('Mark watched');
+                btn.text('Mark watched')
+                   .removeClass('bg-white/10 text-white hover:bg-white/5 hover:text-gray-400')
+                   .addClass('bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white');
                 card.find('.watched-overlay').addClass('hidden');
             }
 
-            applyFilter($('.watchlist-filter.active').data('filter'));
+            applyFilters();
         });
     });
 
@@ -67,17 +71,28 @@ $(document).ready(function () {
         });
     });
 
-    // Filter tabs
-    function applyFilter(filter) {
+    // Combined filter: status tab + genre dropdown
+    function applyFilters() {
+        const status = $('.watchlist-filter.active').data('filter');
+        const genre  = $('#genre-filter').val();
+
         $('.watchlist-card').each(function () {
-            $(this).toggle(filter === 'all' || $(this).data('status') === filter);
+            const cardStatus = $(this).attr('data-status');
+            const cardGenres = $(this).attr('data-genres') || '';
+
+            const statusMatch = status === 'all' || cardStatus === status;
+            const genreMatch  = !genre || cardGenres.split(',').map(g => g.trim()).includes(genre);
+
+            $(this).toggle(statusMatch && genreMatch);
         });
     }
 
     $(document).on('click', '.watchlist-filter', function () {
         $('.watchlist-filter').removeClass('active');
         $(this).addClass('active');
-        applyFilter($(this).data('filter'));
+        applyFilters();
     });
+
+    $(document).on('change', '#genre-filter', applyFilters);
 
 });
