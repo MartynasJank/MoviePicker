@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Roulette;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -32,5 +33,10 @@ class User extends Authenticatable
     public function watchlist()
     {
         return $this->hasMany(Watchlist::class);
+    }
+
+    public function roulettes()
+    {
+        return $this->hasMany(Roulette::class);
     }
 }

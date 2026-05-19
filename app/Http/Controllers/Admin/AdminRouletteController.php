@@ -14,7 +14,8 @@ class AdminRouletteController extends Controller
     {
         $q = $request->input('q');
 
-        $roulettes = Roulette::when($q, fn($query) => $query->where('name', 'like', "%{$q}%"))
+        $roulettes = Roulette::where('is_system', true)
+            ->when($q, fn($query) => $query->where('name', 'like', "%{$q}%"))
             ->orderBy('sort_order')
             ->orderBy('id')
             ->get();
