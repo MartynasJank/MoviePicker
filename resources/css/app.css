@@ -381,17 +381,12 @@ html[data-theme="light"] {
 
     /* Carousel: full-height cards on mobile */
     @media (max-width: 639px) {
-        /* Batch: flex layout fills remaining space — no pixel math needed */
+        /* Batch: enough bottom padding to clear the sticky bar + safe area */
         .batch-wrapper {
-            display: flex;
-            flex-direction: column;
-            height: calc(100dvh - 64px);
             padding-bottom: calc(3.5rem + max(0.75rem, env(safe-area-inset-bottom, 0px)));
-            overflow: hidden;
         }
         .swiper-multiple {
-            flex: 1;
-            min-height: 0;
+            height: 65dvh;
         }
         /* Trending / similar: nav(64) + section header(~80) + safe-area for movie page bar */
         .swiper-trending,

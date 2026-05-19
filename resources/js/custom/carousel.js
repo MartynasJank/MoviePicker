@@ -5,12 +5,13 @@ $(document).ready(function () {
 
     const sharedConfig = {
         modules: [Mousewheel],
-        slidesPerView: 1.15,
+        slidesPerView: 1.2,
+        centeredSlides: true,
         spaceBetween: 12,
         loop: true,
         mousewheel: { forceToAxis: true },
         breakpoints: {
-            600:  { slidesPerView: 2, spaceBetween: 12 },
+            600:  { slidesPerView: 2, spaceBetween: 12, centeredSlides: false },
             1024: { slidesPerView: 4, spaceBetween: 16 },
         },
     };
