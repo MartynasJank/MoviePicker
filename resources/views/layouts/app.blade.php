@@ -81,12 +81,15 @@
         {{-- Mobile menu --}}
         <div id="mobile-menu" class="hidden md:hidden bg-[#0f0f0f]/98 border-b border-white/5">
             <div class="max-w-7xl mx-auto px-4 flex flex-col">
-                <a href="/roulettes" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">Roulettes</a>
-                <a href="/criteria"  class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">Criteria</a>
+                {{-- Primary actions --}}
                 <a href="/movie?i=new" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5 long-single">Random Movie</a>
                 <a href="/multiple?i=new" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">Random Batch</a>
+                <a href="/roulettes" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">Roulettes</a>
+                <a href="/criteria"  class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">Criteria</a>
+
+                {{-- Account --}}
                 @auth
-                    <a href="{{ route('watchlist') }}" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">Watchlist</a>
+                    <a href="{{ route('watchlist') }}" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5 border-t border-t-white/10 mt-1">Watchlist</a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="w-full text-left py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">
@@ -94,9 +97,11 @@
                         </button>
                     </form>
                 @else
-                    <a href="{{ route('auth.google') }}" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">Sign in with Google</a>
+                    <a href="{{ route('auth.google') }}" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5 border-t border-t-white/10 mt-1">Sign in with Google</a>
                 @endauth
-                <div class="py-3 flex items-center justify-between">
+
+                {{-- Settings --}}
+                <div class="py-3 flex items-center justify-between border-t border-white/10 mt-1">
                     <span class="text-xs text-gray-600">Appearance</span>
                     <button class="theme-toggle flex items-center gap-2 text-xs text-gray-400 hover:text-white transition-colors py-1.5 px-3 rounded-lg hover:bg-white/5" aria-label="Toggle theme">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
