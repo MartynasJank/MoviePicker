@@ -6,8 +6,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="description" content="Random Movie Picker — find the perfect film for tonight.">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <script>!function(){var m=document.cookie.match(/(?:^|; )theme=([^;]+)/);if(m)document.documentElement.dataset.theme=m[1]}()</script>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/custom/watchlist.js'])
     @yield('scripts', '')
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-204204564-1"></script>
     <script>
@@ -47,6 +48,20 @@
                 <a href="/criteria"  class="nav-link text-sm">Criteria</a>
                 <a href="/movie?i=new" class="nav-link text-sm long-single">Random</a>
                 <a href="/multiple?i=new" class="nav-link text-sm">Batch</a>
+                @auth
+                    <a href="{{ route('watchlist') }}" class="nav-link text-sm">Watchlist</a>
+                    <form method="POST" action="{{ route('logout') }}" class="flex items-center">
+                        @csrf
+                        <button type="submit" class="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
+                            @if(Auth::user()->avatar)
+                                <img src="{{ Auth::user()->avatar }}" class="w-6 h-6 rounded-full" alt="">
+                            @endif
+                            Sign out
+                        </button>
+                    </form>
+                @else
+                    <a href="{{ route('auth.google') }}" class="nav-link text-sm">Sign in</a>
+                @endauth
                 <button id="theme-toggle"
                     class="theme-toggle p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-white/5 transition-all"
                     aria-label="Toggle theme" title="Toggle theme">
@@ -69,6 +84,17 @@
                 <a href="/criteria"  class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">Criteria</a>
                 <a href="/movie?i=new" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5 long-single">Random Movie</a>
                 <a href="/multiple?i=new" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">Random Batch</a>
+                @auth
+                    <a href="{{ route('watchlist') }}" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">Watchlist</a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="w-full text-left py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">
+                            Sign out
+                        </button>
+                    </form>
+                @else
+                    <a href="{{ route('auth.google') }}" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">Sign in with Google</a>
+                @endauth
                 <div class="py-3 flex items-center justify-between">
                     <span class="text-xs text-gray-600">Appearance</span>
                     <button class="theme-toggle flex items-center gap-2 text-xs text-gray-400 hover:text-white transition-colors py-1.5 px-3 rounded-lg hover:bg-white/5" aria-label="Toggle theme">

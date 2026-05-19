@@ -211,6 +211,19 @@
 <div class="fixed bottom-0 left-0 right-0 bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 px-4 z-40 sticky-bar-safe">
     <div class="max-w-7xl mx-auto flex gap-3 sm:justify-end">
         <button type="button" class="btn-secondary flex-1 sm:flex-none" data-modal-open="modal-form">Adjust Criteria</button>
+        @auth
+            <button type="button" class="btn-secondary flex-1 sm:flex-none watchlist-toggle"
+                data-tmdb-id="{{ $tmdbInfo->id }}"
+                data-title="{{ $tmdbInfo->title ?? $omdbInfo->Title }}"
+                data-poster="{{ $tmdbInfo->poster_path ?? '' }}"
+                data-year="{{ $omdbInfo->Year ?? date('Y', strtotime($tmdbInfo->release_date ?? '')) }}"
+                data-genres="{{ $genres ?? '' }}"
+                data-saved="{{ auth()->user()->watchlist()->where('tmdb_id', $tmdbInfo->id)->exists() ? '1' : '0' }}">
+                {{ auth()->user()->watchlist()->where('tmdb_id', $tmdbInfo->id)->exists() ? '★ Saved' : '☆ Save' }}
+            </button>
+        @else
+            <a href="{{ route('auth.google') }}" class="btn-secondary flex-1 sm:flex-none text-center">☆ Sign in to Save</a>
+        @endauth
         <a href="/movie" class="btn-accent long-single flex-1 sm:flex-none text-center">Pick Another</a>
     </div>
 </div>
