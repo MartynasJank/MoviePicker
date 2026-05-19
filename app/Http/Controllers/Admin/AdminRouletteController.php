@@ -109,6 +109,17 @@ class AdminRouletteController extends Controller
         }
 
         $fingerprint = Roulette::fingerprintFromTags($tags);
+
+        // Fingerprint must be unique among system roulettes only
+        $duplicate = Roulette::where('tag_fingerprint', $fingerprint)
+            ->where('is_system', true)
+            ->when($excludeId, fn($q) => $q->where('id', '!=', $excludeId))
+            ->exists();
+
+        if ($duplicate) {
+            return back()->withErrors(['tags' => 'A system roulette with this exact tag combination already exists.'])->withInput();
+        }
+
         $request->validate([
             'slug' => "required|string|max:100|unique:roulettes,slug,{$excludeId}",
         ]);
