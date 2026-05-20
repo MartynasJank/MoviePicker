@@ -30,12 +30,45 @@ class MovieController extends Controller
 
         $movieCriteria = session('userInput');
         $similarMovies = null;
+        $similarTitle  = 'Similar Movies';
+        $linkSuffix    = '';
 
-        if (!empty($movieCriteria)) {
+        $wlStatus = $request->query('wl_status');
+        $wlGenres = $request->query('wl_genres', '');
+
+        if ($wlStatus && auth()->check()) {
+            $linkSuffix = '?wl_status=' . urlencode($wlStatus) . ($wlGenres ? '&wl_genres=' . urlencode($wlGenres) : '');
+
+            $wlQuery = auth()->user()->watchlist()->where('tmdb_id', '!=', $movieId);
+            if ($wlStatus !== 'all') {
+                $wlQuery->where('status', $wlStatus);
+            }
+            $wlItems = $wlQuery->get();
+
+            if ($wlGenres) {
+                $genreList = array_map('trim', explode(',', $wlGenres));
+                $wlItems = $wlItems->filter(function ($item) use ($genreList) {
+                    if (!$item->genres) return false;
+                    $cardGenres = array_map('trim', explode(',', $item->genres));
+                    return !empty(array_intersect($genreList, $cardGenres));
+                });
+            }
+
+            if ($wlItems->isNotEmpty()) {
+                $similarMovies = ['results' => $wlItems->map(fn($item) => [
+                    'id'           => $item->tmdb_id,
+                    'title'        => $item->title,
+                    'poster_path'  => $item->poster_path,
+                    'release_date' => $item->year ? $item->year . '-01-01' : null,
+                ])->values()->all()];
+                $similarTitle = 'More from Your Watchlist';
+            }
+        } elseif (!empty($movieCriteria)) {
             $movieCriteria['page'] = rand(1, min($movieCriteria['total_pages'] ?? 500, 500));
             $discovered = $tmdb->discover($movieCriteria, $country);
             if (count($discovered['results']) >= 4) {
                 $similarMovies = $discovered;
+                $similarTitle  = 'More with Same Criteria';
             }
         }
 
@@ -50,7 +83,7 @@ class MovieController extends Controller
         $user_input = $request->session()->get('userInput', 'default');
 
         return view('movie', compact(
-            'tmdbInfo', 'omdbInfo', 'urls', 'similarMovies', 'genres',
+            'tmdbInfo', 'omdbInfo', 'urls', 'similarMovies', 'similarTitle', 'linkSuffix', 'genres',
             'trailer', 'user_input', 'all_genres', 'watchProviders', 'providersArray'
         ));
     }
