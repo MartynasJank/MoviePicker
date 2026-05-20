@@ -198,10 +198,10 @@
     @if ($similarMovies != null)
     <div>
         <div class="section-header">
-            <h2 class="text-xl font-bold text-white mb-3">Similar Movies</h2>
+            <h2 class="text-xl font-bold text-white mb-3">{{ $similarTitle }}</h2>
             <div class="section-divider"></div>
         </div>
-        @include('includes.carousel', ['allMovies' => $similarMovies, 'name' => 'swiper-similar', 'genres' => []])
+        @include('includes.carousel', ['allMovies' => $similarMovies, 'name' => 'swiper-similar', 'genres' => [], 'linkSuffix' => $linkSuffix])
     </div>
     @endif
 
@@ -224,7 +224,15 @@
         @else
             <a href="{{ route('auth.google') }}" class="btn-secondary flex-1 sm:flex-none text-center">☆ Sign in to Save</a>
         @endauth
-        <a href="/movie" class="btn-accent long-single flex-1 sm:flex-none text-center">Pick Another</a>
+        @if(request()->query('wl_status'))
+            @php
+                $wlParams = ['status' => request()->query('wl_status')];
+                if (request()->query('wl_genres')) $wlParams['genres'] = request()->query('wl_genres');
+            @endphp
+            <a href="{{ route('watchlist.roll', $wlParams) }}" class="btn-accent long-single flex-1 sm:flex-none text-center">Pick Another</a>
+        @else
+            <a href="/movie" class="btn-accent long-single flex-1 sm:flex-none text-center">Pick Another</a>
+        @endif
     </div>
 </div>
 
