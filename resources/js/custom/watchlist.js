@@ -100,4 +100,21 @@ $(document).ready(function () {
         applyFilters();
     });
 
+    $('#watchlist-roll').on('click', function () {
+        const visible = $('.watchlist-card:visible');
+        if (!visible.length) {
+            const btn = $(this);
+            const orig = btn.text();
+            btn.text('Nothing to roll!').prop('disabled', true);
+            setTimeout(() => btn.text(orig).prop('disabled', false), 1500);
+            return;
+        }
+        const status = $('.watchlist-filter.active').data('filter') || 'all';
+        const genres = $('.genre-chip.active').map(function () { return $(this).data('genre'); }).get().join(',');
+        const picked = visible.eq(Math.floor(Math.random() * visible.length));
+        let url = picked.find('a').first().attr('href') + '?wl_status=' + status;
+        if (genres) url += '&wl_genres=' + encodeURIComponent(genres);
+        window.location.href = url;
+    });
+
 });
