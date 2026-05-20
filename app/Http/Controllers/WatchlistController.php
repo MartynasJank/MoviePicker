@@ -72,4 +72,40 @@ class WatchlistController extends Controller
 
         return response()->json(['ok' => true]);
     }
+
+    public function roll(Request $request)
+    {
+        $status = $request->query('status', 'all');
+        $genres = $request->query('genres', '');
+
+        $query = Auth::user()->watchlist();
+
+        if ($status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        $items = $query->get();
+
+        if ($genres) {
+            $genreList = array_map('trim', explode(',', $genres));
+            $items = $items->filter(function ($item) use ($genreList) {
+                if (!$item->genres) return false;
+                $cardGenres = array_map('trim', explode(',', $item->genres));
+                return !empty(array_intersect($genreList, $cardGenres));
+            });
+        }
+
+        if ($items->isEmpty()) {
+            return redirect()->route('watchlist');
+        }
+
+        $picked = $items->random();
+
+        $url = route('movie', $picked->tmdb_id) . '?wl_status=' . urlencode($status);
+        if ($genres) {
+            $url .= '&wl_genres=' . urlencode($genres);
+        }
+
+        return redirect($url);
+    }
 }
