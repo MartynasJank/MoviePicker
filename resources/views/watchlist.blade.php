@@ -7,10 +7,15 @@
         <div class="flex items-center justify-between gap-4 flex-wrap mb-3">
             <h1 class="text-2xl font-bold text-white">My Watchlist</h1>
             @if($items->isNotEmpty())
-                <div class="flex gap-1 bg-white/5 p-1 rounded-lg">
-                    <button class="watchlist-filter active text-xs px-3 py-1.5 rounded-md transition-all" data-filter="all">All</button>
-                    <button class="watchlist-filter text-xs px-3 py-1.5 rounded-md transition-all text-gray-400" data-filter="saved">To Watch</button>
-                    <button class="watchlist-filter text-xs px-3 py-1.5 rounded-md transition-all text-gray-400" data-filter="watched">Watched</button>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <div class="flex gap-1 bg-white/5 p-1 rounded-lg">
+                        <button class="watchlist-filter active text-xs px-3 py-1.5 rounded-md transition-all" data-filter="all">All</button>
+                        <button class="watchlist-filter text-xs px-3 py-1.5 rounded-md transition-all text-gray-400" data-filter="saved">To Watch</button>
+                        <button class="watchlist-filter text-xs px-3 py-1.5 rounded-md transition-all text-gray-400" data-filter="watched">Watched</button>
+                    </div>
+                    <button id="watchlist-roll" class="text-xs px-3 py-1.5 rounded-lg bg-accent text-white hover:bg-accent/80 transition-all font-medium">
+                        ⚄ Roll
+                    </button>
                 </div>
             @endif
         </div>
