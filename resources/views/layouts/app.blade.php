@@ -85,59 +85,78 @@
             </button>
         </div>
 
-        {{-- Mobile menu --}}
-        <div id="mobile-menu" class="hidden md:hidden bg-[#0f0f0f]/98 border-b border-white/5">
-            <div class="max-w-7xl mx-auto px-4 flex flex-col">
-                {{-- Primary actions --}}
-                <a href="/movie?i=new" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5 long-single">Random Movie</a>
-                <a href="/multiple?i=new" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">Random Batch</a>
-                <a href="/roulettes" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5 flex items-center gap-2">
-                    Roulettes
-                    <span class="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-accent/15 text-accent border border-accent/20 leading-none">Beta</span>
-                </a>
-                <a href="/criteria"  class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">Criteria</a>
-
-                {{-- Account --}}
-                @auth
-                    <div class="flex items-center gap-3 py-3 mt-1 border-t border-white/10">
-                        @if(Auth::user()->avatar)
-                            <img src="{{ Auth::user()->avatar }}" class="w-8 h-8 rounded-full ring-1 ring-white/10" alt="">
-                        @endif
-                        <div>
-                            <div class="text-sm text-white font-medium">{{ Auth::user()->name }}</div>
-                            <div class="text-xs text-gray-500">{{ Auth::user()->email }}</div>
-                        </div>
-                    </div>
-                    @if(auth()->user()->email === config('api.admin_email'))
-                        <a href="{{ route('admin.dashboard') }}" class="py-4 text-sm text-red-400 hover:text-red-300 transition-colors border-b border-white/5 border-t border-t-white/10 mt-1">Admin</a>
-                        <a href="{{ route('my-roulettes.index') }}" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">My Roulettes</a>
-                    @else
-                        <a href="{{ route('my-roulettes.index') }}" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5 border-t border-t-white/10 mt-1">My Roulettes</a>
-                    @endif
-                    <a href="{{ route('watchlist') }}" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">Watchlist</a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="w-full text-left py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5">
-                            Sign out
-                        </button>
-                    </form>
-                @else
-                    <a href="{{ route('auth.google') }}" class="py-4 text-sm text-gray-300 hover:text-white transition-colors border-b border-white/5 border-t border-t-white/10 mt-1">Sign in with Google</a>
-                @endauth
-
-                {{-- Settings --}}
-                <div class="py-3 flex items-center justify-between border-t border-white/10 mt-1">
-                    <span class="text-xs text-gray-600">Appearance</span>
-                    <button class="theme-toggle flex items-center gap-2 text-xs text-gray-400 hover:text-white transition-colors py-1.5 px-3 rounded-lg hover:bg-white/5" aria-label="Toggle theme">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-                        </svg>
-                        Toggle theme
-                    </button>
-                </div>
-            </div>
-        </div>
     </nav>
+
+    {{-- Mobile menu overlay --}}
+    <div id="mobile-menu" class="hidden fixed inset-x-0 top-16 bottom-0 bg-[#0f0f0f] z-40 overflow-y-auto md:hidden">
+        <div class="px-4 py-4 flex flex-col gap-1 min-h-full">
+
+            {{-- Primary actions --}}
+            <a href="/movie?i=new" class="long-single flex items-center justify-between px-4 py-3.5 rounded-xl bg-white/5 hover:bg-white/8 text-white font-medium text-sm transition-colors">
+                Random Movie
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+            </a>
+            <a href="/multiple?i=new" class="flex items-center justify-between px-4 py-3.5 rounded-xl bg-white/5 hover:bg-white/8 text-white font-medium text-sm transition-colors">
+                Random Batch
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+            </a>
+
+            {{-- Nav links --}}
+            <div class="h-px bg-white/5 my-2"></div>
+            <a href="/roulettes" class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">
+                Roulettes
+                <span class="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-accent/15 text-accent border border-accent/20 leading-none">Beta</span>
+            </a>
+            <a href="/criteria" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">
+                Criteria
+            </a>
+
+            {{-- Account --}}
+            <div class="h-px bg-white/5 my-2"></div>
+            @auth
+                <div class="flex items-center gap-3 px-4 py-3">
+                    @if(Auth::user()->avatar)
+                        <img src="{{ Auth::user()->avatar }}" class="w-9 h-9 rounded-full ring-1 ring-white/10 flex-shrink-0" alt="">
+                    @else
+                        <div class="w-9 h-9 rounded-full bg-accent/20 flex items-center justify-center text-accent text-sm font-semibold flex-shrink-0">
+                            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                        </div>
+                    @endif
+                    <div class="min-w-0">
+                        <div class="text-sm text-white font-medium truncate">{{ Auth::user()->name }}</div>
+                        <div class="text-xs text-gray-500 truncate">{{ Auth::user()->email }}</div>
+                    </div>
+                </div>
+
+                @if(auth()->user()->email === config('api.admin_email'))
+                    <a href="{{ route('admin.dashboard') }}" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-red-400 hover:text-red-300 hover:bg-red-500/5 transition-colors">Admin</a>
+                @endif
+                <a href="{{ route('my-roulettes.index') }}" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">My Roulettes</a>
+                <a href="{{ route('watchlist') }}" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">Watchlist</a>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="w-full text-left px-4 py-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors">Sign out</button>
+                </form>
+            @else
+                <a href="{{ route('auth.google') }}" class="flex items-center justify-between px-4 py-3.5 rounded-xl bg-white/5 hover:bg-white/8 text-sm text-white font-medium transition-colors">
+                    Sign in with Google
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+                </a>
+            @endauth
+
+            {{-- Theme toggle pinned to bottom --}}
+            <div class="mt-auto pt-4">
+                <div class="h-px bg-white/5 mb-2"></div>
+                <button class="theme-toggle w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors" aria-label="Toggle theme">
+                    <span>Toggle theme</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                    </svg>
+                </button>
+            </div>
+
+        </div>
+    </div>
 
     {{-- Flash messages --}}
     @if(session('success'))
