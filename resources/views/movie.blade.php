@@ -209,6 +209,43 @@
         </div>
     </div>
 
+    {{-- Collection --}}
+    @if ($collection)
+    <div class="mb-6">
+        <div class="section-header">
+            <h2 class="text-xl font-bold text-white mb-3">{{ $collection->name }}</h2>
+            <div class="section-divider"></div>
+        </div>
+        <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+            @foreach ($collection->parts as $part)
+                @php $isCurrent = $part->id == $tmdbInfo->id; @endphp
+                <a href="{{ url('movie/' . $part->id) }}"
+                   class="flex-shrink-0 w-28 group {{ $isCurrent ? 'opacity-50 pointer-events-none' : '' }}">
+                    <div class="aspect-[2/3] rounded-lg overflow-hidden bg-white/[0.03] relative">
+                        @if (!empty($part->poster_path))
+                            <img src="https://image.tmdb.org/t/p/w185{{ $part->poster_path }}"
+                                 alt="{{ $part->title }}"
+                                 class="w-full h-full object-cover {{ $isCurrent ? '' : 'group-hover:scale-105 transition-transform duration-300' }}"
+                                 loading="lazy">
+                        @else
+                            <div class="w-full h-full flex items-center justify-center text-gray-600 text-xs text-center px-2">No poster</div>
+                        @endif
+                        @if ($isCurrent)
+                            <div class="absolute inset-0 flex items-end justify-center pb-2">
+                                <span class="text-xs text-white bg-black/60 px-2 py-0.5 rounded-full">This film</span>
+                            </div>
+                        @endif
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1.5 line-clamp-2 leading-snug">{{ $part->title }}</p>
+                    @if (!empty($part->release_date))
+                        <p class="text-xs text-gray-600">{{ substr($part->release_date, 0, 4) }}</p>
+                    @endif
+                </a>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     {{-- Similar movies --}}
     @if ($similarMovies != null)
     <div>
