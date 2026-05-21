@@ -8,7 +8,7 @@
     <section class="relative min-h-[88vh] flex items-center justify-center overflow-hidden">
 
         {{-- Poster collage background --}}
-        @php $bgPosters = array_values(array_filter(array_slice($trending['results'] ?? [], 0, 12), fn($m) => !empty($m['poster_path']))); @endphp
+        @php $bgPosters = array_values(array_filter(array_slice($trendingDay['results'] ?? [], 0, 12), fn($m) => !empty($m['poster_path']))); @endphp
         @if(count($bgPosters) >= 3)
             <div class="absolute inset-0 grid grid-cols-4 md:grid-cols-6 opacity-[0.18] pointer-events-none overflow-hidden" aria-hidden="true">
                 @foreach($bgPosters as $m)
