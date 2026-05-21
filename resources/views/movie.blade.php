@@ -93,7 +93,6 @@
                                 class="h-8 w-8 rounded-md border border-white/10 hover:border-white/30 transition-colors">
                         </a>
                     @endforeach
-                    <a href="{{ $jwUrl }}" target="_blank" class="text-xs text-gray-500 hover:text-white transition-colors ml-1">Find on JustWatch →</a>
                 </div>
             @endif
 
