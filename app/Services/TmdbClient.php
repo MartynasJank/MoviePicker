@@ -121,12 +121,17 @@ class TmdbClient implements ApiMovie
     }
 
     /**
-     * Daily trending movies, cached for 30 minutes.
+     * Trending movies cached until TMDB next updates that list (midnight UTC for day, Monday midnight for week).
      */
-    public function trending(): array
+    public function trending(string $period = 'day'): array
     {
-        return Cache::remember('tmdb_trending', now()->addMinutes(30), function () {
-            $response = $this->client->get('https://api.themoviedb.org/3/trending/movie/day');
+        $period = $period === 'week' ? 'week' : 'day';
+        $ttl = $period === 'day'
+            ? now('UTC')->diffInSeconds(\Carbon\Carbon::tomorrow('UTC'))
+            : now('UTC')->diffInSeconds(\Carbon\Carbon::now('UTC')->startOfWeek(\Carbon\Carbon::MONDAY)->addWeek());
+
+        return Cache::remember("tmdb_trending_{$period}", $ttl, function () use ($period) {
+            $response = $this->client->get("https://api.themoviedb.org/3/trending/movie/{$period}");
             return json_decode($response->getBody()->getContents(), true);
         });
     }

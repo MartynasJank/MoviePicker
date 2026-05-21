@@ -29,9 +29,23 @@ $(document).ready(function () {
         },
     };
 
-    if ($('.swiper-trending').length) {
-        const s = new Swiper('.swiper-trending', sharedConfig);
-        addWheelControl(s, document.querySelector('.swiper-trending'));
+    if ($('.swiper-trending-day').length) {
+        const s = new Swiper('.swiper-trending-day', sharedConfig);
+        addWheelControl(s, document.querySelector('.swiper-trending-day'));
+        let weekSwiper = null;
+
+        $('#trend-day, #trend-week').on('click', function () {
+            const isWeek = this.id === 'trend-week';
+            $('#trend-day, #trend-week').toggleClass('active', false).addClass('text-gray-400');
+            $(this).addClass('active').removeClass('text-gray-400');
+            $('#trending-day').toggleClass('hidden', isWeek);
+            $('#trending-week').toggleClass('hidden', !isWeek);
+
+            if (isWeek && !weekSwiper) {
+                weekSwiper = new Swiper('.swiper-trending-week', sharedConfig);
+                addWheelControl(weekSwiper, document.querySelector('.swiper-trending-week'));
+            }
+        });
     }
 
     if ($('.swiper-similar').length) {
