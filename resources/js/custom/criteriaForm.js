@@ -28,6 +28,14 @@ $(document).ready(function () {
             placeholder: dept ? 'Search actors…' : 'Search directors, writers…',
             maxOptions: null,
             create: false,
+            render: {
+                option: function (data, escape) {
+                    const img = data.profile
+                        ? `<img src="https://image.tmdb.org/t/p/w45${escape(data.profile)}" class="w-7 h-7 rounded-full object-cover flex-shrink-0">`
+                        : `<div class="w-7 h-7 rounded-full bg-white/10 flex-shrink-0"></div>`;
+                    return `<div class="flex items-center gap-2 py-0.5">${img}<span>${escape(data.text)}</span></div>`;
+                },
+            },
         });
         let timer;
         ts.on('type', function (query) {
@@ -44,7 +52,9 @@ $(document).ready(function () {
                 if (dept) params.dept = dept;
                 $.getJSON('/tmdb/search/people', params)
                     .done(function (data) {
-                        data.forEach(function (p) { ts.addOption({ value: String(p.id), text: p.name }); });
+                        data.forEach(function (p) {
+                            ts.addOption({ value: String(p.id), text: p.name, profile: p.profile_path || '' });
+                        });
                     })
                     .always(function () {
                         ts.loading = Math.max(ts.loading - 1, 0);
