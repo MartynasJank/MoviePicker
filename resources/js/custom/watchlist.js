@@ -32,7 +32,13 @@ $(document).ready(function () {
         .done(function (res) {
             btn.data('saved', res.saved ? '1' : '0');
             const star = btn.data('format') === 'star';
-            btn.text(res.saved ? (star ? '★' : '★ Saved') : (star ? '☆' : '☆ Save'));
+            if (star) {
+                btn.text(res.saved ? '★ Saved' : '☆');
+                btn.toggleClass('bg-accent', res.saved)
+                   .toggleClass('bg-black/70 hover:bg-black/90', !res.saved);
+            } else {
+                btn.text(res.saved ? '★ Saved' : '☆ Save');
+            }
         })
         .always(function () { btn.prop('disabled', false); });
     });

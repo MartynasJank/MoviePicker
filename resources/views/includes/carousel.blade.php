@@ -50,7 +50,7 @@
                         @auth
                             @php $isSaved = in_array($result['id'], $savedIds ?? []); @endphp
                             <button type="button"
-                                class="absolute top-2 right-2 watchlist-toggle bg-black/70 text-white text-xs px-2 py-1 rounded hover:bg-black/90 transition-all z-10"
+                                class="absolute top-2 right-2 watchlist-toggle text-xs px-2 py-1 rounded transition-all z-10 {{ $isSaved ? 'bg-accent text-white' : 'bg-black/70 text-white hover:bg-black/90' }}"
                                 data-format="star"
                                 data-tmdb-id="{{ $result['id'] }}"
                                 data-title="{{ $result['title'] }}"
@@ -58,7 +58,7 @@
                                 data-year="{{ date('Y', strtotime($result['release_date'])) }}"
                                 data-genres="{{ $genres[$result['id']] ?? '' }}"
                                 data-saved="{{ $isSaved ? '1' : '0' }}">
-                                {{ $isSaved ? '★' : '☆' }}
+                                {{ $isSaved ? '★ Saved' : '☆' }}
                             </button>
                         @endauth
                     @endif
