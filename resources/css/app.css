@@ -141,8 +141,11 @@ html[data-theme="light"] {
     .roulette-row {
         scrollbar-width: none;
         -ms-overflow-style: none;
+        cursor: grab;
+        user-select: none;
     }
     .roulette-row::-webkit-scrollbar { display: none; }
+    .roulette-row.cursor-grabbing { cursor: grabbing; }
 
     /* Mood shortcut tile */
     .mood-tile {

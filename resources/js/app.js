@@ -88,14 +88,35 @@ $(document).ready(function () {
         setTimeout(() => window.removeEventListener('beforeunload', handler), 150);
     });
 
-    /* ── Roulette row horizontal scroll ───────────────────────────────── */
+    /* ── Roulette row drag-to-scroll ───────────────────────────────────── */
     document.querySelectorAll('.roulette-row').forEach(function (row) {
+        let isDown = false, startX, scrollLeft;
+
+        row.addEventListener('mousedown', function (e) {
+            isDown = true;
+            row.classList.add('cursor-grabbing');
+            startX = e.pageX - row.offsetLeft;
+            scrollLeft = row.scrollLeft;
+        });
+
         row.addEventListener('wheel', function (e) {
             const delta = Math.abs(e.deltaX) >= 5 ? e.deltaX : e.deltaY;
             if (Math.abs(delta) < 5) return;
             e.preventDefault();
             row.scrollLeft += delta;
         }, { passive: false });
+
+        document.addEventListener('mouseup', function () {
+            isDown = false;
+            row.classList.remove('cursor-grabbing');
+        });
+
+        document.addEventListener('mousemove', function (e) {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - row.offsetLeft;
+            row.scrollLeft = scrollLeft - (x - startX);
+        });
     });
 
     /* ── Accordion ─────────────────────────────────────────────────────── */
