@@ -159,6 +159,14 @@ class TmdbClient implements ApiMovie
         });
     }
 
+    public function collection(int $id): object
+    {
+        return Cache::remember('tmdb_collection_' . $id, now()->addWeek(), function () use ($id) {
+            $url = 'https://api.themoviedb.org/3/collection/' . $id . '?' . http_build_query(['language' => 'en-US']);
+            return json_decode($this->client->get($url)->getBody()->getContents());
+        });
+    }
+
     /**
      * Genre list — callers should use MovieService::genres() which caches the result.
      */

@@ -85,6 +85,15 @@ class MovieController extends Controller
             $similarMovies = $tmdb->similarMovies($tmdbInfo);
         }
 
+        $collection = null;
+        if (!empty($tmdbInfo->belongs_to_collection->id)) {
+            $collectionData = $tmdb->collection($tmdbInfo->belongs_to_collection->id);
+            if (!empty($collectionData->parts) && count($collectionData->parts) > 1) {
+                usort($collectionData->parts, fn($a, $b) => strcmp($a->release_date ?? '', $b->release_date ?? ''));
+                $collection = $collectionData;
+            }
+        }
+
         $genres     = $movieService->genresString($tmdbInfo);
         $urls       = $link->linksArray($omdbInfo);
         $trailer    = $movieService->getTrailer($tmdbInfo->videos->results ?? []);
@@ -96,7 +105,8 @@ class MovieController extends Controller
 
         return view('movie', compact(
             'tmdbInfo', 'omdbInfo', 'urls', 'similarMovies', 'similarTitle', 'linkSuffix', 'genres',
-            'trailer', 'user_input', 'all_genres', 'watchProviders', 'providersArray', 'batchUrl', 'savedIds', 'country'
+            'trailer', 'user_input', 'all_genres', 'watchProviders', 'providersArray', 'batchUrl', 'savedIds', 'country',
+            'collection'
         ));
     }
 }
