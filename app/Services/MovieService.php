@@ -191,8 +191,9 @@ class MovieService
 
     public function getUserCountry(): string
     {
+        $ip = \Request::header('CF-Connecting-IP') ?: \Request::ip();
         try {
-            $data = \Location::get(\Request::ip());
+            $data = \Location::get($ip);
         } catch (\Throwable) {
             $data = null;
         }
