@@ -85,32 +85,24 @@
                 </button>
             </div>
 
-            {{-- Mobile: search icon + hamburger --}}
-            <div class="flex items-center gap-1 md:hidden">
-                <button id="mobile-search-toggle" class="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all" aria-label="Search">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-                </button>
-                <button class="hamburger" aria-label="Menu">
-                    <span></span><span></span><span></span>
-                </button>
-            </div>
+            {{-- Mobile hamburger --}}
+            <button class="hamburger md:hidden" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
         </div>
 
     </nav>
 
     {{-- Mobile menu overlay --}}
-    {{-- Mobile search overlay --}}
-    <div id="mobile-search-overlay" class="hidden fixed inset-x-0 top-16 bg-[#0f0f0f]/95 backdrop-blur-lg border-b border-white/10 p-4 z-50 md:hidden">
-        <div class="relative">
-            <input id="mobile-search-input" type="text" placeholder="Search movies…" autocomplete="off"
-                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pr-10 text-sm text-white placeholder-gray-500 outline-none focus:border-white/20 transition-colors">
-            <button id="mobile-search-close" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white p-1 text-lg leading-none">✕</button>
-        </div>
-        <div id="mobile-search-results" class="hidden mt-2 bg-[#1a1a1a] border border-white/10 rounded-xl overflow-hidden divide-y divide-white/5"></div>
-    </div>
-
     <div id="mobile-menu" class="hidden fixed inset-x-0 top-16 bottom-0 bg-[#0f0f0f] z-50 overflow-y-auto md:hidden">
         <div class="px-4 py-4 flex flex-col gap-1 min-h-full">
+
+            {{-- Search --}}
+            <div class="relative mb-2">
+                <input id="mobile-search-input" type="text" placeholder="Search movies…" autocomplete="off"
+                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 outline-none focus:border-white/20 transition-colors">
+                <div id="mobile-search-results" class="hidden mt-1 bg-[#1a1a1a] border border-white/10 rounded-xl overflow-hidden divide-y divide-white/5"></div>
+            </div>
 
             {{-- Primary actions --}}
             <a href="/movie?i=new" class="long-single flex items-center justify-between px-4 py-3.5 rounded-xl bg-white/5 hover:bg-white/8 text-white font-medium text-sm transition-colors">

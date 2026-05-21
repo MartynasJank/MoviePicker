@@ -7,39 +7,21 @@ $(document).ready(function () {
         $('body').css('overflow', '');
     }
 
-    function closeSearch() {
-        $('#mobile-search-overlay').addClass('hidden');
-        $('#mobile-search-results').addClass('hidden').empty();
-        $('#mobile-search-input').val('');
-        $('body').css('overflow', '');
-    }
-
     $('.hamburger').on('click', function () {
-        closeSearch();
         $(this).toggleClass('active');
         const opening = $(this).hasClass('active');
         $('#mobile-menu')[opening ? 'slideDown' : 'slideUp'](200);
         $('body').css('overflow', opening ? 'hidden' : '');
     });
 
-    $('#mobile-search-toggle').on('click', function () {
-        closeMenu();
-        $('#mobile-search-overlay').removeClass('hidden');
-        $('body').css('overflow', 'hidden');
-        setTimeout(() => $('#mobile-search-input').trigger('focus'), 50);
-    });
-
-    $('#mobile-search-close').on('click', closeSearch);
-
     $(window).on('resize', function () {
         if ($(window).width() >= 768) {
             closeMenu();
-            closeSearch();
         }
     });
 
     $(document).on('click', function (e) {
-        if ($('#mobile-menu').is(':visible') && !$(e.target).closest('nav').length) {
+        if ($('#mobile-menu').is(':visible') && !$(e.target).closest('nav, #mobile-menu').length) {
             closeMenu();
         }
     });
@@ -53,7 +35,6 @@ $(document).ready(function () {
     $(document).on('click', '.theme-toggle', function () {
         const current = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
         applyTheme(current === 'dark' ? 'light' : 'dark');
-        closeMenu();
     });
 
     /* ── Custom modals ─────────────────────────────────────────────────── */
