@@ -30,11 +30,12 @@ class WatchlistController extends Controller
     public function toggle(Request $request)
     {
         $request->validate([
-            'tmdb_id'     => 'required|integer',
-            'title'       => 'required|string|max:255',
-            'poster_path' => 'nullable|string',
-            'year'        => 'nullable|integer',
-            'genres'      => 'nullable|string',
+            'tmdb_id'      => 'required|integer',
+            'title'        => 'required|string|max:255',
+            'poster_path'  => 'nullable|string',
+            'year'         => 'nullable|integer',
+            'genres'       => 'nullable|string',
+            'vote_average' => 'nullable|numeric|min:0|max:10',
         ]);
 
         $user = Auth::user();
@@ -46,12 +47,13 @@ class WatchlistController extends Controller
         }
 
         $user->watchlist()->create([
-            'tmdb_id'     => $request->tmdb_id,
-            'title'       => $request->title,
-            'poster_path' => $request->poster_path,
-            'year'        => $request->year,
-            'genres'      => $request->genres,
-            'status'      => 'saved',
+            'tmdb_id'      => $request->tmdb_id,
+            'title'        => $request->title,
+            'poster_path'  => $request->poster_path,
+            'year'         => $request->year,
+            'genres'       => $request->genres,
+            'vote_average' => $request->vote_average ?: null,
+            'status'       => 'saved',
         ]);
 
         return response()->json(['saved' => true]);

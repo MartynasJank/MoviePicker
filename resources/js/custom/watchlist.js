@@ -22,12 +22,13 @@ $(document).ready(function () {
         btn.prop('disabled', true);
 
         $.post('/watchlist/toggle', {
-            _token:      csrf(),
-            tmdb_id:     btn.data('tmdb-id'),
-            title:       btn.data('title'),
-            poster_path: btn.data('poster') || null,
-            year:        btn.data('year') || null,
-            genres:      btn.data('genres') || null,
+            _token:       csrf(),
+            tmdb_id:      btn.data('tmdb-id'),
+            title:        btn.data('title'),
+            poster_path:  btn.data('poster') || null,
+            year:         btn.data('year') || null,
+            genres:       btn.data('genres') || null,
+            vote_average: btn.data('rating') || null,
         })
         .done(function (res) {
             btn.data('saved', res.saved ? '1' : '0');
@@ -115,6 +116,38 @@ $(document).ready(function () {
         $(this).addClass('active');
         applyFilters();
     });
+
+    function applySort() {
+        const val = $('#sort-select').val();
+        if (!val) return;
+        const [key, dir] = val.split('-');
+        const grid = $('.watchlist-card').parent();
+        const cards = $('.watchlist-card').get();
+
+        cards.sort(function (a, b) {
+            let av, bv;
+            if (key === 'date') {
+                av = parseInt($(a).data('date')) || 0;
+                bv = parseInt($(b).data('date')) || 0;
+            } else if (key === 'title') {
+                av = ($(a).data('title') || '').toLowerCase();
+                bv = ($(b).data('title') || '').toLowerCase();
+            } else if (key === 'year') {
+                av = parseInt($(a).data('year')) || 0;
+                bv = parseInt($(b).data('year')) || 0;
+            } else if (key === 'rating') {
+                av = parseFloat($(a).data('rating')) || 0;
+                bv = parseFloat($(b).data('rating')) || 0;
+            }
+            if (av < bv) return dir === 'asc' ? -1 : 1;
+            if (av > bv) return dir === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        grid.append(cards);
+    }
+
+    $('#sort-select').on('change', applySort);
 
     $('#watchlist-roll').on('click', function () {
         const visible = $('.watchlist-card:visible');

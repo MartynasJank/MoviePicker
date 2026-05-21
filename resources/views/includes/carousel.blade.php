@@ -57,6 +57,7 @@
                                 data-poster="{{ $result['poster_path'] }}"
                                 data-year="{{ date('Y', strtotime($result['release_date'])) }}"
                                 data-genres="{{ $genres[$result['id']] ?? '' }}"
+                                data-rating="{{ $result['vote_average'] ?? '' }}"
                                 data-saved="{{ $isSaved ? '1' : '0' }}">
                                 {{ $isSaved ? '★ Saved' : '☆' }}
                             </button>
