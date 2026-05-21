@@ -84,11 +84,19 @@ class RouletteController extends Controller
         $movies['results'] = $movieService->pickBatch($movies['results']);
         $all_genres        = $movieService->genres($tmdb);
 
+        session(['userInput' => array_merge($criteria, ['total_pages' => $movies['total_pages'] ?? 500])]);
+        session(['batchUrl'  => request()->url()]);
+
+        $savedIds = auth()->check()
+            ? auth()->user()->watchlist()->pluck('tmdb_id')->toArray()
+            : [];
+
         return view('batch', [
             'movies'       => $movies,
             'movie_genres' => $movieService->movieGenresMap($movies['results'], $all_genres),
             'tag'          => $roulette->name,
             'title'        => $roulette->name . ' — MoviePickr',
+            'savedIds'     => $savedIds,
         ]);
     }
 }

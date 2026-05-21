@@ -40,13 +40,20 @@ class MoviePickController extends Controller
         $all_genres         = $movieService->genres($tmdb);
         $movie_genres       = $movieService->movieGenresMap($movies['results'], $all_genres);
 
+        session(['batchUrl' => url('/multiple')]);
+
+        $savedIds = auth()->check()
+            ? auth()->user()->watchlist()->pluck('tmdb_id')->toArray()
+            : [];
+
         return view('batch', [
-            'movies'        => $movies,
-            'user_input'    => session('userInput'),
-            'all_genres'    => $all_genres,
-            'movie_genres'  => $movie_genres,
+            'movies'         => $movies,
+            'user_input'     => session('userInput'),
+            'all_genres'     => $all_genres,
+            'movie_genres'   => $movie_genres,
             'providersArray' => $movieService->buildProvidersArray($tmdb),
-            'tag'           => 'Movies picked for you',
+            'tag'            => 'Movies picked for you',
+            'savedIds'       => $savedIds,
         ]);
     }
 

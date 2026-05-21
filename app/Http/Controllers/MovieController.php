@@ -25,10 +25,11 @@ class MovieController extends Controller
         $providersArray = $movieService->buildProvidersArray($tmdb);
 
         if ($request->query('i') !== null) {
-            session()->forget('userInput');
+            session()->forget(['userInput', 'batchUrl']);
         }
 
         $movieCriteria = session('userInput');
+        $batchUrl      = session('batchUrl');
         $similarMovies = null;
         $similarTitle  = 'Similar Movies';
         $linkSuffix    = '';
@@ -84,7 +85,7 @@ class MovieController extends Controller
 
         return view('movie', compact(
             'tmdbInfo', 'omdbInfo', 'urls', 'similarMovies', 'similarTitle', 'linkSuffix', 'genres',
-            'trailer', 'user_input', 'all_genres', 'watchProviders', 'providersArray'
+            'trailer', 'user_input', 'all_genres', 'watchProviders', 'providersArray', 'batchUrl'
         ));
     }
 }
