@@ -90,13 +90,16 @@ $(document).ready(function () {
 
     /* ── Roulette row drag-to-scroll ───────────────────────────────────── */
     document.querySelectorAll('.roulette-row').forEach(function (row) {
-        let isDown = false, startX, scrollLeft;
+        let isDown = false, startX, scrollLeft, hasDragged;
+
+        row.addEventListener('dragstart', function (e) { e.preventDefault(); });
 
         row.addEventListener('mousedown', function (e) {
             isDown = true;
-            row.classList.add('cursor-grabbing');
+            hasDragged = false;
             startX = e.pageX - row.offsetLeft;
             scrollLeft = row.scrollLeft;
+            row.classList.add('cursor-grabbing');
         });
 
         row.addEventListener('wheel', function (e) {
@@ -113,10 +116,15 @@ $(document).ready(function () {
 
         document.addEventListener('mousemove', function (e) {
             if (!isDown) return;
-            e.preventDefault();
             const x = e.pageX - row.offsetLeft;
-            row.scrollLeft = scrollLeft - (x - startX);
+            const walk = x - startX;
+            if (Math.abs(walk) > 4) hasDragged = true;
+            row.scrollLeft = scrollLeft - walk;
         });
+
+        row.addEventListener('click', function (e) {
+            if (hasDragged) e.preventDefault();
+        }, true);
     });
 
     /* ── Accordion ─────────────────────────────────────────────────────── */
