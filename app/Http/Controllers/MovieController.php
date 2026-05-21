@@ -82,10 +82,13 @@ class MovieController extends Controller
         $trailer    = $movieService->getTrailer($tmdbInfo->videos->results ?? []);
         $all_genres = $movieService->genres($tmdb);
         $user_input = $request->session()->get('userInput', 'default');
+        $savedIds   = auth()->check()
+            ? auth()->user()->watchlist()->pluck('tmdb_id')->toArray()
+            : [];
 
         return view('movie', compact(
             'tmdbInfo', 'omdbInfo', 'urls', 'similarMovies', 'similarTitle', 'linkSuffix', 'genres',
-            'trailer', 'user_input', 'all_genres', 'watchProviders', 'providersArray', 'batchUrl'
+            'trailer', 'user_input', 'all_genres', 'watchProviders', 'providersArray', 'batchUrl', 'savedIds'
         ));
     }
 }

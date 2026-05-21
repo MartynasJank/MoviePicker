@@ -31,7 +31,8 @@ $(document).ready(function () {
         })
         .done(function (res) {
             btn.data('saved', res.saved ? '1' : '0');
-            btn.text(res.saved ? '★ Saved' : '☆ Save');
+            const star = btn.data('format') === 'star';
+            btn.text(res.saved ? (star ? '★' : '★ Saved') : (star ? '☆' : '☆ Save'));
         })
         .always(function () { btn.prop('disabled', false); });
     });

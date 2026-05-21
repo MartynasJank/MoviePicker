@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('scripts')
-    @vite(['resources/js/custom/carousel.js'])
+    @vite(['resources/js/custom/carousel.js', 'resources/js/custom/watchlist.js'])
 @endsection
 @section('content')
 
@@ -154,7 +154,7 @@
             <h2 class="text-2xl font-bold text-white mb-3">Trending Today</h2>
             <div class="section-divider"></div>
         </div>
-        @include('includes.carousel', ['allMovies' => $trending, 'name' => 'swiper-trending', 'genres' => [], 'clearCriteria' => true])
+        @include('includes.carousel', ['allMovies' => $trending, 'name' => 'swiper-trending', 'genres' => [], 'clearCriteria' => true, 'showScore' => true, 'showSave' => true, 'savedIds' => $savedIds])
     </section>
 
     {{-- About --}}
