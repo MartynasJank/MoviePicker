@@ -51,6 +51,7 @@
                             @php $isSaved = in_array($result['id'], $savedIds ?? []); @endphp
                             <button type="button"
                                 class="absolute top-2 right-2 watchlist-toggle bg-black/70 text-white text-xs px-2 py-1 rounded hover:bg-black/90 transition-all z-10"
+                                data-format="star"
                                 data-tmdb-id="{{ $result['id'] }}"
                                 data-title="{{ $result['title'] }}"
                                 data-poster="{{ $result['poster_path'] }}"

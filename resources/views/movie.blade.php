@@ -215,7 +215,7 @@
             <h2 class="text-xl font-bold text-white mb-3">{{ $similarTitle }}</h2>
             <div class="section-divider"></div>
         </div>
-        @include('includes.carousel', ['allMovies' => $similarMovies, 'name' => 'swiper-similar', 'genres' => [], 'linkSuffix' => $linkSuffix])
+        @include('includes.carousel', ['allMovies' => $similarMovies, 'name' => 'swiper-similar', 'genres' => [], 'linkSuffix' => $linkSuffix, 'showScore' => true, 'showSave' => true, 'savedIds' => $savedIds])
     </div>
     @endif
 
