@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('page_title', ($tmdbInfo->title ?? $omdbInfo->Title ?? 'Movie').' — MoviePickr')
-@section('footer_pb', 'pb-24')
+@section('footer_pb', 'pb-32')
 @section('scripts')
     @vite(['resources/js/custom/showMore.js', 'resources/js/custom/carousel.js', 'resources/js/custom/trailerModal.js', 'resources/js/custom/criteriaForm.js'])
 @endsection
