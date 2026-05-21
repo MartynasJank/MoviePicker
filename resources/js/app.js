@@ -88,6 +88,16 @@ $(document).ready(function () {
         setTimeout(() => window.removeEventListener('beforeunload', handler), 150);
     });
 
+    /* ── Roulette row horizontal scroll ───────────────────────────────── */
+    document.querySelectorAll('.roulette-row').forEach(function (row) {
+        row.addEventListener('wheel', function (e) {
+            const delta = Math.abs(e.deltaX) >= 5 ? e.deltaX : e.deltaY;
+            if (Math.abs(delta) < 5) return;
+            e.preventDefault();
+            row.scrollLeft += delta;
+        }, { passive: false });
+    });
+
     /* ── Accordion ─────────────────────────────────────────────────────── */
     $(document).on('click', '.accordion-header', function () {
         $(this).closest('.accordion-section').toggleClass('accordion-open');

@@ -4,11 +4,12 @@ import { Navigation } from 'swiper/modules';
 function addWheelControl(swiper, el) {
     let cooldown = false;
     el.addEventListener('wheel', (e) => {
-        if (Math.abs(e.deltaX) < 5) return;
+        const delta = Math.abs(e.deltaX) >= 5 ? e.deltaX : e.deltaY;
+        if (Math.abs(delta) < 5) return;
         e.preventDefault();
         if (cooldown) return;
         cooldown = true;
-        e.deltaX > 0 ? swiper.slideNext() : swiper.slidePrev();
+        delta > 0 ? swiper.slideNext() : swiper.slidePrev();
         setTimeout(() => { cooldown = false; }, 600);
     }, { passive: false });
 }
