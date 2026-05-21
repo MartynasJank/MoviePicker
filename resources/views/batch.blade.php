@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('page_title', $title ?? 'Batch — MoviePickr')
-@section('hide_footer', true)
+@section('footer_pb', 'pb-24')
 @section('scripts')
     @vite(['resources/js/custom/carousel.js', 'resources/js/custom/trailerModal.js', 'resources/js/custom/criteriaForm.js', 'resources/js/custom/watchlist.js'])
 @endsection

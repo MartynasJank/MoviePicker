@@ -178,6 +178,13 @@
     @unless(View::hasSection('hide_footer'))
     <footer class="border-t border-white/5 mt-8 pt-6 @yield('footer_pb', 'pb-6') text-center text-xs text-gray-600">
         © Martynas Jankauskas {{ date('Y') }}
+        <div class="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+            <a href="https://www.themoviedb.org" target="_blank" class="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+                <img src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_short-8e7b30f73a4020692ccca9c88bafe5dcb6f8a62a4c6bc55cd9ba82bb2cd95f6c.svg" alt="TMDB" class="h-3">
+            </a>
+            <span class="text-gray-700">This product uses the TMDB API but is not endorsed or certified by TMDB.</span>
+            <span class="text-gray-700">Watch provider data by <a href="https://www.justwatch.com" target="_blank" class="hover:text-gray-500 transition-colors">JustWatch</a>.</span>
+        </div>
     </footer>
     @endunless
 

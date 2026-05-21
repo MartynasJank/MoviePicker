@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('page_title', 'My Watchlist — MoviePickr')
-@section('hide_footer', true)
+@section('footer_pb', 'pb-24')
 @section('content')
 <div class="max-w-7xl mx-auto px-4 py-8 pb-24">
 

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('page_title', ($tmdbInfo->title ?? $omdbInfo->Title ?? 'Movie').' — MoviePickr')
-@section('hide_footer', true)
+@section('footer_pb', 'pb-24')
 @section('scripts')
     @vite(['resources/js/custom/showMore.js', 'resources/js/custom/carousel.js', 'resources/js/custom/trailerModal.js', 'resources/js/custom/criteriaForm.js'])
 @endsection
@@ -85,13 +85,15 @@
 
             {{-- Streaming --}}
             @if ($watchProviders != null)
+                @php $jwUrl = 'https://www.justwatch.com/' . strtolower($country) . '/search?q=' . urlencode($tmdbInfo->title ?? $omdbInfo->Title); @endphp
                 <div class="flex items-center gap-2 flex-wrap">
                     @foreach($watchProviders->flatrate as $stream)
-                        <a href="{{ $watchProviders->link }}" target="_blank" title="Watch on streaming">
+                        <a href="{{ $jwUrl }}" target="_blank" title="Find on JustWatch">
                             <img src="https://image.tmdb.org/t/p/w45{{ $stream->logo_path }}"
                                 class="h-8 w-8 rounded-md border border-white/10 hover:border-white/30 transition-colors">
                         </a>
                     @endforeach
+                    <a href="{{ $jwUrl }}" target="_blank" class="text-xs text-gray-500 hover:text-white transition-colors ml-1">Find on JustWatch →</a>
                 </div>
             @endif
 
@@ -107,7 +109,7 @@
     </div>
 
     @if ($watchProviders != null)
-        <p class="text-xs text-gray-600 mb-6">Streaming info from TMDB & JustWatch. Logos link to TMDB which redirects to your streaming service.</p>
+        <p class="text-xs text-gray-600 mb-6">Streaming availability by JustWatch. Links open JustWatch search for your region.</p>
     @endif
 
     {{-- Info cards --}}
