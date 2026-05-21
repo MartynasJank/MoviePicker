@@ -6,12 +6,28 @@
 
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-white mb-4">My Watchlist <span id="wl-count" class="text-gray-500 font-normal text-lg">({{ $items->count() }})</span></h1>
-        @if($items->isNotEmpty() && $genres->isNotEmpty())
-            <select id="genre-select" multiple placeholder="Filter by genre...">
-                @foreach($genres as $genre)
-                    <option value="{{ $genre }}">{{ $genre }}</option>
-                @endforeach
-            </select>
+        @if($items->isNotEmpty())
+            <div class="flex flex-col sm:flex-row gap-2">
+                @if($genres->isNotEmpty())
+                    <div class="flex-1">
+                        <select id="genre-select" multiple placeholder="Filter by genre...">
+                            @foreach($genres as $genre)
+                                <option value="{{ $genre }}">{{ $genre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
+                <select id="sort-select" class="input-dark text-sm flex-shrink-0 sm:w-44">
+                    <option value="date-desc">Newest Added</option>
+                    <option value="date-asc">Oldest Added</option>
+                    <option value="title-asc">Title A–Z</option>
+                    <option value="title-desc">Title Z–A</option>
+                    <option value="year-desc">Year (Newest)</option>
+                    <option value="year-asc">Year (Oldest)</option>
+                    <option value="rating-desc">Rating (High–Low)</option>
+                    <option value="rating-asc">Rating (Low–High)</option>
+                </select>
+            </div>
         @endif
     </div>
 
@@ -24,7 +40,13 @@
     @else
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
             @foreach($items as $item)
-                <div class="watchlist-card" data-status="{{ $item->status }}" data-genres="{{ $item->genres }}">
+                <div class="watchlist-card"
+                     data-status="{{ $item->status }}"
+                     data-genres="{{ $item->genres }}"
+                     data-date="{{ $item->created_at->timestamp }}"
+                     data-title="{{ $item->title }}"
+                     data-year="{{ $item->year ?? 0 }}"
+                     data-rating="{{ $item->vote_average ?? 0 }}">
 
                     {{-- Poster --}}
                     <a href="{{ url('movie/'.$item->tmdb_id) }}" class="block group">

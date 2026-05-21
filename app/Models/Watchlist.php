@@ -15,6 +15,7 @@ class Watchlist extends Model
         'poster_path',
         'year',
         'genres',
+        'vote_average',
         'status',
     ];
 

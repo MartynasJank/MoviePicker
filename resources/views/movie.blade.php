@@ -36,6 +36,7 @@
                 data-poster="{{ $tmdbInfo->poster_path ?? '' }}"
                 data-year="{{ $omdbInfo->Year ?? date('Y', strtotime($tmdbInfo->release_date ?? '')) }}"
                 data-genres="{{ $genres ?? '' }}"
+                data-rating="{{ $tmdbInfo->vote_average ?? '' }}"
                 data-saved="{{ auth()->user()->watchlist()->where('tmdb_id', $tmdbInfo->id)->exists() ? '1' : '0' }}">
                 {{ auth()->user()->watchlist()->where('tmdb_id', $tmdbInfo->id)->exists() ? '★ Saved' : '☆ Save' }}
             </button>
