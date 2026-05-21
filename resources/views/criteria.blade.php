@@ -68,24 +68,21 @@
                 </div>
             </div>
 
+            {{-- Language --}}
+            <div class="card p-5">
+                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Language</h3>
+                @include('includes.languages')
+            </div>
+
             {{-- Streaming --}}
             <div class="card p-5">
                 <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Streaming</h3>
-                <div class="flex flex-col gap-4">
-                    <div>
-                        <label class="block text-sm text-gray-400 mb-1.5">Language</label>
-                        @include('includes.languages')
-                    </div>
-                    <div>
-                        <label class="block text-sm text-gray-400 mb-1.5">Services</label>
-                        <select id="with_watch_providers" name="with_watch_providers[]" multiple>
-                            @foreach($providersArray as $value)
-                                <option value="{{ $value['id'] }}" data-logo="{{ $value['logo'] }}">{{ $value['name'] }}</option>
-                            @endforeach
-                        </select>
-                        <p class="text-xs text-gray-600 mt-1">Shows services available in your region</p>
-                    </div>
-                </div>
+                <select id="with_watch_providers" name="with_watch_providers[]" multiple>
+                    @foreach($providersArray as $value)
+                        <option value="{{ $value['id'] }}" data-logo="{{ $value['logo'] }}">{{ $value['name'] }}</option>
+                    @endforeach
+                </select>
+                <p class="text-xs text-gray-600 mt-1">Shows services available in your region</p>
             </div>
 
             {{-- People --}}

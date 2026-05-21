@@ -2,7 +2,8 @@
     if ($user_input === 'default') $user_input = [];
     $openYear     = !empty($user_input['primary_release_date_gte'] ?? '') || !empty($user_input['primary_release_date_lte'] ?? '');
     $openGenres   = !empty($user_input['with_genres'] ?? []) || !empty($user_input['without_genres'] ?? []);
-    $openStreaming = !empty($user_input['with_watch_providers'] ?? []);
+    $openLanguage  = !empty($user_input['with_original_language'] ?? '');
+    $openStreaming  = !empty($user_input['with_watch_providers'] ?? []);
     $openPeople   = !empty($user_input['with_cast'] ?? []) || !empty($user_input['with_crew'] ?? []);
     $openScores   = !empty($user_input['vote_average_gte'] ?? '') || !empty($user_input['vote_average_lte'] ?? '') || !empty($user_input['vote_count_gte'] ?? '');
 @endphp
@@ -75,6 +76,19 @@
                     </div>
                 </div>
 
+                {{-- Language --}}
+                <div class="accordion-section border-t border-white/5 {{ $openLanguage ? 'accordion-open' : '' }}">
+                    <button type="button" class="accordion-header w-full flex items-center justify-between py-3.5 text-left">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Language</h3>
+                        <svg class="accordion-chevron w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="accordion-body">
+                        <div class="pb-4">
+                            @include('includes.languages', ['modalMode' => true, 'selectedLang' => $user_input['with_original_language'] ?? ''])
+                        </div>
+                    </div>
+                </div>
+
                 {{-- Streaming --}}
                 <div class="accordion-section border-t border-white/5 {{ $openStreaming ? 'accordion-open' : '' }}">
                     <button type="button" class="accordion-header w-full flex items-center justify-between py-3.5 text-left">
@@ -82,23 +96,16 @@
                         <svg class="accordion-chevron w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
                     </button>
                     <div class="accordion-body">
-                        <div class="pb-4 flex flex-col gap-3">
-                            <div>
-                                <label class="block text-sm text-gray-400 mb-1">Language</label>
-                                @include('includes.languages', ['modalMode' => true, 'selectedLang' => $user_input['with_original_language'] ?? 'en'])
-                            </div>
-                            <div>
-                                <label class="block text-sm text-gray-400 mb-1">Services</label>
-                                <select id="modal-with_watch_providers" name="with_watch_providers[]" multiple>
-                                    @foreach($providersArray as $value)
-                                        <option value="{{ $value['id'] }}"
-                                            data-logo="{{ $value['logo'] }}"
-                                            {{ isset($user_input['with_watch_providers']) && in_array($value['id'], (array)$user_input['with_watch_providers']) ? 'selected' : '' }}>
-                                            {{ $value['name'] }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
+                        <div class="pb-4">
+                            <select id="modal-with_watch_providers" name="with_watch_providers[]" multiple>
+                                @foreach($providersArray as $value)
+                                    <option value="{{ $value['id'] }}"
+                                        data-logo="{{ $value['logo'] }}"
+                                        {{ isset($user_input['with_watch_providers']) && in_array($value['id'], (array)$user_input['with_watch_providers']) ? 'selected' : '' }}>
+                                        {{ $value['name'] }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
                 </div>
