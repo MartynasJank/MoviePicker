@@ -50,6 +50,7 @@ $(document).ready(function () {
             timer = setTimeout(function () {
                 const params = { q: query };
                 if (dept) params.dept = dept;
+                else params.exclude_dept = 'Acting';
                 $.getJSON('/tmdb/search/people', params)
                     .done(function (data) {
                         data.forEach(function (p) {
