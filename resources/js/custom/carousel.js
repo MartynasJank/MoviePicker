@@ -38,6 +38,7 @@ $(document).ready(function () {
             const isWeek = this.id === 'trend-week';
             $('#trend-day, #trend-week').toggleClass('active', false).addClass('text-gray-400');
             $(this).addClass('active').removeClass('text-gray-400');
+            $('#trend-label').text(isWeek ? 'This Week' : 'Today');
             $('#trending-day').toggleClass('hidden', isWeek);
             $('#trending-week').toggleClass('hidden', !isWeek);
 

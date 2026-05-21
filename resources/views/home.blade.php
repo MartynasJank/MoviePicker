@@ -151,7 +151,7 @@
     {{-- Trending --}}
     <section class="max-w-7xl mx-auto px-4 py-12">
         <div class="flex items-end justify-between mb-3">
-            <h2 class="text-2xl font-bold text-white">Trending</h2>
+            <h2 class="text-2xl font-bold text-white">Trending <span id="trend-label">Today</span></h2>
             <div class="flex gap-1 bg-white/5 p-1 rounded-lg">
                 <button id="trend-day" class="trend-toggle active text-xs px-3 py-1.5 rounded-md transition-all">Today</button>
                 <button id="trend-week" class="trend-toggle text-xs px-3 py-1.5 rounded-md transition-all text-gray-400">This Week</button>
