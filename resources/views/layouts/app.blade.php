@@ -44,13 +44,15 @@
 
             {{-- Desktop nav --}}
             <div class="hidden md:flex items-center gap-5 flex-1 justify-end">
-                <a href="/roulettes" class="nav-link text-sm">Roulettes</a>
-
-                {{-- User section --}}
                 @auth
                     @if(auth()->user()->email === config('api.admin_email'))
                         <a href="{{ route('admin.dashboard') }}" class="text-xs font-medium px-2 py-1 rounded-md bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-colors">Admin</a>
                     @endif
+                @endauth
+                <a href="/roulettes" class="nav-link text-sm">Roulettes</a>
+
+                {{-- User section --}}
+                @auth
                     <a href="{{ route('my-roulettes.index') }}" class="nav-link text-sm">My Roulettes</a>
                     <a href="{{ route('watchlist') }}" class="nav-link text-sm">Watchlist</a>
                     <form method="POST" action="{{ route('logout') }}" class="flex items-center">
