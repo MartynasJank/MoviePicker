@@ -13,6 +13,10 @@ class HomeController extends Controller
             ? auth()->user()->watchlist()->pluck('tmdb_id')->toArray()
             : [];
 
-        return view('home', ['trending' => $tmdb->trending(), 'savedIds' => $savedIds]);
+        return view('home', [
+            'trendingDay'  => $tmdb->trending('day'),
+            'trendingWeek' => $tmdb->trending('week'),
+            'savedIds'     => $savedIds,
+        ]);
     }
 }
