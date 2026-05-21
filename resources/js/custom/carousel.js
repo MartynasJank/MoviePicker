@@ -1,5 +1,5 @@
 import Swiper from 'swiper';
-import { Autoplay } from 'swiper/modules';
+import { Navigation } from 'swiper/modules';
 
 function addWheelControl(swiper, el) {
     let cooldown = false;
@@ -20,7 +20,8 @@ $(document).ready(function () {
         centeredSlides: true,
         spaceBetween: 12,
         loop: true,
-        simulateTouch: false,
+        modules: [Navigation],
+        navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
         breakpoints: {
             600:  { slidesPerView: 2, spaceBetween: 12, centeredSlides: false },
             1024: { slidesPerView: 4, spaceBetween: 16 },
@@ -28,20 +29,12 @@ $(document).ready(function () {
     };
 
     if ($('.swiper-trending').length) {
-        const s = new Swiper('.swiper-trending', {
-            ...sharedConfig,
-            modules: [Autoplay],
-            autoplay: { delay: 7000, disableOnInteraction: false, pauseOnMouseEnter: true },
-        });
+        const s = new Swiper('.swiper-trending', sharedConfig);
         addWheelControl(s, document.querySelector('.swiper-trending'));
     }
 
     if ($('.swiper-similar').length) {
-        const s = new Swiper('.swiper-similar', {
-            ...sharedConfig,
-            modules: [Autoplay],
-            autoplay: { delay: 7000, disableOnInteraction: false, pauseOnMouseEnter: true },
-        });
+        const s = new Swiper('.swiper-similar', sharedConfig);
         addWheelControl(s, document.querySelector('.swiper-similar'));
     }
 

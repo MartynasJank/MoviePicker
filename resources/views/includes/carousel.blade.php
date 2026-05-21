@@ -1,4 +1,6 @@
-<div class="swiper {{ $name }} w-full">
+<div class="swiper {{ $name }} w-full relative">
+    <div class="swiper-button-prev !hidden sm:!flex !w-9 !h-9 !bg-white/10 hover:!bg-white/20 !rounded-full !text-white after:!text-sm !transition-colors !-left-1"></div>
+    <div class="swiper-button-next !hidden sm:!flex !w-9 !h-9 !bg-white/10 hover:!bg-white/20 !rounded-full !text-white after:!text-sm !transition-colors !-right-1"></div>
     <div class="swiper-wrapper">
         @foreach ($allMovies['results'] as $result)
             @if(isset($result['release_date']))
