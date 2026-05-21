@@ -28,6 +28,20 @@
                 @endif
             </p>
         </div>
+        {{-- Save button in title row --}}
+        @auth
+            <button type="button" class="btn-secondary flex-shrink-0 watchlist-toggle"
+                data-tmdb-id="{{ $tmdbInfo->id }}"
+                data-title="{{ $tmdbInfo->title ?? $omdbInfo->Title }}"
+                data-poster="{{ $tmdbInfo->poster_path ?? '' }}"
+                data-year="{{ $omdbInfo->Year ?? date('Y', strtotime($tmdbInfo->release_date ?? '')) }}"
+                data-genres="{{ $genres ?? '' }}"
+                data-saved="{{ auth()->user()->watchlist()->where('tmdb_id', $tmdbInfo->id)->exists() ? '1' : '0' }}">
+                {{ auth()->user()->watchlist()->where('tmdb_id', $tmdbInfo->id)->exists() ? '★ Saved' : '☆ Save' }}
+            </button>
+        @else
+            <a href="{{ route('auth.google') }}" class="btn-secondary flex-shrink-0 text-center text-sm">☆ Save</a>
+        @endauth
     </div>
 
     {{-- Main content grid --}}
@@ -209,34 +223,27 @@
 
 {{-- Sticky bottom bar --}}
 <div class="fixed bottom-0 left-0 right-0 bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 px-4 z-40 sticky-bar-safe">
-    <div class="max-w-7xl mx-auto flex gap-3 sm:justify-end">
-        <button type="button" class="btn-secondary flex-1 sm:flex-none" data-modal-open="modal-form">Adjust Criteria</button>
-        @if(!empty($batchUrl))
-            @php $backLabel = str_contains($batchUrl, 'watchlist') ? '← Watchlist' : '← Batch'; @endphp
-            <a href="{{ $batchUrl }}" class="btn-secondary flex-1 sm:flex-none text-center">{{ $backLabel }}</a>
-        @endif
-        @auth
-            <button type="button" class="btn-secondary flex-1 sm:flex-none watchlist-toggle"
-                data-tmdb-id="{{ $tmdbInfo->id }}"
-                data-title="{{ $tmdbInfo->title ?? $omdbInfo->Title }}"
-                data-poster="{{ $tmdbInfo->poster_path ?? '' }}"
-                data-year="{{ $omdbInfo->Year ?? date('Y', strtotime($tmdbInfo->release_date ?? '')) }}"
-                data-genres="{{ $genres ?? '' }}"
-                data-saved="{{ auth()->user()->watchlist()->where('tmdb_id', $tmdbInfo->id)->exists() ? '1' : '0' }}">
-                {{ auth()->user()->watchlist()->where('tmdb_id', $tmdbInfo->id)->exists() ? '★ Saved' : '☆ Save' }}
-            </button>
-        @else
-            <a href="{{ route('auth.google') }}" class="btn-secondary flex-1 sm:flex-none text-center">☆ Sign in to Save</a>
-        @endauth
-        @if(request()->query('wl_status'))
-            @php
-                $wlParams = ['status' => request()->query('wl_status')];
-                if (request()->query('wl_genres')) $wlParams['genres'] = request()->query('wl_genres');
-            @endphp
-            <a href="{{ route('watchlist.roll', $wlParams) }}" class="btn-accent long-single flex-1 sm:flex-none text-center">Pick Another</a>
-        @else
-            <a href="/movie" class="btn-accent long-single flex-1 sm:flex-none text-center">Pick Another</a>
-        @endif
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
+        {{-- Back button: far left --}}
+        <div class="flex-shrink-0">
+            @if(!empty($batchUrl))
+                @php $backLabel = str_contains($batchUrl, 'watchlist') ? '← Watchlist' : '← Batch'; @endphp
+                <a href="{{ $batchUrl }}" class="btn-secondary text-center">{{ $backLabel }}</a>
+            @endif
+        </div>
+        {{-- Right actions --}}
+        <div class="flex gap-3">
+            <button type="button" class="btn-secondary" data-modal-open="modal-form">Criteria</button>
+            @if(request()->query('wl_status'))
+                @php
+                    $wlParams = ['status' => request()->query('wl_status')];
+                    if (request()->query('wl_genres')) $wlParams['genres'] = request()->query('wl_genres');
+                @endphp
+                <a href="{{ route('watchlist.roll', $wlParams) }}" class="btn-accent long-single text-center">Pick Another</a>
+            @else
+                <a href="/movie" class="btn-accent long-single text-center">Pick Another</a>
+            @endif
+        </div>
     </div>
 </div>
 
