@@ -10,6 +10,8 @@ class WatchlistController extends Controller
 {
     public function index()
     {
+        session(['batchUrl' => route('watchlist')]);
+
         $items = Auth::user()
             ->watchlist()
             ->orderByDesc('created_at')

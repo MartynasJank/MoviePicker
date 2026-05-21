@@ -212,7 +212,8 @@
     <div class="max-w-7xl mx-auto flex gap-3 sm:justify-end">
         <button type="button" class="btn-secondary flex-1 sm:flex-none" data-modal-open="modal-form">Adjust Criteria</button>
         @if(!empty($batchUrl))
-            <a href="{{ $batchUrl }}" class="btn-secondary flex-1 sm:flex-none text-center">← Batch</a>
+            @php $backLabel = str_contains($batchUrl, 'watchlist') ? '← Watchlist' : '← Batch'; @endphp
+            <a href="{{ $batchUrl }}" class="btn-secondary flex-1 sm:flex-none text-center">{{ $backLabel }}</a>
         @endif
         @auth
             <button type="button" class="btn-secondary flex-1 sm:flex-none watchlist-toggle"
