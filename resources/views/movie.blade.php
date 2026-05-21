@@ -239,9 +239,9 @@
                     $wlParams = ['status' => request()->query('wl_status')];
                     if (request()->query('wl_genres')) $wlParams['genres'] = request()->query('wl_genres');
                 @endphp
-                <a href="{{ route('watchlist.roll', $wlParams) }}" class="btn-accent long-single text-center">Pick Another</a>
+                <a href="{{ route('watchlist.roll', $wlParams) }}" class="btn-accent long-single text-center">Roll</a>
             @else
-                <a href="/movie" class="btn-accent long-single text-center">Pick Another</a>
+                <a href="/movie" class="btn-accent long-single text-center">Roll</a>
             @endif
         </div>
     </div>
