@@ -70,6 +70,13 @@
                                 </div>
                             </div>
 
+                            {{-- Score badge --}}
+                            @if($item->vote_average)
+                                <div class="absolute top-2 left-2 bg-black/70 text-accent text-xs font-semibold px-1.5 py-0.5 rounded pointer-events-none">
+                                    ★ {{ number_format($item->vote_average, 1) }}
+                                </div>
+                            @endif
+
                             {{-- Watched badge --}}
                             <div class="watched-overlay absolute inset-0 bg-black/50 flex items-center justify-center {{ $item->status === 'watched' ? '' : 'hidden' }} pointer-events-none">
                                 <span class="bg-black/60 text-white text-xs font-medium px-3 py-1.5 rounded-full border border-white/20">✓ Watched</span>
