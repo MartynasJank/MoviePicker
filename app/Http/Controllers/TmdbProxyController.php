@@ -16,8 +16,12 @@ class TmdbProxyController extends Controller
             return response()->json([]);
         }
 
+        $exclude = $request->string('exclude_dept')->value();
+
         $results = collect($tmdb->searchPeople($query)['results'] ?? [])
-            ->when($dept, fn($c) => $c->where('known_for_department', $dept))
+            ->when($dept,    fn($c) => $c->where('known_for_department', $dept))
+            ->when($exclude, fn($c) => $c->where('known_for_department', '!=', $exclude))
+            ->sortByDesc('popularity')
             ->take(4)
             ->values()
             ->all();
