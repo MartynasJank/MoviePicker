@@ -60,12 +60,16 @@ class TmdbClient implements ApiMovie
             $input['primary_release_date.gte'] = '1970-01-01';
         }
 
-        $input['vote_count.gte']  ??= 10;
+        $hasPeople = isset($input['with_cast']) || isset($input['with_crew']);
+
+        $input['vote_count.gte']  ??= $hasPeople ? 0 : 10;
         $input['sort_by']         ??= $this->randomSort();
-        $input['with_runtime.gte'] = 40;
         $input['language']          = 'en-US';
         $input['include_adult']     = 'false';
         $input['include_video']     = 'false';
+        if (!$hasPeople) {
+            $input['with_runtime.gte'] = 40;
+        }
 
         // Relax constraints for very old films
         if ($smallYear < 1950) {
