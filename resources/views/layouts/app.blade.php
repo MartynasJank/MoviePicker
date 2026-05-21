@@ -8,7 +8,7 @@
     <meta name="description" content="Random Movie Picker — find the perfect film for tonight.">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script>!function(){var m=document.cookie.match(/(?:^|; )theme=([^;]+)/);if(m)document.documentElement.dataset.theme=m[1]}()</script>
-    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/custom/watchlist.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/custom/watchlist.js', 'resources/js/custom/search.js'])
     @yield('scripts', '')
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-204204564-1"></script>
     <script>
@@ -68,6 +68,13 @@
                     <a href="{{ route('auth.google') }}" class="text-sm px-3 py-1.5 rounded-lg border border-white/10 text-gray-300 hover:text-white hover:border-white/25 transition-all">Sign in</a>
                 @endauth
 
+                {{-- Search --}}
+                <div id="desktop-search-wrap" class="relative">
+                    <input id="desktop-search-input" type="text" placeholder="Search movies…" autocomplete="off"
+                        class="w-40 focus:w-56 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white placeholder-gray-500 outline-none focus:border-white/20 transition-all duration-200">
+                    <div id="desktop-search-results" class="hidden absolute right-0 top-full mt-1 w-72 bg-[#1a1a1a] border border-white/10 rounded-xl overflow-hidden shadow-2xl z-50 divide-y divide-white/5"></div>
+                </div>
+
                 {{-- Theme toggle --}}
                 <button id="theme-toggle"
                     class="theme-toggle p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-white/5 transition-all"
@@ -89,6 +96,13 @@
     {{-- Mobile menu overlay --}}
     <div id="mobile-menu" class="hidden fixed inset-x-0 top-16 bottom-0 bg-[#0f0f0f] z-40 overflow-y-auto md:hidden">
         <div class="px-4 py-4 flex flex-col gap-1 min-h-full">
+
+            {{-- Search --}}
+            <div class="relative mb-2">
+                <input id="mobile-search-input" type="text" placeholder="Search movies…" autocomplete="off"
+                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 outline-none focus:border-white/20 transition-colors">
+                <div id="mobile-search-results" class="hidden mt-1 bg-[#1a1a1a] border border-white/10 rounded-xl overflow-hidden divide-y divide-white/5"></div>
+            </div>
 
             {{-- Primary actions --}}
             <a href="/movie?i=new" class="long-single flex items-center justify-between px-4 py-3.5 rounded-xl bg-white/5 hover:bg-white/8 text-white font-medium text-sm transition-colors">
