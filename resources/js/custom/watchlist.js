@@ -87,6 +87,8 @@ $(document).ready(function () {
 
             $(this).toggle(statusMatch && genreMatch);
         });
+
+        $('#wl-count').text('(' + $('.watchlist-card:visible').length + ')');
     }
 
     $(document).on('click', '.watchlist-filter', function () {

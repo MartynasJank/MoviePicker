@@ -5,7 +5,7 @@
 
     <div class="mb-6">
         <div class="flex items-center justify-between gap-4 flex-wrap mb-3">
-            <h1 class="text-2xl font-bold text-white">My Watchlist</h1>
+            <h1 class="text-2xl font-bold text-white">My Watchlist <span id="wl-count" class="text-gray-500 font-normal text-lg">({{ $items->count() }})</span></h1>
             @if($items->isNotEmpty())
                 <div class="flex items-center gap-2 flex-wrap">
                     <div class="flex gap-1 bg-white/5 p-1 rounded-lg">
