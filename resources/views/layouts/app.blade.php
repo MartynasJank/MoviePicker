@@ -44,10 +44,7 @@
 
             {{-- Desktop nav --}}
             <div class="hidden md:flex items-center gap-5 flex-1 justify-end">
-                <a href="/roulettes" class="nav-link text-sm flex items-center gap-1.5">
-                    Roulettes
-                    <span class="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-accent/15 text-accent border border-accent/20 leading-none">Beta</span>
-                </a>
+                <a href="/roulettes" class="nav-link text-sm">Roulettes</a>
 
                 {{-- User section --}}
                 @auth
@@ -105,7 +102,6 @@
             <div class="h-px bg-white/5 my-2"></div>
             <a href="/roulettes" class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">
                 Roulettes
-                <span class="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-accent/15 text-accent border border-accent/20 leading-none">Beta</span>
             </a>
             <a href="/criteria" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">
                 Criteria

@@ -6,7 +6,6 @@
     <div class="mb-8">
         <div class="flex items-center gap-3">
             <h1 class="text-3xl font-bold text-white">Movie Roulettes</h1>
-            <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-accent/15 text-accent border border-accent/20">Beta</span>
         </div>
         <p class="text-gray-500 text-sm mt-1">Curated collections — just hit Roll.</p>
         <div class="section-divider mt-3"></div>
