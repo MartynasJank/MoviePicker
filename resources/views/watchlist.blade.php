@@ -87,7 +87,7 @@
             <button class="watchlist-filter text-xs px-3 py-1.5 rounded-md transition-all text-gray-400" data-filter="saved">To Watch</button>
             <button class="watchlist-filter text-xs px-3 py-1.5 rounded-md transition-all text-gray-400" data-filter="watched">Watched</button>
         </div>
-        <button id="watchlist-roll" class="btn-accent px-6">⚄ Roll</button>
+        <button id="watchlist-roll" class="btn-accent px-6">Roll</button>
     </div>
 </div>
 @endif
