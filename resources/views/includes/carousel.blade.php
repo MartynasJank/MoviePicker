@@ -39,9 +39,9 @@
                     </a>
 
                     {{-- TMDB score: top-left --}}
-                    @if(($showScore ?? false) && !empty($result['vote_average']) && $result['vote_average'] > 0)
-                        <div class="absolute top-2 left-2 bg-black/70 text-accent text-xs font-semibold px-1.5 py-0.5 rounded pointer-events-none">
-                            ★ {{ number_format($result['vote_average'], 1) }}
+                    @if($showScore ?? false)
+                        <div class="absolute top-2 left-2 bg-black/70 text-xs font-semibold px-1.5 py-0.5 rounded pointer-events-none {{ !empty($result['vote_average']) && $result['vote_average'] > 0 ? 'text-accent' : 'text-gray-500' }}">
+                            ★ {{ !empty($result['vote_average']) && $result['vote_average'] > 0 ? number_format($result['vote_average'], 1) : '—' }}
                         </div>
                     @endif
 
