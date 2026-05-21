@@ -2,7 +2,7 @@
 @section('page_title', $title ?? 'Batch — MoviePickr')
 @section('footer_pb', 'pb-20')
 @section('scripts')
-    @vite(['resources/js/custom/carousel.js', 'resources/js/custom/trailerModal.js', 'resources/js/custom/criteriaForm.js'])
+    @vite(['resources/js/custom/carousel.js', 'resources/js/custom/trailerModal.js', 'resources/js/custom/criteriaForm.js', 'resources/js/custom/watchlist.js'])
 @endsection
 @section('content')
 <div class="max-w-7xl mx-auto px-4 py-8 sm:pb-20 batch-wrapper">
@@ -19,7 +19,7 @@
     </div>
 
     {{-- Carousel --}}
-    @include('includes.carousel', ['allMovies' => $movies, 'name' => 'swiper-multiple', 'genres' => $movie_genres])
+    @include('includes.carousel', ['allMovies' => $movies, 'name' => 'swiper-multiple', 'genres' => $movie_genres, 'showScore' => true, 'showSave' => true, 'savedIds' => $savedIds ?? []])
 
 </div>
 
