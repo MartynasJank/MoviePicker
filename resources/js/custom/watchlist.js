@@ -1,6 +1,20 @@
+import TomSelect from 'tom-select';
+
+let genreSelect = null;
+
 $(document).ready(function () {
 
     const csrf = () => $('meta[name="csrf-token"]').attr('content');
+
+    // Init genre multi-select
+    if (document.getElementById('genre-select')) {
+        genreSelect = new TomSelect('#genre-select', {
+            plugins: ['remove_button'],
+            placeholder: 'Filter by genre…',
+            onItemAdd() { this.setTextboxValue(''); this.refreshOptions(); },
+            onChange() { applyFilters(); },
+        });
+    }
 
     // Save / unsave toggle on movie detail page
     $(document).on('click', '.watchlist-toggle', function () {
@@ -71,12 +85,10 @@ $(document).ready(function () {
         });
     });
 
-    // Combined filter: status tab + genre chips
+    // Combined filter: status tab + genre select
     function applyFilters() {
         const status = $('.watchlist-filter.active').data('filter');
-        const activeGenres = new Set(
-            $('.genre-chip.active').map(function () { return $(this).data('genre'); }).get()
-        );
+        const activeGenres = new Set(genreSelect ? genreSelect.getValue() : []);
 
         $('.watchlist-card').each(function () {
             const cardStatus = $(this).attr('data-status');
@@ -97,11 +109,6 @@ $(document).ready(function () {
         applyFilters();
     });
 
-    $(document).on('click', '.genre-chip', function () {
-        $(this).toggleClass('active border-accent text-accent bg-accent/10 border-white/10 bg-white/5 text-gray-400');
-        applyFilters();
-    });
-
     $('#watchlist-roll').on('click', function () {
         const visible = $('.watchlist-card:visible');
         if (!visible.length) {
@@ -112,7 +119,7 @@ $(document).ready(function () {
             return;
         }
         const status = $('.watchlist-filter.active').data('filter') || 'all';
-        const genres = $('.genre-chip.active').map(function () { return $(this).data('genre'); }).get().join(',');
+        const genres = genreSelect ? genreSelect.getValue().join(',') : '';
         const picked = visible.eq(Math.floor(Math.random() * visible.length));
         let url = picked.find('a').first().attr('href') + '?wl_status=' + status;
         if (genres) url += '&wl_genres=' + encodeURIComponent(genres);
