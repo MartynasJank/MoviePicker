@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('page_title', 'Criteria — MoviePickr')
-@section('footer_pb', 'pb-20 sm:pb-6')
+@section('footer_pb', 'pb-24')
 @section('scripts')
     @vite(['resources/js/custom/criteriaForm.js'])
 @endsection
