@@ -15,7 +15,7 @@
     {{-- Title row --}}
     <div class="flex items-start justify-between gap-4 mb-4 flex-wrap">
         <div>
-            <span class="inline-block text-xs font-medium px-2.5 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/20 mb-2">TV Series</span>
+            <span class="inline-block text-xs font-medium px-2.5 py-0.5 rounded-full bg-accent/15 text-accent border border-accent/20 mb-2">TV Series</span>
             <h1 class="text-3xl md:text-4xl font-bold text-white leading-tight">
                 {{ $tmdbInfo->name }}
             </h1>
