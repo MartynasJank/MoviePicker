@@ -68,7 +68,8 @@ Route::middleware('auth')->prefix('my-roulettes')->name('my-roulettes.')->group(
     Route::put('/manage/{roulette}',             [UserRouletteController::class, 'update'])->name('update');
     Route::delete('/manage/{roulette}',          [UserRouletteController::class, 'destroy'])->name('destroy');
     Route::patch('/manage/{roulette}/toggle',    [UserRouletteController::class, 'togglePublic'])->name('toggle');
-    Route::post('/manage/rows/reorder',          [UserRouletteController::class, 'reorderRows'])->name('rows.reorder');
+    Route::post('/manage/{roulette}/refresh-poster', [UserRouletteController::class, 'refreshPoster'])->name('refresh-poster');
+    Route::post('/manage/rows/reorder',              [UserRouletteController::class, 'reorderRows'])->name('rows.reorder');
 });
 
 // Admin (must be before /roulettes/{slug} wildcard)

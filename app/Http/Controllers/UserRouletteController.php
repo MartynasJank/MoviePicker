@@ -171,6 +171,48 @@ class UserRouletteController extends Controller
         return redirect()->back()->with('success', $roulette->name . ' is now ' . ($roulette->is_public ? 'public' : 'private') . '.');
     }
 
+    public function refreshPoster(Roulette $roulette, TmdbClient $tmdb): \Illuminate\Http\JsonResponse
+    {
+        abort_if($roulette->user_id !== auth()->id(), 403);
+
+        $current = $roulette->poster_paths ?? [];
+
+        if (count($current) > 1) {
+            $rotated = array_merge(array_slice($current, 1), [$current[0]]);
+            $roulette->update(['poster_paths' => $rotated]);
+            return response()->json(['poster_path' => $rotated[0]]);
+        }
+
+        $mapper         = new RouletteTagMapper();
+        $tagsForPosters = array_diff_key($roulette->tags ?? [], ['platform' => true]);
+        $isTv           = $roulette->media_type === 'tv';
+        $criteria       = $isTv ? $mapper->toCriteriaTv($tagsForPosters) : $mapper->toCriteria($tagsForPosters);
+        $criteria['page'] = rand(1, 5);
+
+        try {
+            $results = $isTv ? $tmdb->discoverTv($criteria, 'US') : $tmdb->discover($criteria, 'US');
+
+            $paths = [];
+            foreach ($results['results'] ?? [] as $item) {
+                if (!empty($item['poster_path'])) {
+                    $paths[] = $item['poster_path'];
+                    if (count($paths) >= 8) break;
+                }
+            }
+
+            if ($paths) {
+                if ($current) {
+                    $paths = array_values(array_unique(array_merge($paths, $current)));
+                }
+                $roulette->update(['poster_paths' => $paths]);
+            }
+
+            return response()->json(['poster_path' => $paths[0] ?? null]);
+        } catch (\Throwable) {
+            return response()->json(['poster_path' => null], 422);
+        }
+    }
+
     public function reorderRows(Request $request)
     {
         $rows = $request->validate(['rows' => 'required|array', 'rows.*' => 'string'])['rows'];
