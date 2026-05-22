@@ -10,7 +10,15 @@
 
     @include('admin._nav')
 
-    <h2 class="text-lg font-semibold text-white mb-4">Row Order</h2>
+    <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-lg font-semibold text-white">Row Order</h2>
+        <div class="flex gap-1 bg-white/5 p-1 rounded-lg">
+            <a href="{{ route('admin.rows.index', ['type' => 'movie']) }}"
+               class="text-xs px-3 py-1.5 rounded-md transition-all font-medium {{ $mediaType === 'movie' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white' }}">Movies</a>
+            <a href="{{ route('admin.rows.index', ['type' => 'tv']) }}"
+               class="text-xs px-3 py-1.5 rounded-md transition-all font-medium {{ $mediaType === 'tv' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white' }}">TV Shows</a>
+        </div>
+    </div>
 
     <p class="text-sm text-gray-500 mb-6">Drag to reorder how rows appear on the <a href="/roulettes" class="text-accent hover:underline">/roulettes</a> page. Rows with 0 roulettes are hidden on the public page.</p>
 
@@ -53,13 +61,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const CSRF = document.querySelector('meta[name="csrf-token"]').content;
     const REORDER_URL = '{{ route('admin.rows.reorder') }}';
 
+    const MEDIA_TYPE = '{{ $mediaType }}';
+
     function save() {
         const rows = [...list.querySelectorAll('.row-item')].map(el => el.dataset.row);
         status.textContent = 'Saving…';
         fetch(REORDER_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
-            body: JSON.stringify({ rows }),
+            body: JSON.stringify({ rows, type: MEDIA_TYPE }),
         }).then(() => { status.textContent = 'Saved ✓'; });
     }
 

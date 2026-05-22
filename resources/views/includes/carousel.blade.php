@@ -6,7 +6,7 @@
             @if(isset($result['release_date']))
             <div class="swiper-slide h-auto">
                 <div class="relative">
-                    <a href="{{ url('movie/'.$result['id']) }}{{ !empty($clearCriteria) ? '?i=new' : (!empty($linkSuffix ?? '') ? $linkSuffix : '') }}" class="block group long-movie" data-name="{{ $result['title'] }}">
+                    <a href="{{ url(($linkBase ?? 'movie').'/'.$result['id']) }}{{ !empty($clearCriteria) ? '?i=new' : (!empty($linkSuffix ?? '') ? $linkSuffix : '') }}" class="block group long-movie" data-name="{{ $result['title'] }}">
                         <div class="card card-hover h-full flex flex-col overflow-hidden">
                             {{-- Poster --}}
                             <div class="carousel-poster aspect-[2/3] bg-white/[0.03] overflow-hidden">
@@ -58,6 +58,7 @@
                                 data-year="{{ date('Y', strtotime($result['release_date'])) }}"
                                 data-genres="{{ $genres[$result['id']] ?? '' }}"
                                 data-rating="{{ $result['vote_average'] ?? '' }}"
+                                data-media-type="{{ $mediaType ?? 'movie' }}"
                                 data-saved="{{ $isSaved ? '1' : '0' }}">
                                 {{ $isSaved ? '★ Saved' : '☆' }}
                             </button>

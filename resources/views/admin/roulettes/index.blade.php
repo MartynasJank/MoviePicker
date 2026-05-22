@@ -11,15 +11,25 @@
     @include('admin._nav')
 
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <h2 class="text-lg font-semibold text-white">Roulettes</h2>
+        <div class="flex items-center gap-3">
+            <h2 class="text-lg font-semibold text-white">Roulettes</h2>
+            {{-- Movies / TV toggle --}}
+            <div class="flex gap-1 bg-white/5 p-1 rounded-lg">
+                <a href="{{ route('admin.roulettes.index', array_filter(['type' => 'movie', 'q' => $q])) }}"
+                   class="text-xs px-3 py-1.5 rounded-md transition-all font-medium {{ $mediaType === 'movie' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white' }}">Movies</a>
+                <a href="{{ route('admin.roulettes.index', array_filter(['type' => 'tv', 'q' => $q])) }}"
+                   class="text-xs px-3 py-1.5 rounded-md transition-all font-medium {{ $mediaType === 'tv' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white' }}">TV Shows</a>
+            </div>
+        </div>
         <div class="flex items-center gap-3">
             <form method="GET" class="flex items-center gap-2">
+                <input type="hidden" name="type" value="{{ $mediaType }}">
                 <input type="text" name="q" value="{{ $q }}" placeholder="Search…"
                        class="input-dark text-sm w-36 sm:w-44">
                 <button type="submit" class="btn-secondary text-sm px-3 py-2">Search</button>
-                @if($q) <a href="{{ route('admin.roulettes.index') }}" class="text-sm text-gray-500 hover:text-white">Clear</a> @endif
+                @if($q) <a href="{{ route('admin.roulettes.index', ['type' => $mediaType]) }}" class="text-sm text-gray-500 hover:text-white">Clear</a> @endif
             </form>
-            <a href="{{ route('admin.roulettes.create') }}" class="btn-accent text-sm px-4 py-2">+ New</a>
+            <a href="{{ route('admin.roulettes.create', ['type' => $mediaType]) }}" class="btn-accent text-sm px-4 py-2">+ New</a>
         </div>
     </div>
 
@@ -75,9 +85,49 @@
 @endsection
 
 @section('scripts')
+<style>@keyframes spin { to { transform: rotate(360deg); } }</style>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    // Poster roll buttons
+    document.addEventListener('click', e => {
+        const btn = e.target.closest('.roll-poster-btn');
+        if (!btn) return;
+
+        const id  = btn.dataset.id;
+        const svg = btn.querySelector('svg');
+        btn.disabled = true;
+        svg.style.animation = 'spin 0.6s linear infinite';
+
+        fetch(`/admin/roulettes/${id}/refresh-poster`, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (!data.poster_path) return;
+            const url = `https://image.tmdb.org/t/p/w92${data.poster_path}`;
+            const cell = btn.closest('td');
+            // Replace placeholder div with img if needed
+            let img = cell.querySelector('.roulette-poster');
+            const placeholder = cell.querySelector('.roulette-poster-placeholder');
+            if (placeholder) {
+                img = document.createElement('img');
+                img.className = 'roulette-poster w-full h-full object-cover rounded';
+                img.dataset.id = id;
+                placeholder.replaceWith(img);
+                btn.classList.remove('opacity-100');
+                btn.classList.add('opacity-0', 'group-hover:opacity-100');
+            }
+            img.src = url;
+        })
+        .finally(() => {
+            btn.disabled = false;
+            svg.style.animation = '';
+        });
+    });
+
+
     @if(!$q)
     const btns   = document.querySelectorAll('.group-btn');
     const panels = document.querySelectorAll('.group-panel');

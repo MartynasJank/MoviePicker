@@ -36,6 +36,7 @@ class WatchlistController extends Controller
             'year'         => 'nullable|integer',
             'genres'       => 'nullable|string',
             'vote_average' => 'nullable|numeric|min:0|max:10',
+            'type'         => 'nullable|in:movie,tv',
         ]);
 
         $user = Auth::user();
@@ -53,6 +54,7 @@ class WatchlistController extends Controller
             'year'         => $request->year,
             'genres'       => $request->genres,
             'vote_average' => $request->vote_average ?: null,
+            'type'         => $request->input('type', 'movie'),
             'status'       => 'saved',
         ]);
 
@@ -105,7 +107,11 @@ class WatchlistController extends Controller
 
         $picked = $items->random();
 
-        $url = route('movie', $picked->tmdb_id) . '?wl_status=' . urlencode($status);
+        $base = $picked->type === 'tv'
+            ? url('tv/' . $picked->tmdb_id)
+            : route('movie', $picked->tmdb_id);
+
+        $url = $base . '?wl_status=' . urlencode($status);
         if ($genres) {
             $url .= '&wl_genres=' . urlencode($genres);
         }

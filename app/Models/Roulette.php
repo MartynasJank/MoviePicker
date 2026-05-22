@@ -9,7 +9,7 @@ class Roulette extends Model
 {
     protected $fillable = [
         'name', 'slug', 'description', 'tags', 'tag_fingerprint',
-        'featured_movie_ids', 'poster_paths', 'is_system', 'user_id', 'is_public', 'sort_order', 'row',
+        'featured_movie_ids', 'poster_paths', 'is_system', 'user_id', 'is_public', 'sort_order', 'row', 'media_type',
     ];
 
     protected $casts = [

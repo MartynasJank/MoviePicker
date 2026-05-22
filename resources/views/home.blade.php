@@ -28,10 +28,41 @@
                 <span class="text-accent">Movie Picker</span>
             </h1>
             <p class="text-gray-400 text-lg mb-10">For evenings when you can't decide what to watch.</p>
-            <div class="flex flex-col sm:flex-row gap-3 justify-center items-stretch sm:items-center">
-                <a href="/movie?i=new" class="btn-accent long-single text-center">Get a random movie</a>
-                <a href="/multiple?i=new" class="btn-secondary text-center">Random batch</a>
-                <a href="/criteria" class="btn-secondary text-center">Enter criteria</a>
+            <div class="grid sm:grid-cols-2 gap-4 max-w-xl mx-auto w-full text-left">
+                {{-- Movies card --}}
+                <div class="bg-white/5 border border-white/8 rounded-2xl p-6 flex flex-col gap-4 hover:bg-white/7 hover:border-white/15 transition-all duration-200 hover:shadow-[0_0_28px_rgba(192,57,58,0.12)]">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-accent/15 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <rect x="2" y="4" width="20" height="16" rx="2"/>
+                                <path d="M8 4v16M16 4v16M2 12h20M2 8h4M2 16h4M18 8h4M18 16h4"/>
+                            </svg>
+                        </div>
+                        <span class="font-semibold text-white">Movies</span>
+                    </div>
+                    <a href="/movie?i=new" class="btn-accent long-single text-center">Random Movie</a>
+                    <div class="flex gap-2">
+                        <a href="/multiple?i=new" class="btn-secondary text-center text-sm flex-1">Batch</a>
+                        <a href="/criteria" class="btn-secondary text-center text-sm flex-1">Criteria</a>
+                    </div>
+                </div>
+                {{-- TV Shows card --}}
+                <div class="bg-white/5 border border-white/8 rounded-2xl p-6 flex flex-col gap-4 hover:bg-white/7 hover:border-white/15 transition-all duration-200 hover:shadow-[0_0_28px_rgba(96,165,250,0.1)]">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-blue-500/15 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <rect x="2" y="3" width="20" height="14" rx="2"/>
+                                <path d="M8 21h8M12 17v4"/>
+                            </svg>
+                        </div>
+                        <span class="font-semibold text-white">TV Shows</span>
+                    </div>
+                    <a href="/tv/pick?i=new" class="btn-accent long-single text-center">Random TV Show</a>
+                    <div class="flex gap-2">
+                        <a href="/tv/multiple?i=new" class="btn-secondary text-center text-sm flex-1">Batch</a>
+                        <a href="/tv/criteria" class="btn-secondary text-center text-sm flex-1">Criteria</a>
+                    </div>
+                </div>
             </div>
         </div>
     </section>

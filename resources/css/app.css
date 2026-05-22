@@ -134,7 +134,8 @@ html[data-theme="light"] {
     }
 
     .watchlist-filter.active,
-    .trend-toggle.active {
+    .trend-toggle.active,
+    .roulette-tab.active {
         background-color: var(--bg-surface);
         color: var(--text-primary);
     }

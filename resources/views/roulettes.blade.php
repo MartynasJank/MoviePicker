@@ -4,8 +4,12 @@
 <div class="max-w-7xl mx-auto px-4 py-10">
 
     <div class="mb-8">
-        <div class="flex items-center gap-3">
-            <h1 class="text-3xl font-bold text-white">Movie Roulettes</h1>
+        <div class="flex items-center gap-4 flex-wrap">
+            <h1 class="text-3xl font-bold text-white">Roulettes</h1>
+            <div class="flex gap-1 bg-white/5 p-1 rounded-lg">
+                <button class="roulette-tab active text-xs px-4 py-1.5 rounded-md transition-all font-medium" data-tab="movies">Movies</button>
+                <button class="roulette-tab text-xs px-4 py-1.5 rounded-md transition-all font-medium text-gray-400" data-tab="tv">TV Shows</button>
+            </div>
         </div>
         <p class="text-gray-500 text-sm mt-1">Curated collections — just hit Roll.</p>
         <div class="section-divider mt-3"></div>
@@ -25,72 +29,53 @@
             'crime' => 'Crime', 'documentary' => 'Documentary', 'drama' => 'Drama', 'family' => 'Family',
             'fantasy' => 'Fantasy', 'history' => 'History', 'horror' => 'Horror', 'mystery' => 'Mystery',
             'romance' => 'Romance', 'sci-fi' => 'Sci-Fi', 'thriller' => 'Thriller', 'war' => 'War', 'western' => 'Western',
+            'kids' => 'Kids', 'reality' => 'Reality',
             'pre-1950' => 'Classic', '1950s' => '50s', '1960s' => '60s', '1970s' => '70s',
             '1980s' => '80s', '1990s' => '90s', '2000s' => '2000s', '2010s' => '2010s', '2020s' => '2020s', 'recent' => 'Recent',
             'ko' => 'Korean', 'ja' => 'Japanese', 'fr' => 'French', 'es' => 'Spanish',
             'de' => 'German', 'it' => 'Italian', 'zh' => 'Chinese', 'hi' => 'Hindi',
-            'tr' => 'Turkish', 'pt' => 'Portuguese',
+            'tr' => 'Turkish', 'pt' => 'Portuguese', 'da' => 'Scandinavian', 'lt' => 'Lithuanian',
         ];
     @endphp
 
-    @foreach ($grouped as $groupName => $roulettes)
-        <div class="mb-10">
-            <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-4">{{ $groupName }}</h2>
+    {{-- Movies panel --}}
+    <div id="roulette-panel-movies">
+        @include('includes.roulette-grid', ['grouped' => $movieGrouped])
+    </div>
 
-            <div class="flex gap-3 overflow-x-auto pb-2 roulette-row">
-                @foreach ($roulettes as $roulette)
-                    @php
-                        $tags     = $roulette->tags;
-                        $platform = $tags['platform'][0] ?? null;
-                        $logo     = $platform ? ($platformLogos[$platform] ?? null) : null;
-                        $allTags  = collect($tags)->flatten()
-                                        ->reject(fn($v) => isset($tags['platform']) && in_array($v, $tags['platform']))
-                                        ->map(fn($v) => $tagLabels[$v] ?? $v);
-                        $poster   = $roulette->poster_paths[0] ?? null;
-                    @endphp
-
-                    <a href="/roulettes/{{ $roulette->slug }}"
-                       class="group relative flex-shrink-0 w-36 md:w-44 rounded-xl overflow-hidden block bg-slate-900">
-                        <div class="aspect-[2/3] relative overflow-hidden">
-
-                            @if($poster)
-                                <img src="https://image.tmdb.org/t/p/w342{{ $poster }}"
-                                     class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                     loading="lazy">
-                            @else
-                                <div class="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900"></div>
-                            @endif
-
-                            {{-- Gradient overlay --}}
-                            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
-
-                            {{-- Platform logo --}}
-                            @if($logo)
-                                <img src="{{ $logo }}"
-                                     class="absolute top-2 right-2 h-5 drop-shadow-lg"
-                                     loading="lazy">
-                            @endif
-
-                            {{-- Bottom content --}}
-                            <div class="absolute bottom-0 left-0 right-0 p-3">
-                                @if($allTags->isNotEmpty())
-                                    <div class="flex gap-1 mb-1.5 flex-wrap">
-                                        @foreach($allTags as $tag)
-                                            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 text-gray-400 border border-white/10">{{ $tag }}</span>
-                                        @endforeach
-                                    </div>
-                                @endif
-                                <h3 class="text-sm font-semibold text-white leading-snug">{{ $roulette->name }}</h3>
-                                <span class="text-xs text-accent font-medium mt-1 block group-hover:underline">Roll →</span>
-                            </div>
-
-                        </div>
-                    </a>
-
-                @endforeach
-            </div>
-        </div>
-    @endforeach
+    {{-- TV Shows panel --}}
+    <div id="roulette-panel-tv" class="hidden">
+        @include('includes.roulette-grid', ['grouped' => $tvGrouped])
+    </div>
 
 </div>
+
+<script>
+    (function () {
+        var tabs   = document.querySelectorAll('.roulette-tab');
+        var panels = {
+            movies: document.getElementById('roulette-panel-movies'),
+            tv:     document.getElementById('roulette-panel-tv')
+        };
+        var stored = localStorage.getItem('roulette_tab') || 'movies';
+
+        function activate(tab) {
+            tabs.forEach(function (t) {
+                var active = t.dataset.tab === tab;
+                t.classList.toggle('active', active);
+                t.classList.toggle('text-gray-400', !active);
+            });
+            Object.keys(panels).forEach(function (key) {
+                panels[key].classList.toggle('hidden', key !== tab);
+            });
+            localStorage.setItem('roulette_tab', tab);
+        }
+
+        activate(stored);
+        tabs.forEach(function (t) {
+            t.addEventListener('click', function () { activate(t.dataset.tab); });
+        });
+    })();
+</script>
+
 @endsection
