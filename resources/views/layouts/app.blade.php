@@ -65,7 +65,11 @@
                         </button>
                     </form>
                 @else
-                    <a href="{{ route('auth.google') }}" class="text-sm px-3 py-1.5 rounded-lg border border-white/10 text-gray-300 hover:text-white hover:border-white/25 transition-all">Sign in</a>
+                    @if(app()->environment('local'))
+                        <a href="/dev/login" class="text-sm px-3 py-1.5 rounded-lg border border-yellow-500/40 text-yellow-400 hover:border-yellow-500/70 transition-all">Dev Login</a>
+                    @else
+                        <a href="{{ route('auth.google') }}" class="text-sm px-3 py-1.5 rounded-lg border border-white/10 text-gray-300 hover:text-white hover:border-white/25 transition-all">Sign in</a>
+                    @endif
                 @endauth
 
                 {{-- Search --}}
@@ -104,7 +108,8 @@
                 <div id="mobile-search-results" class="hidden mt-1 bg-[#1a1a1a] border border-white/10 rounded-xl overflow-hidden divide-y divide-white/5"></div>
             </div>
 
-            {{-- Primary actions --}}
+            {{-- Movies --}}
+            <p class="px-4 pt-1 pb-0.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Movies</p>
             <a href="/movie?i=new" class="long-single flex items-center justify-between px-4 py-3.5 rounded-xl bg-white/5 hover:bg-white/8 text-white font-medium text-sm transition-colors">
                 Random Movie
                 <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
@@ -113,14 +118,29 @@
                 Random Batch
                 <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
             </a>
+            <a href="/criteria" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">
+                Movie Criteria
+            </a>
+
+            {{-- TV Shows --}}
+            <div class="h-px bg-white/5 my-2"></div>
+            <p class="px-4 pb-0.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">TV Shows</p>
+            <a href="/tv/pick?i=new" class="long-single flex items-center justify-between px-4 py-3.5 rounded-xl bg-white/5 hover:bg-white/8 text-white font-medium text-sm transition-colors">
+                Random TV Show
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+            </a>
+            <a href="/tv/multiple?i=new" class="flex items-center justify-between px-4 py-3.5 rounded-xl bg-white/5 hover:bg-white/8 text-white font-medium text-sm transition-colors">
+                Random TV Batch
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+            </a>
+            <a href="/tv/criteria" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">
+                TV Criteria
+            </a>
 
             {{-- Nav links --}}
             <div class="h-px bg-white/5 my-2"></div>
             <a href="/roulettes" class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">
                 Roulettes
-            </a>
-            <a href="/criteria" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">
-                Criteria
             </a>
 
             {{-- Account --}}
@@ -150,10 +170,17 @@
                     <button type="submit" class="w-full text-left px-4 py-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors">Sign out</button>
                 </form>
             @else
-                <a href="{{ route('auth.google') }}" class="flex items-center justify-between px-4 py-3.5 rounded-xl bg-white/5 hover:bg-white/8 text-sm text-white font-medium transition-colors">
-                    Sign in with Google
-                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-                </a>
+                @if(app()->environment('local'))
+                    <a href="/dev/login" class="flex items-center justify-between px-4 py-3.5 rounded-xl bg-yellow-500/10 border border-yellow-500/20 hover:bg-yellow-500/20 text-sm text-yellow-400 font-medium transition-colors">
+                        Dev Login
+                        <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+                    </a>
+                @else
+                    <a href="{{ route('auth.google') }}" class="flex items-center justify-between px-4 py-3.5 rounded-xl bg-white/5 hover:bg-white/8 text-sm text-white font-medium transition-colors">
+                        Sign in with Google
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+                    </a>
+                @endif
             @endauth
 
             {{-- Theme toggle pinned to bottom --}}

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page_title', ($tmdbInfo->title ?? $omdbInfo->Title ?? 'Movie').' — MoviePickr')
+@section('page_title', ($tmdbInfo->name ?? 'TV Show').' — MoviePickr')
 @section('footer_pb', 'pb-32')
 @section('scripts')
     @vite(['resources/js/custom/showMore.js', 'resources/js/custom/carousel.js', 'resources/js/custom/trailerModal.js', 'resources/js/custom/criteriaForm.js'])
@@ -10,36 +10,38 @@
     @if (isset($trailer))
         @include('includes.trailer-modal')
     @endif
-    @include('includes.criteria-modal')
+    @include('tv.criteria-modal')
 
     {{-- Title row --}}
     <div class="flex items-start justify-between gap-4 mb-4 flex-wrap">
         <div>
-            <span class="inline-block text-xs font-medium px-2.5 py-0.5 rounded-full bg-white/8 text-gray-400 border border-white/10 mb-2">Movie</span>
+            <span class="inline-block text-xs font-medium px-2.5 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/20 mb-2">TV Series</span>
             <h1 class="text-3xl md:text-4xl font-bold text-white leading-tight">
-                {{ $tmdbInfo->title ?? $omdbInfo->Title }}
+                {{ $tmdbInfo->name }}
             </h1>
             <p class="text-gray-500 text-sm mt-1">
-                {{ $omdbInfo->Year ?? date('Y', strtotime($tmdbInfo->release_date ?? '')) }}
+                {{ substr($tmdbInfo->first_air_date ?? '', 0, 4) }}
                 @if($genres ?? false)
                     · {{ $genres }}
                 @endif
-                @if(($omdbInfo->Rated ?? null) && $omdbInfo->Rated !== 'N/A')
-                    · <span class="text-gray-600">{{ $omdbInfo->Rated }}</span>
+                @if(!empty($tmdbInfo->status))
+                    · <span class="text-gray-600">{{ $tmdbInfo->status }}</span>
                 @endif
             </p>
         </div>
         {{-- Save button in title row --}}
         @auth
+            @php $isSaved = auth()->user()->watchlist()->where('tmdb_id', $tmdbInfo->id)->exists(); @endphp
             <button type="button" class="btn-secondary flex-shrink-0 watchlist-toggle"
                 data-tmdb-id="{{ $tmdbInfo->id }}"
-                data-title="{{ $tmdbInfo->title ?? $omdbInfo->Title }}"
+                data-title="{{ $tmdbInfo->name }}"
                 data-poster="{{ $tmdbInfo->poster_path ?? '' }}"
-                data-year="{{ $omdbInfo->Year ?? date('Y', strtotime($tmdbInfo->release_date ?? '')) }}"
+                data-year="{{ substr($tmdbInfo->first_air_date ?? '', 0, 4) }}"
                 data-genres="{{ $genres ?? '' }}"
                 data-rating="{{ $tmdbInfo->vote_average ?? '' }}"
-                data-saved="{{ auth()->user()->watchlist()->where('tmdb_id', $tmdbInfo->id)->exists() ? '1' : '0' }}">
-                {{ auth()->user()->watchlist()->where('tmdb_id', $tmdbInfo->id)->exists() ? '★ Saved' : '☆ Save' }}
+                data-media-type="tv"
+                data-saved="{{ $isSaved ? '1' : '0' }}">
+                {{ $isSaved ? '★ Saved' : '☆ Save' }}
             </button>
         @else
             <a href="{{ route('auth.google') }}" class="btn-secondary flex-shrink-0 text-center text-sm">☆ Save</a>
@@ -53,10 +55,8 @@
         <div class="w-[38%] md:w-auto flex-shrink-0 flex flex-col gap-2">
             @if($tmdbInfo->poster_path)
                 <img src="https://image.tmdb.org/t/p/original{{ $tmdbInfo->poster_path }}"
-                    alt="{{ $tmdbInfo->title }}"
+                    alt="{{ $tmdbInfo->name }}"
                     class="w-full rounded-xl border border-white/10 object-cover">
-            @elseif(isset($omdbInfo->Poster) && $omdbInfo->Poster !== 'N/A')
-                <img src="{{ $omdbInfo->Poster }}" class="w-full rounded-xl border border-white/10 object-cover">
             @else
                 <div class="w-full aspect-[2/3] card flex items-center justify-center text-gray-600 text-xs text-center px-2">
                     No poster available
@@ -67,27 +67,12 @@
             @endif
         </div>
 
-        {{-- Ratings + Plot --}}
+        {{-- Overview + Streaming --}}
         <div class="flex-1 min-w-0 flex flex-col gap-3 md:gap-6">
-
-            {{-- Ratings --}}
-            @if(isset($omdbInfo->Ratings) && count($omdbInfo->Ratings) > 0)
-            <div>
-                <h3 class="text-xs sm:text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2 md:mb-3">Ratings</h3>
-                @foreach ($omdbInfo->Ratings as $rating)
-                    @php $url = $urls[$rating->Source] ?? '#'; @endphp
-                    <a class="rating-pill" href="{{ $url }}"
-                        {{ $url !== '#' ? 'target="_blank"' : '' }}>
-                        <span class="text-gray-400 text-xs sm:text-sm truncate">{{ $rating->Source }}</span>
-                        <span class="ml-auto font-semibold text-accent text-xs sm:text-sm flex-shrink-0">{{ $rating->Value }}</span>
-                    </a>
-                @endforeach
-            </div>
-            @endif
 
             {{-- Streaming --}}
             @if ($watchProviders != null)
-                @php $jwUrl = 'https://www.justwatch.com/' . strtolower($country) . '/search?q=' . urlencode($tmdbInfo->title ?? $omdbInfo->Title); @endphp
+                @php $jwUrl = 'https://www.justwatch.com/' . strtolower($country) . '/search?q=' . urlencode($tmdbInfo->name ?? ''); @endphp
                 <div class="flex items-center gap-2 flex-wrap">
                     @foreach($watchProviders->flatrate as $stream)
                         <a href="{{ $jwUrl }}" target="_blank" title="Find on JustWatch">
@@ -100,9 +85,9 @@
 
             {{-- Plot --}}
             <div>
-                <h3 class="text-xs sm:text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Plot</h3>
+                <h3 class="text-xs sm:text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Overview</h3>
                 <p class="text-gray-300 leading-relaxed text-sm">
-                    {{ ($omdbInfo->Plot ?? $tmdbInfo->overview) ?? 'No description available.' }}
+                    {{ $tmdbInfo->overview ?? 'No description available.' }}
                 </p>
             </div>
 
@@ -111,6 +96,21 @@
 
     @if ($watchProviders != null)
         <p class="text-xs text-gray-600 mb-6">Streaming availability by JustWatch. Links open JustWatch search for your region.</p>
+    @endif
+
+    {{-- Next episode callout --}}
+    @if(!empty($tmdbInfo->next_episode_to_air))
+        @php $next = $tmdbInfo->next_episode_to_air; @endphp
+        <div class="flex items-center gap-3 bg-blue-500/10 border border-blue-500/20 rounded-xl px-4 py-3 mb-6">
+            <span class="text-blue-400 text-sm">📅</span>
+            <div>
+                <p class="text-blue-300 text-sm font-medium">
+                    Next episode: S{{ str_pad($next->season_number, 2, '0', STR_PAD_LEFT) }}E{{ str_pad($next->episode_number, 2, '0', STR_PAD_LEFT) }}
+                    @if(!empty($next->name)) — {{ $next->name }}@endif
+                </p>
+                <p class="text-blue-400/60 text-xs">Airs {{ \Carbon\Carbon::parse($next->air_date)->format('M j, Y') }}</p>
+            </div>
+        </div>
     @endif
 
     {{-- Info cards --}}
@@ -151,13 +151,13 @@
             @endif
         </div>
 
-        {{-- Production --}}
+        {{-- Networks --}}
         <div class="card p-4">
-            <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Production</h3>
-            @if(!empty($tmdbInfo->production_companies))
+            <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Networks</h3>
+            @if(!empty($tmdbInfo->networks))
                 <ul class="production-list flex flex-col gap-1.5">
-                    @foreach ($tmdbInfo->production_companies as $company)
-                        <li class="text-sm text-gray-300">{{ $company->name }}</li>
+                    @foreach ($tmdbInfo->networks as $network)
+                        <li class="text-sm text-gray-300">{{ $network->name }}</li>
                     @endforeach
                 </ul>
             @else
@@ -169,16 +169,64 @@
     {{-- Details row --}}
     <div class="grid md:grid-cols-3 gap-4 mb-10">
 
-        {{-- General info --}}
+        {{-- Show info --}}
         <div class="card p-4">
             <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Details</h3>
             <ul class="flex flex-col gap-1.5 text-sm">
-                <li class="flex justify-between"><span class="text-gray-500">Budget</span><span class="text-gray-300">{{ $tmdbInfo->budget == 0 ? '—' : '$'.number_format($tmdbInfo->budget) }}</span></li>
-                <li class="flex justify-between"><span class="text-gray-500">Revenue</span><span class="text-gray-300">{{ $tmdbInfo->revenue == 0 ? '—' : '$'.number_format($tmdbInfo->revenue) }}</span></li>
-                <li class="flex justify-between"><span class="text-gray-500">Runtime</span><span class="text-gray-300">{{ $omdbInfo->Runtime ?? ($tmdbInfo->runtime == 0 ? '—' : $tmdbInfo->runtime.' min') }}</span></li>
-                <li class="flex justify-between"><span class="text-gray-500">IMDB Votes</span><span class="text-gray-300">{{ $omdbInfo->imdbVotes ?? '—' }}</span></li>
-                <li class="flex justify-between"><span class="text-gray-500">TMDB Score</span><span class="text-accent font-semibold">{{ $tmdbInfo->vote_average ?? '—' }}</span></li>
-                <li class="flex justify-between"><span class="text-gray-500">Awards</span><span class="text-gray-300 text-right max-w-[55%]">{{ $omdbInfo->Awards ?? '—' }}</span></li>
+                @if(!empty($tmdbInfo->created_by))
+                    <li class="flex justify-between gap-2">
+                        <span class="text-gray-500 flex-shrink-0">Created By</span>
+                        <span class="text-gray-300 text-right">{{ implode(', ', array_column((array) $tmdbInfo->created_by, 'name')) }}</span>
+                    </li>
+                @endif
+                @if(!empty($tmdbInfo->type))
+                    <li class="flex justify-between">
+                        <span class="text-gray-500">Type</span>
+                        <span class="text-gray-300">{{ $tmdbInfo->type }}</span>
+                    </li>
+                @endif
+                <li class="flex justify-between">
+                    <span class="text-gray-500">Seasons</span>
+                    <span class="text-gray-300">{{ $tmdbInfo->number_of_seasons ?? '—' }}</span>
+                </li>
+                <li class="flex justify-between">
+                    <span class="text-gray-500">Episodes</span>
+                    <span class="text-gray-300">{{ $tmdbInfo->number_of_episodes ?? '—' }}</span>
+                </li>
+                <li class="flex justify-between">
+                    <span class="text-gray-500">Ep. Runtime</span>
+                    <span class="text-gray-300">
+                        @if(!empty($tmdbInfo->episode_run_time))
+                            {{ $tmdbInfo->episode_run_time[0] }} min
+                        @else
+                            —
+                        @endif
+                    </span>
+                </li>
+                <li class="flex justify-between">
+                    <span class="text-gray-500">First Aired</span>
+                    <span class="text-gray-300">{{ !empty($tmdbInfo->first_air_date) ? \Carbon\Carbon::parse($tmdbInfo->first_air_date)->format('M j, Y') : '—' }}</span>
+                </li>
+                @if(!empty($tmdbInfo->last_air_date))
+                    <li class="flex justify-between">
+                        <span class="text-gray-500">Last Aired</span>
+                        <span class="text-gray-300">{{ \Carbon\Carbon::parse($tmdbInfo->last_air_date)->format('M j, Y') }}</span>
+                    </li>
+                @endif
+                <li class="flex justify-between">
+                    <span class="text-gray-500">In Production</span>
+                    <span class="{{ ($tmdbInfo->in_production ?? false) ? 'text-green-400' : 'text-gray-500' }}">
+                        {{ ($tmdbInfo->in_production ?? false) ? 'Yes' : 'No' }}
+                    </span>
+                </li>
+                <li class="flex justify-between">
+                    <span class="text-gray-500">TMDB Score</span>
+                    <span class="text-accent font-semibold">{{ $tmdbInfo->vote_average ?? '—' }}</span>
+                </li>
+                <li class="flex justify-between">
+                    <span class="text-gray-500">Vote Count</span>
+                    <span class="text-gray-300">{{ number_format($tmdbInfo->vote_count ?? 0) }}</span>
+                </li>
             </ul>
         </div>
 
@@ -201,8 +249,8 @@
             <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Countries</h3>
             @if(!empty($tmdbInfo->production_countries))
                 <ul class="flex flex-col gap-1.5">
-                    @foreach ($tmdbInfo->production_countries as $country)
-                        <li class="text-sm text-gray-300">{{ $country->name }}</li>
+                    @foreach ($tmdbInfo->production_countries as $c)
+                        <li class="text-sm text-gray-300">{{ $c->name }}</li>
                     @endforeach
                 </ul>
             @else
@@ -211,51 +259,23 @@
         </div>
     </div>
 
-    {{-- Collection --}}
-    @if ($collection)
-    <div class="mb-6">
-        <div class="section-header">
-            <h2 class="text-xl font-bold text-white mb-3">{{ $collection->name }}</h2>
-            <div class="section-divider"></div>
-        </div>
-        <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-            @foreach ($collection->parts as $part)
-                @php $isCurrent = $part->id == $tmdbInfo->id; @endphp
-                <a href="{{ url('movie/' . $part->id) }}"
-                   class="flex-shrink-0 w-28 group {{ $isCurrent ? 'opacity-50 pointer-events-none' : '' }}">
-                    <div class="aspect-[2/3] rounded-lg overflow-hidden bg-white/[0.03] relative">
-                        @if (!empty($part->poster_path))
-                            <img src="https://image.tmdb.org/t/p/w185{{ $part->poster_path }}"
-                                 alt="{{ $part->title }}"
-                                 class="w-full h-full object-cover {{ $isCurrent ? '' : 'group-hover:scale-105 transition-transform duration-300' }}"
-                                 loading="lazy">
-                        @else
-                            <div class="w-full h-full flex items-center justify-center text-gray-600 text-xs text-center px-2">No poster</div>
-                        @endif
-                        @if ($isCurrent)
-                            <div class="absolute inset-0 flex items-end justify-center pb-2">
-                                <span class="text-xs text-white bg-black/60 px-2 py-0.5 rounded-full">This film</span>
-                            </div>
-                        @endif
-                    </div>
-                    <p class="text-xs text-gray-400 mt-1.5 line-clamp-2 leading-snug">{{ $part->title }}</p>
-                    @if (!empty($part->release_date))
-                        <p class="text-xs text-gray-600">{{ substr($part->release_date, 0, 4) }}</p>
-                    @endif
-                </a>
-            @endforeach
-        </div>
-    </div>
-    @endif
-
-    {{-- Similar movies --}}
-    @if ($similarMovies != null)
+    {{-- Similar shows --}}
+    @if ($similarShows != null)
     <div>
         <div class="section-header">
             <h2 class="text-xl font-bold text-white mb-3">{{ $similarTitle }}</h2>
             <div class="section-divider"></div>
         </div>
-        @include('includes.carousel', ['allMovies' => $similarMovies, 'name' => 'swiper-similar', 'genres' => [], 'linkSuffix' => $linkSuffix, 'showScore' => true, 'showSave' => true, 'savedIds' => $savedIds])
+        @include('includes.carousel', [
+            'allMovies' => $similarShows,
+            'name'      => 'swiper-similar',
+            'genres'    => [],
+            'showScore' => true,
+            'showSave'  => true,
+            'savedIds'  => $savedIds,
+            'linkBase'  => 'tv',
+            'mediaType' => 'tv',
+        ])
     </div>
     @endif
 
@@ -264,7 +284,7 @@
 {{-- Sticky bottom bar --}}
 <div class="fixed bottom-0 left-0 right-0 bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 px-4 z-40 sticky-bar-safe">
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
-        {{-- Back button: far left --}}
+        {{-- Back button --}}
         <div class="flex-shrink-0">
             @if(!empty($batchUrl))
                 @php $backLabel = str_contains($batchUrl, 'watchlist') ? '← Watchlist' : '← Batch'; @endphp
@@ -281,7 +301,7 @@
                 @endphp
                 <a href="{{ route('watchlist.roll', $wlParams) }}" class="btn-accent long-single text-center">Roll</a>
             @else
-                <a href="/movie" class="btn-accent long-single text-center">Roll</a>
+                <a href="/tv/pick" class="btn-accent long-single text-center">Roll</a>
             @endif
         </div>
     </div>

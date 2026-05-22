@@ -12,6 +12,28 @@ class RouletteTagMapper
         'apple'   => 350,
     ];
 
+    private const TV_GENRE_IDS = [
+        'action'      => 10759,  // Action & Adventure
+        'adventure'   => 10759,  // Action & Adventure (same as action for TV)
+        'animation'   => 16,
+        'comedy'      => 35,
+        'crime'       => 80,
+        'documentary' => 99,
+        'drama'       => 18,
+        'family'      => 10751,
+        'fantasy'     => 10765,  // Sci-Fi & Fantasy
+        'history'     => 36,
+        'horror'      => 27,
+        'kids'        => 10762,
+        'mystery'     => 9648,
+        'reality'     => 10764,
+        'romance'     => 10749,
+        'sci-fi'      => 10765,  // Sci-Fi & Fantasy (same as fantasy for TV)
+        'thriller'    => 80,     // Crime is the closest native TV genre for thrillers
+        'war'         => 10768,  // War & Politics
+        'western'     => 37,
+    ];
+
     private const GENRE_IDS = [
         'action'      => 28,
         'adventure'   => 12,
@@ -82,6 +104,51 @@ class RouletteTagMapper
                 }
                 if (isset($range['lte'])) {
                     $criteria['primary_release_date.lte'] = $range['lte'];
+                }
+            }
+        }
+
+        return $criteria;
+    }
+
+    public function toCriteriaTv(array $tags): array
+    {
+        $criteria = [];
+
+        if (!empty($tags['platform'])) {
+            $ids = array_values(array_filter(
+                array_map(fn($p) => self::PLATFORM_IDS[$p] ?? null, (array) $tags['platform'])
+            ));
+            if ($ids) {
+                $criteria['with_watch_providers'] = $ids;
+            }
+        }
+
+        if (!empty($tags['genre'])) {
+            $ids = array_values(array_unique(array_filter(
+                array_map(fn($g) => self::TV_GENRE_IDS[$g] ?? null, (array) $tags['genre'])
+            )));
+            if ($ids) {
+                $criteria['with_genres'] = $ids;
+            }
+        }
+
+        if (!empty($tags['language'])) {
+            $criteria['with_original_language'] = $tags['language'][0];
+        }
+
+        if (!empty($tags['era'])) {
+            $era   = (array) $tags['era'];
+            $range = $era[0] === 'recent'
+                ? ['gte' => (int) date('Y') - 2]
+                : (self::ERA_RANGES[$era[0]] ?? null);
+
+            if ($range) {
+                if (isset($range['gte'])) {
+                    $criteria['first_air_date.gte'] = $range['gte'];
+                }
+                if (isset($range['lte'])) {
+                    $criteria['first_air_date.lte'] = $range['lte'];
                 }
             }
         }

@@ -188,6 +188,106 @@ class TmdbClient implements ApiMovie
         return $response->getBody()->getContents();
     }
 
+    // ── TV Shows ─────────────────────────────────────────────────────────────
+
+    /**
+     * Discover TV shows by arbitrary filter criteria.
+     *
+     * @throws GuzzleException
+     */
+    public function discoverTv(array $input = [], string $country = 'LT'): array
+    {
+        $input = $this->fixMovieArrayKeys($input);
+
+        if (count($input) <= 1) {
+            $input['with_original_language'] = 'en';
+        }
+
+        foreach (['with_genres', 'without_genres', 'with_watch_providers', 'with_people'] as $key) {
+            if (isset($input[$key]) && is_array($input[$key])) {
+                $input[$key] = implode(',', $input[$key]);
+            }
+        }
+
+        if (isset($input['first_air_date.gte'])) {
+            $input['first_air_date.gte'] .= '-01-01';
+        }
+        if (isset($input['first_air_date.lte'])) {
+            $input['first_air_date.lte'] .= '-12-31';
+        }
+        if (!isset($input['first_air_date.gte']) && !isset($input['first_air_date.lte'])) {
+            $input['first_air_date.gte'] = '1990-01-01';
+        }
+
+        $hasPeople = isset($input['with_people']);
+
+        $input['vote_count.gte']  ??= $hasPeople ? 0 : 10;
+        $input['sort_by']         ??= $this->randomTvSort();
+        $input['language']          = 'en-US';
+        $input['include_adult']     = 'false';
+
+        if (isset($input['with_watch_providers'])) {
+            $input['watch_region'] = $country;
+        }
+
+        $url      = 'https://api.themoviedb.org/3/discover/tv?' . http_build_query($input);
+        $response = $this->client->get($url);
+
+        return json_decode($response->getBody()->getContents(), true);
+    }
+
+    /**
+     * Full TV show details with videos, credits, similar, and watch/providers appended.
+     * Cached per show ID for 6 hours.
+     */
+    public function tvShow(int $id): object
+    {
+        return Cache::remember('tmdb_tv_' . $id, now()->addHours(6), function () use ($id) {
+            $url = 'https://api.themoviedb.org/3/tv/' . $id . '?'
+                . http_build_query(['append_to_response' => 'videos,credits,similar,watch/providers']);
+
+            $response = $this->client->get($url);
+            return json_decode($response->getBody()->getContents());
+        });
+    }
+
+    /**
+     * A random page of similar TV shows.
+     *
+     * @throws GuzzleException
+     */
+    public function similarShows(object $showObj): ?array
+    {
+        if ($showObj->similar->total_results == 0) {
+            return null;
+        }
+
+        $maxPage = min($showObj->similar->total_pages, 20);
+        $url     = 'https://api.themoviedb.org/3/tv/' . $showObj->id . '/similar?'
+            . http_build_query(['language' => 'en-US', 'page' => rand(1, $maxPage)]);
+
+        $response = $this->client->get($url);
+        return json_decode($response->getBody()->getContents(), true);
+    }
+
+    /** TV genre list — use MovieService::tvGenres() which caches the result. */
+    public function tvGenres(): string
+    {
+        $url = 'https://api.themoviedb.org/3/genre/tv/list?' . http_build_query(['language' => 'en-US']);
+        return $this->client->get($url)->getBody()->getContents();
+    }
+
+    public function searchTv(string $query): array
+    {
+        $url = 'https://api.themoviedb.org/3/search/tv?' . http_build_query([
+            'language'      => 'en-US',
+            'query'         => $query,
+            'page'          => 1,
+            'include_adult' => 'false',
+        ]);
+        return json_decode($this->client->get($url)->getBody()->getContents(), true);
+    }
+
     // ── Helpers ──────────────────────────────────────────────────────────────
 
     /** Rename form keys like `vote_count_gte` → `vote_count.gte` for the API. */
@@ -208,6 +308,12 @@ class TmdbClient implements ApiMovie
     {
         $fields = ['popularity', 'release_date', 'revenue', 'primary_release_date',
                    'original_title', 'vote_average', 'vote_count'];
+        return $fields[array_rand($fields)] . (rand(0, 1) ? '.asc' : '.desc');
+    }
+
+    protected function randomTvSort(): string
+    {
+        $fields = ['popularity', 'first_air_date', 'vote_average', 'vote_count', 'name'];
         return $fields[array_rand($fields)] . (rand(0, 1) ? '.asc' : '.desc');
     }
 }

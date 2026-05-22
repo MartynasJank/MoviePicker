@@ -16,6 +16,7 @@ class Watchlist extends Model
         'year',
         'genres',
         'vote_average',
+        'type',
         'status',
     ];
 

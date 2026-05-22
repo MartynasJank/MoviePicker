@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Roulette;
 use App\Models\Setting;
+use App\Services\RouletteTagMapper;
+use App\Services\TmdbClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -12,23 +14,28 @@ class AdminRouletteController extends Controller
 {
     public function index(Request $request)
     {
-        $q = $request->input('q');
+        $q         = $request->input('q');
+        $mediaType = $request->input('type', 'movie');
 
         $roulettes = Roulette::where('is_system', true)
+            ->where('media_type', $mediaType)
             ->when($q, fn($query) => $query->where('name', 'like', "%{$q}%"))
             ->orderBy('sort_order')
             ->orderBy('id')
             ->get();
 
-        $rowOrder = Setting::get('roulette_row_order', []);
+        $movieDefault = ['By Decade', 'Netflix', 'Prime Video', 'HBO', 'Disney+', 'Apple TV+', 'World Cinema', 'Anime', 'Community', 'By Genre'];
+        $tvDefault    = ['By Decade', 'Netflix', 'Prime Video', 'HBO', 'Disney+', 'Apple TV+', 'World TV', 'Anime', 'By Genre'];
+
+        $rowOrder = $mediaType === 'tv'
+            ? Setting::get('roulette_tv_row_order', $tvDefault)
+            : Setting::get('roulette_row_order', $movieDefault);
 
         $grouped = $roulettes->groupBy(fn(Roulette $r) => $r->groupName());
 
-        // All known rows (including empty ones)
         $ordered = collect($rowOrder)
             ->mapWithKeys(fn($g) => [$g => $grouped->get($g, collect())]);
 
-        // Roulettes whose group name is not in row order → Ungrouped
         $ungrouped = collect();
         foreach ($grouped as $name => $items) {
             if (!in_array($name, $rowOrder)) {
@@ -39,12 +46,12 @@ class AdminRouletteController extends Controller
             $ordered->put('Ungrouped', $ungrouped);
         }
 
-        return view('admin.roulettes.index', compact('ordered', 'q'));
+        return view('admin.roulettes.index', compact('ordered', 'q', 'mediaType'));
     }
 
     public function create()
     {
-        $rowOrder = Setting::get('roulette_row_order', []);
+        $rowOrder = $this->allRowNames();
         return view('admin.roulettes.form', ['roulette' => null, 'rowOrder' => $rowOrder]);
     }
 
@@ -58,7 +65,7 @@ class AdminRouletteController extends Controller
 
     public function edit(Roulette $roulette)
     {
-        $rowOrder = Setting::get('roulette_row_order', []);
+        $rowOrder = $this->allRowNames();
         return view('admin.roulettes.form', compact('roulette', 'rowOrder'));
     }
 
@@ -82,6 +89,54 @@ class AdminRouletteController extends Controller
         return redirect()->back()->with('success', $roulette->name . ' is now ' . ($roulette->is_public ? 'public' : 'hidden') . '.');
     }
 
+    public function refreshPoster(Roulette $roulette, TmdbClient $tmdb): \Illuminate\Http\JsonResponse
+    {
+        $current = $roulette->poster_paths ?? [];
+
+        if (count($current) > 1) {
+            $rotated = array_merge(array_slice($current, 1), [$current[0]]);
+            $roulette->update(['poster_paths' => $rotated]);
+            return response()->json(['poster_path' => $rotated[0]]);
+        }
+
+        $mapper         = new RouletteTagMapper();
+        $tagsForPosters = array_diff_key($roulette->tags ?? [], ['platform' => true]);
+        $criteria       = $roulette->media_type === 'tv'
+            ? $mapper->toCriteriaTv($tagsForPosters)
+            : $mapper->toCriteria($tagsForPosters);
+        $criteria['page'] = rand(1, 5);
+
+        try {
+            $results = $roulette->media_type === 'tv'
+                ? $tmdb->discoverTv($criteria, 'US')
+                : $tmdb->discover($criteria, 'US');
+
+            if ($roulette->media_type === 'tv' && empty($results['results']) && isset($criteria['with_genres'])) {
+                $results = $tmdb->discoverTv(array_diff_key($criteria, ['with_genres' => true]), 'US');
+            }
+
+            $paths = [];
+            foreach ($results['results'] ?? [] as $item) {
+                if (!empty($item['poster_path'])) {
+                    $paths[] = $item['poster_path'];
+                    if (count($paths) >= 8) break;
+                }
+            }
+
+            if ($paths) {
+                // Put the current poster at the end so the new one shows first
+                if ($current) {
+                    $paths = array_values(array_unique(array_merge($paths, $current)));
+                }
+                $roulette->update(['poster_paths' => $paths]);
+            }
+
+            return response()->json(['poster_path' => $paths[0] ?? null]);
+        } catch (\Throwable) {
+            return response()->json(['poster_path' => null], 422);
+        }
+    }
+
     public function reorder(Request $request)
     {
         $items = $request->validate(['items' => 'required|array', 'items.*.id' => 'required|integer', 'items.*.sort_order' => 'required|integer'])['items'];
@@ -93,6 +148,17 @@ class AdminRouletteController extends Controller
         });
 
         return response()->json(['ok' => true]);
+    }
+
+    private function allRowNames(): array
+    {
+        $movieDefault = ['By Decade', 'Netflix', 'Prime Video', 'HBO', 'Disney+', 'Apple TV+', 'World Cinema', 'Anime', 'Community', 'By Genre'];
+        $tvDefault    = ['By Decade', 'Netflix', 'Prime Video', 'HBO', 'Disney+', 'Apple TV+', 'World TV', 'Anime', 'By Genre'];
+
+        return array_unique(array_merge(
+            Setting::get('roulette_row_order', $movieDefault),
+            Setting::get('roulette_tv_row_order', $tvDefault)
+        ));
     }
 
     private function validated(Request $request, ?int $excludeId = null): array
@@ -134,6 +200,7 @@ class AdminRouletteController extends Controller
             'is_public'       => $request->boolean('is_public'),
             'is_system'       => $request->boolean('is_system', false),
             'row'             => $request->input('row') ?: null,
+            'media_type'      => $request->input('media_type') === 'tv' ? 'tv' : 'movie',
         ];
     }
 

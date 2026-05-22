@@ -17,6 +17,9 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminRouletteController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\RowOrderController;
+use App\Http\Controllers\TvCriteriaController;
+use App\Http\Controllers\TvPickController;
+use App\Http\Controllers\TvShowController;
 
 Route::get('/',  HomeController::class);
 Route::post('/', ContactController::class);
@@ -40,6 +43,7 @@ Route::get('/userinput', UserInputController::class);
 Route::prefix('tmdb')->group(function () {
     Route::get('/search/movies', [TmdbProxyController::class, 'searchMovies']);
     Route::get('/search/people', [TmdbProxyController::class, 'searchPeople']);
+    Route::get('/search/tv',     [TmdbProxyController::class, 'searchTv']);
     Route::get('/people/{id}',   [TmdbProxyController::class, 'person']);
 });
 Route::get('/criteria',  CriteriaController::class);
@@ -47,6 +51,12 @@ Route::get('/criteria',  CriteriaController::class);
 Route::match(['get', 'post'], '/movie',    [MoviePickController::class, 'single']);
 Route::match(['get', 'post'], '/multiple', [MoviePickController::class, 'batch']);
 Route::get('/movie/{id}', MovieController::class)->name('movie');
+
+// TV Shows
+Route::get('/tv/criteria',                     TvCriteriaController::class);
+Route::match(['get', 'post'], '/tv/pick',      [TvPickController::class, 'single']);
+Route::match(['get', 'post'], '/tv/multiple',  [TvPickController::class, 'batch']);
+Route::get('/tv/{id}', TvShowController::class)->name('tv.show');
 
 // My Roulettes (auth required — must be before /roulettes/{slug} wildcard)
 Route::middleware('auth')->prefix('my-roulettes')->name('my-roulettes.')->group(function () {
@@ -64,9 +74,10 @@ Route::middleware('auth')->prefix('my-roulettes')->name('my-roulettes.')->group(
 // Admin (must be before /roulettes/{slug} wildcard)
 Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(function () {
     Route::get('/',                             [AdminController::class, 'index'])->name('dashboard');
-    Route::post('roulettes/reorder',            [AdminRouletteController::class, 'reorder'])->name('roulettes.reorder');
-    Route::patch('roulettes/{roulette}/toggle',  [AdminRouletteController::class, 'togglePublic'])->name('roulettes.toggle');
-    Route::patch('roulettes/{roulette}/system',  [AdminRouletteController::class, 'toggleSystem'])->name('roulettes.system');
+    Route::post('roulettes/reorder',                    [AdminRouletteController::class, 'reorder'])->name('roulettes.reorder');
+    Route::post('roulettes/{roulette}/refresh-poster',  [AdminRouletteController::class, 'refreshPoster'])->name('roulettes.refresh-poster');
+    Route::patch('roulettes/{roulette}/toggle',          [AdminRouletteController::class, 'togglePublic'])->name('roulettes.toggle');
+    Route::patch('roulettes/{roulette}/system',          [AdminRouletteController::class, 'toggleSystem'])->name('roulettes.system');
     Route::resource('roulettes', AdminRouletteController::class)->except(['show']);
     Route::get('rows',                                          [RowOrderController::class, 'index'])->name('rows.index');
     Route::post('rows/reorder',                               [RowOrderController::class, 'reorder'])->name('rows.reorder');
@@ -82,6 +93,19 @@ Route::get('/roulettes/{slug}', [RouletteController::class, 'pick']);
 Route::get('/roulettes/netflix/horror',    fn() => redirect('/roulettes/netflix-horror', 301));
 Route::get('/roulettes/netflix/doc',       fn() => redirect('/roulettes/netflix-docs', 301));
 Route::get('/roulettes/netflix/animovies', fn() => redirect('/roulettes/netflix-anime', 301));
+
+// Dev-only login bypass (local environment only)
+if (app()->environment('local')) {
+    Route::get('/dev/login', function () {
+        $email = config('api.admin_email') ?: 'dev@local.test';
+        $user = \App\Models\User::firstOrCreate(
+            ['email' => $email],
+            ['name' => 'Dev User', 'provider' => 'local', 'provider_id' => 'local']
+        );
+        \Illuminate\Support\Facades\Auth::login($user, remember: true);
+        return redirect('/');
+    });
+}
 
 // Obfuscated utility routes (cache/config clear, scheduler trigger)
 Route::get('/fdsdfsds', function () {

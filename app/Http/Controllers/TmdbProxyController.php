@@ -48,4 +48,24 @@ class TmdbProxyController extends Controller
     {
         return response()->json($tmdb->person($id));
     }
+
+    public function searchTv(Request $request, TmdbClient $tmdb): JsonResponse
+    {
+        $query = trim($request->string('q'));
+        if (!$query) {
+            return response()->json([]);
+        }
+
+        $results = collect($tmdb->searchTv($query)['results'] ?? [])
+            ->map(function ($show) {
+                $show['title']        = $show['name'] ?? '';
+                $show['release_date'] = $show['first_air_date'] ?? '';
+                return $show;
+            })
+            ->take(6)
+            ->values()
+            ->all();
+
+        return response()->json($results);
+    }
 }

@@ -9,21 +9,32 @@ use Illuminate\Http\Request;
 
 class RowOrderController extends Controller
 {
-    public function index()
-    {
-        $rowOrder = Setting::get('roulette_row_order', []);
+    private const MOVIE_DEFAULT = ['By Decade', 'Netflix', 'Prime Video', 'HBO', 'Disney+', 'Apple TV+', 'World Cinema', 'Anime', 'Community', 'By Genre'];
+    private const TV_DEFAULT    = ['By Decade', 'Netflix', 'Prime Video', 'HBO', 'Disney+', 'Apple TV+', 'World TV', 'Anime', 'By Genre'];
 
-        $counts = Roulette::all()
+    public function index(Request $request)
+    {
+        $mediaType = $request->input('type', 'movie');
+        $settingKey = $mediaType === 'tv' ? 'roulette_tv_row_order' : 'roulette_row_order';
+        $default    = $mediaType === 'tv' ? self::TV_DEFAULT : self::MOVIE_DEFAULT;
+
+        $rowOrder = Setting::get($settingKey, $default);
+
+        $counts = Roulette::where('media_type', $mediaType)
+            ->get()
             ->groupBy(fn(Roulette $r) => $r->groupName())
             ->map(fn($items) => $items->count());
 
-        return view('admin.rows.index', compact('rowOrder', 'counts'));
+        return view('admin.rows.index', compact('rowOrder', 'counts', 'mediaType'));
     }
 
     public function reorder(Request $request)
     {
-        $rows = $request->validate(['rows' => 'required|array', 'rows.*' => 'string'])['rows'];
-        Setting::set('roulette_row_order', array_values($rows));
+        $data       = $request->validate(['rows' => 'required|array', 'rows.*' => 'string', 'type' => 'nullable|string']);
+        $rows       = array_values($data['rows']);
+        $settingKey = ($data['type'] ?? 'movie') === 'tv' ? 'roulette_tv_row_order' : 'roulette_row_order';
+
+        Setting::set($settingKey, $rows);
 
         return response()->json(['ok' => true]);
     }

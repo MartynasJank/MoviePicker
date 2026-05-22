@@ -81,12 +81,59 @@ class MovieService
         return $criteria;
     }
 
+    /** Like resolveRoulettePage() but uses discoverTv() for TV roulettes. */
+    public function resolveRoulettePageTv(TmdbClient $tmdb, array $criteria, string $type, string $country): array
+    {
+        $sessionKey = 'roulette_tv';
+
+        if (session($sessionKey . '.type') !== $type) {
+            session()->forget($sessionKey);
+        }
+
+        if (session()->has($sessionKey . '.total_pages')) {
+            $criteria['page'] = $this->randomPage(session($sessionKey . '.total_pages'));
+        } else {
+            $all = $tmdb->discoverTv($criteria, $country);
+            session()->put($sessionKey, ['type' => $type, 'total_pages' => $all['total_pages']]);
+            $criteria['page'] = $this->randomPage($all['total_pages']);
+        }
+
+        return $criteria;
+    }
+
     /** Genre list, cached for one week. */
     public function genres(TmdbClient $tmdb): array
     {
         return Cache::remember('tmdb_genres', now()->addWeek(), function () use ($tmdb) {
             return json_decode($tmdb->genres())->genres;
         });
+    }
+
+    /** TV genre list, cached for one week. */
+    public function tvGenres(TmdbClient $tmdb): array
+    {
+        return Cache::remember('tmdb_tv_genres', now()->addWeek(), function () use ($tmdb) {
+            return json_decode($tmdb->tvGenres())->genres;
+        });
+    }
+
+    /**
+     * Resolve the page number for TV show discovery.
+     * Mirrors resolvePage() but uses discoverTv() and the tvInput session key.
+     */
+    public function resolveTvPage(TmdbClient $tmdb, array $criteria, string $country): int
+    {
+        if (empty($criteria)) {
+            return $this->randomPage(500);
+        }
+
+        if (isset($criteria['total_pages'])) {
+            return $this->randomPage($criteria['total_pages']);
+        }
+
+        $all = $tmdb->discoverTv($criteria, $country);
+        session()->put('tvInput.total_pages', $all['total_pages']);
+        return $this->randomPage($all['total_pages']);
     }
 
     public function genresString(object $movieObj): string

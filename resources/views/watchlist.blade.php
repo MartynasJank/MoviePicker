@@ -7,26 +7,45 @@
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-white mb-4">My Watchlist <span id="wl-count" class="text-gray-500 font-normal text-lg">({{ $items->count() }})</span></h1>
         @if($items->isNotEmpty())
-            <div class="flex flex-col sm:flex-row gap-2">
-                @if($genres->isNotEmpty())
-                    <div class="flex-1">
-                        <select id="genre-select" multiple placeholder="Filter by genre...">
-                            @foreach($genres as $genre)
-                                <option value="{{ $genre }}">{{ $genre }}</option>
-                            @endforeach
-                        </select>
+            <div class="flex flex-col gap-2">
+
+                {{-- Status + type filters --}}
+                <div class="flex flex-wrap gap-2">
+                    <div class="flex gap-1 bg-white/5 p-1 rounded-lg">
+                        <button class="watchlist-filter active text-xs px-3 py-1.5 rounded-md transition-all" data-filter="all">All</button>
+                        <button class="watchlist-filter text-xs px-3 py-1.5 rounded-md transition-all text-gray-400" data-filter="saved">To Watch</button>
+                        <button class="watchlist-filter text-xs px-3 py-1.5 rounded-md transition-all text-gray-400" data-filter="watched">Watched</button>
                     </div>
-                @endif
-                <select id="sort-select" class="input-dark text-sm flex-shrink-0 sm:w-44">
-                    <option value="date-desc">Newest Added</option>
-                    <option value="date-asc">Oldest Added</option>
-                    <option value="title-asc">Title A–Z</option>
-                    <option value="title-desc">Title Z–A</option>
-                    <option value="year-desc">Year (Newest)</option>
-                    <option value="year-asc">Year (Oldest)</option>
-                    <option value="rating-desc">Rating (High–Low)</option>
-                    <option value="rating-asc">Rating (Low–High)</option>
-                </select>
+                    <div class="flex gap-1 bg-white/5 p-1 rounded-lg">
+                        <button class="type-filter active text-xs px-3 py-1.5 rounded-md transition-all" data-type="all">All</button>
+                        <button class="type-filter text-xs px-3 py-1.5 rounded-md transition-all text-gray-400" data-type="movie">Films</button>
+                        <button class="type-filter text-xs px-3 py-1.5 rounded-md transition-all text-gray-400" data-type="tv">TV</button>
+                    </div>
+                </div>
+
+                {{-- Genre select + sort --}}
+                <div class="flex flex-col sm:flex-row gap-2">
+                    @if($genres->isNotEmpty())
+                        <div class="flex-1">
+                            <select id="genre-select" multiple placeholder="Filter by genre...">
+                                @foreach($genres as $genre)
+                                    <option value="{{ $genre }}">{{ $genre }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
+                    <select id="sort-select" class="input-dark text-sm flex-shrink-0 sm:w-44">
+                        <option value="date-desc">Newest Added</option>
+                        <option value="date-asc">Oldest Added</option>
+                        <option value="title-asc">Title A–Z</option>
+                        <option value="title-desc">Title Z–A</option>
+                        <option value="year-desc">Year (Newest)</option>
+                        <option value="year-asc">Year (Oldest)</option>
+                        <option value="rating-desc">Rating (High–Low)</option>
+                        <option value="rating-asc">Rating (Low–High)</option>
+                    </select>
+                </div>
+
             </div>
         @endif
     </div>
@@ -42,6 +61,7 @@
             @foreach($items as $item)
                 <div class="watchlist-card"
                      data-status="{{ $item->status }}"
+                     data-type="{{ $item->type ?? 'movie' }}"
                      data-genres="{{ $item->genres }}"
                      data-date="{{ $item->created_at->timestamp }}"
                      data-title="{{ $item->title }}"
@@ -49,7 +69,7 @@
                      data-rating="{{ $item->vote_average ?? 0 }}">
 
                     {{-- Poster --}}
-                    <a href="{{ url('movie/'.$item->tmdb_id) }}" class="block group">
+                    <a href="{{ $item->type === 'tv' ? url('tv/'.$item->tmdb_id) : url('movie/'.$item->tmdb_id) }}" class="block group">
                         <div class="aspect-[2/3] rounded-xl overflow-hidden relative bg-white/[0.03]">
                             @if($item->poster_path)
                                 <img src="https://image.tmdb.org/t/p/w500{{ $item->poster_path }}"
@@ -75,6 +95,13 @@
                                 <div class="absolute top-2 left-2 bg-black/70 text-accent text-xs font-semibold px-1.5 py-0.5 rounded pointer-events-none">
                                     ★ {{ number_format($item->vote_average, 1) }}
                                 </div>
+                            @endif
+
+                            {{-- Type badge --}}
+                            @if(($item->type ?? 'movie') === 'tv')
+                                <div class="absolute top-2 right-2 bg-blue-600/80 text-white text-xs font-semibold px-1.5 py-0.5 rounded pointer-events-none">TV</div>
+                            @else
+                                <div class="absolute top-2 right-2 bg-black/50 text-white/50 text-xs font-semibold px-1.5 py-0.5 rounded pointer-events-none">Film</div>
                             @endif
 
                             {{-- Watched badge --}}
@@ -110,13 +137,8 @@
 {{-- Sticky bar --}}
 @if($items->isNotEmpty())
 <div class="fixed bottom-0 left-0 right-0 bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 px-4 z-40 sticky-bar-safe">
-    <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
-        <div class="flex gap-1 bg-white/5 p-1 rounded-lg flex-shrink-0">
-            <button class="watchlist-filter active text-xs px-3 py-1.5 rounded-md transition-all" data-filter="all">All</button>
-            <button class="watchlist-filter text-xs px-3 py-1.5 rounded-md transition-all text-gray-400" data-filter="saved">To Watch</button>
-            <button class="watchlist-filter text-xs px-3 py-1.5 rounded-md transition-all text-gray-400" data-filter="watched">Watched</button>
-        </div>
-        <button id="watchlist-roll" class="btn-accent px-6">Roll</button>
+    <div class="max-w-7xl mx-auto flex justify-end">
+        <button id="watchlist-roll" class="btn-accent px-8">Roll</button>
     </div>
 </div>
 @endif

@@ -29,6 +29,7 @@ $(document).ready(function () {
             year:         btn.data('year') || null,
             genres:       btn.data('genres') || null,
             vote_average: btn.data('rating') || null,
+            type:         btn.data('media-type') || 'movie',
         })
         .done(function (res) {
             btn.data('saved', res.saved ? '1' : '0');
@@ -93,19 +94,22 @@ $(document).ready(function () {
         });
     });
 
-    // Combined filter: status tab + genre select
+    // Combined filter: status tab + type tab + genre select
     function applyFilters() {
         const status = $('.watchlist-filter.active').data('filter');
+        const type   = $('.type-filter.active').data('type');
         const activeGenres = new Set(genreSelect ? genreSelect.getValue() : []);
 
         $('.watchlist-card').each(function () {
             const cardStatus = $(this).attr('data-status');
+            const cardType   = $(this).attr('data-type') || 'movie';
             const cardGenres = ($(this).attr('data-genres') || '').split(',').map(g => g.trim());
 
             const statusMatch = status === 'all' || cardStatus === status;
+            const typeMatch   = type === 'all'   || cardType === type;
             const genreMatch  = activeGenres.size === 0 || cardGenres.some(g => activeGenres.has(g));
 
-            $(this).toggle(statusMatch && genreMatch);
+            $(this).toggle(statusMatch && typeMatch && genreMatch);
         });
 
         $('#wl-count').text('(' + $('.watchlist-card:visible').length + ')');
@@ -114,6 +118,12 @@ $(document).ready(function () {
     $(document).on('click', '.watchlist-filter', function () {
         $('.watchlist-filter').removeClass('active');
         $(this).addClass('active');
+        applyFilters();
+    });
+
+    $(document).on('click', '.type-filter', function () {
+        $('.type-filter').removeClass('active').addClass('text-gray-400');
+        $(this).addClass('active').removeClass('text-gray-400');
         applyFilters();
     });
 

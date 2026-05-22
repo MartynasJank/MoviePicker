@@ -1,0 +1,152 @@
+@php
+    if ($user_input === 'default') $user_input = [];
+    $openYear      = !empty($user_input['first_air_date_gte'] ?? '') || !empty($user_input['first_air_date_lte'] ?? '');
+    $openGenres    = !empty($user_input['with_genres'] ?? []) || !empty($user_input['without_genres'] ?? []);
+    $openLanguage  = !empty($user_input['with_original_language'] ?? '');
+    $openStreaming  = !empty($user_input['with_watch_providers'] ?? []);
+    $openScores    = !empty($user_input['vote_average_gte'] ?? '') || !empty($user_input['vote_average_lte'] ?? '') || !empty($user_input['vote_count_gte'] ?? '');
+@endphp
+
+<div id="modal-form" class="modal-wrap hidden">
+    <div class="modal-backdrop" data-modal-close></div>
+    <div class="modal-box">
+        <button class="modal-close" data-modal-close aria-label="Close">✕</button>
+
+        <form method="POST" autocomplete="off" action="/tv/pick?a=true" id="modal-criteria">
+            @csrf
+            <div class="p-5 pb-4 flex flex-col">
+
+                <div class="mb-2">
+                    <h2 class="text-lg font-bold text-white">Adjust Criteria</h2>
+                    <p class="text-xs text-gray-500 mt-0.5">Tap a section to expand. Leave anything blank to ignore it.</p>
+                </div>
+
+                {{-- First Air Date --}}
+                <div class="accordion-section border-t border-white/5 {{ $openYear ? 'accordion-open' : '' }}">
+                    <button type="button" class="accordion-header w-full flex items-center justify-between py-3.5 text-left">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">First Air Date</h3>
+                        <svg class="accordion-chevron w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="accordion-body">
+                        <div class="pb-4 grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-1">From</label>
+                                <input type="text" class="input-dark" name="first_air_date_gte" placeholder="1990" value="{{ $user_input['first_air_date_gte'] ?? '' }}">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-1">To</label>
+                                <input type="text" class="input-dark" name="first_air_date_lte" placeholder="{{ date('Y') }}" value="{{ $user_input['first_air_date_lte'] ?? '' }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Genres --}}
+                <div class="accordion-section border-t border-white/5 {{ $openGenres ? 'accordion-open' : '' }}">
+                    <button type="button" class="accordion-header w-full flex items-center justify-between py-3.5 text-left">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Genres</h3>
+                        <svg class="accordion-chevron w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="accordion-body">
+                        <div class="pb-4 flex flex-col gap-3">
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-1">Include</label>
+                                <select name="with_genres[]" id="modal-with_genres" multiple>
+                                    @foreach ($all_genres as $genre)
+                                        <option value="{{ $genre->id }}"
+                                            {{ isset($user_input['with_genres']) && in_array($genre->id, (array)$user_input['with_genres']) ? 'selected' : '' }}>
+                                            {{ $genre->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-1">Exclude</label>
+                                <select name="without_genres[]" id="modal-without_genres" multiple>
+                                    @foreach ($all_genres as $genre)
+                                        <option value="{{ $genre->id }}"
+                                            {{ isset($user_input['without_genres']) && in_array($genre->id, (array)$user_input['without_genres']) ? 'selected' : '' }}>
+                                            {{ $genre->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Language --}}
+                <div class="accordion-section border-t border-white/5 {{ $openLanguage ? 'accordion-open' : '' }}">
+                    <button type="button" class="accordion-header w-full flex items-center justify-between py-3.5 text-left">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Language</h3>
+                        <svg class="accordion-chevron w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="accordion-body">
+                        <div class="pb-4">
+                            @include('includes.languages', ['modalMode' => true, 'selectedLang' => $user_input['with_original_language'] ?? ''])
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Streaming --}}
+                <div class="accordion-section border-t border-white/5 {{ $openStreaming ? 'accordion-open' : '' }}">
+                    <button type="button" class="accordion-header w-full flex items-center justify-between py-3.5 text-left">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Streaming</h3>
+                        <svg class="accordion-chevron w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="accordion-body">
+                        <div class="pb-4">
+                            <select id="modal-with_watch_providers" name="with_watch_providers[]" multiple>
+                                @foreach($providersArray as $value)
+                                    <option value="{{ $value['id'] }}"
+                                        data-logo="{{ $value['logo'] }}"
+                                        {{ isset($user_input['with_watch_providers']) && in_array($value['id'], (array)$user_input['with_watch_providers']) ? 'selected' : '' }}>
+                                        {{ $value['name'] }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Scores --}}
+                <div class="accordion-section border-t border-white/5 {{ $openScores ? 'accordion-open' : '' }}">
+                    <button type="button" class="accordion-header w-full flex items-center justify-between py-3.5 text-left">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Scores</h3>
+                        <svg class="accordion-chevron w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="accordion-body">
+                        <div class="pb-4 flex flex-col gap-3">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-sm text-gray-400 mb-1">Min Score</label>
+                                    <input type="text" class="input-dark" name="vote_average_gte" placeholder="0" value="{{ $user_input['vote_average_gte'] ?? '' }}">
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-400 mb-1">Max Score</label>
+                                    <input type="text" class="input-dark" name="vote_average_lte" placeholder="10" value="{{ $user_input['vote_average_lte'] ?? '' }}">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-1">Min Vote Count</label>
+                                <input type="text" class="input-dark" name="vote_count_gte" placeholder="10" value="{{ $user_input['vote_count_gte'] ?? '' }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @include('errors.error')
+
+                {{-- Actions --}}
+                <div class="flex items-center justify-between gap-2 pt-4 border-t border-white/5">
+                    <button type="button" id="modal-btn-reset" class="btn-secondary text-sm">Reset</button>
+                    <div class="flex gap-2">
+                        <button type="submit" class="btn-secondary text-sm" formaction="/tv/multiple?a=true">Multiple</button>
+                        <button type="submit" class="btn-accent text-sm long-single" formaction="/tv/pick?a=true">Find Show</button>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
