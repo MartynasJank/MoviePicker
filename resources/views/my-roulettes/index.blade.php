@@ -80,9 +80,14 @@
                                 <img src="{{ $logo }}" class="absolute top-2 right-2 h-5 drop-shadow-lg" loading="lazy">
                             @endif
 
-                            @if(!$roulette->is_public)
-                                <span class="absolute top-2 left-2 text-[10px] px-1.5 py-0.5 rounded-full bg-black/60 text-gray-400 border border-white/10">Private</span>
-                            @endif
+                            <div class="absolute top-2 left-2 flex gap-1">
+                                @if(!$roulette->is_public)
+                                    <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-black/60 text-gray-400 border border-white/10">Private</span>
+                                @endif
+                                @if(($roulette->media_type ?? 'movie') === 'tv')
+                                    <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-500/70 text-white">TV</span>
+                                @endif
+                            </div>
 
                             <div class="absolute bottom-0 left-0 right-0 p-3">
                                 @if($allTags->isNotEmpty())
