@@ -92,7 +92,14 @@
                             <tbody>
                                 @foreach($roulettes as $roulette)
                                     <tr class="border-b border-white/5 last:border-0 hover:bg-white/2 transition-colors">
-                                        <td class="py-3 px-4 text-white font-medium">{{ $roulette->name }}</td>
+                                        <td class="py-3 px-4">
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-white font-medium">{{ $roulette->name }}</span>
+                                                @if(($roulette->media_type ?? 'movie') === 'tv')
+                                                    <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/20">TV</span>
+                                                @endif
+                                            </div>
+                                        </td>
                                         <td class="py-3 px-4 hidden sm:table-cell">
                                             <div class="flex flex-wrap gap-1">
                                                 @foreach(collect($roulette->tags)->flatten() as $tag)

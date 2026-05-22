@@ -39,14 +39,16 @@ class UserRouletteController extends Controller
             }
 
             try {
-                $criteria         = $mapper->toCriteria(array_diff_key($roulette->tags, ['platform' => true]));
+                $tagsForPosters   = array_diff_key($roulette->tags, ['platform' => true]);
+                $isTv             = $roulette->media_type === 'tv';
+                $criteria         = $isTv ? $mapper->toCriteriaTv($tagsForPosters) : $mapper->toCriteria($tagsForPosters);
                 $criteria['page'] = 1;
-                $results          = $tmdb->discover($criteria, 'US');
+                $results          = $isTv ? $tmdb->discoverTv($criteria, 'US') : $tmdb->discover($criteria, 'US');
                 $paths            = [];
-                foreach ($results['results'] ?? [] as $movie) {
-                    if (!empty($movie['poster_path'])) {
-                        $paths[] = $movie['poster_path'];
-                        break;
+                foreach ($results['results'] ?? [] as $item) {
+                    if (!empty($item['poster_path'])) {
+                        $paths[] = $item['poster_path'];
+                        if (count($paths) >= 8) break;
                     }
                 }
                 $roulette->update(['poster_paths' => $paths ?: null]);
@@ -189,14 +191,18 @@ class UserRouletteController extends Controller
             return back()->withErrors(['tags' => 'At least one tag must be set.'])->withInput();
         }
 
+        $mediaType   = $request->input('media_type') === 'tv' ? 'tv' : 'movie';
+        $fingerprint = ($mediaType === 'tv' ? 'tv:' : '') . Roulette::fingerprintFromTags($tags);
+
         return [
             'name'            => $request->input('name'),
             'slug'            => Roulette::generateSlug($request->input('name'), $excludeId),
             'description'     => $request->input('description'),
             'tags'            => $tags,
-            'tag_fingerprint' => Roulette::fingerprintFromTags($tags),
+            'tag_fingerprint' => $fingerprint,
             'is_public'       => $request->boolean('is_public'),
             'row'             => $request->input('row') ?: null,
+            'media_type'      => $mediaType,
         ];
     }
 

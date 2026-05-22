@@ -20,6 +20,23 @@
         @csrf
         @if($roulette) @method('PUT') @endif
 
+        {{-- Type --}}
+        <div>
+            <label class="block text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">Type</label>
+            <div class="flex gap-4">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="media_type" value="movie" class="text-accent"
+                           {{ old('media_type', $roulette?->media_type ?? 'movie') === 'movie' ? 'checked' : '' }}>
+                    <span class="text-sm text-gray-300">Movie</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="media_type" value="tv" class="text-accent"
+                           {{ old('media_type', $roulette?->media_type) === 'tv' ? 'checked' : '' }}>
+                    <span class="text-sm text-gray-300">TV Show</span>
+                </label>
+            </div>
+        </div>
+
         {{-- Name --}}
         <div>
             <label class="block text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">Name</label>
