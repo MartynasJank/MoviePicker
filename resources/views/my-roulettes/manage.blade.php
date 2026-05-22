@@ -83,6 +83,7 @@
                         <table class="w-full text-sm">
                             <thead>
                                 <tr class="border-b border-white/5 text-left">
+                                    <th class="w-12 py-2.5 px-2"></th>
                                     <th class="py-2.5 px-4 text-xs font-medium text-gray-500">Name</th>
                                     <th class="py-2.5 px-4 text-xs font-medium text-gray-500 hidden sm:table-cell">Tags</th>
                                     <th class="py-2.5 px-4 text-xs font-medium text-gray-500 text-center">Public</th>
@@ -92,6 +93,26 @@
                             <tbody>
                                 @foreach($roulettes as $roulette)
                                     <tr class="border-b border-white/5 last:border-0 hover:bg-white/2 transition-colors">
+                                        {{-- Poster thumbnail --}}
+                                        <td class="py-2 px-2">
+                                            @php $poster = ($roulette->poster_paths ?? [])[0] ?? null; @endphp
+                                            <div class="relative group w-9 h-[52px] flex-shrink-0">
+                                                @if($poster)
+                                                    <img src="https://image.tmdb.org/t/p/w92{{ $poster }}"
+                                                         class="roulette-poster w-full h-full object-cover rounded"
+                                                         data-id="{{ $roulette->id }}">
+                                                @else
+                                                    <div class="w-full h-full bg-white/5 rounded roulette-poster-placeholder" data-id="{{ $roulette->id }}"></div>
+                                                @endif
+                                                <button type="button"
+                                                        class="roll-poster-btn absolute inset-0 flex items-center justify-center bg-black/60 {{ $poster ? 'opacity-0 group-hover:opacity-100' : 'opacity-100' }} rounded transition-opacity text-white"
+                                                        data-id="{{ $roulette->id }}" title="Roll poster">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </td>
                                         <td class="py-3 px-4">
                                             <div class="flex items-center gap-2">
                                                 <span class="text-white font-medium">{{ $roulette->name }}</span>
@@ -147,9 +168,48 @@
 @endsection
 
 @section('scripts')
+<style>@keyframes spin { to { transform: rotate(360deg); } }</style>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    // Poster roll buttons
+    document.addEventListener('click', e => {
+        const btn = e.target.closest('.roll-poster-btn');
+        if (!btn) return;
+
+        const id  = btn.dataset.id;
+        const svg = btn.querySelector('svg');
+        btn.disabled = true;
+        svg.style.animation = 'spin 0.6s linear infinite';
+
+        fetch(`/my-roulettes/manage/${id}/refresh-poster`, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (!data.poster_path) return;
+            const url = `https://image.tmdb.org/t/p/w92${data.poster_path}`;
+            const cell = btn.closest('td');
+            let img = cell.querySelector('.roulette-poster');
+            const placeholder = cell.querySelector('.roulette-poster-placeholder');
+            if (placeholder) {
+                img = document.createElement('img');
+                img.className = 'roulette-poster w-full h-full object-cover rounded';
+                img.dataset.id = id;
+                placeholder.replaceWith(img);
+                btn.classList.remove('opacity-100');
+                btn.classList.add('opacity-0', 'group-hover:opacity-100');
+            }
+            img.src = url;
+        })
+        .finally(() => {
+            btn.disabled = false;
+            svg.style.animation = '';
+        });
+    });
+
+
     const btns   = document.querySelectorAll('.group-btn');
     const panels = document.querySelectorAll('.group-panel');
 
