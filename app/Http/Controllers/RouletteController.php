@@ -43,7 +43,6 @@ class RouletteController extends Controller
                 foreach ($results['results'] ?? [] as $item) {
                     if (!empty($item['poster_path'])) {
                         $paths[] = $item['poster_path'];
-                        if (count($paths) >= 8) break;
                     }
                 }
                 $roulette->update(['poster_paths' => $paths ?: null]);

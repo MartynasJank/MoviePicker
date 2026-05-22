@@ -89,16 +89,17 @@ class AdminRouletteController extends Controller
         return redirect()->back()->with('success', $roulette->name . ' is now ' . ($roulette->is_public ? 'public' : 'hidden') . '.');
     }
 
-    public function refreshPoster(Roulette $roulette, TmdbClient $tmdb): \Illuminate\Http\JsonResponse
+    public function refreshPoster(Roulette $roulette, TmdbClient $tmdb, Request $request): \Illuminate\Http\JsonResponse
     {
-        $current = $roulette->poster_paths ?? [];
-
-        if (count($current) > 1) {
-            $rotated = array_merge(array_slice($current, 1), [$current[0]]);
-            $roulette->update(['poster_paths' => $rotated]);
-            return response()->json(['poster_path' => $rotated[0]]);
+        // Selecting a specific poster from the grid — just move it to front
+        if ($path = $request->input('path')) {
+            $current   = $roulette->poster_paths ?? [];
+            $reordered = array_values(array_merge([$path], array_filter($current, fn($p) => $p !== $path)));
+            $roulette->update(['poster_paths' => $reordered]);
+            return response()->json(['poster_path' => $path, 'all_paths' => $reordered]);
         }
 
+        // Fetch a fresh batch from TMDB
         $mapper         = new RouletteTagMapper();
         $tagsForPosters = array_diff_key($roulette->tags ?? [], ['platform' => true]);
         $criteria       = $roulette->media_type === 'tv'
@@ -119,21 +120,16 @@ class AdminRouletteController extends Controller
             foreach ($results['results'] ?? [] as $item) {
                 if (!empty($item['poster_path'])) {
                     $paths[] = $item['poster_path'];
-                    if (count($paths) >= 8) break;
                 }
             }
 
             if ($paths) {
-                // Put the current poster at the end so the new one shows first
-                if ($current) {
-                    $paths = array_values(array_unique(array_merge($paths, $current)));
-                }
                 $roulette->update(['poster_paths' => $paths]);
             }
 
-            return response()->json(['poster_path' => $paths[0] ?? null]);
+            return response()->json(['poster_path' => $paths[0] ?? null, 'all_paths' => $paths]);
         } catch (\Throwable) {
-            return response()->json(['poster_path' => null], 422);
+            return response()->json(['poster_path' => null, 'all_paths' => []], 422);
         }
     }
 
