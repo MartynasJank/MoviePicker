@@ -47,10 +47,10 @@
                     </div>
                 </div>
                 {{-- TV Shows card --}}
-                <div class="bg-white/5 border border-white/8 rounded-2xl p-6 flex flex-col gap-4 hover:bg-white/7 hover:border-white/15 transition-all duration-200 hover:shadow-[0_0_28px_rgba(96,165,250,0.1)]">
+                <div class="bg-white/5 border border-white/8 rounded-2xl p-6 flex flex-col gap-4 hover:bg-white/7 hover:border-white/15 transition-all duration-200 hover:shadow-[0_0_28px_rgba(192,57,58,0.12)]">
                     <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-lg bg-blue-500/15 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <div class="w-8 h-8 rounded-lg bg-accent/15 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <rect x="2" y="3" width="20" height="14" rx="2"/>
                                 <path d="M8 21h8M12 17v4"/>
                             </svg>

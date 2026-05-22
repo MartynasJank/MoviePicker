@@ -48,7 +48,7 @@
                         <div class="flex items-center gap-2">
                             <span class="text-white font-medium">{{ $roulette->name }}</span>
                             @if(($roulette->media_type ?? 'movie') === 'tv')
-                                <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/20">TV</span>
+                                <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-accent/15 text-accent border border-accent/20">TV</span>
                             @else
                                 <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-white/5 text-gray-500 border border-white/10">Film</span>
                             @endif

@@ -85,7 +85,7 @@
                                     <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-black/60 text-gray-400 border border-white/10">Private</span>
                                 @endif
                                 @if(($roulette->media_type ?? 'movie') === 'tv')
-                                    <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-500/70 text-white">TV</span>
+                                    <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-accent/80 text-white">TV</span>
                                 @endif
                             </div>
 

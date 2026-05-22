@@ -99,7 +99,7 @@
 
                             {{-- Type badge --}}
                             @if(($item->type ?? 'movie') === 'tv')
-                                <div class="absolute top-2 right-2 bg-blue-600/80 text-white text-xs font-semibold px-1.5 py-0.5 rounded pointer-events-none">TV</div>
+                                <div class="absolute top-2 right-2 bg-accent/80 text-white text-xs font-semibold px-1.5 py-0.5 rounded pointer-events-none">TV</div>
                             @else
                                 <div class="absolute top-2 right-2 bg-black/50 text-white/50 text-xs font-semibold px-1.5 py-0.5 rounded pointer-events-none">Film</div>
                             @endif
