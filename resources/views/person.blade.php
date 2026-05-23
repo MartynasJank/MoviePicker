@@ -57,7 +57,7 @@
             {{-- Discover buttons --}}
             <div class="flex flex-wrap gap-2 mt-3">
                 @if($movies->isNotEmpty())
-                <form method="POST" action="/movie">
+                <form method="POST" action="/movie?a=1">
                     @csrf
                     <input type="hidden" name="with_cast[]" value="{{ $person->id }}">
                     <button type="submit" class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent/20 transition-colors">
@@ -66,7 +66,7 @@
                 </form>
                 @endif
                 @if($tvShows->isNotEmpty())
-                <form method="POST" action="/tv/pick">
+                <form method="POST" action="/tv/pick?a=1">
                     @csrf
                     <input type="hidden" name="with_people[]" value="{{ $person->id }}">
                     <button type="submit" class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent/20 transition-colors">
