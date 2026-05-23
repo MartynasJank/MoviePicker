@@ -67,7 +67,7 @@ class TvPickController extends Controller
 
     private function resolveSessionCriteria(array $submitted): array
     {
-        if (session('tvInput') === null) {
+        if (session('tvInput') === null || !empty($submitted['with_people'])) {
             session()->put('tvInput', $submitted);
         }
 
@@ -76,7 +76,7 @@ class TvPickController extends Controller
 
     private function submitted(TvCriteriaRequest $request): array
     {
-        return $request->except(['_token', 'i', 'total_pages']);
+        return $request->except(['_token', 'i', 'total_pages', 'a']);
     }
 
     private function handleSessionReset(TvCriteriaRequest $request, string $redirectTo): ?RedirectResponse

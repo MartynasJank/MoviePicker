@@ -59,7 +59,7 @@ class MoviePickController extends Controller
 
     private function submitted(CriteriaRequest $request): array
     {
-        return $request->except(['_token', 'i', 'total_pages']);
+        return $request->except(['_token', 'i', 'total_pages', 'a']);
     }
 
     private function handleSessionReset(CriteriaRequest $request, string $redirectTo): ?RedirectResponse
