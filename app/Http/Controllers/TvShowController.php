@@ -13,7 +13,13 @@ class TvShowController extends Controller
     {
         $showId  = $request->route('id');
         $country = $movieService->getUserCountry();
-        $tmdbInfo = $tmdb->tvShow($showId);
+
+        try {
+            $tmdbInfo = $tmdb->tvShow($showId);
+            if (empty($tmdbInfo->id)) abort(404);
+        } catch (\Throwable) {
+            abort(404);
+        }
 
         $watchProviders = isset($tmdbInfo->{'watch/providers'}->results->$country->flatrate)
             ? $tmdbInfo->{'watch/providers'}->results->$country
