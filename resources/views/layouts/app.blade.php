@@ -74,7 +74,7 @@
 
                 {{-- Search --}}
                 <div id="desktop-search-wrap" class="relative">
-                    <input id="desktop-search-input" type="text" placeholder="Search movies…" autocomplete="off"
+                    <input id="desktop-search-input" type="text" placeholder="Search…" autocomplete="off"
                         class="w-40 focus:w-56 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white placeholder-gray-500 outline-none focus:border-white/20 transition-all duration-200">
                     <div id="desktop-search-results" class="hidden absolute right-0 top-full mt-1 w-72 bg-[#1a1a1a] border border-white/10 rounded-xl overflow-hidden shadow-2xl z-50 divide-y divide-white/5"></div>
                 </div>
@@ -103,7 +103,7 @@
 
             {{-- Search --}}
             <div class="relative mb-2">
-                <input id="mobile-search-input" type="text" placeholder="Search movies…" autocomplete="off"
+                <input id="mobile-search-input" type="text" placeholder="Search…" autocomplete="off"
                     class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 outline-none focus:border-white/20 transition-colors">
                 <div id="mobile-search-results" class="hidden mt-1 bg-[#1a1a1a] border border-white/10 rounded-xl overflow-hidden divide-y divide-white/5"></div>
             </div>
