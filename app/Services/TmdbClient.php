@@ -250,6 +250,21 @@ class TmdbClient implements ApiMovie
     }
 
     /**
+     * Lightweight show status — only status + last_air_date. Cached 24 h.
+     */
+    public function tvStatus(int $id): array
+    {
+        return Cache::remember('tmdb_tv_status_' . $id, now()->addHours(24), function () use ($id) {
+            $url  = 'https://api.themoviedb.org/3/tv/' . $id . '?' . http_build_query(['language' => 'en-US']);
+            $data = json_decode($this->client->get($url)->getBody()->getContents(), true);
+            return [
+                'status'        => $data['status'] ?? null,
+                'last_air_date' => $data['last_air_date'] ?? null,
+            ];
+        });
+    }
+
+    /**
      * Full TV show details with videos, credits, similar, and watch/providers appended.
      * Cached per show ID for 6 hours.
      */
