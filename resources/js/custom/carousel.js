@@ -16,20 +16,18 @@ $(document).ready(function () {
         },
     };
 
-    if ($('.swiper-trending-day').length) {
-        new Swiper('.swiper-trending-day', sharedConfig);
-        let weekSwiper = null;
+    if ($('.swiper-trending-movies').length) {
+        new Swiper('.swiper-trending-movies', sharedConfig);
+        let tvSwiper = null;
 
-        $('#trend-day, #trend-week').on('click', function () {
-            const isWeek = this.id === 'trend-week';
-            $('#trend-day, #trend-week').toggleClass('active', false).addClass('text-gray-400');
+        $('#trend-movies, #trend-tv').on('click', function () {
+            const isTv = this.id === 'trend-tv';
+            $('#trend-movies, #trend-tv').toggleClass('active', false).addClass('text-gray-400');
             $(this).addClass('active').removeClass('text-gray-400');
-            $('#trend-label').text(isWeek ? 'This Week' : 'Today');
-            $('#trending-day').toggleClass('hidden', isWeek);
-            $('#trending-week').toggleClass('hidden', !isWeek);
-
-            if (isWeek && !weekSwiper) {
-                weekSwiper = new Swiper('.swiper-trending-week', sharedConfig);
+            $('#trending-movies').toggleClass('hidden', isTv);
+            $('#trending-tv').toggleClass('hidden', !isTv);
+            if (isTv && !tvSwiper) {
+                tvSwiper = new Swiper('.swiper-trending-tv', sharedConfig);
             }
         });
     }

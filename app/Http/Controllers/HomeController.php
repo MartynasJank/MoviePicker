@@ -13,10 +13,17 @@ class HomeController extends Controller
             ? auth()->user()->watchlist()->pluck('tmdb_id')->toArray()
             : [];
 
+        $normalize = fn(array $data) => array_merge($data, [
+            'results' => array_map(fn($s) => array_merge($s, [
+                'title'        => $s['name'] ?? $s['title'] ?? '',
+                'release_date' => $s['first_air_date'] ?? $s['release_date'] ?? '',
+            ]), $data['results'] ?? []),
+        ]);
+
         return view('home', [
-            'trendingDay'  => $tmdb->trending('day'),
-            'trendingWeek' => $tmdb->trending('week'),
-            'savedIds'     => $savedIds,
+            'trendingDay'   => $tmdb->trending('day'),
+            'tvTrendingDay' => $normalize($tmdb->trendingTv('day')),
+            'savedIds'      => $savedIds,
         ]);
     }
 }
