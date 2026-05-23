@@ -183,6 +183,18 @@ class TmdbClient implements ApiMovie
         });
     }
 
+    /**
+     * Full person detail with combined_credits. Cached 6 hours.
+     */
+    public function personDetail(int $id): object
+    {
+        return Cache::remember('tmdb_person_detail_' . $id, now()->addHours(6), function () use ($id) {
+            $url = 'https://api.themoviedb.org/3/person/' . $id . '?'
+                . http_build_query(['language' => 'en-US', 'append_to_response' => 'combined_credits,images']);
+            return json_decode($this->client->get($url)->getBody()->getContents());
+        });
+    }
+
     public function collection(int $id): object
     {
         return Cache::remember('tmdb_collection_' . $id, now()->addWeek(), function () use ($id) {
@@ -261,6 +273,30 @@ class TmdbClient implements ApiMovie
                 'status'        => $data['status'] ?? null,
                 'last_air_date' => $data['last_air_date'] ?? null,
             ];
+        });
+    }
+
+    /**
+     * Episode detail — guest stars, crew, images. Cached 6 hours.
+     */
+    public function tvEpisode(int $showId, int $seasonNumber, int $episodeNumber): object
+    {
+        return Cache::remember("tmdb_tv_{$showId}_s{$seasonNumber}_e{$episodeNumber}", now()->addHours(6), function () use ($showId, $seasonNumber, $episodeNumber) {
+            $url = "https://api.themoviedb.org/3/tv/{$showId}/season/{$seasonNumber}/episode/{$episodeNumber}?"
+                . http_build_query(['language' => 'en-US', 'append_to_response' => 'credits,images']);
+            return json_decode($this->client->get($url)->getBody()->getContents());
+        });
+    }
+
+    /**
+     * Season detail — all episodes, cast, and crew. Cached 6 hours.
+     */
+    public function tvSeason(int $showId, int $seasonNumber): object
+    {
+        return Cache::remember("tmdb_tv_{$showId}_season_{$seasonNumber}", now()->addHours(6), function () use ($showId, $seasonNumber) {
+            $url = "https://api.themoviedb.org/3/tv/{$showId}/season/{$seasonNumber}?"
+                . http_build_query(['language' => 'en-US', 'append_to_response' => 'credits']);
+            return json_decode($this->client->get($url)->getBody()->getContents());
         });
     }
 

@@ -20,6 +20,9 @@ use App\Http\Controllers\Admin\RowOrderController;
 use App\Http\Controllers\TvCriteriaController;
 use App\Http\Controllers\TvPickController;
 use App\Http\Controllers\TvShowController;
+use App\Http\Controllers\TvSeasonController;
+use App\Http\Controllers\TvEpisodeController;
+use App\Http\Controllers\PersonController;
 
 Route::get('/',  HomeController::class);
 Route::post('/', ContactController::class);
@@ -57,6 +60,10 @@ Route::get('/tv/criteria',                     TvCriteriaController::class);
 Route::match(['get', 'post'], '/tv/pick',      [TvPickController::class, 'single']);
 Route::match(['get', 'post'], '/tv/multiple',  [TvPickController::class, 'batch']);
 Route::get('/tv/{id}', TvShowController::class)->name('tv.show');
+Route::get('/tv/{id}/season/{season}', TvSeasonController::class)->name('tv.season');
+Route::get('/tv/{id}/season/{season}/episode/{episode}', TvEpisodeController::class)->name('tv.episode');
+
+Route::get('/person/{id}', PersonController::class)->name('person');
 
 // My Roulettes (auth required — must be before /roulettes/{slug} wildcard)
 Route::middleware('auth')->prefix('my-roulettes')->name('my-roulettes.')->group(function () {
