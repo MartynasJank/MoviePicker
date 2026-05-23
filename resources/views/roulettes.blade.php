@@ -76,6 +76,15 @@
             t.addEventListener('click', function () { activate(t.dataset.tab); });
         });
     })();
+
+    document.querySelectorAll('.roulette-row').forEach(function (el) {
+        el.addEventListener('wheel', function (e) {
+            if (e.deltaY !== 0) {
+                e.preventDefault();
+                window.scrollBy(0, e.deltaY);
+            }
+        }, { passive: false });
+    });
 </script>
 
 @endsection
