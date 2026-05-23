@@ -8,10 +8,19 @@ $(document).ready(function () {
             .replace(/"/g, '&quot;');
     }
 
-    function buildSection(label, items, linkBase) {
+    function buildSection(label, items, linkBase, isTv) {
         if (!items.length) return '';
         const rows = items.map(function (m) {
-            const year   = m.release_date ? m.release_date.substring(0, 4) : '';
+            const year    = m.release_date ? m.release_date.substring(0, 4) : '';
+            const endYear = m.last_air_date ? m.last_air_date.substring(0, 4) : '';
+            const active  = ['Returning Series', 'In Production', 'Planned', 'Pilot'].includes(m.tv_status);
+            const sub     = isTv
+                ? (year
+                    ? (active
+                        ? year + ' – present'
+                        : endYear && endYear !== year ? year + ' – ' + endYear : 'Since ' + year)
+                    : 'TV Series')
+                : year;
             const poster = m.poster_path
                 ? `<img src="https://image.tmdb.org/t/p/w92${escHtml(m.poster_path)}" class="w-8 h-12 object-cover rounded flex-shrink-0" loading="lazy">`
                 : `<div class="w-8 h-12 bg-white/5 rounded flex-shrink-0"></div>`;
@@ -19,7 +28,7 @@ $(document).ready(function () {
                 ${poster}
                 <div class="min-w-0">
                     <div class="text-sm text-white truncate">${escHtml(m.title)}</div>
-                    ${year ? `<div class="text-xs text-gray-500">${year}</div>` : ''}
+                    ${sub ? `<div class="text-xs text-gray-500">${sub}</div>` : ''}
                 </div>
             </a>`;
         }).join('');
@@ -47,8 +56,8 @@ $(document).ready(function () {
                 ).done(function (movieResp, tvResp) {
                     const movies = (movieResp[0] || []).slice(0, 4);
                     const shows  = (tvResp[0]   || []).slice(0, 4);
-                    const html   = buildSection('Movies', movies, 'movie') +
-                                   buildSection('TV Shows', shows, 'tv');
+                    const html   = buildSection('Movies', movies, 'movie', false) +
+                                   buildSection('TV Shows', shows, 'tv', true);
                     if (!html) { $results.addClass('hidden').empty(); return; }
                     $results.html(html).removeClass('hidden');
                 });
