@@ -140,6 +140,19 @@ class TmdbClient implements ApiMovie
         });
     }
 
+    public function trendingTv(string $period = 'day'): array
+    {
+        $period = $period === 'week' ? 'week' : 'day';
+        $ttl = $period === 'day'
+            ? now('UTC')->diffInSeconds(\Carbon\Carbon::tomorrow('UTC'))
+            : now('UTC')->diffInSeconds(\Carbon\Carbon::now('UTC')->startOfWeek(\Carbon\Carbon::MONDAY)->addWeek());
+
+        return Cache::remember("tmdb_trending_tv_{$period}", $ttl, function () use ($period) {
+            $response = $this->client->get("https://api.themoviedb.org/3/trending/tv/{$period}");
+            return json_decode($response->getBody()->getContents(), true);
+        });
+    }
+
     public function searchMovies(string $query): array
     {
         $url = 'https://api.themoviedb.org/3/search/movie?' . http_build_query([
