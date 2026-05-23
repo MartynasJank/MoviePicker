@@ -23,6 +23,7 @@ use App\Http\Controllers\TvShowController;
 use App\Http\Controllers\TvSeasonController;
 use App\Http\Controllers\TvEpisodeController;
 use App\Http\Controllers\PersonController;
+use App\Http\Controllers\PersonRollController;
 
 Route::get('/',  HomeController::class);
 Route::post('/', ContactController::class);
@@ -64,6 +65,8 @@ Route::get('/tv/{id}/season/{season}', TvSeasonController::class)->name('tv.seas
 Route::get('/tv/{id}/season/{season}/episode/{episode}', TvEpisodeController::class)->name('tv.episode');
 
 Route::get('/person/{id}', PersonController::class)->name('person');
+Route::get('/person/{id}/roll/movie', [PersonRollController::class, 'movie'])->name('person.roll.movie');
+Route::get('/person/{id}/roll/tv',    [PersonRollController::class, 'tv'])->name('person.roll.tv');
 
 // My Roulettes (auth required — must be before /roulettes/{slug} wildcard)
 Route::middleware('auth')->prefix('my-roulettes')->name('my-roulettes.')->group(function () {
