@@ -76,8 +76,9 @@ class TvPickController extends Controller
 
     private function resolveSessionCriteria(array $submitted): array
     {
-        session()->put('tvInput', $submitted);
-        session()->forget('tvPersonRollIds');
+        if (session('tvInput') === null || !empty($submitted['with_people'])) {
+            session()->put('tvInput', $submitted);
+        }
 
         return session('tvInput');
     }
