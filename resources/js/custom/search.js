@@ -37,6 +37,25 @@ $(document).ready(function () {
                 </div>${rows}`;
     }
 
+    function buildPeopleSection(people) {
+        if (!people.length) return '';
+        const rows = people.map(function (p) {
+            const photo = p.profile_path
+                ? `<img src="https://image.tmdb.org/t/p/w92${escHtml(p.profile_path)}" class="w-8 h-8 rounded-full object-cover flex-shrink-0" loading="lazy">`
+                : `<div class="w-8 h-8 rounded-full bg-white/5 flex-shrink-0 flex items-center justify-center text-gray-600 text-xs font-bold">${escHtml(p.name.charAt(0).toUpperCase())}</div>`;
+            return `<a href="/person/${p.id}" class="search-result-item flex items-center gap-3 px-3 py-2 hover:bg-white/5 transition-colors">
+                ${photo}
+                <div class="min-w-0">
+                    <div class="text-sm text-white truncate">${escHtml(p.name)}</div>
+                    ${p.known_for_department ? `<div class="text-xs text-gray-500">${escHtml(p.known_for_department)}</div>` : ''}
+                </div>
+            </a>`;
+        }).join('');
+        return `<div class="px-3 pt-2 pb-1">
+                    <span class="text-xs font-semibold uppercase tracking-widest text-gray-600">People</span>
+                </div>${rows}`;
+    }
+
     function initSearch(inputSel, resultsSel) {
         const $input   = $(inputSel);
         const $results = $(resultsSel);
@@ -52,12 +71,15 @@ $(document).ready(function () {
             timer = setTimeout(function () {
                 $.when(
                     $.getJSON('/tmdb/search/movies', { q: q }),
-                    $.getJSON('/tmdb/search/tv',     { q: q })
-                ).done(function (movieResp, tvResp) {
-                    const movies = (movieResp[0] || []).slice(0, 4);
-                    const shows  = (tvResp[0]   || []).slice(0, 4);
+                    $.getJSON('/tmdb/search/tv',     { q: q }),
+                    $.getJSON('/tmdb/search/people', { q: q })
+                ).done(function (movieResp, tvResp, peopleResp) {
+                    const movies = (movieResp[0]  || []).slice(0, 3);
+                    const shows  = (tvResp[0]     || []).slice(0, 3);
+                    const people = (peopleResp[0] || []).slice(0, 3);
                     const html   = buildSection('Movies', movies, 'movie', false) +
-                                   buildSection('TV Shows', shows, 'tv', true);
+                                   buildSection('TV Shows', shows, 'tv', true) +
+                                   buildPeopleSection(people);
                     if (!html) { $results.addClass('hidden').empty(); return; }
                     $results.html(html).removeClass('hidden');
                 });

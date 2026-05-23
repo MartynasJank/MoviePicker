@@ -15,7 +15,13 @@ class MovieController extends Controller
     {
         $movieId  = $request->route('id');
         $country  = $movieService->getUserCountry();
-        $tmdbInfo = $tmdb->movie($movieId);
+
+        try {
+            $tmdbInfo = $tmdb->movie($movieId);
+            if (empty($tmdbInfo->id)) abort(404);
+        } catch (\Throwable) {
+            abort(404);
+        }
         $omdbInfo = $omdb->movie($tmdbInfo->imdb_id);
 
         $watchProviders = isset($tmdbInfo->{'watch/providers'}->results->$country->flatrate)

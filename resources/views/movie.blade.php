@@ -106,6 +106,23 @@
                 </p>
             </div>
 
+            {{-- Director --}}
+            @php
+                $directors = collect($tmdbInfo->credits->crew ?? [])->where('job', 'Director')->values();
+            @endphp
+            @if($directors->isNotEmpty())
+            <div class="flex flex-wrap gap-x-6 gap-y-2">
+                <div>
+                    <p class="text-xs text-gray-600 uppercase tracking-widest mb-1">Director</p>
+                    <div class="flex flex-wrap gap-x-3">
+                        @foreach($directors as $d)
+                            <a href="{{ route('person', $d->id) }}" class="text-sm text-white font-medium hover:text-accent transition-colors">{{ $d->name }}</a>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            @endif
+
         </div>
     </div>
 
@@ -123,7 +140,7 @@
                 <ul class="cast-list flex flex-col gap-1.5">
                     @foreach ($tmdbInfo->credits->cast as $member)
                         <li class="text-sm text-gray-300">
-                            {{ $member->name }}
+                            <a href="{{ route('person', $member->id) }}" class="hover:text-white transition-colors">{{ $member->name }}</a>
                             @if($member->character)
                                 <span class="text-gray-500"> as {{ $member->character }}</span>
                             @endif
@@ -142,7 +159,7 @@
                 <ul class="crew-list flex flex-col gap-1.5">
                     @foreach ($tmdbInfo->credits->crew as $member)
                         <li class="text-sm text-gray-300">
-                            <span class="text-gray-500">{{ $member->job }}:</span> {{ $member->name }}
+                            <span class="text-gray-500">{{ $member->job }}:</span> <a href="{{ route('person', $member->id) }}" class="hover:text-white transition-colors">{{ $member->name }}</a>
                         </li>
                     @endforeach
                 </ul>

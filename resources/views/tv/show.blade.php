@@ -91,6 +91,18 @@
                 </p>
             </div>
 
+            {{-- Created by --}}
+            @if(!empty($tmdbInfo->created_by) && count((array)$tmdbInfo->created_by) > 0)
+            <div>
+                <p class="text-xs text-gray-600 uppercase tracking-widest mb-1">Created by</p>
+                <div class="flex flex-wrap gap-x-3">
+                    @foreach($tmdbInfo->created_by as $creator)
+                        <a href="{{ route('person', $creator->id) }}" class="text-sm text-white font-medium hover:text-accent transition-colors">{{ $creator->name }}</a>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
         </div>
     </div>
 
@@ -98,19 +110,38 @@
         <p class="text-xs text-gray-600 mb-6">Streaming availability by JustWatch. Links open JustWatch search for your region.</p>
     @endif
 
+    {{-- Last aired episode --}}
+    @if(!empty($tmdbInfo->last_episode_to_air))
+        @php $last = $tmdbInfo->last_episode_to_air; @endphp
+        <a href="{{ route('tv.episode', ['id' => $tmdbInfo->id, 'season' => $last->season_number, 'episode' => $last->episode_number]) }}"
+           class="flex items-center gap-3 bg-white/[0.03] border border-white/5 rounded-xl px-4 py-3 mb-3 hover:bg-white/[0.06] transition-colors">
+            <span class="text-gray-500 text-sm">🎬</span>
+            <div class="flex-1">
+                <p class="text-gray-300 text-sm font-medium">
+                    Last episode: S{{ str_pad($last->season_number, 2, '0', STR_PAD_LEFT) }}E{{ str_pad($last->episode_number, 2, '0', STR_PAD_LEFT) }}
+                    @if(!empty($last->name)) — {{ $last->name }}@endif
+                </p>
+                <p class="text-gray-600 text-xs">Aired {{ \Carbon\Carbon::parse($last->air_date)->format('M j, Y') }}</p>
+            </div>
+            <span class="text-gray-700 text-sm">›</span>
+        </a>
+    @endif
+
     {{-- Next episode callout --}}
     @if(!empty($tmdbInfo->next_episode_to_air))
         @php $next = $tmdbInfo->next_episode_to_air; @endphp
-        <div class="flex items-center gap-3 bg-blue-500/10 border border-blue-500/20 rounded-xl px-4 py-3 mb-6">
+        <a href="{{ route('tv.episode', ['id' => $tmdbInfo->id, 'season' => $next->season_number, 'episode' => $next->episode_number]) }}"
+           class="flex items-center gap-3 bg-blue-500/10 border border-blue-500/20 rounded-xl px-4 py-3 mb-6 hover:bg-blue-500/15 transition-colors">
             <span class="text-blue-400 text-sm">📅</span>
-            <div>
+            <div class="flex-1">
                 <p class="text-blue-300 text-sm font-medium">
                     Next episode: S{{ str_pad($next->season_number, 2, '0', STR_PAD_LEFT) }}E{{ str_pad($next->episode_number, 2, '0', STR_PAD_LEFT) }}
                     @if(!empty($next->name)) — {{ $next->name }}@endif
                 </p>
                 <p class="text-blue-400/60 text-xs">Airs {{ \Carbon\Carbon::parse($next->air_date)->format('M j, Y') }}</p>
             </div>
-        </div>
+            <span class="text-blue-400/40 text-sm">›</span>
+        </a>
     @endif
 
     {{-- Info cards --}}
@@ -123,7 +154,7 @@
                 <ul class="cast-list flex flex-col gap-1.5">
                     @foreach ($tmdbInfo->credits->cast as $member)
                         <li class="text-sm text-gray-300">
-                            {{ $member->name }}
+                            <a href="{{ route('person', $member->id) }}" class="hover:text-white transition-colors">{{ $member->name }}</a>
                             @if($member->character)
                                 <span class="text-gray-500"> as {{ $member->character }}</span>
                             @endif
@@ -142,7 +173,7 @@
                 <ul class="crew-list flex flex-col gap-1.5">
                     @foreach ($tmdbInfo->credits->crew as $member)
                         <li class="text-sm text-gray-300">
-                            <span class="text-gray-500">{{ $member->job }}:</span> {{ $member->name }}
+                            <span class="text-gray-500">{{ $member->job }}:</span> <a href="{{ route('person', $member->id) }}" class="hover:text-white transition-colors">{{ $member->name }}</a>
                         </li>
                     @endforeach
                 </ul>
@@ -275,8 +306,8 @@
         </div>
         <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide mt-4">
             @foreach($regularSeasons as $season)
-            <div class="flex-shrink-0 w-28">
-                <div class="aspect-[2/3] rounded-lg overflow-hidden bg-white/[0.03]">
+            <a href="{{ route('tv.season', ['id' => $tmdbInfo->id, 'season' => $season->season_number]) }}" class="flex-shrink-0 w-28 group">
+                <div class="aspect-[2/3] rounded-lg overflow-hidden bg-white/[0.03] group-hover:ring-1 group-hover:ring-accent/50 transition-all">
                     @if(!empty($season->poster_path))
                         <img src="https://image.tmdb.org/t/p/w185{{ $season->poster_path }}"
                              alt="{{ $season->name }}"
@@ -285,15 +316,15 @@
                         <div class="w-full h-full flex items-center justify-center text-gray-600 text-xs text-center px-2">No poster</div>
                     @endif
                 </div>
-                <p class="text-xs text-gray-300 mt-1.5 font-medium leading-snug">{{ $season->name }}</p>
+                <p class="text-xs text-gray-300 mt-1.5 font-medium leading-snug group-hover:text-white transition-colors">{{ $season->name }}</p>
                 <p class="text-xs text-gray-600">
                     @if(!empty($season->air_date)){{ substr($season->air_date, 0, 4) }} · @endif{{ $season->episode_count ?? '?' }} ep
                 </p>
-            </div>
+            </a>
             @endforeach
             @if($specialsSeason)
-            <div class="flex-shrink-0 w-28">
-                <div class="aspect-[2/3] rounded-lg overflow-hidden bg-white/[0.03]">
+            <a href="{{ route('tv.season', ['id' => $tmdbInfo->id, 'season' => 0]) }}" class="flex-shrink-0 w-28 group">
+                <div class="aspect-[2/3] rounded-lg overflow-hidden bg-white/[0.03] group-hover:ring-1 group-hover:ring-accent/50 transition-all">
                     @if(!empty($specialsSeason->poster_path))
                         <img src="https://image.tmdb.org/t/p/w185{{ $specialsSeason->poster_path }}"
                              alt="{{ $specialsSeason->name }}"
@@ -302,11 +333,11 @@
                         <div class="w-full h-full flex items-center justify-center text-gray-600 text-xs text-center px-2">No poster</div>
                     @endif
                 </div>
-                <p class="text-xs text-gray-300 mt-1.5 font-medium leading-snug">{{ $specialsSeason->name }}</p>
+                <p class="text-xs text-gray-300 mt-1.5 font-medium leading-snug group-hover:text-white transition-colors">{{ $specialsSeason->name }}</p>
                 <p class="text-xs text-gray-600">
                     @if(!empty($specialsSeason->air_date)){{ substr($specialsSeason->air_date, 0, 4) }} · @endif{{ $specialsSeason->episode_count ?? '?' }} ep
                 </p>
-            </div>
+            </a>
             @endif
         </div>
     </div>
