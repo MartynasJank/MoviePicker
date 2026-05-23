@@ -259,6 +259,59 @@
         </div>
     </div>
 
+    {{-- Seasons --}}
+    @php
+        $seasons = collect($tmdbInfo->seasons ?? [])
+            ->sortBy('season_number')
+            ->values();
+        $regularSeasons = $seasons->where('season_number', '>', 0)->values();
+        $specialsSeason = $seasons->firstWhere('season_number', 0);
+    @endphp
+    @if($regularSeasons->isNotEmpty())
+    <div class="mb-10">
+        <div class="section-header">
+            <h2 class="text-xl font-bold text-white mb-3">Seasons</h2>
+            <div class="section-divider"></div>
+        </div>
+        <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide mt-4">
+            @foreach($regularSeasons as $season)
+            <div class="flex-shrink-0 w-28">
+                <div class="aspect-[2/3] rounded-lg overflow-hidden bg-white/[0.03]">
+                    @if(!empty($season->poster_path))
+                        <img src="https://image.tmdb.org/t/p/w185{{ $season->poster_path }}"
+                             alt="{{ $season->name }}"
+                             class="w-full h-full object-cover" loading="lazy">
+                    @else
+                        <div class="w-full h-full flex items-center justify-center text-gray-600 text-xs text-center px-2">No poster</div>
+                    @endif
+                </div>
+                <p class="text-xs text-gray-300 mt-1.5 font-medium leading-snug">{{ $season->name }}</p>
+                <p class="text-xs text-gray-600">
+                    @if(!empty($season->air_date)){{ substr($season->air_date, 0, 4) }} · @endif{{ $season->episode_count ?? '?' }} ep
+                </p>
+            </div>
+            @endforeach
+            @if($specialsSeason)
+            <div class="flex-shrink-0 w-28">
+                <div class="aspect-[2/3] rounded-lg overflow-hidden bg-white/[0.03]">
+                    @if(!empty($specialsSeason->poster_path))
+                        <img src="https://image.tmdb.org/t/p/w185{{ $specialsSeason->poster_path }}"
+                             alt="{{ $specialsSeason->name }}"
+                             class="w-full h-full object-cover" loading="lazy">
+                    @else
+                        <div class="w-full h-full flex items-center justify-center text-gray-600 text-xs text-center px-2">No poster</div>
+                    @endif
+                </div>
+                <p class="text-xs text-gray-300 mt-1.5 font-medium leading-snug">{{ $specialsSeason->name }}</p>
+                <p class="text-xs text-gray-600">
+                    @if(!empty($specialsSeason->air_date)){{ substr($specialsSeason->air_date, 0, 4) }} · @endif{{ $specialsSeason->episode_count ?? '?' }} ep
+                </p>
+            </div>
+            @endif
+        </div>
+    </div>
+    @endif
+
     {{-- Similar shows --}}
     @if ($similarShows != null)
     <div>
