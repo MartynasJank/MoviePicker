@@ -62,8 +62,16 @@ class TmdbProxyController extends Controller
                 $show['release_date'] = $show['first_air_date'] ?? '';
                 return $show;
             })
-            ->take(6)
+            ->take(4)
             ->values()
+            ->map(function ($show) use ($tmdb) {
+                try {
+                    $status = $tmdb->tvStatus($show['id']);
+                    $show['tv_status']     = $status['status'];
+                    $show['last_air_date'] = $status['last_air_date'];
+                } catch (\Throwable) {}
+                return $show;
+            })
             ->all();
 
         return response()->json($results);
