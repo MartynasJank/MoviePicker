@@ -41,6 +41,21 @@ class PersonController extends Controller
             ->sortByDesc(fn($c) => $c->first_air_date ?? '')
             ->values();
 
-        return view('person', compact('person', 'knownFor', 'movies', 'tvShows'));
+        $hasMovieCast = collect($person->combined_credits->cast ?? [])
+            ->contains(fn($c) => ($c->media_type ?? '') === 'movie');
+        $hasMovieCrew = collect($person->combined_credits->crew ?? [])
+            ->contains(fn($c) => ($c->media_type ?? '') === 'movie');
+
+        $nonScriptedGenres = [10767, 10763, 10764];
+        $tvRollFilter = fn($c) => ($c->media_type ?? '') === 'tv'
+            && !empty($c->id)
+            && ($c->vote_count ?? 0) >= 10
+            && ($c->episode_count ?? 0) >= 5
+            && empty(array_intersect((array)($c->genre_ids ?? []), $nonScriptedGenres));
+
+        $hasTvCast = collect($person->combined_credits->cast ?? [])->contains($tvRollFilter);
+        $hasTvCrew = collect($person->combined_credits->crew ?? [])->contains($tvRollFilter);
+
+        return view('person', compact('person', 'knownFor', 'movies', 'tvShows', 'hasMovieCast', 'hasMovieCrew', 'hasTvCast', 'hasTvCrew'));
     }
 }

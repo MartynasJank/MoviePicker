@@ -384,6 +384,8 @@
                     if (request()->query('wl_genres')) $wlParams['genres'] = request()->query('wl_genres');
                 @endphp
                 <a href="{{ route('watchlist.roll', $wlParams) }}" class="btn-accent long-single text-center">Roll</a>
+            @elseif(session('tvPersonRollIds'))
+                <a href="{{ route('person.roll.tv.next') }}" class="btn-accent long-single text-center">Roll</a>
             @else
                 <a href="/tv/pick" class="btn-accent long-single text-center">Roll</a>
             @endif

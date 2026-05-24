@@ -65,6 +65,7 @@ Route::get('/tv/{id}/season/{season}', TvSeasonController::class)->name('tv.seas
 Route::get('/tv/{id}/season/{season}/episode/{episode}', TvEpisodeController::class)->name('tv.episode');
 
 Route::get('/person/{id}', PersonController::class)->name('person');
+Route::get('/person/roll/tv/next',    [PersonRollController::class, 'tvNext'])->name('person.roll.tv.next');
 Route::get('/person/{id}/roll/movie', [PersonRollController::class, 'movie'])->name('person.roll.movie');
 Route::get('/person/{id}/roll/tv',    [PersonRollController::class, 'tv'])->name('person.roll.tv');
 
