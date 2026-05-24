@@ -55,20 +55,44 @@
             @endif
 
             {{-- Discover buttons --}}
-            <div class="flex flex-wrap gap-2 mt-3">
-                @if($movies->isNotEmpty())
-                <a href="{{ route('person.roll.movie', $person->id) }}"
-                   class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent/20 transition-colors">
-                    Roll a movie with {{ $person->name }}
-                </a>
-                @endif
-                @if($tvShows->isNotEmpty())
-                <a href="{{ route('person.roll.tv', $person->id) }}"
-                   class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent/20 transition-colors">
-                    Roll a TV show with {{ $person->name }}
-                </a>
-                @endif
+            @if($hasMovieCast || $hasMovieCrew)
+            <div class="mt-3">
+                <p class="text-xs text-gray-500 mb-1.5">Movies</p>
+                <div class="flex flex-wrap gap-2">
+                    @if($hasMovieCast)
+                    <a href="{{ route('person.roll.movie', ['id' => $person->id, 'type' => 'cast']) }}"
+                       class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent/20 transition-colors">
+                        Roll as actor
+                    </a>
+                    @endif
+                    @if($hasMovieCrew)
+                    <a href="{{ route('person.roll.movie', ['id' => $person->id, 'type' => 'crew']) }}"
+                       class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent/20 transition-colors">
+                        Roll as crew
+                    </a>
+                    @endif
+                </div>
             </div>
+            @endif
+            @if($hasTvCast || $hasTvCrew)
+            <div class="mt-3">
+                <p class="text-xs text-gray-500 mb-1.5">TV Shows</p>
+                <div class="flex flex-wrap gap-2">
+                    @if($hasTvCast)
+                    <a href="{{ route('person.roll.tv', ['id' => $person->id, 'type' => 'cast']) }}"
+                       class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent/20 transition-colors">
+                        Roll as actor
+                    </a>
+                    @endif
+                    @if($hasTvCrew)
+                    <a href="{{ route('person.roll.tv', ['id' => $person->id, 'type' => 'crew']) }}"
+                       class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent/20 transition-colors">
+                        Roll as crew
+                    </a>
+                    @endif
+                </div>
+            </div>
+            @endif
 
             @if(!empty($person->biography))
                 <p class="text-gray-400 text-sm mt-3 leading-relaxed line-clamp-4">{{ $person->biography }}</p>
