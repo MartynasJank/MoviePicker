@@ -2,6 +2,7 @@
 @section('page_title', 'Criteria — MoviePickr')
 @section('footer_pb', 'pb-24')
 @section('scripts')
+    <script>window._criteriaInput = @json($userInput ?? []);</script>
     @vite(['resources/js/custom/criteriaForm.js'])
 @endsection
 @section('content')
@@ -12,6 +13,7 @@
         <p class="text-gray-500 text-sm mt-1">Fill in what you want, leave the rest blank.</p>
     </div>
 
+    @php $ui = $userInput ?? []; @endphp
     <form method="POST" autocomplete="off" action="/movie" id="criteria">
         @csrf
         <div class="flex flex-col gap-4">
@@ -26,7 +28,7 @@
                             class="input-dark bg-input {{ $errors->has('primary_release_date_gte') ? 'border-danger' : '' }}"
                             name="primary_release_date_gte"
                             placeholder="1874"
-                            value="{{ old('primary_release_date_gte') }}">
+                            value="{{ old('primary_release_date_gte', $ui['primary_release_date_gte'] ?? '') }}">
                     </div>
                     <div>
                         <label class="block text-sm text-gray-400 mb-1.5">To</label>
@@ -34,7 +36,7 @@
                             class="input-dark bg-input {{ $errors->has('primary_release_date_lte') ? 'border-danger' : '' }}"
                             name="primary_release_date_lte"
                             placeholder="{{ date('Y') }}"
-                            value="{{ old('primary_release_date_lte') }}">
+                            value="{{ old('primary_release_date_lte', $ui['primary_release_date_lte'] ?? '') }}">
                     </div>
                 </div>
             </div>
@@ -48,7 +50,7 @@
                         <select name="with_genres[]" id="with_genres" multiple>
                             @foreach ($genres as $genre)
                                 <option value="{{ $genre->id }}"
-                                    {{ is_array(old('with_genres')) && in_array($genre->id, old('with_genres')) ? 'selected' : '' }}>
+                                    {{ in_array($genre->id, (array)old('with_genres', $ui['with_genres'] ?? [])) ? 'selected' : '' }}>
                                     {{ $genre->name }}
                                 </option>
                             @endforeach
@@ -59,7 +61,7 @@
                         <select name="without_genres[]" id="without_genres" multiple>
                             @foreach ($genres as $genre)
                                 <option value="{{ $genre->id }}"
-                                    {{ is_array(old('without_genres')) && in_array($genre->id, old('without_genres')) ? 'selected' : '' }}>
+                                    {{ in_array($genre->id, (array)old('without_genres', $ui['without_genres'] ?? [])) ? 'selected' : '' }}>
                                     {{ $genre->name }}
                                 </option>
                             @endforeach
@@ -71,7 +73,7 @@
             {{-- Language --}}
             <div class="card p-5">
                 <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Language</h3>
-                @include('includes.languages')
+                @include('includes.languages', ['selectedLang' => old('with_original_language', $ui['with_original_language'] ?? 'en')])
             </div>
 
             {{-- Streaming --}}
@@ -79,7 +81,10 @@
                 <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Streaming</h3>
                 <select id="with_watch_providers" name="with_watch_providers[]" multiple>
                     @foreach($providersArray as $value)
-                        <option value="{{ $value['id'] }}" data-logo="{{ $value['logo'] }}">{{ $value['name'] }}</option>
+                        <option value="{{ $value['id'] }}" data-logo="{{ $value['logo'] }}"
+                            {{ in_array($value['id'], (array)old('with_watch_providers', $ui['with_watch_providers'] ?? [])) ? 'selected' : '' }}>
+                            {{ $value['name'] }}
+                        </option>
                     @endforeach
                 </select>
                 <p class="text-xs text-gray-600 mt-1">Shows services available in your region</p>
@@ -111,20 +116,20 @@
                             <label class="block text-sm text-gray-400 mb-1.5">Min Score</label>
                             <input type="text"
                                 class="input-dark bg-input {{ $errors->has('vote_average_gte') ? 'border-danger' : '' }}"
-                                name="vote_average_gte" placeholder="0" value="{{ old('vote_average_gte') }}">
+                                name="vote_average_gte" placeholder="0" value="{{ old('vote_average_gte', $ui['vote_average_gte'] ?? '') }}">
                         </div>
                         <div>
                             <label class="block text-sm text-gray-400 mb-1.5">Max Score</label>
                             <input type="text"
                                 class="input-dark bg-input {{ $errors->has('vote_average_lte') ? 'border-danger' : '' }}"
-                                name="vote_average_lte" placeholder="10" value="{{ old('vote_average_lte') }}">
+                                name="vote_average_lte" placeholder="10" value="{{ old('vote_average_lte', $ui['vote_average_lte'] ?? '') }}">
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm text-gray-400 mb-1.5">Min Vote Count</label>
                         <input type="text"
                             class="input-dark bg-input {{ $errors->has('vote_count_gte') ? 'border-danger' : '' }}"
-                            name="vote_count_gte" placeholder="10" value="{{ old('vote_count_gte') }}">
+                            name="vote_count_gte" placeholder="10" value="{{ old('vote_count_gte', $ui['vote_count_gte'] ?? '') }}">
                         <p class="text-xs text-gray-600 mt-1">Filters out obscure untested films</p>
                     </div>
                 </div>

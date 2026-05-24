@@ -10,11 +10,10 @@ class CriteriaController extends Controller
 {
     public function __invoke(TmdbClient $tmdb, MovieService $ms): View
     {
-        session()->forget('userInput');
-
         return view('criteria', [
             'genres'         => $ms->genres($tmdb),
             'providersArray' => $ms->buildProvidersArray($tmdb),
+            'userInput'      => session('userInput', []),
         ]);
     }
 }
