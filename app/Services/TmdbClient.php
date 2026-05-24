@@ -14,6 +14,8 @@ class TmdbClient implements ApiMovie
 
     private Client $client;
 
+    public ?string $lastDiscoverUrl = null;
+
     public function __construct()
     {
         $this->client = new Client([
@@ -84,8 +86,8 @@ class TmdbClient implements ApiMovie
             $input['watch_region'] = $country;
         }
 
-        $url      = 'https://api.themoviedb.org/3/discover/movie?' . http_build_query($input);
-        $response = $this->client->get($url);
+        $this->lastDiscoverUrl = 'https://api.themoviedb.org/3/discover/movie?' . http_build_query($input);
+        $response = $this->client->get($this->lastDiscoverUrl);
 
         return json_decode($response->getBody()->getContents(), true);
     }
@@ -228,6 +230,18 @@ class TmdbClient implements ApiMovie
             $input['with_original_language'] = 'en';
         }
 
+        unset($input['with_cast_names'], $input['with_crew_names']);
+
+        foreach (['with_cast', 'with_crew'] as $key) {
+            if (!empty($input[$key])) {
+                $input['with_people'] = array_merge(
+                    $input['with_people'] ?? [],
+                    is_array($input[$key]) ? $input[$key] : [$input[$key]]
+                );
+            }
+            unset($input[$key]);
+        }
+
         foreach (['with_genres', 'without_genres', 'with_watch_providers', 'with_people'] as $key) {
             if (isset($input[$key]) && is_array($input[$key])) {
                 $input[$key] = implode(',', $input[$key]);
@@ -251,12 +265,22 @@ class TmdbClient implements ApiMovie
         $input['language']          = 'en-US';
         $input['include_adult']     = 'false';
 
+        // Always exclude talk shows, news, and reality TV (genres 10767, 10763, 10764)
+        $nonScripted = ['10767', '10763', '10764'];
+        if (isset($input['without_genres'])) {
+            $input['without_genres'] = implode(',', array_unique(array_merge(
+                explode(',', $input['without_genres']), $nonScripted
+            )));
+        } else {
+            $input['without_genres'] = implode(',', $nonScripted);
+        }
+
         if (isset($input['with_watch_providers'])) {
             $input['watch_region'] = $country;
         }
 
-        $url      = 'https://api.themoviedb.org/3/discover/tv?' . http_build_query($input);
-        $response = $this->client->get($url);
+        $this->lastDiscoverUrl = 'https://api.themoviedb.org/3/discover/tv?' . http_build_query($input);
+        $response = $this->client->get($this->lastDiscoverUrl);
 
         return json_decode($response->getBody()->getContents(), true);
     }
