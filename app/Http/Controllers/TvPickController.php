@@ -67,9 +67,8 @@ class TvPickController extends Controller
 
     private function resolveSessionCriteria(array $submitted): array
     {
-        if (session('tvInput') === null || !empty($submitted['with_people'])) {
-            session()->put('tvInput', $submitted);
-        }
+        session()->put('tvInput', $submitted);
+        session()->forget('tvPersonRollIds');
 
         return session('tvInput');
     }
@@ -82,7 +81,7 @@ class TvPickController extends Controller
     private function handleSessionReset(TvCriteriaRequest $request, string $redirectTo): ?RedirectResponse
     {
         if ($request->query('i') !== null && session('tvInput') !== null) {
-            session()->forget('tvInput');
+            session()->forget(['tvInput', 'tvPersonRollIds']);
             return redirect(url($redirectTo));
         }
 
