@@ -57,6 +57,7 @@ class MovieService
 
         $all = $tmdb->discover($criteria, $country);
         session()->put('userInput.total_pages', $all['total_pages']);
+        session()->put('_debug', ['count' => $all['total_results'] ?? 0, 'type' => 'movies', 'url' => $tmdb->lastDiscoverUrl]);
         return $this->randomPage($all['total_pages']);
     }
 
@@ -133,6 +134,7 @@ class MovieService
 
         $all = $tmdb->discoverTv($criteria, $country);
         session()->put('tvInput.total_pages', $all['total_pages']);
+        session()->put('_debug', ['count' => $all['total_results'] ?? 0, 'type' => 'TV shows', 'url' => $tmdb->lastDiscoverUrl]);
         return $this->randomPage($all['total_pages']);
     }
 

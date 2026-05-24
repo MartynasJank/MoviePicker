@@ -197,6 +197,23 @@
         </div>
     </div>
 
+    @if(auth()->check() && auth()->user()->email === config('api.admin_email') && session('_debug'))
+    @php $dbg = session('_debug'); @endphp
+    <div id="admin-debug" class="fixed bottom-4 right-4 z-50 bg-black/95 border border-white/10 rounded-xl p-3 text-xs font-mono shadow-2xl max-w-xs">
+        <div class="flex items-baseline gap-2 mb-1">
+            <span class="text-accent font-bold text-base">{{ number_format($dbg['count']) }}</span>
+            <span class="text-gray-400">{{ $dbg['type'] }} found</span>
+        </div>
+        @if($dbg['url'])
+        <a href="{{ $dbg['url'] }}" target="_blank"
+           class="text-blue-400 hover:text-blue-300 transition-colors break-all leading-relaxed block">
+            TMDB API ↗
+        </a>
+        @endif
+    </div>
+    <script>console.log('[debug]', {{ $dbg['count'] }}, '{{ $dbg['type'] }} found', {{ $dbg['url'] ? json_encode($dbg['url']) : 'null' }});</script>
+    @endif
+
     {{-- Flash messages --}}
     @if(session('success'))
         <div class="alert-msg fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-green-900/80 border border-green-700/50 text-green-300 text-sm px-5 py-3 rounded-lg backdrop-blur-sm cursor-pointer"
