@@ -5,6 +5,7 @@
     $openLanguage  = !empty($user_input['with_original_language'] ?? '');
     $openStreaming  = !empty($user_input['with_watch_providers'] ?? []);
     $openScores    = !empty($user_input['vote_average_gte'] ?? '') || !empty($user_input['vote_average_lte'] ?? '') || !empty($user_input['vote_count_gte'] ?? '');
+    $openPeople    = !empty($user_input['with_cast'] ?? []) || !empty($user_input['with_crew'] ?? []);
 @endphp
 
 <div id="modal-form" class="modal-wrap hidden">
@@ -130,6 +131,34 @@
                             <div>
                                 <label class="block text-sm text-gray-400 mb-1">Min Vote Count</label>
                                 <input type="text" class="input-dark" name="vote_count_gte" placeholder="10" value="{{ $user_input['vote_count_gte'] ?? '' }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- People --}}
+                <div class="accordion-section border-t border-white/5 {{ $openPeople ? 'accordion-open' : '' }}">
+                    <button type="button" class="accordion-header w-full flex items-center justify-between py-3.5 text-left">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">People</h3>
+                        <svg class="accordion-chevron w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="accordion-body">
+                        <div class="pb-4 flex flex-col gap-3">
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-1">Actors</label>
+                                <select id="modal-with_cast" name="with_cast[]" multiple>
+                                    @foreach((array)($user_input['with_cast'] ?? []) as $i => $castId)
+                                        <option value="{{ $castId }}" selected>{{ ($user_input['with_cast_names'] ?? [])[$i] ?? '' }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-1">Crew</label>
+                                <select id="modal-with_crew" name="with_crew[]" multiple>
+                                    @foreach((array)($user_input['with_crew'] ?? []) as $i => $crewId)
+                                        <option value="{{ $crewId }}" selected>{{ ($user_input['with_crew_names'] ?? [])[$i] ?? '' }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                     </div>
