@@ -23,9 +23,10 @@ $(document).ready(function () {
     function makePeopleTs(id, dept) {
         const el = document.getElementById(id);
         if (!el) return;
+        const placeholder = dept === false ? 'Search cast or crew…' : (dept ? 'Search actors…' : 'Search directors, writers…');
         const ts = new TomSelect('#' + id, {
             plugins: ['remove_button'],
-            placeholder: dept ? 'Search actors…' : 'Search directors, writers…',
+            placeholder: placeholder,
             maxOptions: null,
             create: false,
             render: {
@@ -49,8 +50,8 @@ $(document).ready(function () {
             }
             timer = setTimeout(function () {
                 const params = { q: query };
-                if (dept) params.dept = dept;
-                else params.exclude_dept = 'Acting';
+                if (dept === 'Acting') params.dept = dept;
+                else if (dept !== false) params.exclude_dept = 'Acting';
                 $.getJSON('/tmdb/search/people', params)
                     .done(function (data) {
                         data.forEach(function (p) {
@@ -64,6 +65,26 @@ $(document).ready(function () {
                     });
             }, 400);
         });
+        // TomSelect v2 doesn't create <option> elements for dynamic options,
+        // so form submission would miss them. Explicitly sync the underlying <select>.
+        ts.on('item_add', function (value) {
+            const sel = document.getElementById(id);
+            if (!sel) return;
+            let opt = sel.querySelector('option[value="' + value + '"]');
+            if (!opt) {
+                opt = document.createElement('option');
+                opt.value = value;
+                sel.appendChild(opt);
+            }
+            opt.selected = true;
+        });
+        ts.on('item_remove', function (value) {
+            const sel = document.getElementById(id);
+            if (!sel) return;
+            const opt = sel.querySelector('option[value="' + value + '"]');
+            if (opt) opt.remove();
+        });
+
         window['_ts_' + id] = ts;
     }
 
@@ -104,7 +125,9 @@ $(document).ready(function () {
         if (!window['_ts_modal-with_cast']) {
             makePeopleTs('modal-with_cast', 'Acting');
             makePeopleTs('modal-with_crew', null);
-            $.getJSON('/userinput', function (data) {
+            const isTv = window.location.pathname.startsWith('/tv/');
+            $.getJSON('/userinput', isTv ? { type: 'tv' } : {}, function (data) {
+                if (!data) return;
                 restorePeople(data['with_cast'], 'modal-with_cast');
                 restorePeople(data['with_crew'], 'modal-with_crew');
             });
@@ -128,22 +151,33 @@ $(document).ready(function () {
 
     /* ── Restore session data (criteria page only) ──────────────── */
     if ($('#criteria').length) {
-        $.getJSON('/userinput', function (data) {
-            restorePeople(data['with_cast'], 'with_cast');
-            restorePeople(data['with_crew'], 'with_crew');
-        });
+        const inp = window._criteriaInput || {};
+        restorePeople(inp['with_cast'], 'with_cast');
+        restorePeople(inp['with_crew'], 'with_crew');
     }
 
     function restorePeople(ids, tsId) {
         if (!ids) return;
         const ts = window['_ts_' + tsId];
         if (!ts) return;
+        const sel = document.getElementById(tsId);
         const idArr = Array.isArray(ids) ? ids : ids.split(',');
-        idArr.forEach(function (id) {
-            $.getJSON('/tmdb/people/' + id)
+        idArr.forEach(function (personId) {
+            $.getJSON('/tmdb/people/' + personId)
                 .done(function (d) {
-                    ts.addOption({ value: String(d.id), text: d.name });
-                    ts.addItem(String(d.id), true);
+                    const val = String(d.id);
+                    ts.addOption({ value: val, text: d.name });
+                    ts.addItem(val, true);
+                    // addItem with silent=true won't fire item_add, so manually sync the select
+                    if (sel) {
+                        let opt = sel.querySelector('option[value="' + val + '"]');
+                        if (!opt) {
+                            opt = document.createElement('option');
+                            opt.value = val;
+                            sel.appendChild(opt);
+                        }
+                        opt.selected = true;
+                    }
                 });
         });
     }

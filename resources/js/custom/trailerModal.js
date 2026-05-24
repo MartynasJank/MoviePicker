@@ -78,7 +78,8 @@ $(document).ready(function () {
     }
 
     /* -- Restore session data ---------------------------------- */
-    $.getJSON('/userinput', function (data) {
+    const isTvPage = window.location.pathname.startsWith('/tv/');
+    $.getJSON('/userinput', isTvPage ? { type: 'tv' } : {}, function (data) {
 
         if (data['with_genres'] && window._ts_modal_with_genres) {
             window._ts_modal_with_genres.setValue(data['with_genres'].split(','), true);
