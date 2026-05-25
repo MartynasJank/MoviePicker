@@ -229,6 +229,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function setFallbackNotice(show) {
+        let notice = document.getElementById('poster-fallback-notice');
+        if (show && !notice) {
+            notice = document.createElement('p');
+            notice.id = 'poster-fallback-notice';
+            notice.className = 'text-xs text-yellow-500/80 mb-1';
+            notice.textContent = 'No results for platform filter — showing unfiltered posters';
+            grid.before(notice);
+        } else if (!show && notice) {
+            notice.remove();
+        }
+    }
+
     function buildGrid(paths, activePath) {
         grid.innerHTML = '';
         paths.forEach(path => {
@@ -277,6 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!data.poster_path) return;
                 setMainPoster(data.poster_path);
                 buildGrid(data.all_paths, data.poster_path);
+                setFallbackNotice(data.fallback);
             })
             .finally(() => {
                 rollBtn.disabled = false;

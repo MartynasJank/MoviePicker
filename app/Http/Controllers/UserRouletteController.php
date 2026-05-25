@@ -191,14 +191,16 @@ class UserRouletteController extends Controller
         $criteria['sort_by'] = 'popularity.desc';
         $criteria['page']    = rand(1, 5);
 
-        $country = $this->movieService->getUserCountry();
+        $country      = $this->movieService->getUserCountry();
+        $usedFallback = false;
 
         try {
             $results = $isTv ? $tmdb->discoverTv($criteria, $country) : $tmdb->discover($criteria, $country);
 
             if (empty($results['results']) && isset($criteria['with_watch_providers'])) {
-                $fallback = array_diff_key($criteria, ['with_watch_providers' => true]);
-                $results  = $isTv ? $tmdb->discoverTv($fallback, $country) : $tmdb->discover($fallback, $country);
+                $usedFallback = true;
+                $fallback     = array_diff_key($criteria, ['with_watch_providers' => true]);
+                $results      = $isTv ? $tmdb->discoverTv($fallback, $country) : $tmdb->discover($fallback, $country);
             }
 
             $paths = [];
@@ -212,7 +214,7 @@ class UserRouletteController extends Controller
                 $roulette->update(['poster_paths' => $paths]);
             }
 
-            return response()->json(['poster_path' => $paths[0] ?? null, 'all_paths' => $paths]);
+            return response()->json(['poster_path' => $paths[0] ?? null, 'all_paths' => $paths, 'fallback' => $usedFallback]);
         } catch (\Throwable) {
             return response()->json(['poster_path' => null, 'all_paths' => []], 422);
         }

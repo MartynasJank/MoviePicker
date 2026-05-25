@@ -110,7 +110,8 @@ class AdminRouletteController extends Controller
         $criteria['sort_by'] = 'popularity.desc';
         $criteria['page']    = rand(1, 5);
 
-        $country = $this->movieService->getUserCountry();
+        $country      = $this->movieService->getUserCountry();
+        $usedFallback = false;
 
         try {
             $results = $roulette->media_type === 'tv'
@@ -118,14 +119,16 @@ class AdminRouletteController extends Controller
                 : $tmdb->discover($criteria, $country);
 
             if (empty($results['results']) && isset($criteria['with_watch_providers'])) {
-                $fallback = array_diff_key($criteria, ['with_watch_providers' => true]);
-                $results  = $roulette->media_type === 'tv'
+                $usedFallback = true;
+                $fallback     = array_diff_key($criteria, ['with_watch_providers' => true]);
+                $results      = $roulette->media_type === 'tv'
                     ? $tmdb->discoverTv($fallback, $country)
                     : $tmdb->discover($fallback, $country);
             }
 
             if ($roulette->media_type === 'tv' && empty($results['results']) && isset($criteria['with_genres'])) {
-                $results = $tmdb->discoverTv(array_diff_key($criteria, ['with_genres' => true]), $country);
+                $usedFallback = true;
+                $results      = $tmdb->discoverTv(array_diff_key($criteria, ['with_genres' => true]), $country);
             }
 
             $paths = [];
@@ -139,7 +142,7 @@ class AdminRouletteController extends Controller
                 $roulette->update(['poster_paths' => $paths]);
             }
 
-            return response()->json(['poster_path' => $paths[0] ?? null, 'all_paths' => $paths]);
+            return response()->json(['poster_path' => $paths[0] ?? null, 'all_paths' => $paths, 'fallback' => $usedFallback]);
         } catch (\Throwable) {
             return response()->json(['poster_path' => null, 'all_paths' => []], 422);
         }
