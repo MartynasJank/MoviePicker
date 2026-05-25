@@ -26,28 +26,30 @@ class PersonController extends Controller
             ->sortByDesc('vote_count')
             ->values();
 
-        // Known for: top 8 by popularity, deduplicated by title ID
+        $tvRollFilter = $movieService->tvCreditFilter();
+
+        // Known for: top 8 by vote_count, deduplicated by title ID
         $knownFor = collect($person->combined_credits->cast ?? [])
-            ->sortByDesc('popularity')
+            ->sortByDesc('vote_count')
             ->unique('id')
             ->take(8)
             ->values();
 
-        // Full filmography split by type, sorted by date desc
+        // Movies: all credits sorted by vote_count (most notable first)
         $movies = $credits->filter(fn($c) => ($c->media_type ?? '') === 'movie')
-            ->sortByDesc(fn($c) => $c->release_date ?? '')
+            ->sortByDesc('vote_count')
             ->values();
 
+        // TV: apply quality filter (removes one-off episodes/talk shows), sort by vote_count
         $tvShows = $credits->filter(fn($c) => ($c->media_type ?? '') === 'tv')
-            ->sortByDesc(fn($c) => $c->first_air_date ?? '')
+            ->filter($tvRollFilter)
+            ->sortByDesc('vote_count')
             ->values();
 
         $hasMovieCast = collect($person->combined_credits->cast ?? [])
             ->contains(fn($c) => ($c->media_type ?? '') === 'movie');
         $hasMovieCrew = collect($person->combined_credits->crew ?? [])
             ->contains(fn($c) => ($c->media_type ?? '') === 'movie');
-
-        $tvRollFilter = $movieService->tvCreditFilter();
 
         $hasTvCast = collect($person->combined_credits->cast ?? [])->contains($tvRollFilter);
         $hasTvCrew = collect($person->combined_credits->crew ?? [])->contains($tvRollFilter);
