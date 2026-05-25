@@ -22,7 +22,7 @@
         $allPosters = $roulette->poster_paths ?? [];
         $poster     = $allPosters[0] ?? null;
     @endphp
-    <div class="sm:w-32 lg:w-40 flex-shrink-0">
+    <div id="poster-section" class="sm:w-32 lg:w-40 flex-shrink-0">
 
         {{-- Label + page navigation --}}
         <div class="flex items-center justify-between mb-2">
@@ -172,6 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const CSRF      = document.querySelector('meta[name="csrf-token"]').content;
     const URL       = `/my-roulettes/manage/{{ $roulette->id }}/refresh-poster`;
     const grid      = document.getElementById('poster-grid');
+    const section   = document.getElementById('poster-section');
     const prevBtn   = document.getElementById('prev-page-btn');
     const nextBtn   = document.getElementById('next-page-btn');
     const indicator = document.getElementById('page-indicator');
@@ -252,6 +253,8 @@ document.addEventListener('DOMContentLoaded', () => {
             indicator.textContent = `${currentPage} / ${totalPages}`;
             prevBtn.disabled = currentPage <= 1;
             nextBtn.disabled = currentPage >= totalPages;
+            grid.scrollLeft = 0;
+            section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         })
         .finally(() => { loading = false; });
     }
