@@ -14,7 +14,7 @@
         </div>
     @endif
 
-    <div class="flex flex-col lg:flex-row gap-8">
+    <div class="flex flex-row gap-4 lg:gap-8">
 
     {{-- Poster sidebar (edit only) --}}
     @if($roulette)
@@ -22,7 +22,7 @@
         $allPosters = $roulette->poster_paths ?? [];
         $poster     = $allPosters[0] ?? null;
     @endphp
-    <div class="lg:w-40 flex-shrink-0">
+    <div class="w-24 sm:w-32 lg:w-40 flex-shrink-0">
         <label class="block text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">Poster</label>
 
         {{-- Main poster --}}
