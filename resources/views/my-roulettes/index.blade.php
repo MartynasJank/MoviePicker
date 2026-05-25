@@ -56,8 +56,9 @@
                         $tags     = $roulette->tags;
                         $platform = $tags['platform'][0] ?? null;
                         $logo     = $platform ? ($platformLogos[$platform] ?? null) : null;
-                        $allTags  = collect($tags)->flatten()
-                                        ->reject(fn($v) => isset($tags['platform']) && in_array($v, $tags['platform']))
+                        $allTags  = collect($tags)
+                                        ->except(['platform', 'without_genre'])
+                                        ->flatten()
                                         ->map(fn($v) => $tagLabels[$v] ?? $v);
                         $poster   = $roulette->poster_paths[0] ?? null;
                     @endphp

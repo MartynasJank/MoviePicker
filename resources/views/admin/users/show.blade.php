@@ -75,7 +75,7 @@
                                         <td class="py-3 px-4 text-white font-medium">{{ $roulette->name }}</td>
                                         <td class="py-3 px-4 hidden sm:table-cell">
                                             <div class="flex flex-wrap gap-1">
-                                                @foreach(collect($roulette->tags)->flatten() as $tag)
+                                                @foreach(collect($roulette->tags)->except(['without_genre'])->flatten() as $tag)
                                                     <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-white/5 text-gray-400 border border-white/10">{{ $tag }}</span>
                                                 @endforeach
                                             </div>
