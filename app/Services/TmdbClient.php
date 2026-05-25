@@ -14,7 +14,12 @@ class TmdbClient implements ApiMovie
 
     private Client $client;
 
-    public ?string $lastDiscoverUrl = null;
+    private ?string $lastDiscoverUrl = null;
+
+    public function lastDiscoverUrl(): ?string
+    {
+        return $this->lastDiscoverUrl;
+    }
 
     public function __construct()
     {

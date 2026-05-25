@@ -12,20 +12,15 @@ beforeEach(function () {
             'total_results' => 1,
         ]);
 
-    $this->mock(MovieService::class)
-        ->shouldReceive('getUserCountry')->andReturn('US')
-        ->shouldReceive('resolvePage')->andReturn(1)
-        ->shouldReceive('randomMovie')->andReturn(['id' => 550])
-        ->shouldReceive('resolveSessionCriteria')->andReturnUsing(function (array $submitted) {
-            if (session('userInput') === null) {
-                session()->put('userInput', $submitted);
-            }
-            return session('userInput');
-        })
-        ->shouldReceive('pickBatch')->andReturn([])
-        ->shouldReceive('genres')->andReturn([])
-        ->shouldReceive('movieGenresMap')->andReturn([])
-        ->shouldReceive('buildProvidersArray')->andReturn([]);
+    $this->partialMock(MovieService::class, function ($mock) {
+        $mock->shouldReceive('getUserCountry')->andReturn('US');
+        $mock->shouldReceive('resolvePage')->andReturn(1);
+        $mock->shouldReceive('randomMovie')->andReturn(['id' => 550]);
+        $mock->shouldReceive('pickBatch')->andReturn([]);
+        $mock->shouldReceive('genres')->andReturn([]);
+        $mock->shouldReceive('movieGenresMap')->andReturn([]);
+        $mock->shouldReceive('buildProvidersArray')->andReturn([]);
+    });
 });
 
 it('saves submitted criteria in userInput on first submit', function () {

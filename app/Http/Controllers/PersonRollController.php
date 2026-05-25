@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Services\TmdbClient;
 use App\Services\MovieService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class PersonRollController extends Controller
 {
-    public function movie(int $id, TmdbClient $tmdb, MovieService $movieService): RedirectResponse
+    public function movie(Request $request, int $id, TmdbClient $tmdb, MovieService $movieService): RedirectResponse
     {
         $country  = $movieService->getUserCountry();
-        $type     = request('type', 'cast');
+        $type     = $request->query('type', 'cast');
         $criteria = $type === 'crew' ? ['with_crew' => [$id]] : ['with_cast' => [$id]];
 
         session(['userInput' => $criteria + ['vote_count_gte' => 10]]);
@@ -22,10 +23,10 @@ class PersonRollController extends Controller
         return redirect()->route('movie', [$movieService->randomMovie($results['results'])['id']]);
     }
 
-    public function tv(int $id, TmdbClient $tmdb, MovieService $movieService): RedirectResponse
+    public function tv(Request $request, int $id, TmdbClient $tmdb, MovieService $movieService): RedirectResponse
     {
         $person = $tmdb->personDetail($id);
-        $type   = request('type', 'cast');
+        $type   = $request->query('type', 'cast');
 
         $pool = $type === 'crew'
             ? collect($person->combined_credits->crew ?? [])
