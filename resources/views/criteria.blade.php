@@ -73,7 +73,13 @@
             {{-- Language --}}
             <div class="card p-5">
                 <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Language</h3>
-                @include('includes.languages', ['selectedLang' => old('with_original_language', $ui['with_original_language'] ?? 'en')])
+                @include('includes.languages', ['selectedLang' => old('with_original_language', $ui['with_original_language'] ?? '')])
+            </div>
+
+            {{-- Origin Country --}}
+            <div class="card p-5">
+                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Origin Country</h3>
+                @include('includes.origin-country', ['selectedCountry' => old('with_origin_country', $ui['with_origin_country'] ?? '')])
             </div>
 
             {{-- Streaming --}}

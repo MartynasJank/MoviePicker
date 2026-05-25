@@ -73,7 +73,13 @@
             {{-- Language --}}
             <div class="card p-5">
                 <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Language</h3>
-                @include('includes.languages', ['selectedLang' => old('with_original_language', $ui['with_original_language'] ?? 'en')])
+                @include('includes.languages', ['selectedLang' => old('with_original_language', $ui['with_original_language'] ?? '')])
+            </div>
+
+            {{-- Origin Country --}}
+            <div class="card p-5">
+                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Origin Country</h3>
+                @include('includes.origin-country', ['selectedCountry' => old('with_origin_country', $ui['with_origin_country'] ?? '')])
             </div>
 
             {{-- Streaming --}}
@@ -88,6 +94,31 @@
                     @endforeach
                 </select>
                 <p class="text-xs text-gray-600 mt-1">Shows services available in your region</p>
+            </div>
+
+            {{-- People --}}
+            <div class="card p-5">
+                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">People</h3>
+                <div class="flex flex-col gap-4">
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1.5">Actors</label>
+                        <select id="with_cast" name="with_cast[]" multiple>
+                        @foreach((array)($ui['with_cast'] ?? []) as $i => $castId)
+                            <option value="{{ $castId }}" selected>{{ ($ui['with_cast_names'] ?? [])[$i] ?? '' }}</option>
+                        @endforeach
+                    </select>
+                        <p class="text-xs text-gray-600 mt-1">Type to search, you can add multiple</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1.5">Crew</label>
+                        <select id="with_crew" name="with_crew[]" multiple>
+                        @foreach((array)($ui['with_crew'] ?? []) as $i => $crewId)
+                            <option value="{{ $crewId }}" selected>{{ ($ui['with_crew_names'] ?? [])[$i] ?? '' }}</option>
+                        @endforeach
+                    </select>
+                        <p class="text-xs text-gray-600 mt-1">Directors, writers, producers — you can add multiple</p>
+                    </div>
+                </div>
             </div>
 
             {{-- Scores --}}
@@ -114,31 +145,6 @@
                             class="input-dark bg-input {{ $errors->has('vote_count_gte') ? 'border-danger' : '' }}"
                             name="vote_count_gte" placeholder="10" value="{{ old('vote_count_gte', $ui['vote_count_gte'] ?? '') }}">
                         <p class="text-xs text-gray-600 mt-1">Filters out obscure shows</p>
-                    </div>
-                </div>
-            </div>
-
-            {{-- People --}}
-            <div class="card p-5">
-                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">People</h3>
-                <div class="flex flex-col gap-4">
-                    <div>
-                        <label class="block text-sm text-gray-400 mb-1.5">Actors</label>
-                        <select id="with_cast" name="with_cast[]" multiple>
-                        @foreach((array)($ui['with_cast'] ?? []) as $i => $castId)
-                            <option value="{{ $castId }}" selected>{{ ($ui['with_cast_names'] ?? [])[$i] ?? '' }}</option>
-                        @endforeach
-                    </select>
-                        <p class="text-xs text-gray-600 mt-1">Type to search, you can add multiple</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm text-gray-400 mb-1.5">Crew</label>
-                        <select id="with_crew" name="with_crew[]" multiple>
-                        @foreach((array)($ui['with_crew'] ?? []) as $i => $crewId)
-                            <option value="{{ $crewId }}" selected>{{ ($ui['with_crew_names'] ?? [])[$i] ?? '' }}</option>
-                        @endforeach
-                    </select>
-                        <p class="text-xs text-gray-600 mt-1">Directors, writers, producers — you can add multiple</p>
                     </div>
                 </div>
             </div>
