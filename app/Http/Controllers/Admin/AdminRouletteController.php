@@ -102,39 +102,33 @@ class AdminRouletteController extends Controller
             return response()->json(['poster_path' => $path, 'all_paths' => $reordered]);
         }
 
-        // Fetch a fresh batch from TMDB
-        $mapper         = new RouletteTagMapper();
-        $criteria = $roulette->media_type === 'tv'
+        // Fetch a page of posters from TMDB
+        $page    = max(1, min(10, (int) $request->input('page', 1)));
+        $mapper  = new RouletteTagMapper();
+        $isTv    = $roulette->media_type === 'tv';
+        $criteria = $isTv
             ? $mapper->toCriteriaTv($roulette->tags ?? [])
             : $mapper->toCriteria($roulette->tags ?? []);
         $criteria['sort_by'] = 'popularity.desc';
-        $criteria['page']    = rand(1, 5);
+        $criteria['page']    = $page;
 
         $country      = $this->movieService->getUserCountry();
         $usedFallback = false;
 
         try {
-            $results = $roulette->media_type === 'tv'
+            $results = $isTv
                 ? $tmdb->discoverTv($criteria, $country)
                 : $tmdb->discover($criteria, $country);
-
-            // Retry within actual page range if we picked a page beyond total_pages
-            if (empty($results['results']) && ($results['total_pages'] ?? 0) > 0 && $criteria['page'] > $results['total_pages']) {
-                $criteria['page'] = rand(1, min(5, $results['total_pages']));
-                $results = $roulette->media_type === 'tv'
-                    ? $tmdb->discoverTv($criteria, $country)
-                    : $tmdb->discover($criteria, $country);
-            }
 
             if (empty($results['results']) && isset($criteria['with_watch_providers'])) {
                 $usedFallback = true;
                 $fallback     = array_diff_key($criteria, ['with_watch_providers' => true]);
-                $results      = $roulette->media_type === 'tv'
+                $results      = $isTv
                     ? $tmdb->discoverTv($fallback, $country)
                     : $tmdb->discover($fallback, $country);
             }
 
-            if ($roulette->media_type === 'tv' && empty($results['results']) && isset($criteria['with_genres'])) {
+            if ($isTv && empty($results['results']) && isset($criteria['with_genres'])) {
                 $usedFallback = true;
                 $results      = $tmdb->discoverTv(array_diff_key($criteria, ['with_genres' => true]), $country);
             }
@@ -146,11 +140,19 @@ class AdminRouletteController extends Controller
                 }
             }
 
-            if ($paths) {
+            if ($paths && $page === 1) {
                 $roulette->update(['poster_paths' => $paths]);
             }
 
-            return response()->json(['poster_path' => $paths[0] ?? null, 'all_paths' => $paths, 'fallback' => $usedFallback]);
+            $totalPages = min(10, $results['total_pages'] ?? 1);
+
+            return response()->json([
+                'poster_path' => $paths[0] ?? null,
+                'all_paths'   => $paths,
+                'page'        => $page,
+                'total_pages' => $totalPages,
+                'fallback'    => $usedFallback,
+            ]);
         } catch (\Throwable) {
             return response()->json(['poster_path' => null, 'all_paths' => []], 422);
         }

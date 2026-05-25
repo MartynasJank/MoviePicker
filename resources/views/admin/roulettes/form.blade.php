@@ -22,16 +22,20 @@
     @endphp
     <div class="sm:w-32 lg:w-44 flex-shrink-0">
 
-        {{-- Label + roll button --}}
+        {{-- Label + page navigation --}}
         <div class="flex items-center justify-between mb-2">
             <label class="text-xs font-semibold uppercase tracking-widest text-gray-500">Poster</label>
-            <button type="button" id="roll-poster-btn"
-                    class="flex items-center gap-1 text-xs text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg px-2 py-1 transition-colors">
-                <svg id="roll-poster-icon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                </svg>
-                New batch
-            </button>
+            <div class="flex items-center gap-1">
+                <button type="button" id="prev-page-btn" disabled
+                        class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded disabled:opacity-30 disabled:pointer-events-none transition-colors">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <span id="page-indicator" class="text-xs text-gray-500 tabular-nums w-14 text-center">…</span>
+                <button type="button" id="next-page-btn" disabled
+                        class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded disabled:opacity-30 disabled:pointer-events-none transition-colors">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+                </button>
+            </div>
         </div>
 
         {{-- Main poster (desktop only) --}}
@@ -173,7 +177,6 @@
 
 @section('scripts')
 <style>
-@keyframes spin { to { transform: rotate(360deg); } }
 @media (max-width: 639px) {
     #poster-grid { display: flex; overflow-x: auto; gap: 0.5rem; padding-bottom: 0.375rem; }
     #poster-grid .poster-thumb { flex-shrink: 0; width: 8rem; }
@@ -200,13 +203,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     @if($roulette)
     const CSRF      = document.querySelector('meta[name="csrf-token"]').content;
-    const POSTER_URL = `/admin/roulettes/{{ $roulette->id }}/refresh-poster`;
-    const rollBtn   = document.getElementById('roll-poster-btn');
-    const rollIcon  = document.getElementById('roll-poster-icon');
+    const URL       = `/admin/roulettes/{{ $roulette->id }}/refresh-poster`;
     const grid      = document.getElementById('poster-grid');
+    const prevBtn   = document.getElementById('prev-page-btn');
+    const nextBtn   = document.getElementById('next-page-btn');
+    const indicator = document.getElementById('page-indicator');
+    let currentPage = 1;
+    let totalPages  = 1;
+    let loading     = false;
 
     function setMainPoster(path) {
-        const url = `https://image.tmdb.org/t/p/w342${path}`;
         let img = document.getElementById('edit-poster-img');
         const placeholder = document.getElementById('edit-poster-placeholder');
         if (placeholder) {
@@ -216,15 +222,15 @@ document.addEventListener('DOMContentLoaded', () => {
             img.alt = '{{ addslashes($roulette->name) }}';
             placeholder.replaceWith(img);
         }
-        img.src = url;
+        img.src = `https://image.tmdb.org/t/p/w342${path}`;
     }
 
     function setActiveThumb(activePath) {
         grid.querySelectorAll('.poster-thumb').forEach(btn => {
             const isActive = btn.dataset.path === activePath;
-            btn.classList.toggle('ring-2',        isActive);
-            btn.classList.toggle('ring-accent',   isActive);
-            btn.classList.toggle('opacity-50',    !isActive);
+            btn.classList.toggle('ring-2',            isActive);
+            btn.classList.toggle('ring-accent',       isActive);
+            btn.classList.toggle('opacity-50',        !isActive);
             btn.classList.toggle('hover:opacity-100', !isActive);
         });
     }
@@ -256,16 +262,40 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Thumbnail click — select poster, keep grid positions fixed
+    function fetchPage(page) {
+        if (loading) return;
+        loading = true;
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        indicator.textContent = '…';
+
+        fetch(URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
+            body: JSON.stringify({ page }),
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (!data.all_paths?.length) return;
+            setMainPoster(data.all_paths[0]);
+            buildGrid(data.all_paths, data.all_paths[0]);
+            setFallbackNotice(data.fallback);
+            currentPage = data.page;
+            totalPages  = data.total_pages;
+            indicator.textContent = `${currentPage} / ${totalPages}`;
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= totalPages;
+        })
+        .finally(() => { loading = false; });
+    }
+
     grid.addEventListener('click', e => {
         const btn = e.target.closest('.poster-thumb');
         if (!btn) return;
-        const path = btn.dataset.path;
-
-        fetch(POSTER_URL, {
+        fetch(URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
-            body: JSON.stringify({ path }),
+            body: JSON.stringify({ path: btn.dataset.path }),
         })
         .then(r => r.json())
         .then(data => {
@@ -275,29 +305,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Roll — fetch fresh batch, rebuild grid with new posters
-    if (rollBtn) {
-        rollBtn.addEventListener('click', () => {
-            rollBtn.disabled = true;
-            rollIcon.style.animation = 'spin 0.6s linear infinite';
+    prevBtn.addEventListener('click', () => fetchPage(currentPage - 1));
+    nextBtn.addEventListener('click', () => fetchPage(currentPage + 1));
 
-            fetch(POSTER_URL, {
-                method: 'POST',
-                headers: { 'X-CSRF-TOKEN': CSRF },
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (!data.poster_path) return;
-                setMainPoster(data.poster_path);
-                buildGrid(data.all_paths, data.poster_path);
-                setFallbackNotice(data.fallback);
-            })
-            .finally(() => {
-                rollBtn.disabled = false;
-                rollIcon.style.animation = '';
-            });
-        });
-    }
+    fetchPage(1);
     @endif
 });
 </script>
