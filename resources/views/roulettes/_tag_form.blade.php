@@ -13,15 +13,22 @@
         '1960s'=>'The Sixties','1950s'=>'The Fifties','pre-1950'=>'Classic Hollywood',
     ];
     $countries = [
-        'JP'=>'Japanese','KR'=>'Korean','FR'=>'French','ES'=>'Spanish','IT'=>'Italian',
-        'CN'=>'Chinese','IN'=>'Indian','DE'=>'German','TR'=>'Turkish','PT'=>'Portuguese',
-        'MX'=>'Mexican','SE'=>'Swedish','DK'=>'Danish','LT'=>'Lithuanian',
+        'US'=>'United States','JP'=>'Japanese','KR'=>'Korean','FR'=>'French','ES'=>'Spanish',
+        'IT'=>'Italian','CN'=>'Chinese','IN'=>'Indian','DE'=>'German','TR'=>'Turkish',
+        'PT'=>'Portuguese','MX'=>'Mexican','SE'=>'Swedish','DK'=>'Danish','LT'=>'Lithuanian',
+    ];
+    $languages = [
+        'en'=>'English','ja'=>'Japanese','ko'=>'Korean','fr'=>'French','es'=>'Spanish',
+        'de'=>'German','it'=>'Italian','zh'=>'Chinese','hi'=>'Hindi','pt'=>'Portuguese',
+        'ru'=>'Russian','tr'=>'Turkish','ar'=>'Arabic','sv'=>'Swedish','da'=>'Danish',
+        'pl'=>'Polish','lt'=>'Lithuanian',
     ];
     $selectedPlatform      = $currentTags['platform'][0]      ?? null;
     $selectedGenres        = $currentTags['genre']             ?? [];
     $selectedWithoutGenres = $currentTags['without_genre']     ?? [];
     $selectedEra           = $currentTags['era'][0]            ?? null;
     $selectedCountry       = $currentTags['country'][0]        ?? null;
+    $selectedLanguage      = $currentTags['language'][0]       ?? null;
 @endphp
 
 <div class="space-y-6">
@@ -57,7 +64,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
 
         {{-- Platform --}}
         <div>
@@ -77,6 +84,17 @@
                 <option value="">None</option>
                 @foreach($eras as $value => $label)
                     <option value="{{ $value }}" {{ $selectedEra === $value ? 'selected' : '' }}>{{ $label }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        {{-- Language --}}
+        <div>
+            <label class="block text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">Language</label>
+            <select name="tags[language]" class="input-dark w-full">
+                <option value="">None</option>
+                @foreach($languages as $value => $label)
+                    <option value="{{ $value }}" {{ $selectedLanguage === $value ? 'selected' : '' }}>{{ $label }}</option>
                 @endforeach
             </select>
         </div>
