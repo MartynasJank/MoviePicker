@@ -189,7 +189,9 @@ class UserRouletteController extends Controller
         $sort   = $request->input('sort', 'rating') === 'rating' ? 'rating' : 'popularity';
         $mapper = new RouletteTagMapper();
         $isTv   = $roulette->media_type === 'tv';
-        $criteria = $isTv ? $mapper->toCriteriaTv($roulette->tags ?? []) : $mapper->toCriteria($roulette->tags ?? []);
+        $rawTags  = $request->input('tags');
+        $tags     = $rawTags !== null ? $mapper->normalizeTags($rawTags) : ($roulette->tags ?? []);
+        $criteria = $isTv ? $mapper->toCriteriaTv($tags) : $mapper->toCriteria($tags);
         $criteria['sort_by'] = $sort === 'rating' ? 'vote_average.desc' : 'popularity.desc';
         $criteria['page']    = $page;
         if ($sort === 'rating') {

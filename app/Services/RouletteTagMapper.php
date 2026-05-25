@@ -66,6 +66,17 @@ class RouletteTagMapper
         '2020s'    => ['gte' => 2020],
     ];
 
+    public function normalizeTags(array $raw): array
+    {
+        $tags = [];
+        if (!empty($raw['platform'])) $tags['platform'] = [$raw['platform']];
+        if (!empty($raw['genre']))    $tags['genre']    = array_values((array) $raw['genre']);
+        if (!empty($raw['without_genre'])) $tags['without_genre'] = array_values((array) $raw['without_genre']);
+        if (!empty($raw['era']))      $tags['era']      = [$raw['era']];
+        if (!empty($raw['country']))  $tags['country']  = [$raw['country']];
+        return $tags;
+    }
+
     public function toCriteria(array $tags): array
     {
         $criteria = [];

@@ -238,6 +238,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function getTags() {
+        const tags = {};
+        const genres = Array.from(document.querySelectorAll('input[name="tags[genre][]"]:checked')).map(el => el.value);
+        if (genres.length) tags.genre = genres;
+        const withoutGenres = Array.from(document.querySelectorAll('input[name="tags[without_genre][]"]:checked')).map(el => el.value);
+        if (withoutGenres.length) tags.without_genre = withoutGenres;
+        const platform = document.querySelector('select[name="tags[platform]"]')?.value;
+        if (platform) tags.platform = platform;
+        const era = document.querySelector('select[name="tags[era]"]')?.value;
+        if (era) tags.era = era;
+        const country = document.querySelector('select[name="tags[country]"]')?.value;
+        if (country) tags.country = country;
+        return tags;
+    }
+
     function fetchPage(page) {
         if (loading) return;
         loading = true;
@@ -248,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch(URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
-            body: JSON.stringify({ page, sort: currentSort }),
+            body: JSON.stringify({ page, sort: currentSort, tags: getTags() }),
         })
         .then(r => r.json())
         .then(data => {
