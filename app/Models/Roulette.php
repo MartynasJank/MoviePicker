@@ -31,11 +31,12 @@ class Roulette extends Model
             return $platforms[$tags['platform'][0]] ?? 'Other';
         }
         if (!empty($tags['era'])) return 'By Decade';
-        if (!empty($tags['language']) && in_array('ja', (array) $tags['language'])
-            && !empty($tags['genre']) && in_array('animation', (array) $tags['genre'])) {
+        $hasJapan = (!empty($tags['country']) && in_array('JP', (array) $tags['country']))
+                 || (!empty($tags['language']) && in_array('ja', (array) $tags['language']));
+        if ($hasJapan && !empty($tags['genre']) && in_array('animation', (array) $tags['genre'])) {
             return 'Anime';
         }
-        if (!empty($tags['language'])) return 'World Cinema';
+        if (!empty($tags['country']) || !empty($tags['language'])) return 'World Cinema';
         return 'By Genre';
     }
 
