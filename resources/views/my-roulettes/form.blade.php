@@ -319,7 +319,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    fetchPage(1);
 });
 @endif
 </script>
