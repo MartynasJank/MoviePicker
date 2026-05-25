@@ -187,7 +187,8 @@ class UserRouletteController extends Controller
         $tagsForPosters = array_diff_key($roulette->tags ?? [], ['platform' => true]);
         $isTv           = $roulette->media_type === 'tv';
         $criteria       = $isTv ? $mapper->toCriteriaTv($tagsForPosters) : $mapper->toCriteria($tagsForPosters);
-        $criteria['page'] = rand(1, 5);
+        $criteria['sort_by'] = 'popularity.desc';
+        $criteria['page']    = rand(1, 5);
 
         try {
             $results = $isTv ? $tmdb->discoverTv($criteria, 'US') : $tmdb->discover($criteria, 'US');
