@@ -28,6 +28,11 @@
         <div class="flex items-center justify-between mb-1.5">
             <label class="text-xs font-semibold uppercase tracking-widest text-gray-500">Poster</label>
             <div class="flex items-center gap-1">
+                <button type="button" id="refresh-posters-btn"
+                        class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded transition-colors"
+                        title="Refresh posters">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                </button>
                 <button type="button" id="prev-page-btn" disabled
                         class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded disabled:opacity-30 disabled:pointer-events-none transition-colors">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
@@ -301,6 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     prevBtn.addEventListener('click', () => fetchPage(currentPage - 1));
     nextBtn.addEventListener('click', () => fetchPage(currentPage + 1));
+    document.getElementById('refresh-posters-btn').addEventListener('click', () => fetchPage(1));
 
     document.querySelectorAll('.sort-btn').forEach(btn => {
         btn.addEventListener('click', () => {
