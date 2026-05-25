@@ -26,7 +26,8 @@ class PersonController extends Controller
             ->sortByDesc('vote_count')
             ->values();
 
-        $tvRollFilter = $movieService->tvCreditFilter();
+        $tvRollFilter    = $movieService->tvCreditFilter();
+        $tvDisplayFilter = $movieService->tvCreditFilter(minEpisodes: 2);
 
         // Known for: top 8 by vote_count, deduplicated by title ID
         $knownFor = collect($person->combined_credits->cast ?? [])
@@ -40,9 +41,9 @@ class PersonController extends Controller
             ->sortByDesc('vote_count')
             ->values();
 
-        // TV: apply quality filter (removes one-off episodes/talk shows), sort by vote_count
+        // TV: filter out true one-offs/talk shows, sort by vote_count
         $tvShows = $credits->filter(fn($c) => ($c->media_type ?? '') === 'tv')
-            ->filter($tvRollFilter)
+            ->filter($tvDisplayFilter)
             ->sortByDesc('vote_count')
             ->values();
 

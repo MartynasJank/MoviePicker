@@ -275,14 +275,14 @@ class MovieService
         return $data->countryCode ?? 'LT';
     }
 
-    public function tvCreditFilter(): \Closure
+    public function tvCreditFilter(int $minEpisodes = 5): \Closure
     {
         $nonScripted = [10767, 10763, 10764];
 
         return fn($c) => ($c->media_type ?? '') === 'tv'
             && !empty($c->id)
             && ($c->vote_count ?? 0) >= 10
-            && ($c->episode_count ?? 0) >= 5
+            && ($c->episode_count ?? 0) >= $minEpisodes
             && empty(array_intersect((array)($c->genre_ids ?? []), $nonScripted));
     }
 
