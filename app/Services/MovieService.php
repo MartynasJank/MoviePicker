@@ -7,9 +7,16 @@ use Illuminate\Support\Facades\Cache;
 
 class MovieService
 {
-    public function randomPage(int $totalPages): int
+    public function randomPage(int $totalPages, int $exclude = 0): int
     {
-        return rand(1, min($totalPages, 500));
+        $capped = min($totalPages, 500);
+        if ($capped <= 1) return 1;
+
+        do {
+            $page = rand(1, $capped);
+        } while ($page === $exclude);
+
+        return $page;
     }
 
     public function randomMovie(array $movieArray): array

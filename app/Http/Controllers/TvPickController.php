@@ -23,6 +23,11 @@ class TvPickController extends Controller
         $results = $tmdb->discoverTv($criteria, $country);
 
         if (empty($results['results'])) {
+            $criteria['page'] = $movieService->randomPage(session('tvInput.total_pages', 500), $criteria['page']);
+            $results = $tmdb->discoverTv($criteria, $country);
+        }
+
+        if (empty($results['results'])) {
             return redirect('/tv/criteria');
         }
 
