@@ -14,13 +14,6 @@ class TmdbClient implements ApiMovie
 
     private Client $client;
 
-    private ?string $lastDiscoverUrl = null;
-
-    public function lastDiscoverUrl(): ?string
-    {
-        return $this->lastDiscoverUrl;
-    }
-
     public function __construct()
     {
         $this->client = new Client([
@@ -91,8 +84,7 @@ class TmdbClient implements ApiMovie
             $input['watch_region'] = $country;
         }
 
-        $this->lastDiscoverUrl = 'https://api.themoviedb.org/3/discover/movie?' . http_build_query($input);
-        $response = $this->client->get($this->lastDiscoverUrl);
+        $response = $this->client->get('https://api.themoviedb.org/3/discover/movie?' . http_build_query($input));
 
         return json_decode($response->getBody()->getContents(), true);
     }
@@ -284,8 +276,7 @@ class TmdbClient implements ApiMovie
             $input['watch_region'] = $country;
         }
 
-        $this->lastDiscoverUrl = 'https://api.themoviedb.org/3/discover/tv?' . http_build_query($input);
-        $response = $this->client->get($this->lastDiscoverUrl);
+        $response = $this->client->get('https://api.themoviedb.org/3/discover/tv?' . http_build_query($input));
 
         return json_decode($response->getBody()->getContents(), true);
     }

@@ -197,28 +197,6 @@
         </div>
     </div>
 
-    @if(auth()->check() && auth()->user()->email === config('api.admin_email') && session('_debug'))
-    @php $dbg = session('_debug'); @endphp
-    <div id="admin-debug" class="fixed top-20 right-4 z-50 bg-black/95 border border-white/10 rounded-xl p-3 text-xs font-mono shadow-2xl max-w-xs">
-        <div class="flex items-start justify-between gap-3 mb-1">
-            <div>
-                <span class="text-accent font-bold text-base">{{ number_format($dbg['count']) }}</span>
-                <span class="text-gray-400 ml-1">{{ $dbg['type'] }}</span>
-            </div>
-            <button onclick="document.getElementById('admin-debug').remove()" class="text-gray-600 hover:text-gray-300 transition-colors leading-none mt-0.5">✕</button>
-        </div>
-        @if(!empty($dbg['page']) && !empty($dbg['total_pages']))
-        <div class="text-gray-500 mb-1">page {{ $dbg['page'] }} / {{ number_format($dbg['total_pages']) }}</div>
-        @endif
-        @if($dbg['url'])
-        <a href="{{ $dbg['url'] }}" target="_blank"
-           class="text-blue-400 hover:text-blue-300 transition-colors break-all leading-relaxed block">
-            TMDB API ↗
-        </a>
-        @endif
-    </div>
-    <script>console.log('[debug]', {{ $dbg['count'] }}, '{{ $dbg['type'] }}', 'page {{ $dbg['page'] ?? '?' }} of {{ $dbg['total_pages'] ?? '?' }}', {{ $dbg['url'] ? json_encode($dbg['url']) : 'null' }});</script>
-    @endif
 
     {{-- Flash messages --}}
     @if(session('success'))
