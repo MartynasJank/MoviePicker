@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Roulette;
 use App\Models\Setting;
+use App\Services\MovieService;
 use App\Services\RouletteTagMapper;
 use App\Services\TmdbClient;
 use Illuminate\Http\Request;
@@ -12,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 
 class AdminRouletteController extends Controller
 {
+    public function __construct(private MovieService $movieService) {}
+
     public function index(Request $request)
     {
         $q         = $request->input('q');
@@ -107,13 +110,22 @@ class AdminRouletteController extends Controller
         $criteria['sort_by'] = 'popularity.desc';
         $criteria['page']    = rand(1, 5);
 
+        $country = $this->movieService->getUserCountry();
+
         try {
             $results = $roulette->media_type === 'tv'
-                ? $tmdb->discoverTv($criteria, 'US')
-                : $tmdb->discover($criteria, 'US');
+                ? $tmdb->discoverTv($criteria, $country)
+                : $tmdb->discover($criteria, $country);
+
+            if (empty($results['results']) && isset($criteria['with_watch_providers'])) {
+                $fallback = array_diff_key($criteria, ['with_watch_providers' => true]);
+                $results  = $roulette->media_type === 'tv'
+                    ? $tmdb->discoverTv($fallback, $country)
+                    : $tmdb->discover($fallback, $country);
+            }
 
             if ($roulette->media_type === 'tv' && empty($results['results']) && isset($criteria['with_genres'])) {
-                $results = $tmdb->discoverTv(array_diff_key($criteria, ['with_genres' => true]), 'US');
+                $results = $tmdb->discoverTv(array_diff_key($criteria, ['with_genres' => true]), $country);
             }
 
             $paths = [];

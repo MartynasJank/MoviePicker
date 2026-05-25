@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Roulette;
 use App\Models\Setting;
+use App\Services\MovieService;
 use App\Services\TmdbClient;
 use App\Services\RouletteTagMapper;
 use Illuminate\Http\Request;
 
 class UserRouletteController extends Controller
 {
+    public function __construct(private MovieService $movieService) {}
+
     private function rowOrderKey(): string
     {
         return 'user_row_order.' . auth()->id();
@@ -188,8 +191,15 @@ class UserRouletteController extends Controller
         $criteria['sort_by'] = 'popularity.desc';
         $criteria['page']    = rand(1, 5);
 
+        $country = $this->movieService->getUserCountry();
+
         try {
-            $results = $isTv ? $tmdb->discoverTv($criteria, 'US') : $tmdb->discover($criteria, 'US');
+            $results = $isTv ? $tmdb->discoverTv($criteria, $country) : $tmdb->discover($criteria, $country);
+
+            if (empty($results['results']) && isset($criteria['with_watch_providers'])) {
+                $fallback = array_diff_key($criteria, ['with_watch_providers' => true]);
+                $results  = $isTv ? $tmdb->discoverTv($fallback, $country) : $tmdb->discover($fallback, $country);
+            }
 
             $paths = [];
             foreach ($results['results'] ?? [] as $item) {
