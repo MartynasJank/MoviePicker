@@ -1,4 +1,5 @@
-<div class="bg-white/3 rounded-xl overflow-hidden border border-white/5">
+<div class="overflow-x-auto rounded-xl">
+<div class="bg-white/3 overflow-hidden border border-white/5 min-w-[480px] rounded-xl">
     <table class="w-full text-sm">
         <thead>
             <tr class="border-b border-white/5 text-left">
@@ -78,7 +79,7 @@
                     <td class="py-3 px-3 text-right">
                         <div class="flex items-center justify-end gap-2">
                             <a href="/roulettes/{{ $roulette->slug }}" target="_blank"
-                               class="text-xs text-gray-500 hover:text-white transition-colors">Roll</a>
+                               class="hidden sm:inline text-xs text-gray-500 hover:text-white transition-colors">Roll</a>
                             <a href="{{ route('admin.roulettes.edit', $roulette) }}"
                                class="text-xs text-gray-400 hover:text-accent transition-colors">Edit</a>
                             <form method="POST" action="{{ route('admin.roulettes.destroy', $roulette) }}"
@@ -92,4 +93,5 @@
             @endforeach
         </tbody>
     </table>
+</div>
 </div>
