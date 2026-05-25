@@ -14,19 +14,30 @@
         </div>
     @endif
 
-    <div class="flex flex-row gap-4 lg:gap-8">
+    <div class="flex flex-col sm:flex-row gap-4 lg:gap-8">
 
-    {{-- Poster sidebar (edit only) --}}
+    {{-- Poster section (edit only) --}}
     @if($roulette)
     @php
         $allPosters = $roulette->poster_paths ?? [];
         $poster     = $allPosters[0] ?? null;
     @endphp
-    <div class="w-24 sm:w-32 lg:w-40 flex-shrink-0">
-        <label class="block text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">Poster</label>
+    <div class="sm:w-32 lg:w-40 flex-shrink-0">
 
-        {{-- Main poster --}}
-        <div class="w-full rounded-xl overflow-hidden" style="aspect-ratio:2/3">
+        {{-- Label + roll button --}}
+        <div class="flex items-center justify-between mb-2">
+            <label class="text-xs font-semibold uppercase tracking-widest text-gray-500">Poster</label>
+            <button type="button" id="roll-poster-btn"
+                    class="flex items-center gap-1 text-xs text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg px-2 py-1 transition-colors">
+                <svg id="roll-poster-icon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                New batch
+            </button>
+        </div>
+
+        {{-- Main poster (desktop only) --}}
+        <div class="hidden sm:block w-full rounded-xl overflow-hidden mb-2" style="aspect-ratio:2/3">
             @if($poster)
                 <img id="edit-poster-img"
                      src="https://image.tmdb.org/t/p/w342{{ $poster }}"
@@ -42,30 +53,21 @@
             @endif
         </div>
 
-        {{-- Thumbnail grid --}}
+        {{-- Thumbnail grid (desktop 4-col) / scroll strip (mobile) --}}
         @if(count($allPosters) > 1)
-        <div id="poster-grid" class="grid grid-cols-4 gap-1 mt-2">
+        <div id="poster-grid" class="grid grid-cols-4 gap-1">
             @foreach($allPosters as $i => $path)
                 <button type="button"
                         class="poster-thumb relative rounded overflow-hidden {{ $i === 0 ? 'ring-2 ring-accent' : 'opacity-50 hover:opacity-100' }} transition-opacity"
                         style="aspect-ratio:2/3"
                         data-path="{{ $path }}">
-                    <img src="https://image.tmdb.org/t/p/w92{{ $path }}" class="w-full h-full object-cover">
+                    <img src="https://image.tmdb.org/t/p/w185{{ $path }}" class="w-full h-full object-cover">
                 </button>
             @endforeach
         </div>
         @else
-            <div id="poster-grid" class="grid grid-cols-4 gap-1 mt-2"></div>
+            <div id="poster-grid" class="grid grid-cols-4 gap-1"></div>
         @endif
-
-        {{-- Roll batch button --}}
-        <button type="button" id="roll-poster-btn"
-                class="mt-2 w-full flex items-center justify-center gap-1.5 text-xs text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg py-2 transition-colors">
-            <svg id="roll-poster-icon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-            </svg>
-            New batch
-        </button>
     </div>
     @endif
 
@@ -154,7 +156,13 @@
 @endsection
 
 @section('scripts')
-<style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 639px) {
+    #poster-grid { display: flex; overflow-x: auto; gap: 0.5rem; padding-bottom: 0.375rem; }
+    #poster-grid .poster-thumb { flex-shrink: 0; width: 5rem; }
+}
+</style>
 <script>
 @if($roulette)
 document.addEventListener('DOMContentLoaded', () => {
@@ -197,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 (path === activePath ? 'ring-2 ring-accent' : 'opacity-50 hover:opacity-100');
             btn.style.aspectRatio = '2/3';
             btn.dataset.path = path;
-            btn.innerHTML = `<img src="https://image.tmdb.org/t/p/w92${path}" class="w-full h-full object-cover">`;
+            btn.innerHTML = `<img src="https://image.tmdb.org/t/p/w185${path}" class="w-full h-full object-cover">`;
             grid.appendChild(btn);
         });
     }
