@@ -21,6 +21,11 @@ class PersonRollController extends Controller
         $results = $tmdb->discover($criteria, $country);
 
         if (empty($results['results'])) {
+            $criteria['page'] = $movieService->randomPage(session('userInput.total_pages', 500), $criteria['page']);
+            $results = $tmdb->discover($criteria, $country);
+        }
+
+        if (empty($results['results'])) {
             return redirect()->route('person', $id);
         }
 
