@@ -58,14 +58,14 @@ Route::get('/movie/{id}', MovieController::class)->name('movie');
 
 // TV Shows
 Route::get('/tv/criteria',                     TvCriteriaController::class);
-Route::match(['get', 'post'], '/tv/pick',      [TvPickController::class, 'single']);
+Route::match(['get', 'post'], '/tv/pick',      [TvPickController::class, 'single'])->name('tv.pick');
 Route::match(['get', 'post'], '/tv/multiple',  [TvPickController::class, 'batch']);
 Route::get('/tv/{id}', TvShowController::class)->name('tv.show');
 Route::get('/tv/{id}/season/{season}', TvSeasonController::class)->name('tv.season');
 Route::get('/tv/{id}/season/{season}/episode/{episode}', TvEpisodeController::class)->name('tv.episode');
 
-Route::get('/person/{id}', PersonController::class)->name('person');
 Route::get('/person/roll/tv/next',    [PersonRollController::class, 'tvNext'])->name('person.roll.tv.next');
+Route::get('/person/{id}',            PersonController::class)->name('person');
 Route::get('/person/{id}/roll/movie', [PersonRollController::class, 'movie'])->name('person.roll.movie');
 Route::get('/person/{id}/roll/tv',    [PersonRollController::class, 'tv'])->name('person.roll.tv');
 

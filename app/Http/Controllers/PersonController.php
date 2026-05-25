@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\MovieService;
 use App\Services\TmdbClient;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class PersonController extends Controller
 {
-    public function __invoke(Request $request, TmdbClient $tmdb): View
+    public function __invoke(Request $request, TmdbClient $tmdb, MovieService $movieService): View
     {
         $id = (int) $request->route('id');
 
@@ -46,12 +47,7 @@ class PersonController extends Controller
         $hasMovieCrew = collect($person->combined_credits->crew ?? [])
             ->contains(fn($c) => ($c->media_type ?? '') === 'movie');
 
-        $nonScriptedGenres = [10767, 10763, 10764];
-        $tvRollFilter = fn($c) => ($c->media_type ?? '') === 'tv'
-            && !empty($c->id)
-            && ($c->vote_count ?? 0) >= 10
-            && ($c->episode_count ?? 0) >= 5
-            && empty(array_intersect((array)($c->genre_ids ?? []), $nonScriptedGenres));
+        $tvRollFilter = $movieService->tvCreditFilter();
 
         $hasTvCast = collect($person->combined_credits->cast ?? [])->contains($tvRollFilter);
         $hasTvCrew = collect($person->combined_credits->crew ?? [])->contains($tvRollFilter);

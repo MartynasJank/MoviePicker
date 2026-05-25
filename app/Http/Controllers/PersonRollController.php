@@ -22,7 +22,7 @@ class PersonRollController extends Controller
         return redirect()->route('movie', [$movieService->randomMovie($results['results'])['id']]);
     }
 
-    public function tv(int $id, TmdbClient $tmdb): RedirectResponse
+    public function tv(int $id, TmdbClient $tmdb, MovieService $movieService): RedirectResponse
     {
         $person = $tmdb->personDetail($id);
         $type   = request('type', 'cast');
@@ -31,14 +31,8 @@ class PersonRollController extends Controller
             ? collect($person->combined_credits->crew ?? [])
             : collect($person->combined_credits->cast ?? []);
 
-        $nonScriptedGenres = [10767, 10763, 10764];
-
         $shows = $pool
-            ->filter(fn($c) => ($c->media_type ?? '') === 'tv'
-                && !empty($c->id)
-                && ($c->vote_count ?? 0) >= 10
-                && ($c->episode_count ?? 0) >= 5
-                && empty(array_intersect((array)($c->genre_ids ?? []), $nonScriptedGenres)))
+            ->filter($movieService->tvCreditFilter())
             ->unique('id')
             ->values();
 
@@ -67,9 +61,10 @@ class PersonRollController extends Controller
         $ids = session('tvPersonRollIds');
 
         if (empty($ids)) {
-            return redirect('/tv/pick');
+            return redirect()->route('tv.pick');
         }
 
         return redirect()->route('tv.show', [$ids[array_rand($ids)]]);
     }
+
 }
