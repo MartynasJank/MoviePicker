@@ -105,7 +105,8 @@ class AdminRouletteController extends Controller
         $criteria       = $roulette->media_type === 'tv'
             ? $mapper->toCriteriaTv($tagsForPosters)
             : $mapper->toCriteria($tagsForPosters);
-        $criteria['page'] = rand(1, 5);
+        $criteria['sort_by'] = 'popularity.desc';
+        $criteria['page']    = rand(1, 5);
 
         try {
             $results = $roulette->media_type === 'tv'
