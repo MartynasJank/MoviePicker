@@ -193,7 +193,7 @@ class UserRouletteController extends Controller
         $criteria['sort_by'] = $sort === 'rating' ? 'vote_average.desc' : 'popularity.desc';
         $criteria['page']    = $page;
         if ($sort === 'rating') {
-            $criteria['vote_count.gte'] = 300;
+            $criteria['vote_count.gte'] = 50;
         }
 
         $country      = $this->movieService->getUserCountry();
