@@ -1,6 +1,6 @@
 @php
     $langId   = isset($modalMode) && $modalMode ? 'modal-with_original_language' : 'with_original_language';
-    $selLang  = $selectedLang ?? old('with_original_language', 'en');
+    $selLang  = $selectedLang ?? old('with_original_language', '');
     $langOpts = [
         'en'=>'English','de'=>'German','fr'=>'French','es'=>'Spanish','ja'=>'Japanese',
         'pt'=>'Portuguese','it'=>'Italian','ru'=>'Russian','zh'=>'Chinese','ko'=>'Korean',
@@ -27,4 +27,3 @@
         <option value="{{ $val }}" {{ $selLang === $val ? 'selected' : '' }}>{{ $label }}</option>
     @endforeach
 </select>
-<p class="text-xs text-gray-600 mt-1">Default: English</p>
