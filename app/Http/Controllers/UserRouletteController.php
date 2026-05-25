@@ -197,6 +197,12 @@ class UserRouletteController extends Controller
         try {
             $results = $isTv ? $tmdb->discoverTv($criteria, $country) : $tmdb->discover($criteria, $country);
 
+            // Retry within actual page range if we picked a page beyond total_pages
+            if (empty($results['results']) && ($results['total_pages'] ?? 0) > 0 && $criteria['page'] > $results['total_pages']) {
+                $criteria['page'] = rand(1, min(5, $results['total_pages']));
+                $results = $isTv ? $tmdb->discoverTv($criteria, $country) : $tmdb->discover($criteria, $country);
+            }
+
             if (empty($results['results']) && isset($criteria['with_watch_providers'])) {
                 $usedFallback = true;
                 $fallback     = array_diff_key($criteria, ['with_watch_providers' => true]);
