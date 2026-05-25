@@ -108,13 +108,6 @@ $(document).ready(function () {
             row.classList.add('cursor-grabbing');
         });
 
-        row.addEventListener('wheel', function (e) {
-            const delta = Math.abs(e.deltaX) >= 5 ? e.deltaX : e.deltaY;
-            if (Math.abs(delta) < 5) return;
-            e.preventDefault();
-            row.scrollLeft += delta;
-        }, { passive: false });
-
         document.addEventListener('mouseup', function () {
             isDown = false;
             row.classList.remove('cursor-grabbing');
