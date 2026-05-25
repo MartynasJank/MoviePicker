@@ -20,7 +20,7 @@
         $allPosters = $roulette->poster_paths ?? [];
         $poster     = $allPosters[0] ?? null;
     @endphp
-    <div id="poster-section" class="sm:w-32 lg:w-44 flex-shrink-0">
+    <div id="poster-section" class="sm:w-52 lg:w-80 flex-shrink-0">
 
         {{-- Label + page navigation --}}
         <div class="flex items-center justify-between mb-1.5">
@@ -64,7 +64,7 @@
 
         {{-- Thumbnail grid (desktop 4-col) / scroll strip (mobile) --}}
         @if(count($allPosters) > 1)
-        <div id="poster-grid" class="grid grid-cols-4 gap-1">
+        <div id="poster-grid" class="grid grid-cols-3 gap-1">
             @foreach($allPosters as $i => $path)
                 <button type="button"
                         class="poster-thumb relative rounded overflow-hidden {{ $i === 0 ? 'ring-2 ring-accent' : 'opacity-50 hover:opacity-100' }} transition-opacity"
@@ -75,7 +75,7 @@
             @endforeach
         </div>
         @else
-            <div id="poster-grid" class="grid grid-cols-4 gap-1"></div>
+            <div id="poster-grid" class="grid grid-cols-3 gap-1"></div>
         @endif
     </div>
     @endif
@@ -262,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
         paths.forEach(path => {
             const btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = 'poster-thumb relative rounded overflow-hidden transition-opacity ' +
+            btn.className = 'poster-thumb relative rounded overflow-hidden transition-opacity col-span-1 ' +
                 (path === activePath ? 'ring-2 ring-accent' : 'opacity-50 hover:opacity-100');
             btn.style.aspectRatio = '2/3';
             btn.dataset.path = path;
