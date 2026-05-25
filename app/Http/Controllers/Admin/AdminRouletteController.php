@@ -126,16 +126,18 @@ class AdminRouletteController extends Controller
 
             if (empty($results['results']) && isset($criteria['with_watch_providers'])) {
                 $usedFallback = true;
-                $fallback     = array_diff_key($criteria, ['with_watch_providers' => true]);
                 $results      = $isTv
+                    ? $tmdb->discoverTv($criteria, 'US')
+                    : $tmdb->discover($criteria, 'US');
+            }
+
+            if (empty($results['results']) && isset($criteria['with_watch_providers'])) {
+                $fallback = array_diff_key($criteria, ['with_watch_providers' => true]);
+                $results  = $isTv
                     ? $tmdb->discoverTv($fallback, $country)
                     : $tmdb->discover($fallback, $country);
             }
 
-            if ($isTv && empty($results['results']) && isset($criteria['with_genres'])) {
-                $usedFallback = true;
-                $results      = $tmdb->discoverTv(array_diff_key($criteria, ['with_genres' => true]), $country);
-            }
 
             $paths = [];
             foreach ($results['results'] ?? [] as $item) {

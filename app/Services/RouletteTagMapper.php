@@ -7,7 +7,7 @@ class RouletteTagMapper
     private const PLATFORM_IDS = [
         'netflix' => 8,
         'prime'   => 119,
-        'hbo'     => 384,
+        'hbo'     => 1899,
         'disney'  => 337,
         'apple'   => 350,
     ];

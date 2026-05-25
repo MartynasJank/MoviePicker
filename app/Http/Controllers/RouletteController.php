@@ -33,11 +33,14 @@ class RouletteController extends Controller
                     ? $tmdb->discoverTv($criteria, 'US')
                     : $tmdb->discover($criteria, 'US');
 
-                // Fallback: if genre filter returned nothing (can happen with non-native TV genre IDs),
-                // retry without genre so the roulette card still gets a representative poster.
-                if ($roulette->media_type === 'tv' && empty($results['results']) && isset($criteria['with_genres'])) {
-                    $results = $tmdb->discoverTv(array_diff_key($criteria, ['with_genres' => true]), 'US');
+                // Provider not mapped in US — strip it and retry
+                if (empty($results['results']) && isset($criteria['with_watch_providers'])) {
+                    $fallback = array_diff_key($criteria, ['with_watch_providers' => true]);
+                    $results  = $roulette->media_type === 'tv'
+                        ? $tmdb->discoverTv($fallback, 'US')
+                        : $tmdb->discover($fallback, 'US');
                 }
+
 
                 $paths = [];
                 foreach ($results['results'] ?? [] as $item) {
