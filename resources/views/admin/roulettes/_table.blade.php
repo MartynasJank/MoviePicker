@@ -14,7 +14,7 @@
         </thead>
         <tbody class="{{ $sortable ? 'sortable-tbody' : '' }}">
             @foreach($roulettes as $roulette)
-                <tr class="border-b border-white/5 last:border-0 hover:bg-white/2 transition-colors"
+                <tr class="border-b border-white/5 last:border-0 transition-colors {{ empty($roulette->row) ? 'bg-amber-500/8 hover:bg-amber-500/12' : 'hover:bg-white/2' }}"
                     data-id="{{ $roulette->id }}">
                     <td class="py-3 px-3 text-gray-600 {{ $sortable ? 'cursor-grab drag-handle' : '' }} select-none">
                         @if($sortable)
