@@ -199,7 +199,7 @@
 
     @if(auth()->check() && auth()->user()->email === config('api.admin_email') && session('_debug'))
     @php $dbg = session('_debug'); @endphp
-    <div id="admin-debug" class="fixed bottom-4 right-4 z-50 bg-black/95 border border-white/10 rounded-xl p-3 text-xs font-mono shadow-2xl max-w-xs">
+    <div id="admin-debug" class="fixed top-20 right-4 z-50 bg-black/95 border border-white/10 rounded-xl p-3 text-xs font-mono shadow-2xl max-w-xs">
         <div class="flex items-baseline gap-2 mb-1">
             <span class="text-accent font-bold text-base">{{ number_format($dbg['count']) }}</span>
             <span class="text-gray-400">{{ $dbg['type'] }} found</span>

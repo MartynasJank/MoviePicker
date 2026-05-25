@@ -22,6 +22,10 @@ class MoviePickController extends Controller
 
         $results = $tmdb->discover($criteria, $country);
 
+        if (empty($results['results'])) {
+            return redirect('/criteria');
+        }
+
         return redirect()->route('movie', [$movieService->randomMovie($results['results'])['id']]);
     }
 

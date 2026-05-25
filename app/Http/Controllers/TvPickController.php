@@ -22,6 +22,10 @@ class TvPickController extends Controller
 
         $results = $tmdb->discoverTv($criteria, $country);
 
+        if (empty($results['results'])) {
+            return redirect('/tv/criteria');
+        }
+
         return redirect()->route('tv.show', [$movieService->randomMovie($results['results'])['id']]);
     }
 

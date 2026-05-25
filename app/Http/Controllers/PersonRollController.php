@@ -20,6 +20,10 @@ class PersonRollController extends Controller
         $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country);
         $results = $tmdb->discover($criteria, $country);
 
+        if (empty($results['results'])) {
+            return redirect()->route('person', $id);
+        }
+
         return redirect()->route('movie', [$movieService->randomMovie($results['results'])['id']]);
     }
 
