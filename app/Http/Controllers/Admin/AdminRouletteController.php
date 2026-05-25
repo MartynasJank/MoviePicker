@@ -101,10 +101,9 @@ class AdminRouletteController extends Controller
 
         // Fetch a fresh batch from TMDB
         $mapper         = new RouletteTagMapper();
-        $tagsForPosters = array_diff_key($roulette->tags ?? [], ['platform' => true]);
-        $criteria       = $roulette->media_type === 'tv'
-            ? $mapper->toCriteriaTv($tagsForPosters)
-            : $mapper->toCriteria($tagsForPosters);
+        $criteria = $roulette->media_type === 'tv'
+            ? $mapper->toCriteriaTv($roulette->tags ?? [])
+            : $mapper->toCriteria($roulette->tags ?? []);
         $criteria['sort_by'] = 'popularity.desc';
         $criteria['page']    = rand(1, 5);
 

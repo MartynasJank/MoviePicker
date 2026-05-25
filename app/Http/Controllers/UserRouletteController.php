@@ -39,9 +39,8 @@ class UserRouletteController extends Controller
             }
 
             try {
-                $tagsForPosters   = array_diff_key($roulette->tags, ['platform' => true]);
                 $isTv             = $roulette->media_type === 'tv';
-                $criteria         = $isTv ? $mapper->toCriteriaTv($tagsForPosters) : $mapper->toCriteria($tagsForPosters);
+                $criteria         = $isTv ? $mapper->toCriteriaTv($roulette->tags) : $mapper->toCriteria($roulette->tags);
                 $criteria['page'] = 1;
                 $results          = $isTv ? $tmdb->discoverTv($criteria, 'US') : $tmdb->discover($criteria, 'US');
                 $paths            = [];
@@ -184,9 +183,8 @@ class UserRouletteController extends Controller
 
         // Fetch a fresh batch from TMDB
         $mapper         = new RouletteTagMapper();
-        $tagsForPosters = array_diff_key($roulette->tags ?? [], ['platform' => true]);
-        $isTv           = $roulette->media_type === 'tv';
-        $criteria       = $isTv ? $mapper->toCriteriaTv($tagsForPosters) : $mapper->toCriteria($tagsForPosters);
+        $isTv     = $roulette->media_type === 'tv';
+        $criteria = $isTv ? $mapper->toCriteriaTv($roulette->tags ?? []) : $mapper->toCriteria($roulette->tags ?? []);
         $criteria['sort_by'] = 'popularity.desc';
         $criteria['page']    = rand(1, 5);
 
