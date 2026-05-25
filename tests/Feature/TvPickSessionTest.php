@@ -75,3 +75,34 @@ it('clears tvPersonRollIds on modal submit with ?a', function () {
 
     expect(session('tvPersonRollIds'))->toBeNull();
 });
+
+it('sets default tv criteria when ?i=new is used with no prior session', function () {
+    $this->get('/tv/pick?i=new')->assertRedirect();
+
+    expect(session('tvInput'))->toMatchArray([
+        'with_original_language' => 'en',
+        'first_air_date_gte'     => 1990,
+        'vote_average_gte'       => 7,
+        'vote_count_gte'         => 100,
+    ]);
+});
+
+it('replaces existing session with defaults and clears tvPersonRollIds when ?i=new is used', function () {
+    session([
+        'tvInput'         => ['vote_count_gte' => '50', 'with_original_language' => 'fr'],
+        'tvPersonRollIds' => [101, 202],
+    ]);
+
+    $this->get('/tv/pick?i=new')->assertRedirect();
+
+    expect(session('tvInput.vote_count_gte'))->toBe(100);
+    expect(session('tvInput.with_original_language'))->toBe('en');
+    expect(session('tvPersonRollIds'))->toBeNull();
+});
+
+it('strips empty string values from submitted tv criteria', function () {
+    $this->post('/tv/pick', ['with_original_language' => '', 'vote_count_gte' => '5']);
+
+    expect(session('tvInput'))->not->toHaveKey('with_original_language');
+    expect(session('tvInput.vote_count_gte'))->toBe('5');
+});

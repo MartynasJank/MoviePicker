@@ -99,6 +99,10 @@ $(document).ready(function () {
     initTs('with_original_language',       { maxOptions: null, create: false });
     initTs('modal-with_original_language', { maxOptions: null, create: false });
 
+    /* ── Origin Country ─────────────────────────────────────────── */
+    initTs('with_origin_country',       { maxOptions: null, create: false });
+    initTs('modal-with_origin_country', { maxOptions: null, create: false });
+
     /* ── Streaming providers ─────────────────────────────────────── */
     const logoRender = {
         option: function (data, escape) {
@@ -143,7 +147,9 @@ $(document).ready(function () {
             if (ts) ts.clear(true);
         });
         const langTs = window['_ts_' + prefix + 'with_original_language'];
-        if (langTs) langTs.setValue('en', true);
+        if (langTs) langTs.setValue('', true);
+        const countryTs = window['_ts_' + prefix + 'with_origin_country'];
+        if (countryTs) countryTs.setValue('', true);
     }
 
     $('#btn-reset, #btn-reset-mobile').on('click', function () { resetForm('#criteria', ''); });

@@ -29,12 +29,19 @@ it('saves submitted criteria in userInput on first submit', function () {
     expect(session('userInput'))->toMatchArray(['vote_count_gte' => '20']);
 });
 
-it('keeps the original userInput when criteria already exists', function () {
+it('overwrites userInput when new criteria is submitted via POST', function () {
     session(['userInput' => ['vote_count_gte' => '99']]);
 
     $this->post('/movie', ['vote_count_gte' => '5']);
 
-    // resolveSessionCriteria does not overwrite an existing session
+    expect(session('userInput.vote_count_gte'))->toBe('5');
+});
+
+it('keeps existing userInput on GET re-roll', function () {
+    session(['userInput' => ['vote_count_gte' => '99']]);
+
+    $this->get('/movie');
+
     expect(session('userInput.vote_count_gte'))->toBe('99');
 });
 
@@ -52,4 +59,31 @@ it('does not redirect on ?i when no session exists', function () {
 
     // Should reach the discover step, not loop back
     expect(session('userInput'))->not->toBeNull();
+});
+
+it('sets default criteria when ?i=new is used with no prior session', function () {
+    $this->get('/movie?i=new')->assertRedirect();
+
+    expect(session('userInput'))->toMatchArray([
+        'with_original_language'   => 'en',
+        'primary_release_date_gte' => 1990,
+        'vote_average_gte'         => 7,
+        'vote_count_gte'           => 100,
+    ]);
+});
+
+it('replaces existing session with defaults when ?i=new is used', function () {
+    session(['userInput' => ['vote_count_gte' => '50', 'with_original_language' => 'fr']]);
+
+    $this->get('/movie?i=new')->assertRedirect();
+
+    expect(session('userInput.vote_count_gte'))->toBe(100);
+    expect(session('userInput.with_original_language'))->toBe('en');
+});
+
+it('strips empty string values from submitted criteria', function () {
+    $this->post('/movie', ['with_original_language' => '', 'vote_count_gte' => '5']);
+
+    expect(session('userInput'))->not->toHaveKey('with_original_language');
+    expect(session('userInput.vote_count_gte'))->toBe('5');
 });

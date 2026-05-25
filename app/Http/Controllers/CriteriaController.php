@@ -13,7 +13,7 @@ class CriteriaController extends Controller
         return view('criteria', [
             'genres'         => $ms->genres($tmdb),
             'providersArray' => $ms->buildProvidersArray($tmdb),
-            'userInput'      => session('userInput', []),
+            'userInput'      => [],
         ]);
     }
 }

@@ -13,7 +13,7 @@ class TvCriteriaController extends Controller
         return view('tv.criteria', [
             'genres'         => $ms->tvGenres($tmdb),
             'providersArray' => $ms->buildProvidersArray($tmdb),
-            'userInput'      => session('tvInput', []),
+            'userInput'      => [],
         ]);
     }
 }

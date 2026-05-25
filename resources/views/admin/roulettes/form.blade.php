@@ -20,12 +20,17 @@
         $allPosters = $roulette->poster_paths ?? [];
         $poster     = $allPosters[0] ?? null;
     @endphp
-    <div id="poster-section" class="sm:w-32 lg:w-44 flex-shrink-0">
+    <div id="poster-section" class="sm:w-52 lg:w-80 flex-shrink-0">
 
         {{-- Label + page navigation --}}
         <div class="flex items-center justify-between mb-1.5">
             <label class="text-xs font-semibold uppercase tracking-widest text-gray-500">Poster</label>
             <div class="flex items-center gap-1">
+                <button type="button" id="refresh-posters-btn"
+                        class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded transition-colors"
+                        title="Refresh posters">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                </button>
                 <button type="button" id="prev-page-btn" disabled
                         class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded disabled:opacity-30 disabled:pointer-events-none transition-colors">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
@@ -64,7 +69,7 @@
 
         {{-- Thumbnail grid (desktop 4-col) / scroll strip (mobile) --}}
         @if(count($allPosters) > 1)
-        <div id="poster-grid" class="grid grid-cols-4 gap-1">
+        <div id="poster-grid" class="grid grid-cols-3 gap-1">
             @foreach($allPosters as $i => $path)
                 <button type="button"
                         class="poster-thumb relative rounded overflow-hidden {{ $i === 0 ? 'ring-2 ring-accent' : 'opacity-50 hover:opacity-100' }} transition-opacity"
@@ -75,7 +80,7 @@
             @endforeach
         </div>
         @else
-            <div id="poster-grid" class="grid grid-cols-4 gap-1"></div>
+            <div id="poster-grid" class="grid grid-cols-3 gap-1"></div>
         @endif
     </div>
     @endif
@@ -262,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
         paths.forEach(path => {
             const btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = 'poster-thumb relative rounded overflow-hidden transition-opacity ' +
+            btn.className = 'poster-thumb relative rounded overflow-hidden transition-opacity col-span-1 ' +
                 (path === activePath ? 'ring-2 ring-accent' : 'opacity-50 hover:opacity-100');
             btn.style.aspectRatio = '2/3';
             btn.dataset.path = path;
@@ -271,17 +276,33 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function getTags() {
+        const tags = {};
+        const genres = Array.from(document.querySelectorAll('input[name="tags[genre][]"]:checked')).map(el => el.value);
+        if (genres.length) tags.genre = genres;
+        const withoutGenres = Array.from(document.querySelectorAll('input[name="tags[without_genre][]"]:checked')).map(el => el.value);
+        if (withoutGenres.length) tags.without_genre = withoutGenres;
+        const platform = document.querySelector('select[name="tags[platform]"]')?.value;
+        if (platform) tags.platform = platform;
+        const era = document.querySelector('select[name="tags[era]"]')?.value;
+        if (era) tags.era = era;
+        const country = document.querySelector('select[name="tags[country]"]')?.value;
+        if (country) tags.country = country;
+        return tags;
+    }
+
     function fetchPage(page) {
         if (loading) return;
         loading = true;
         prevBtn.disabled = true;
         nextBtn.disabled = true;
         indicator.textContent = '…';
+        const mediaType = document.querySelector('input[name="media_type"]:checked')?.value ?? 'movie';
 
         fetch(URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
-            body: JSON.stringify({ page, sort: currentSort }),
+            body: JSON.stringify({ page, sort: currentSort, tags: getTags(), media_type: mediaType }),
         })
         .then(r => r.json())
         .then(data => {
@@ -318,6 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     prevBtn.addEventListener('click', () => fetchPage(currentPage - 1));
     nextBtn.addEventListener('click', () => fetchPage(currentPage + 1));
+    document.getElementById('refresh-posters-btn').addEventListener('click', () => fetchPage(1));
 
     document.querySelectorAll('.sort-btn').forEach(btn => {
         btn.addEventListener('click', () => {

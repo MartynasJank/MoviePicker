@@ -2,7 +2,7 @@
     if ($user_input === 'default') $user_input = [];
     $openYear      = !empty($user_input['first_air_date_gte'] ?? '') || !empty($user_input['first_air_date_lte'] ?? '');
     $openGenres    = !empty($user_input['with_genres'] ?? []) || !empty($user_input['without_genres'] ?? []);
-    $openLanguage  = !empty($user_input['with_original_language'] ?? '');
+    $openLanguage  = !empty($user_input['with_original_language'] ?? '') || !empty($user_input['with_origin_country'] ?? '');
     $openStreaming  = !empty($user_input['with_watch_providers'] ?? []);
     $openScores    = !empty($user_input['vote_average_gte'] ?? '') || !empty($user_input['vote_average_lte'] ?? '') || !empty($user_input['vote_count_gte'] ?? '');
     $openPeople    = !empty($user_input['with_cast'] ?? []) || !empty($user_input['with_crew'] ?? []);
@@ -76,15 +76,22 @@
                     </div>
                 </div>
 
-                {{-- Language --}}
+                {{-- Language & Country --}}
                 <div class="accordion-section border-t border-white/5 {{ $openLanguage ? 'accordion-open' : '' }}">
                     <button type="button" class="accordion-header w-full flex items-center justify-between py-3.5 text-left">
-                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Language</h3>
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Language & Country</h3>
                         <svg class="accordion-chevron w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
                     </button>
                     <div class="accordion-body">
-                        <div class="pb-4">
-                            @include('includes.languages', ['modalMode' => true, 'selectedLang' => $user_input['with_original_language'] ?? ''])
+                        <div class="pb-4 flex flex-col gap-3">
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-1">Language</label>
+                                @include('includes.languages', ['modalMode' => true, 'selectedLang' => $user_input['with_original_language'] ?? ''])
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-1">Origin Country</label>
+                                @include('includes.origin-country', ['modalMode' => true, 'selectedCountry' => $user_input['with_origin_country'] ?? ''])
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -106,32 +113,6 @@
                                     </option>
                                 @endforeach
                             </select>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Scores --}}
-                <div class="accordion-section border-t border-white/5 {{ $openScores ? 'accordion-open' : '' }}">
-                    <button type="button" class="accordion-header w-full flex items-center justify-between py-3.5 text-left">
-                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Scores</h3>
-                        <svg class="accordion-chevron w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
-                    </button>
-                    <div class="accordion-body">
-                        <div class="pb-4 flex flex-col gap-3">
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-sm text-gray-400 mb-1">Min Score</label>
-                                    <input type="text" class="input-dark" name="vote_average_gte" placeholder="0" value="{{ $user_input['vote_average_gte'] ?? '' }}">
-                                </div>
-                                <div>
-                                    <label class="block text-sm text-gray-400 mb-1">Max Score</label>
-                                    <input type="text" class="input-dark" name="vote_average_lte" placeholder="10" value="{{ $user_input['vote_average_lte'] ?? '' }}">
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-sm text-gray-400 mb-1">Min Vote Count</label>
-                                <input type="text" class="input-dark" name="vote_count_gte" placeholder="10" value="{{ $user_input['vote_count_gte'] ?? '' }}">
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -159,6 +140,32 @@
                                         <option value="{{ $crewId }}" selected>{{ ($user_input['with_crew_names'] ?? [])[$i] ?? '' }}</option>
                                     @endforeach
                                 </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Scores --}}
+                <div class="accordion-section border-t border-white/5 {{ $openScores ? 'accordion-open' : '' }}">
+                    <button type="button" class="accordion-header w-full flex items-center justify-between py-3.5 text-left">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Scores</h3>
+                        <svg class="accordion-chevron w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="accordion-body">
+                        <div class="pb-4 flex flex-col gap-3">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-sm text-gray-400 mb-1">Min Score</label>
+                                    <input type="text" class="input-dark" name="vote_average_gte" placeholder="0" value="{{ $user_input['vote_average_gte'] ?? '' }}">
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-400 mb-1">Max Score</label>
+                                    <input type="text" class="input-dark" name="vote_average_lte" placeholder="10" value="{{ $user_input['vote_average_lte'] ?? '' }}">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-1">Min Vote Count</label>
+                                <input type="text" class="input-dark" name="vote_count_gte" placeholder="10" value="{{ $user_input['vote_count_gte'] ?? '' }}">
                             </div>
                         </div>
                     </div>

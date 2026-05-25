@@ -12,21 +12,23 @@
         '1990s'=>'The Nineties','1980s'=>'The Eighties','1970s'=>'The Seventies',
         '1960s'=>'The Sixties','1950s'=>'The Fifties','pre-1950'=>'Classic Hollywood',
     ];
-    $languages = [
-        'ja'=>'Japanese','ko'=>'Korean','fr'=>'French','es'=>'Spanish','it'=>'Italian',
-        'zh'=>'Chinese','hi'=>'Hindi','de'=>'German','tr'=>'Turkish','pt'=>'Portuguese','lt'=>'Lithuanian',
+    $countries = [
+        'JP'=>'Japanese','KR'=>'Korean','FR'=>'French','ES'=>'Spanish','IT'=>'Italian',
+        'CN'=>'Chinese','IN'=>'Indian','DE'=>'German','TR'=>'Turkish','PT'=>'Portuguese',
+        'MX'=>'Mexican','SE'=>'Swedish','DK'=>'Danish','LT'=>'Lithuanian',
     ];
-    $selectedPlatform  = $currentTags['platform'][0]  ?? null;
-    $selectedGenres    = $currentTags['genre']         ?? [];
-    $selectedEra       = $currentTags['era'][0]        ?? null;
-    $selectedLanguage  = $currentTags['language'][0]   ?? null;
+    $selectedPlatform      = $currentTags['platform'][0]      ?? null;
+    $selectedGenres        = $currentTags['genre']             ?? [];
+    $selectedWithoutGenres = $currentTags['without_genre']     ?? [];
+    $selectedEra           = $currentTags['era'][0]            ?? null;
+    $selectedCountry       = $currentTags['country'][0]        ?? null;
 @endphp
 
 <div class="space-y-6">
 
-    {{-- Genre --}}
+    {{-- Include Genre --}}
     <div>
-        <label class="block text-xs font-semibold uppercase tracking-widest text-gray-500 mb-3">Genre</label>
+        <label class="block text-xs font-semibold uppercase tracking-widest text-gray-500 mb-3">Include Genre</label>
         <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
             @foreach($genres as $value => $label)
                 <label class="flex items-center gap-2 cursor-pointer group">
@@ -38,6 +40,21 @@
             @endforeach
         </div>
         @error('tags.genre') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+    </div>
+
+    {{-- Exclude Genre --}}
+    <div>
+        <label class="block text-xs font-semibold uppercase tracking-widest text-gray-500 mb-3">Exclude Genre</label>
+        <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+            @foreach($genres as $value => $label)
+                <label class="flex items-center gap-2 cursor-pointer group">
+                    <input type="checkbox" name="tags[without_genre][]" value="{{ $value }}"
+                           class="w-4 h-4 rounded border-white/20 bg-white/5 text-red-400 focus:ring-red-400/50"
+                           {{ in_array($value, $selectedWithoutGenres) ? 'checked' : '' }}>
+                    <span class="text-sm text-gray-300 group-hover:text-white transition-colors">{{ $label }}</span>
+                </label>
+            @endforeach
+        </div>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -64,13 +81,13 @@
             </select>
         </div>
 
-        {{-- Language --}}
+        {{-- Country --}}
         <div>
-            <label class="block text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">Language</label>
-            <select name="tags[language]" class="input-dark w-full">
+            <label class="block text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">Country</label>
+            <select name="tags[country]" class="input-dark w-full">
                 <option value="">None</option>
-                @foreach($languages as $value => $label)
-                    <option value="{{ $value }}" {{ $selectedLanguage === $value ? 'selected' : '' }}>{{ $label }}</option>
+                @foreach($countries as $value => $label)
+                    <option value="{{ $value }}" {{ $selectedCountry === $value ? 'selected' : '' }}>{{ $label }}</option>
                 @endforeach
             </select>
         </div>

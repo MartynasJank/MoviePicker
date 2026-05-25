@@ -17,7 +17,7 @@ class MoviePickController extends Controller
         }
 
         $country  = $movieService->getUserCountry();
-        $criteria = $movieService->resolveSessionCriteria($this->submitted($request));
+        $criteria = $movieService->resolveSessionCriteria($this->submitted($request), $request->isMethod('post'));
         $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country);
 
         $results = $tmdb->discover($criteria, $country);
@@ -41,7 +41,7 @@ class MoviePickController extends Controller
         }
 
         $country  = $movieService->getUserCountry();
-        $criteria = $movieService->resolveSessionCriteria($this->submitted($request));
+        $criteria = $movieService->resolveSessionCriteria($this->submitted($request), $request->isMethod('post'));
         $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country);
 
         $movies             = $tmdb->discover($criteria, $country);
@@ -68,11 +68,24 @@ class MoviePickController extends Controller
 
     private function submitted(CriteriaRequest $request): array
     {
-        return $request->except(['_token', 'i', 'total_pages', 'a']);
+        return array_filter(
+            $request->except(['_token', 'i', 'total_pages', 'a']),
+            fn($v) => $v !== '' && $v !== null && $v !== []
+        );
     }
 
     private function handleSessionReset(CriteriaRequest $request, string $redirectTo): ?RedirectResponse
     {
+        if ($request->query('i') === 'new') {
+            session(['userInput' => [
+                'with_original_language'   => 'en',
+                'primary_release_date_gte' => 1990,
+                'vote_average_gte'         => 7,
+                'vote_count_gte'           => 100,
+            ]]);
+            return null;
+        }
+
         if ($request->query('i') !== null && session('userInput') !== null) {
             session()->forget('userInput');
             return redirect(url($redirectTo));

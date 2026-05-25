@@ -17,7 +17,7 @@ class TvPickController extends Controller
         }
 
         $country  = $movieService->getUserCountry();
-        $criteria = $this->resolveSessionCriteria($this->submitted($request));
+        $criteria = $this->resolveSessionCriteria($this->submitted($request), $request->isMethod('post'));
         $criteria['page'] = $movieService->resolveTvPage($tmdb, $criteria, $country);
 
         $results = $tmdb->discoverTv($criteria, $country);
@@ -41,7 +41,7 @@ class TvPickController extends Controller
         }
 
         $country  = $movieService->getUserCountry();
-        $criteria = $this->resolveSessionCriteria($this->submitted($request));
+        $criteria = $this->resolveSessionCriteria($this->submitted($request), $request->isMethod('post'));
         $criteria['page'] = $movieService->resolveTvPage($tmdb, $criteria, $country);
 
         $shows            = $tmdb->discoverTv($criteria, $country);
@@ -74,21 +74,39 @@ class TvPickController extends Controller
         ]);
     }
 
-    private function resolveSessionCriteria(array $submitted): array
+    private function resolveSessionCriteria(array $submitted, bool $overwrite = false): array
     {
-        session()->put('tvInput', $submitted);
-        session()->forget('tvPersonRollIds');
+        if ($overwrite || !empty($submitted)) {
+            session()->put('tvInput', $submitted);
+            session()->forget('tvPersonRollIds');
+        } elseif (session('tvInput') === null) {
+            session()->put('tvInput', $submitted);
+        }
 
-        return session('tvInput');
+        return session('tvInput') ?? [];
     }
 
     private function submitted(TvCriteriaRequest $request): array
     {
-        return $request->except(['_token', 'i', 'total_pages', 'a']);
+        return array_filter(
+            $request->except(['_token', 'i', 'total_pages', 'a']),
+            fn($v) => $v !== '' && $v !== null && $v !== []
+        );
     }
 
     private function handleSessionReset(TvCriteriaRequest $request, string $redirectTo): ?RedirectResponse
     {
+        if ($request->query('i') === 'new') {
+            session()->forget('tvPersonRollIds');
+            session(['tvInput' => [
+                'with_original_language' => 'en',
+                'first_air_date_gte'     => 1990,
+                'vote_average_gte'       => 7,
+                'vote_count_gte'         => 100,
+            ]]);
+            return null;
+        }
+
         if ($request->query('i') !== null && session('tvInput') !== null) {
             session()->forget(['tvInput', 'tvPersonRollIds']);
             return redirect(url($redirectTo));

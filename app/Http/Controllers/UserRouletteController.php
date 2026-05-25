@@ -189,7 +189,9 @@ class UserRouletteController extends Controller
         $sort   = $request->input('sort', 'rating') === 'rating' ? 'rating' : 'popularity';
         $mapper = new RouletteTagMapper();
         $isTv   = $roulette->media_type === 'tv';
-        $criteria = $isTv ? $mapper->toCriteriaTv($roulette->tags ?? []) : $mapper->toCriteria($roulette->tags ?? []);
+        $rawTags  = $request->input('tags');
+        $tags     = $rawTags !== null ? $mapper->normalizeTags($rawTags) : ($roulette->tags ?? []);
+        $criteria = $isTv ? $mapper->toCriteriaTv($tags) : $mapper->toCriteria($tags);
         $criteria['sort_by'] = $sort === 'rating' ? 'vote_average.desc' : 'popularity.desc';
         $criteria['page']    = $page;
         if ($sort === 'rating') {
@@ -277,8 +279,14 @@ class UserRouletteController extends Controller
         if ($genres = $request->input('tags.genre', [])) {
             $tags['genre'] = array_values($genres);
         }
+        if ($withoutGenres = $request->input('tags.without_genre', [])) {
+            $tags['without_genre'] = array_values($withoutGenres);
+        }
         if ($era = $request->input('tags.era')) {
             $tags['era'] = [$era];
+        }
+        if ($country = $request->input('tags.country')) {
+            $tags['country'] = [$country];
         }
         if ($language = $request->input('tags.language')) {
             $tags['language'] = [$language];

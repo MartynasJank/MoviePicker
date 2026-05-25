@@ -66,6 +66,17 @@ class RouletteTagMapper
         '2020s'    => ['gte' => 2020],
     ];
 
+    public function normalizeTags(array $raw): array
+    {
+        $tags = [];
+        if (!empty($raw['platform'])) $tags['platform'] = [$raw['platform']];
+        if (!empty($raw['genre']))    $tags['genre']    = array_values((array) $raw['genre']);
+        if (!empty($raw['without_genre'])) $tags['without_genre'] = array_values((array) $raw['without_genre']);
+        if (!empty($raw['era']))      $tags['era']      = [$raw['era']];
+        if (!empty($raw['country']))  $tags['country']  = [$raw['country']];
+        return $tags;
+    }
+
     public function toCriteria(array $tags): array
     {
         $criteria = [];
@@ -88,8 +99,22 @@ class RouletteTagMapper
             }
         }
 
-        if (!empty($tags['language'])) {
-            $criteria['with_original_language'] = $tags['language'][0];
+        if (!empty($tags['without_genre'])) {
+            $ids = array_values(array_filter(
+                array_map(fn($g) => self::GENRE_IDS[$g] ?? null, (array) $tags['without_genre'])
+            ));
+            if ($ids) {
+                $criteria['without_genres'] = $ids;
+            }
+        }
+
+        if (!empty($tags['country'])) {
+            $criteria['with_origin_country'] = $tags['country'][0];
+        } elseif (!empty($tags['language'])) {
+            // legacy: old roulettes stored ISO 639-1 language codes; map to ISO 3166-1 country codes
+            $legacyMap = ['ja'=>'JP','ko'=>'KR','fr'=>'FR','es'=>'ES','it'=>'IT','zh'=>'CN','hi'=>'IN','de'=>'DE','tr'=>'TR','pt'=>'PT','lt'=>'LT'];
+            $code = $legacyMap[$tags['language'][0]] ?? null;
+            if ($code) $criteria['with_origin_country'] = $code;
         }
 
         if (!empty($tags['era'])) {
@@ -133,8 +158,21 @@ class RouletteTagMapper
             }
         }
 
-        if (!empty($tags['language'])) {
-            $criteria['with_original_language'] = $tags['language'][0];
+        if (!empty($tags['without_genre'])) {
+            $ids = array_values(array_unique(array_filter(
+                array_map(fn($g) => self::TV_GENRE_IDS[$g] ?? null, (array) $tags['without_genre'])
+            )));
+            if ($ids) {
+                $criteria['without_genres'] = $ids;
+            }
+        }
+
+        if (!empty($tags['country'])) {
+            $criteria['with_origin_country'] = $tags['country'][0];
+        } elseif (!empty($tags['language'])) {
+            $legacyMap = ['ja'=>'JP','ko'=>'KR','fr'=>'FR','es'=>'ES','it'=>'IT','zh'=>'CN','hi'=>'IN','de'=>'DE','tr'=>'TR','pt'=>'PT','lt'=>'LT'];
+            $code = $legacyMap[$tags['language'][0]] ?? null;
+            if ($code) $criteria['with_origin_country'] = $code;
         }
 
         if (!empty($tags['era'])) {
