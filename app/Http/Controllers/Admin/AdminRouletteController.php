@@ -103,14 +103,18 @@ class AdminRouletteController extends Controller
         }
 
         // Fetch a page of posters from TMDB
-        $page    = max(1, min(10, (int) $request->input('page', 1)));
-        $mapper  = new RouletteTagMapper();
-        $isTv    = $roulette->media_type === 'tv';
+        $page   = max(1, min(10, (int) $request->input('page', 1)));
+        $sort   = $request->input('sort', 'popularity') === 'rating' ? 'rating' : 'popularity';
+        $mapper = new RouletteTagMapper();
+        $isTv   = $roulette->media_type === 'tv';
         $criteria = $isTv
             ? $mapper->toCriteriaTv($roulette->tags ?? [])
             : $mapper->toCriteria($roulette->tags ?? []);
-        $criteria['sort_by'] = 'popularity.desc';
+        $criteria['sort_by'] = $sort === 'rating' ? 'vote_average.desc' : 'popularity.desc';
         $criteria['page']    = $page;
+        if ($sort === 'rating') {
+            $criteria['vote_count.gte'] = 300;
+        }
 
         $country      = $this->movieService->getUserCountry();
         $usedFallback = false;

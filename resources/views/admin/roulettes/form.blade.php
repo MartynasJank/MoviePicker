@@ -23,7 +23,7 @@
     <div id="poster-section" class="sm:w-32 lg:w-44 flex-shrink-0">
 
         {{-- Label + page navigation --}}
-        <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center justify-between mb-1.5">
             <label class="text-xs font-semibold uppercase tracking-widest text-gray-500">Poster</label>
             <div class="flex items-center gap-1">
                 <button type="button" id="prev-page-btn" disabled
@@ -36,6 +36,13 @@
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
                 </button>
             </div>
+        </div>
+        {{-- Sort toggle --}}
+        <div class="flex gap-1 mb-2">
+            <button type="button" id="sort-popularity"
+                    class="sort-btn flex-1 text-[10px] py-0.5 rounded bg-white/10 text-white transition-colors">Popular</button>
+            <button type="button" id="sort-rating"
+                    class="sort-btn flex-1 text-[10px] py-0.5 rounded bg-white/5 text-gray-500 hover:text-white transition-colors">Top Rated</button>
         </div>
 
         {{-- Main poster (desktop only) --}}
@@ -211,6 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const indicator = document.getElementById('page-indicator');
     let currentPage = 1;
     let totalPages  = 1;
+    let currentSort = 'popularity';
     let loading     = false;
 
     function setMainPoster(path) {
@@ -273,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch(URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
-            body: JSON.stringify({ page }),
+            body: JSON.stringify({ page, sort: currentSort }),
         })
         .then(r => r.json())
         .then(data => {
@@ -310,6 +318,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     prevBtn.addEventListener('click', () => fetchPage(currentPage - 1));
     nextBtn.addEventListener('click', () => fetchPage(currentPage + 1));
+
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentSort = btn.id === 'sort-rating' ? 'rating' : 'popularity';
+            document.getElementById('sort-popularity').className = 'sort-btn flex-1 text-[10px] py-0.5 rounded transition-colors ' +
+                (currentSort === 'popularity' ? 'bg-white/10 text-white' : 'bg-white/5 text-gray-500 hover:text-white');
+            document.getElementById('sort-rating').className = 'sort-btn flex-1 text-[10px] py-0.5 rounded transition-colors ' +
+                (currentSort === 'rating' ? 'bg-white/10 text-white' : 'bg-white/5 text-gray-500 hover:text-white');
+            fetchPage(1);
+        });
+    });
 
     fetchPage(1);
     @endif
