@@ -52,8 +52,6 @@ class PersonRollController extends Controller
 
         $personKey = $type === 'crew' ? 'with_crew' : 'with_cast';
 
-        session()->put('_debug', ['count' => $shows->count(), 'type' => 'TV shows (person ' . $type . ')', 'url' => null]);
-
         session([
             'tvPersonRollIds' => $shows->pluck('id')->map(fn($i) => (int)$i)->toArray(),
             'tvInput' => [

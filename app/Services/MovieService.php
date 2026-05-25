@@ -59,22 +59,12 @@ class MovieService
         }
 
         if (isset($criteria['total_pages'])) {
-            $page = $this->randomPage($criteria['total_pages']);
-            session()->put('_debug.page', $page);
-            return $page;
+            return $this->randomPage($criteria['total_pages']);
         }
 
-        $all  = $tmdb->discover($criteria, $country);
-        $page = $this->randomPage($all['total_pages']);
+        $all = $tmdb->discover($criteria, $country);
         session()->put('userInput.total_pages', $all['total_pages']);
-        session()->put('_debug', [
-            'count'       => $all['total_results'] ?? 0,
-            'type'        => 'movies',
-            'url'         => $tmdb->lastDiscoverUrl(),
-            'page'        => $page,
-            'total_pages' => $all['total_pages'],
-        ]);
-        return $page;
+        return $this->randomPage($all['total_pages']);
     }
 
     /**
@@ -145,22 +135,12 @@ class MovieService
         }
 
         if (isset($criteria['total_pages'])) {
-            $page = $this->randomPage($criteria['total_pages']);
-            session()->put('_debug.page', $page);
-            return $page;
+            return $this->randomPage($criteria['total_pages']);
         }
 
-        $all  = $tmdb->discoverTv($criteria, $country);
-        $page = $this->randomPage($all['total_pages']);
+        $all = $tmdb->discoverTv($criteria, $country);
         session()->put('tvInput.total_pages', $all['total_pages']);
-        session()->put('_debug', [
-            'count'       => $all['total_results'] ?? 0,
-            'type'        => 'TV shows',
-            'url'         => $tmdb->lastDiscoverUrl(),
-            'page'        => $page,
-            'total_pages' => $all['total_pages'],
-        ]);
-        return $page;
+        return $this->randomPage($all['total_pages']);
     }
 
     public function genresString(object $movieObj): string
