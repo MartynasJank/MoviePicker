@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Roulette;
 use App\Models\Setting;
+use App\Services\MovieService;
 use App\Services\RouletteTagMapper;
 use App\Services\TmdbClient;
 use Illuminate\Http\Request;
@@ -12,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 
 class AdminRouletteController extends Controller
 {
+    public function __construct(private MovieService $movieService) {}
+
     public function index(Request $request)
     {
         $q         = $request->input('q');
@@ -99,21 +102,39 @@ class AdminRouletteController extends Controller
             return response()->json(['poster_path' => $path, 'all_paths' => $reordered]);
         }
 
-        // Fetch a fresh batch from TMDB
-        $mapper         = new RouletteTagMapper();
-        $tagsForPosters = array_diff_key($roulette->tags ?? [], ['platform' => true]);
-        $criteria       = $roulette->media_type === 'tv'
-            ? $mapper->toCriteriaTv($tagsForPosters)
-            : $mapper->toCriteria($tagsForPosters);
-        $criteria['page'] = rand(1, 5);
+        // Fetch a page of posters from TMDB
+        $page   = max(1, min(10, (int) $request->input('page', 1)));
+        $sort   = $request->input('sort', 'rating') === 'rating' ? 'rating' : 'popularity';
+        $mapper = new RouletteTagMapper();
+        $isTv   = $roulette->media_type === 'tv';
+        $criteria = $isTv
+            ? $mapper->toCriteriaTv($roulette->tags ?? [])
+            : $mapper->toCriteria($roulette->tags ?? []);
+        $criteria['sort_by'] = $sort === 'rating' ? 'vote_average.desc' : 'popularity.desc';
+        $criteria['page']    = $page;
+        if ($sort === 'rating') {
+            $criteria['vote_count.gte'] = 50;
+        }
+
+        $country      = $this->movieService->getUserCountry();
+        $usedFallback = false;
 
         try {
-            $results = $roulette->media_type === 'tv'
-                ? $tmdb->discoverTv($criteria, 'US')
-                : $tmdb->discover($criteria, 'US');
+            $results = $isTv
+                ? $tmdb->discoverTv($criteria, $country)
+                : $tmdb->discover($criteria, $country);
 
-            if ($roulette->media_type === 'tv' && empty($results['results']) && isset($criteria['with_genres'])) {
-                $results = $tmdb->discoverTv(array_diff_key($criteria, ['with_genres' => true]), 'US');
+            if (empty($results['results']) && isset($criteria['with_watch_providers'])) {
+                $usedFallback = true;
+                $fallback     = array_diff_key($criteria, ['with_watch_providers' => true]);
+                $results      = $isTv
+                    ? $tmdb->discoverTv($fallback, $country)
+                    : $tmdb->discover($fallback, $country);
+            }
+
+            if ($isTv && empty($results['results']) && isset($criteria['with_genres'])) {
+                $usedFallback = true;
+                $results      = $tmdb->discoverTv(array_diff_key($criteria, ['with_genres' => true]), $country);
             }
 
             $paths = [];
@@ -123,11 +144,19 @@ class AdminRouletteController extends Controller
                 }
             }
 
-            if ($paths) {
+            if ($paths && $page === 1) {
                 $roulette->update(['poster_paths' => $paths]);
             }
 
-            return response()->json(['poster_path' => $paths[0] ?? null, 'all_paths' => $paths]);
+            $totalPages = min(10, $results['total_pages'] ?? 1);
+
+            return response()->json([
+                'poster_path' => $paths[0] ?? null,
+                'all_paths'   => $paths,
+                'page'        => $page,
+                'total_pages' => $totalPages,
+                'fallback'    => $usedFallback,
+            ]);
         } catch (\Throwable) {
             return response()->json(['poster_path' => null, 'all_paths' => []], 422);
         }

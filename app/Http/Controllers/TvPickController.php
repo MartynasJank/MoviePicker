@@ -22,6 +22,15 @@ class TvPickController extends Controller
 
         $results = $tmdb->discoverTv($criteria, $country);
 
+        if (empty($results['results'])) {
+            $criteria['page'] = $movieService->randomPage(session('tvInput.total_pages', 500), $criteria['page']);
+            $results = $tmdb->discoverTv($criteria, $country);
+        }
+
+        if (empty($results['results'])) {
+            return redirect('/tv/criteria');
+        }
+
         return redirect()->route('tv.show', [$movieService->randomMovie($results['results'])['id']]);
     }
 
@@ -67,9 +76,8 @@ class TvPickController extends Controller
 
     private function resolveSessionCriteria(array $submitted): array
     {
-        if (session('tvInput') === null || !empty($submitted['with_people'])) {
-            session()->put('tvInput', $submitted);
-        }
+        session()->put('tvInput', $submitted);
+        session()->forget('tvPersonRollIds');
 
         return session('tvInput');
     }
@@ -82,7 +90,7 @@ class TvPickController extends Controller
     private function handleSessionReset(TvCriteriaRequest $request, string $redirectTo): ?RedirectResponse
     {
         if ($request->query('i') !== null && session('tvInput') !== null) {
-            session()->forget('tvInput');
+            session()->forget(['tvInput', 'tvPersonRollIds']);
             return redirect(url($redirectTo));
         }
 

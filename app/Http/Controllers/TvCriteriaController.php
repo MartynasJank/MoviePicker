@@ -10,11 +10,10 @@ class TvCriteriaController extends Controller
 {
     public function __invoke(TmdbClient $tmdb, MovieService $ms): View
     {
-        session()->forget('tvInput');
-
         return view('tv.criteria', [
             'genres'         => $ms->tvGenres($tmdb),
             'providersArray' => $ms->buildProvidersArray($tmdb),
+            'userInput'      => session('tvInput', []),
         ]);
     }
 }

@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Roulette;
 use App\Models\Setting;
+use App\Services\MovieService;
 use App\Services\TmdbClient;
 use App\Services\RouletteTagMapper;
 use Illuminate\Http\Request;
 
 class UserRouletteController extends Controller
 {
+    public function __construct(private MovieService $movieService) {}
+
     private function rowOrderKey(): string
     {
         return 'user_row_order.' . auth()->id();
@@ -39,9 +42,8 @@ class UserRouletteController extends Controller
             }
 
             try {
-                $tagsForPosters   = array_diff_key($roulette->tags, ['platform' => true]);
                 $isTv             = $roulette->media_type === 'tv';
-                $criteria         = $isTv ? $mapper->toCriteriaTv($tagsForPosters) : $mapper->toCriteria($tagsForPosters);
+                $criteria         = $isTv ? $mapper->toCriteriaTv($roulette->tags) : $mapper->toCriteria($roulette->tags);
                 $criteria['page'] = 1;
                 $results          = $isTv ? $tmdb->discoverTv($criteria, 'US') : $tmdb->discover($criteria, 'US');
                 $paths            = [];
@@ -182,15 +184,29 @@ class UserRouletteController extends Controller
             return response()->json(['poster_path' => $path, 'all_paths' => $reordered]);
         }
 
-        // Fetch a fresh batch from TMDB
-        $mapper         = new RouletteTagMapper();
-        $tagsForPosters = array_diff_key($roulette->tags ?? [], ['platform' => true]);
-        $isTv           = $roulette->media_type === 'tv';
-        $criteria       = $isTv ? $mapper->toCriteriaTv($tagsForPosters) : $mapper->toCriteria($tagsForPosters);
-        $criteria['page'] = rand(1, 5);
+        // Fetch a page of posters from TMDB
+        $page   = max(1, min(10, (int) $request->input('page', 1)));
+        $sort   = $request->input('sort', 'rating') === 'rating' ? 'rating' : 'popularity';
+        $mapper = new RouletteTagMapper();
+        $isTv   = $roulette->media_type === 'tv';
+        $criteria = $isTv ? $mapper->toCriteriaTv($roulette->tags ?? []) : $mapper->toCriteria($roulette->tags ?? []);
+        $criteria['sort_by'] = $sort === 'rating' ? 'vote_average.desc' : 'popularity.desc';
+        $criteria['page']    = $page;
+        if ($sort === 'rating') {
+            $criteria['vote_count.gte'] = 50;
+        }
+
+        $country      = $this->movieService->getUserCountry();
+        $usedFallback = false;
 
         try {
-            $results = $isTv ? $tmdb->discoverTv($criteria, 'US') : $tmdb->discover($criteria, 'US');
+            $results = $isTv ? $tmdb->discoverTv($criteria, $country) : $tmdb->discover($criteria, $country);
+
+            if (empty($results['results']) && isset($criteria['with_watch_providers'])) {
+                $usedFallback = true;
+                $fallback     = array_diff_key($criteria, ['with_watch_providers' => true]);
+                $results      = $isTv ? $tmdb->discoverTv($fallback, $country) : $tmdb->discover($fallback, $country);
+            }
 
             $paths = [];
             foreach ($results['results'] ?? [] as $item) {
@@ -199,11 +215,19 @@ class UserRouletteController extends Controller
                 }
             }
 
-            if ($paths) {
+            if ($paths && $page === 1) {
                 $roulette->update(['poster_paths' => $paths]);
             }
 
-            return response()->json(['poster_path' => $paths[0] ?? null, 'all_paths' => $paths]);
+            $totalPages = min(10, $results['total_pages'] ?? 1);
+
+            return response()->json([
+                'poster_path' => $paths[0] ?? null,
+                'all_paths'   => $paths,
+                'page'        => $page,
+                'total_pages' => $totalPages,
+                'fallback'    => $usedFallback,
+            ]);
         } catch (\Throwable) {
             return response()->json(['poster_path' => null, 'all_paths' => []], 422);
         }

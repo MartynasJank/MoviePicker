@@ -197,6 +197,7 @@
         </div>
     </div>
 
+
     {{-- Flash messages --}}
     @if(session('success'))
         <div class="alert-msg fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-green-900/80 border border-green-700/50 text-green-300 text-sm px-5 py-3 rounded-lg backdrop-blur-sm cursor-pointer"

@@ -8,6 +8,7 @@ class UserInputController extends Controller
 {
     public function __invoke(): JsonResponse
     {
-        return response()->json(session('userInput'));
+        $type = request('type');
+        return response()->json($type === 'tv' ? session('tvInput') : session('userInput'));
     }
 }

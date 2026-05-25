@@ -14,19 +14,41 @@
         </div>
     @endif
 
-    <div class="flex flex-col lg:flex-row gap-8">
+    <div class="flex flex-col sm:flex-row gap-4 lg:gap-8">
 
-    {{-- Poster sidebar (edit only) --}}
+    {{-- Poster section (edit only) --}}
     @if($roulette)
     @php
         $allPosters = $roulette->poster_paths ?? [];
         $poster     = $allPosters[0] ?? null;
     @endphp
-    <div class="lg:w-40 flex-shrink-0">
-        <label class="block text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">Poster</label>
+    <div id="poster-section" class="sm:w-32 lg:w-40 flex-shrink-0">
 
-        {{-- Main poster --}}
-        <div class="w-full rounded-xl overflow-hidden" style="aspect-ratio:2/3">
+        {{-- Label + page navigation --}}
+        <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs font-semibold uppercase tracking-widest text-gray-500">Poster</label>
+            <div class="flex items-center gap-1">
+                <button type="button" id="prev-page-btn" disabled
+                        class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded disabled:opacity-30 disabled:pointer-events-none transition-colors">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <span id="page-indicator" class="text-xs text-gray-500 tabular-nums w-14 text-center">…</span>
+                <button type="button" id="next-page-btn" disabled
+                        class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded disabled:opacity-30 disabled:pointer-events-none transition-colors">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+                </button>
+            </div>
+        </div>
+        {{-- Sort toggle --}}
+        <div class="flex gap-1 mb-2">
+            <button type="button" id="sort-popularity"
+                    class="sort-btn flex-1 text-[10px] py-0.5 rounded bg-white/5 text-gray-500 hover:text-white transition-colors">Popular</button>
+            <button type="button" id="sort-rating"
+                    class="sort-btn flex-1 text-[10px] py-0.5 rounded bg-white/10 text-white transition-colors">Top Rated</button>
+        </div>
+
+        {{-- Main poster (desktop only) --}}
+        <div class="hidden sm:block w-full rounded-xl overflow-hidden mb-2" style="aspect-ratio:2/3">
             @if($poster)
                 <img id="edit-poster-img"
                      src="https://image.tmdb.org/t/p/w342{{ $poster }}"
@@ -42,30 +64,21 @@
             @endif
         </div>
 
-        {{-- Thumbnail grid --}}
+        {{-- Thumbnail grid (desktop 4-col) / scroll strip (mobile) --}}
         @if(count($allPosters) > 1)
-        <div id="poster-grid" class="grid grid-cols-4 gap-1 mt-2">
+        <div id="poster-grid" class="grid grid-cols-4 gap-1">
             @foreach($allPosters as $i => $path)
                 <button type="button"
                         class="poster-thumb relative rounded overflow-hidden {{ $i === 0 ? 'ring-2 ring-accent' : 'opacity-50 hover:opacity-100' }} transition-opacity"
                         style="aspect-ratio:2/3"
                         data-path="{{ $path }}">
-                    <img src="https://image.tmdb.org/t/p/w92{{ $path }}" class="w-full h-full object-cover">
+                    <img src="https://image.tmdb.org/t/p/w185{{ $path }}" class="w-full h-full object-cover">
                 </button>
             @endforeach
         </div>
         @else
-            <div id="poster-grid" class="grid grid-cols-4 gap-1 mt-2"></div>
+            <div id="poster-grid" class="grid grid-cols-4 gap-1"></div>
         @endif
-
-        {{-- Roll batch button --}}
-        <button type="button" id="roll-poster-btn"
-                class="mt-2 w-full flex items-center justify-center gap-1.5 text-xs text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg py-2 transition-colors">
-            <svg id="roll-poster-icon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-            </svg>
-            New batch
-        </button>
     </div>
     @endif
 
@@ -154,18 +167,28 @@
 @endsection
 
 @section('scripts')
-<style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+<style>
+@media (max-width: 639px) {
+    #poster-grid { display: flex; overflow-x: auto; gap: 0.5rem; padding-bottom: 0.375rem; }
+    #poster-grid .poster-thumb { flex-shrink: 0; width: 8rem; }
+}
+</style>
 <script>
 @if($roulette)
 document.addEventListener('DOMContentLoaded', () => {
-    const CSRF       = document.querySelector('meta[name="csrf-token"]').content;
-    const POSTER_URL = `/my-roulettes/manage/{{ $roulette->id }}/refresh-poster`;
-    const rollBtn    = document.getElementById('roll-poster-btn');
-    const rollIcon   = document.getElementById('roll-poster-icon');
-    const grid       = document.getElementById('poster-grid');
+    const CSRF      = document.querySelector('meta[name="csrf-token"]').content;
+    const URL       = `/my-roulettes/manage/{{ $roulette->id }}/refresh-poster`;
+    const grid      = document.getElementById('poster-grid');
+    const section   = document.getElementById('poster-section');
+    const prevBtn   = document.getElementById('prev-page-btn');
+    const nextBtn   = document.getElementById('next-page-btn');
+    const indicator = document.getElementById('page-indicator');
+    let currentPage = 1;
+    let totalPages  = 1;
+    let currentSort = 'rating';
+    let loading     = false;
 
     function setMainPoster(path) {
-        const url = `https://image.tmdb.org/t/p/w342${path}`;
         let img = document.getElementById('edit-poster-img');
         const placeholder = document.getElementById('edit-poster-placeholder');
         if (placeholder) {
@@ -175,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
             img.alt = '{{ addslashes($roulette->name) }}';
             placeholder.replaceWith(img);
         }
-        img.src = url;
+        img.src = `https://image.tmdb.org/t/p/w342${path}`;
     }
 
     function setActiveThumb(activePath) {
@@ -188,6 +211,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function setFallbackNotice(show) {
+        let notice = document.getElementById('poster-fallback-notice');
+        if (show && !notice) {
+            notice = document.createElement('p');
+            notice.id = 'poster-fallback-notice';
+            notice.className = 'text-xs text-yellow-500/80 mb-1';
+            notice.textContent = 'No results for platform filter — showing unfiltered posters';
+            grid.before(notice);
+        } else if (!show && notice) {
+            notice.remove();
+        }
+    }
+
     function buildGrid(paths, activePath) {
         grid.innerHTML = '';
         paths.forEach(path => {
@@ -197,17 +233,45 @@ document.addEventListener('DOMContentLoaded', () => {
                 (path === activePath ? 'ring-2 ring-accent' : 'opacity-50 hover:opacity-100');
             btn.style.aspectRatio = '2/3';
             btn.dataset.path = path;
-            btn.innerHTML = `<img src="https://image.tmdb.org/t/p/w92${path}" class="w-full h-full object-cover">`;
+            btn.innerHTML = `<img src="https://image.tmdb.org/t/p/w185${path}" class="w-full h-full object-cover">`;
             grid.appendChild(btn);
         });
     }
 
-    // Thumbnail click — select poster, keep grid positions fixed
+    function fetchPage(page) {
+        if (loading) return;
+        loading = true;
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        indicator.textContent = '…';
+
+        fetch(URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
+            body: JSON.stringify({ page, sort: currentSort }),
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (!data.all_paths?.length) return;
+            setMainPoster(data.all_paths[0]);
+            buildGrid(data.all_paths, data.all_paths[0]);
+            setFallbackNotice(data.fallback);
+            currentPage = data.page;
+            totalPages  = data.total_pages;
+            indicator.textContent = `${currentPage} / ${totalPages}`;
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= totalPages;
+            grid.scrollLeft = 0;
+            section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        })
+        .finally(() => { loading = false; });
+    }
+
+    // Thumbnail click — select poster
     grid.addEventListener('click', e => {
         const btn = e.target.closest('.poster-thumb');
         if (!btn) return;
-
-        fetch(POSTER_URL, {
+        fetch(URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
             body: JSON.stringify({ path: btn.dataset.path }),
@@ -220,28 +284,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Roll — fetch fresh batch, rebuild grid with new posters
-    if (rollBtn) {
-        rollBtn.addEventListener('click', () => {
-            rollBtn.disabled = true;
-            rollIcon.style.animation = 'spin 0.6s linear infinite';
+    prevBtn.addEventListener('click', () => fetchPage(currentPage - 1));
+    nextBtn.addEventListener('click', () => fetchPage(currentPage + 1));
 
-            fetch(POSTER_URL, {
-                method: 'POST',
-                headers: { 'X-CSRF-TOKEN': CSRF },
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (!data.poster_path) return;
-                setMainPoster(data.poster_path);
-                buildGrid(data.all_paths, data.poster_path);
-            })
-            .finally(() => {
-                rollBtn.disabled = false;
-                rollIcon.style.animation = '';
-            });
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentSort = btn.id === 'sort-rating' ? 'rating' : 'popularity';
+            document.getElementById('sort-popularity').className = 'sort-btn flex-1 text-[10px] py-0.5 rounded transition-colors ' +
+                (currentSort === 'popularity' ? 'bg-white/10 text-white' : 'bg-white/5 text-gray-500 hover:text-white');
+            document.getElementById('sort-rating').className = 'sort-btn flex-1 text-[10px] py-0.5 rounded transition-colors ' +
+                (currentSort === 'rating' ? 'bg-white/10 text-white' : 'bg-white/5 text-gray-500 hover:text-white');
+            fetchPage(1);
         });
-    }
+    });
+
+    fetchPage(1);
 });
 @endif
 </script>

@@ -1,0 +1,77 @@
+<?php
+
+use App\Services\TmdbClient;
+use App\Services\MovieService;
+
+beforeEach(function () {
+    // Mock TMDB so no real HTTP calls are made
+    $this->mock(TmdbClient::class)
+        ->shouldReceive('discoverTv')
+        ->andReturn([
+            'results'       => [['id' => 1001, 'name' => 'Test Show', 'first_air_date' => '2020-01-01', 'genre_ids' => []]],
+            'total_pages'   => 1,
+            'total_results' => 1,
+        ])
+        ->shouldReceive('tvGenres')
+        ->andReturn('{"genres":[]}');
+
+    $this->mock(MovieService::class)
+        ->shouldReceive('getUserCountry')->andReturn('US')
+        ->shouldReceive('resolveTvPage')->andReturn(1)
+        ->shouldReceive('randomMovie')->andReturn(['id' => 1001])
+        ->shouldReceive('tvGenres')->andReturn([])
+        ->shouldReceive('pickBatch')->andReturn([])
+        ->shouldReceive('movieGenresMap')->andReturn([])
+        ->shouldReceive('buildProvidersArray')->andReturn([]);
+});
+
+it('always overwrites tvInput when criteria is submitted', function () {
+    session(['tvInput' => ['vote_count_gte' => 999, 'with_cast' => [42]]]);
+
+    $this->post('/tv/pick', ['vote_count_gte' => '5']);
+
+    expect(session('tvInput'))->toBe(['vote_count_gte' => '5']);
+});
+
+it('clears tvPersonRollIds when new criteria is submitted', function () {
+    session([
+        'tvPersonRollIds' => [101, 202, 303],
+        'tvInput'         => ['with_cast' => [42]],
+    ]);
+
+    $this->post('/tv/pick', ['vote_count_gte' => '5']);
+
+    expect(session('tvPersonRollIds'))->toBeNull();
+});
+
+it('clears tvPersonRollIds on reset with ?i param', function () {
+    session([
+        'tvInput'         => ['vote_count_gte' => '5'],
+        'tvPersonRollIds' => [101, 202],
+    ]);
+
+    // ?i triggers a session reset + redirect
+    $this->get('/tv/pick?i=1')->assertRedirect('/tv/pick');
+
+    expect(session('tvInput'))->toBeNull();
+    expect(session('tvPersonRollIds'))->toBeNull();
+});
+
+it('does not redirect on ?i reset when no session exists', function () {
+    // handleSessionReset only redirects when session('tvInput') !== null
+    $this->post('/tv/pick', ['vote_count_gte' => '5'])
+        ->assertRedirect();
+
+    expect(session('tvPersonRollIds'))->toBeNull();
+});
+
+it('clears tvPersonRollIds on modal submit with ?a', function () {
+    session([
+        'tvPersonRollIds' => [101, 202],
+        'tvInput'         => ['vote_count_gte' => '5'],
+    ]);
+
+    $this->post('/tv/pick?a=1', ['vote_count_gte' => '8']);
+
+    expect(session('tvPersonRollIds'))->toBeNull();
+});
