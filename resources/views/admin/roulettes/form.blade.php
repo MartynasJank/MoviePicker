@@ -176,7 +176,7 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (max-width: 639px) {
     #poster-grid { display: flex; overflow-x: auto; gap: 0.5rem; padding-bottom: 0.375rem; }
-    #poster-grid .poster-thumb { flex-shrink: 0; width: 6.5rem; }
+    #poster-grid .poster-thumb { flex-shrink: 0; width: 8rem; }
 }
 </style>
 <script>
