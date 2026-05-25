@@ -186,7 +186,7 @@ class UserRouletteController extends Controller
 
         // Fetch a page of posters from TMDB
         $page   = max(1, min(10, (int) $request->input('page', 1)));
-        $sort   = $request->input('sort', 'popularity') === 'rating' ? 'rating' : 'popularity';
+        $sort   = $request->input('sort', 'rating') === 'rating' ? 'rating' : 'popularity';
         $mapper = new RouletteTagMapper();
         $isTv   = $roulette->media_type === 'tv';
         $criteria = $isTv ? $mapper->toCriteriaTv($roulette->tags ?? []) : $mapper->toCriteria($roulette->tags ?? []);

@@ -42,9 +42,9 @@
         {{-- Sort toggle --}}
         <div class="flex gap-1 mb-2">
             <button type="button" id="sort-popularity"
-                    class="sort-btn flex-1 text-[10px] py-0.5 rounded bg-white/10 text-white transition-colors">Popular</button>
+                    class="sort-btn flex-1 text-[10px] py-0.5 rounded bg-white/5 text-gray-500 hover:text-white transition-colors">Popular</button>
             <button type="button" id="sort-rating"
-                    class="sort-btn flex-1 text-[10px] py-0.5 rounded bg-white/5 text-gray-500 hover:text-white transition-colors">Top Rated</button>
+                    class="sort-btn flex-1 text-[10px] py-0.5 rounded bg-white/10 text-white transition-colors">Top Rated</button>
         </div>
 
         {{-- Main poster (desktop only) --}}
@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const indicator = document.getElementById('page-indicator');
     let currentPage = 1;
     let totalPages  = 1;
-    let currentSort = 'popularity';
+    let currentSort = 'rating';
     let loading     = false;
 
     function setMainPoster(path) {
