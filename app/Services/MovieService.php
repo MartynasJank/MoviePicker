@@ -39,9 +39,9 @@ class MovieService
      * On first visit stores submitted criteria in session; subsequent visits
      * always return the session copy so "pick another" keeps the same filters.
      */
-    public function resolveSessionCriteria(array $submitted): array
+    public function resolveSessionCriteria(array $submitted, bool $overwrite = false): array
     {
-        if (session('userInput') === null) {
+        if ($overwrite || session('userInput') === null) {
             session()->put('userInput', $submitted);
         }
 
