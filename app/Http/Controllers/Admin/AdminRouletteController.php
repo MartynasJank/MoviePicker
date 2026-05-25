@@ -238,8 +238,14 @@ class AdminRouletteController extends Controller
         if ($genres = $request->input('tags.genre', [])) {
             $tags['genre'] = array_values($genres);
         }
+        if ($withoutGenres = $request->input('tags.without_genre', [])) {
+            $tags['without_genre'] = array_values($withoutGenres);
+        }
         if ($era = $request->input('tags.era')) {
             $tags['era'] = [$era];
+        }
+        if ($country = $request->input('tags.country')) {
+            $tags['country'] = [$country];
         }
         if ($language = $request->input('tags.language')) {
             $tags['language'] = [$language];
