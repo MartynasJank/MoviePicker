@@ -81,7 +81,7 @@ document.addEventListener('submit', function (e) {
     const endpoint = isMovie ? '/movie/roll/criteria' : '/tv/roll/criteria';
     const fallback = formaction;
     sessionStorage.setItem('rollSource',    'batch');
-    sessionStorage.setItem('rollBackUrl',   '/batch/history');
+    sessionStorage.setItem('rollBackUrl',   isMovie ? '/multiple?from=roll' : '/tv/multiple?from=roll');
     sessionStorage.setItem('rollBackLabel', '← Batch');
     const body = new FormData(form);
 
@@ -92,7 +92,6 @@ document.addEventListener('submit', function (e) {
         .then(movies => {
             if (btn) { btn.textContent = isMovie ? 'Find Movie' : 'Find Show'; btn.disabled = false; }
             const filtered = movies.filter(m => m.poster_path);
-            sessionStorage.setItem('lastBatchCards', JSON.stringify(filtered));
             const cards = filtered.map(m => ({
                 url:    m.url,
                 poster: `https://image.tmdb.org/t/p/w342${m.poster_path}`,
@@ -190,8 +189,9 @@ document.addEventListener('click', function (e) {
             sessionStorage.setItem('rollBackUrl',   window.location.href);
             sessionStorage.setItem('rollBackLabel', link.dataset.backLabel || '← Back');
         } else {
+            const batchUrl = (rollType === 'tv' || rollType === 'tv-criteria') ? '/tv/multiple?from=roll' : '/multiple?from=roll';
             sessionStorage.setItem('rollSource',    'batch');
-            sessionStorage.setItem('rollBackUrl',   '/batch/history');
+            sessionStorage.setItem('rollBackUrl',   batchUrl);
             sessionStorage.setItem('rollBackLabel', '← Batch');
         }
 
@@ -203,7 +203,6 @@ document.addEventListener('click', function (e) {
             .then(movies => {
                 link.textContent = origText;
                 const filtered = movies.filter(m => m.poster_path);
-                if (!isPersonRoll) sessionStorage.setItem('lastBatchCards', JSON.stringify(filtered));
                 const cards = filtered.map(m => ({
                     url:    m.url,
                     poster: `https://image.tmdb.org/t/p/w342${m.poster_path}`,

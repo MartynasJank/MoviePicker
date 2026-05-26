@@ -41,13 +41,20 @@ class MoviePickController extends Controller
             return $redirect;
         }
 
-        $country  = $movieService->getUserCountry();
-        $criteria = $movieService->resolveSessionCriteria($this->submitted($request), $request->isMethod('post'));
-        $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country);
+        $country = $movieService->getUserCountry();
 
-        $movies             = $tmdb->discover($criteria, $country);
-        $movies['results']  = $movieService->pickBatch($movies['results']);
-        $all_genres         = $movieService->genres($tmdb);
+        if ($request->query('from') === 'roll' && session('lastBatchType') === 'movie' && session('lastBatchResults')) {
+            $results = session('lastBatchResults');
+            session()->forget(['lastBatchResults', 'lastBatchType']);
+            $movies = ['results' => $results];
+        } else {
+            $criteria = $movieService->resolveSessionCriteria($this->submitted($request), $request->isMethod('post'));
+            $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country);
+            $movies            = $tmdb->discover($criteria, $country);
+            $movies['results'] = $movieService->pickBatch($movies['results']);
+        }
+
+        $all_genres = $movieService->genres($tmdb);
         $movie_genres       = $movieService->movieGenresMap($movies['results'], $all_genres);
 
         session(['batchUrl' => url('/multiple')]);
@@ -109,6 +116,7 @@ class MoviePickController extends Controller
         $results = $tmdb->discover($criteria, $country);
         $picked  = $movieService->pickBatch($results['results'] ?? []);
 
+        session(['lastBatchResults' => $picked, 'lastBatchType' => 'movie']);
         session()->forget('batchUrl');
 
         return response()->json(array_map(fn($m) => [
@@ -138,6 +146,8 @@ class MoviePickController extends Controller
         ], $country);
 
         $picked = $movieService->pickBatch($results['results'] ?? []);
+
+        session(['lastBatchResults' => $picked, 'lastBatchType' => 'movie']);
 
         return response()->json(array_map(fn($m) => [
             'title'        => $m['title'] ?? '',

@@ -41,19 +41,26 @@ class TvPickController extends Controller
             return $redirect;
         }
 
-        $country  = $movieService->getUserCountry();
-        $criteria = $this->resolveSessionCriteria($this->submitted($request), $request->isMethod('post'));
-        $criteria['page'] = $movieService->resolveTvPage($tmdb, $criteria, $country);
+        $country = $movieService->getUserCountry();
 
-        $shows            = $tmdb->discoverTv($criteria, $country);
-        $shows['results'] = $movieService->pickBatch($shows['results']);
+        if ($request->query('from') === 'roll' && session('lastBatchType') === 'tv' && session('lastBatchResults')) {
+            $results = session('lastBatchResults');
+            session()->forget(['lastBatchResults', 'lastBatchType']);
+            $shows = ['results' => $results];
+        } else {
+            $criteria = $this->resolveSessionCriteria($this->submitted($request), $request->isMethod('post'));
+            $criteria['page'] = $movieService->resolveTvPage($tmdb, $criteria, $country);
 
-        // Normalise TV fields so the shared carousel component works
-        $shows['results'] = array_map(function ($show) {
-            $show['title']        = $show['name'] ?? $show['title'] ?? '';
-            $show['release_date'] = $show['first_air_date'] ?? '';
-            return $show;
-        }, $shows['results']);
+            $shows            = $tmdb->discoverTv($criteria, $country);
+            $shows['results'] = $movieService->pickBatch($shows['results']);
+
+            // Normalise TV fields so the shared carousel component works
+            $shows['results'] = array_map(function ($show) {
+                $show['title']        = $show['name'] ?? $show['title'] ?? '';
+                $show['release_date'] = $show['first_air_date'] ?? '';
+                return $show;
+            }, $shows['results']);
+        }
 
         $all_genres   = $movieService->tvGenres($tmdb);
         $movie_genres = $movieService->movieGenresMap($shows['results'], $all_genres);
@@ -130,6 +137,7 @@ class TvPickController extends Controller
         $results = $tmdb->discoverTv($criteria, $country);
         $picked  = $movieService->pickBatch($results['results'] ?? []);
 
+        session(['lastBatchResults' => $picked, 'lastBatchType' => 'tv']);
         session()->forget('batchUrl');
 
         return response()->json(array_map(fn($m) => [
@@ -158,6 +166,8 @@ class TvPickController extends Controller
         ], $country);
 
         $picked = $movieService->pickBatch($results['results'] ?? []);
+
+        session(['lastBatchResults' => $picked, 'lastBatchType' => 'tv']);
 
         return response()->json(array_map(fn($m) => [
             'title'        => $m['name'] ?? $m['title'] ?? '',
