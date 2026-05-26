@@ -206,8 +206,11 @@ class AdminRouletteController extends Controller
         $fingerprint = Roulette::fingerprintFromTags($tags);
 
         // Fingerprint must be unique among system roulettes only
+        $mediaType = $request->input('media_type') === 'tv' ? 'tv' : 'movie';
+
         $duplicate = Roulette::where('tag_fingerprint', $fingerprint)
             ->where('is_system', true)
+            ->where('media_type', $mediaType)
             ->when($excludeId, fn($q) => $q->where('id', '!=', $excludeId))
             ->exists();
 
