@@ -17,9 +17,9 @@ beforeEach(function () {
 
     $this->mock(MovieService::class)
         ->shouldReceive('getUserCountry')->andReturn('US')
-        ->shouldReceive('resolveTvPage')->andReturn(1)
+        ->shouldReceive('resolvePage')->andReturn(1)
         ->shouldReceive('randomMovie')->andReturn(['id' => 1001])
-        ->shouldReceive('tvGenres')->andReturn([])
+        ->shouldReceive('genres')->andReturn([])
         ->shouldReceive('pickBatch')->andReturn([])
         ->shouldReceive('movieGenresMap')->andReturn([])
         ->shouldReceive('buildProvidersArray')->andReturn([]);

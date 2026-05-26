@@ -104,7 +104,7 @@ class RouletteController extends Controller
 
         if ($isTv) {
             $base     = $mapper->toCriteriaTv($roulette->tags);
-            $criteria = $movieService->resolveRoulettePageTv($tmdb, $base, $slug, $country);
+            $criteria = $movieService->resolveRoulettePage($tmdb, $base, $slug, $country, 'tv');
             $results  = $tmdb->discoverTv($criteria, $country)['results'] ?? [];
             $picked   = $movieService->pickBatch($results);
 
@@ -148,7 +148,7 @@ class RouletteController extends Controller
 
         if ($isTv) {
             $base     = $mapper->toCriteriaTv($roulette->tags);
-            $criteria = $movieService->resolveRoulettePageTv($tmdb, $base, $slug, $country);
+            $criteria = $movieService->resolveRoulettePage($tmdb, $base, $slug, $country, 'tv');
             $shows    = $tmdb->discoverTv($criteria, $country);
 
             $rawResults = $shows['results'] ?? [];
@@ -159,7 +159,7 @@ class RouletteController extends Controller
             unset($show);
 
             $shows['results'] = $movieService->pickBatch($rawResults);
-            $allGenres        = $movieService->tvGenres($tmdb);
+            $allGenres        = $movieService->genres($tmdb, 'tv');
 
             session(['tvInput'  => array_merge($criteria, ['total_pages' => $shows['total_pages'] ?? 500])]);
             session(['batchUrl' => request()->url()]);

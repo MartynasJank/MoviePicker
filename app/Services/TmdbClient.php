@@ -354,7 +354,7 @@ class TmdbClient implements ApiMovie
         return json_decode($response->getBody()->getContents(), true);
     }
 
-    /** TV genre list — use MovieService::tvGenres() which caches the result. */
+    /** TV genre list — use MovieService::genres($tmdb, 'tv') which caches the result. */
     public function tvGenres(): string
     {
         $url = 'https://api.themoviedb.org/3/genre/tv/list?' . http_build_query(['language' => 'en-US']);

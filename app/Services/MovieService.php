@@ -50,9 +50,9 @@ class MovieService
 
     /**
      * Resolve the page number to discover.
-     * Uses the cached total_pages if available, otherwise fetches it and caches it.
+     * Pass $mediaType = 'tv' for TV shows (uses discoverTv + tvInput session key).
      */
-    public function resolvePage(TmdbClient $tmdb, array $criteria, string $country): int
+    public function resolvePage(TmdbClient $tmdb, array $criteria, string $country, string $mediaType = 'movie'): int
     {
         if (empty($criteria)) {
             return $this->randomPage(500);
@@ -62,36 +62,19 @@ class MovieService
             return $this->randomPage($criteria['total_pages']);
         }
 
-        $all = $tmdb->discover($criteria, $country);
-        session()->put('userInput.total_pages', $all['total_pages']);
+        $all        = $mediaType === 'tv' ? $tmdb->discoverTv($criteria, $country) : $tmdb->discover($criteria, $country);
+        $sessionKey = $mediaType === 'tv' ? 'tvInput' : 'userInput';
+        session()->put($sessionKey . '.total_pages', $all['total_pages']);
         return $this->randomPage($all['total_pages']);
     }
 
     /**
      * Resolve criteria with a random page for a named roulette type.
-     * Caches total_pages in session so repeated rolls skip the extra API call.
+     * Pass $mediaType = 'tv' for TV roulettes.
      */
-    public function resolveRoulettePage(TmdbClient $tmdb, array $criteria, string $type, string $country): array
+    public function resolveRoulettePage(TmdbClient $tmdb, array $criteria, string $type, string $country, string $mediaType = 'movie'): array
     {
-        if (session('roulette.type') !== $type) {
-            session()->forget('roulette');
-        }
-
-        if (session()->has('roulette.total_pages')) {
-            $criteria['page'] = $this->randomPage(session('roulette.total_pages'));
-        } else {
-            $all = $tmdb->discover($criteria, $country);
-            session()->put('roulette', ['type' => $type, 'total_pages' => $all['total_pages']]);
-            $criteria['page'] = $this->randomPage($all['total_pages']);
-        }
-
-        return $criteria;
-    }
-
-    /** Like resolveRoulettePage() but uses discoverTv() for TV roulettes. */
-    public function resolveRoulettePageTv(TmdbClient $tmdb, array $criteria, string $type, string $country): array
-    {
-        $sessionKey = 'roulette_tv';
+        $sessionKey = $mediaType === 'tv' ? 'roulette_tv' : 'roulette';
 
         if (session($sessionKey . '.type') !== $type) {
             session()->forget($sessionKey);
@@ -100,7 +83,7 @@ class MovieService
         if (session()->has($sessionKey . '.total_pages')) {
             $criteria['page'] = $this->randomPage(session($sessionKey . '.total_pages'));
         } else {
-            $all = $tmdb->discoverTv($criteria, $country);
+            $all = $mediaType === 'tv' ? $tmdb->discoverTv($criteria, $country) : $tmdb->discover($criteria, $country);
             session()->put($sessionKey, ['type' => $type, 'total_pages' => $all['total_pages']]);
             $criteria['page'] = $this->randomPage($all['total_pages']);
         }
@@ -108,39 +91,13 @@ class MovieService
         return $criteria;
     }
 
-    /** Genre list, cached for one week. */
-    public function genres(TmdbClient $tmdb): array
+    /** Genre list, cached for one week. Pass $mediaType = 'tv' for TV genres. */
+    public function genres(TmdbClient $tmdb, string $mediaType = 'movie'): array
     {
-        return Cache::remember('tmdb_genres', now()->addWeek(), function () use ($tmdb) {
-            return json_decode($tmdb->genres())->genres;
+        $cacheKey = $mediaType === 'tv' ? 'tmdb_tv_genres' : 'tmdb_genres';
+        return Cache::remember($cacheKey, now()->addWeek(), function () use ($tmdb, $mediaType) {
+            return json_decode($mediaType === 'tv' ? $tmdb->tvGenres() : $tmdb->genres())->genres;
         });
-    }
-
-    /** TV genre list, cached for one week. */
-    public function tvGenres(TmdbClient $tmdb): array
-    {
-        return Cache::remember('tmdb_tv_genres', now()->addWeek(), function () use ($tmdb) {
-            return json_decode($tmdb->tvGenres())->genres;
-        });
-    }
-
-    /**
-     * Resolve the page number for TV show discovery.
-     * Mirrors resolvePage() but uses discoverTv() and the tvInput session key.
-     */
-    public function resolveTvPage(TmdbClient $tmdb, array $criteria, string $country): int
-    {
-        if (empty($criteria)) {
-            return $this->randomPage(500);
-        }
-
-        if (isset($criteria['total_pages'])) {
-            return $this->randomPage($criteria['total_pages']);
-        }
-
-        $all = $tmdb->discoverTv($criteria, $country);
-        session()->put('tvInput.total_pages', $all['total_pages']);
-        return $this->randomPage($all['total_pages']);
     }
 
     public function genresString(object $movieObj): string
