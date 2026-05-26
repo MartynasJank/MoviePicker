@@ -89,14 +89,14 @@ document.addEventListener('submit', function (e) {
         .then(r => r.json())
         .then(movies => {
             if (btn) { btn.textContent = isMovie ? 'Find Movie' : 'Find Show'; btn.disabled = false; }
-            const cards = movies
-                .filter(m => m.poster_path)
-                .map(m => ({
-                    url:    m.url,
-                    poster: `https://image.tmdb.org/t/p/w342${m.poster_path}`,
-                    title:  m.title,
-                    rating: m.vote_average,
-                }));
+            const filtered = movies.filter(m => m.poster_path);
+            sessionStorage.setItem('lastBatchCards', JSON.stringify(filtered));
+            const cards = filtered.map(m => ({
+                url:    m.url,
+                poster: `https://image.tmdb.org/t/p/w342${m.poster_path}`,
+                title:  m.title,
+                rating: m.vote_average,
+            }));
             if (!rollCards(cards)) window.location.href = fallback;
         })
         .catch(() => { window.location.href = fallback; });
@@ -200,14 +200,14 @@ document.addEventListener('click', function (e) {
             .then(r => r.json())
             .then(movies => {
                 link.textContent = origText;
-                const cards = movies
-                    .filter(m => m.poster_path)
-                    .map(m => ({
-                        url:    m.url,
-                        poster: `https://image.tmdb.org/t/p/w342${m.poster_path}`,
-                        title:  m.title,
-                        rating: m.vote_average,
-                    }));
+                const filtered = movies.filter(m => m.poster_path);
+                if (!isPersonRoll) sessionStorage.setItem('lastBatchCards', JSON.stringify(filtered));
+                const cards = filtered.map(m => ({
+                    url:    m.url,
+                    poster: `https://image.tmdb.org/t/p/w342${m.poster_path}`,
+                    title:  m.title,
+                    rating: m.vote_average,
+                }));
                 if (!rollCards(cards)) window.location.href = fallback;
             })
             .catch(() => { window.location.href = fallback; });
