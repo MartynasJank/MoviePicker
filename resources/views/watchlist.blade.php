@@ -170,7 +170,7 @@
         {{-- Center indicator --}}
         <div class="absolute inset-y-0 left-1/2 -translate-x-px w-0.5 bg-accent z-10" style="box-shadow:0 0 14px 3px rgba(192,57,58,0.75)"></div>
         {{-- Card strip --}}
-        <div id="case-strip" class="absolute top-1 flex" style="gap:8px"></div>
+        <div id="case-strip" class="absolute top-3 flex" style="gap:8px"></div>
     </div>
 
     <div class="mt-8 text-center" style="position:relative;z-index:20">
