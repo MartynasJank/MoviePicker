@@ -49,7 +49,7 @@ class TvShowController extends Controller
             $showCriteria['page'] = rand(1, min($showCriteria['total_pages'] ?? 500, 500));
             $discovered = $tmdb->discoverTv($showCriteria, $country);
             if (count($discovered['results']) >= 4) {
-                $discovered['results'] = $this->normaliseShows($discovered['results']);
+                $discovered['results'] = $movieService->normaliseShows($discovered['results']);
                 $similarShows = $discovered;
                 $similarTitle = 'More with Same Criteria';
             }
@@ -58,7 +58,7 @@ class TvShowController extends Controller
         if ($similarShows === null) {
             $raw = $tmdb->similarShows($tmdbInfo);
             if ($raw) {
-                $raw['results'] = $this->normaliseShows($raw['results']);
+                $raw['results'] = $movieService->normaliseShows($raw['results']);
                 $similarShows   = $raw;
             }
         }
@@ -76,12 +76,5 @@ class TvShowController extends Controller
         ));
     }
 
-    private function normaliseShows(array $shows): array
-    {
-        return array_map(function ($show) {
-            $show['title']        = $show['name'] ?? $show['title'] ?? '';
-            $show['release_date'] = $show['first_air_date'] ?? '';
-            return $show;
-        }, $shows);
-    }
+
 }

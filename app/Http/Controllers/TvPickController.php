@@ -9,16 +9,25 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
-class TvPickController extends Controller
+class TvPickController extends PickController
 {
+    private const SESSION_KEY = 'tvInput';
+    private const CLEAR_WITH  = ['tvPersonRollIds'];
+    private const DEFAULTS    = [
+        'with_original_language' => 'en',
+        'first_air_date_gte'     => 1990,
+        'vote_average_gte'       => 7,
+        'vote_count_gte'         => 100,
+    ];
+
     public function single(TvCriteriaRequest $request, MovieService $movieService, TmdbClient $tmdb): RedirectResponse
     {
-        if ($redirect = $this->handleSessionReset($request, '/tv/pick')) {
+        if ($redirect = $this->handleSessionReset($request, '/tv/pick', self::SESSION_KEY, self::DEFAULTS, self::CLEAR_WITH)) {
             return $redirect;
         }
 
         $country  = $movieService->getUserCountry();
-        $criteria = $this->resolveSessionCriteria($this->submitted($request), $request->isMethod('post'));
+        $criteria = $movieService->resolveSessionCriteria($this->submitted($request), $request->isMethod('post'), self::SESSION_KEY, self::CLEAR_WITH);
         $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country, 'tv');
 
         $results = $tmdb->discoverTv($criteria, $country);
@@ -37,37 +46,24 @@ class TvPickController extends Controller
 
     public function batch(TvCriteriaRequest $request, MovieService $movieService, TmdbClient $tmdb): View|RedirectResponse
     {
-        if ($redirect = $this->handleSessionReset($request, '/tv/multiple')) {
+        if ($redirect = $this->handleSessionReset($request, '/tv/multiple', self::SESSION_KEY, self::DEFAULTS, self::CLEAR_WITH)) {
             return $redirect;
         }
 
         $country = $movieService->getUserCountry();
-
-        if ($request->query('from') === 'roll' && session('lastBatchType') === 'tv' && session('lastBatchResults')) {
-            $results = session('lastBatchResults');
-            session()->forget(['lastBatchResults', 'lastBatchType']);
-            $shows = ['results' => $results];
-        } else {
-            $criteria = $this->resolveSessionCriteria($this->submitted($request), $request->isMethod('post'));
+        $shows   = $this->restoreOrFetch($request, 'tv', function () use ($request, $movieService, $tmdb, $country) {
+            $criteria         = $movieService->resolveSessionCriteria($this->submitted($request), $request->isMethod('post'), self::SESSION_KEY, self::CLEAR_WITH);
             $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country, 'tv');
-
             $shows            = $tmdb->discoverTv($criteria, $country);
             $shows['results'] = $movieService->pickBatch($shows['results']);
-
-            // Normalise TV fields so the shared carousel component works
-            $shows['results'] = array_map(function ($show) {
-                $show['title']        = $show['name'] ?? $show['title'] ?? '';
-                $show['release_date'] = $show['first_air_date'] ?? '';
-                return $show;
-            }, $shows['results']);
-        }
+            $shows['results'] = $movieService->normaliseShows($shows['results']);
+            return $shows;
+        });
 
         $all_genres   = $movieService->genres($tmdb, 'tv');
         $movie_genres = $movieService->movieGenresMap($shows['results'], $all_genres);
 
         session(['batchUrl' => url('/tv/multiple')]);
-
-        $savedIds = $this->savedWatchlistIds();
 
         return view('tv.batch', [
             'movies'         => $shows,
@@ -76,60 +72,15 @@ class TvPickController extends Controller
             'movie_genres'   => $movie_genres,
             'providersArray' => $movieService->buildProvidersArray($tmdb),
             'tag'            => 'TV Shows picked for you',
-            'savedIds'       => $savedIds,
+            'savedIds'       => $this->savedWatchlistIds(),
         ]);
-    }
-
-    private function resolveSessionCriteria(array $submitted, bool $overwrite = false): array
-    {
-        if ($overwrite || !empty($submitted)) {
-            session()->put('tvInput', $submitted);
-            session()->forget('tvPersonRollIds');
-        } elseif (session('tvInput') === null) {
-            session()->put('tvInput', $submitted);
-        }
-
-        return session('tvInput') ?? [];
-    }
-
-    private function submitted(TvCriteriaRequest $request): array
-    {
-        return array_filter(
-            $request->except(['_token', 'i', 'total_pages', 'a']),
-            fn($v) => $v !== '' && $v !== null && $v !== []
-        );
-    }
-
-    private function handleSessionReset(TvCriteriaRequest $request, string $redirectTo): ?RedirectResponse
-    {
-        if ($request->query('i') === 'new') {
-            session()->forget('tvPersonRollIds');
-            session(['tvInput' => [
-                'with_original_language' => 'en',
-                'first_air_date_gte'     => 1990,
-                'vote_average_gte'       => 7,
-                'vote_count_gte'         => 100,
-            ]]);
-            return null;
-        }
-
-        if ($request->query('i') !== null && session('tvInput') !== null) {
-            session()->forget(['tvInput', 'tvPersonRollIds']);
-            return redirect(url($redirectTo));
-        }
-
-        if ($request->query('a') !== null) {
-            session()->forget('tvInput');
-        }
-
-        return null;
     }
 
     public function criteriaRollJson(TvCriteriaRequest $request, MovieService $movieService, TmdbClient $tmdb): JsonResponse
     {
         $country   = $movieService->getUserCountry();
         $submitted = $this->submitted($request);
-        $criteria  = $this->resolveSessionCriteria($submitted, $request->isMethod('post') && !empty($submitted));
+        $criteria  = $movieService->resolveSessionCriteria($submitted, $request->isMethod('post') && !empty($submitted), self::SESSION_KEY, self::CLEAR_WITH);
         $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country, 'tv');
 
         $results = $tmdb->discoverTv($criteria, $country);
@@ -143,12 +94,7 @@ class TvPickController extends Controller
 
     public function rollJson(MovieService $movieService, TmdbClient $tmdb): JsonResponse
     {
-        session(['tvInput' => [
-            'with_original_language' => 'en',
-            'first_air_date_gte'     => 1990,
-            'vote_average_gte'       => 7,
-            'vote_count_gte'         => 100,
-        ]]);
+        session([self::SESSION_KEY => self::DEFAULTS]);
         session()->forget('batchUrl');
 
         $country = $movieService->getUserCountry();
