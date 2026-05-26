@@ -137,10 +137,46 @@
 {{-- Sticky bar --}}
 @if($items->isNotEmpty())
 <div class="fixed bottom-0 left-0 right-0 bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 px-4 z-40 sticky-bar-safe">
-    <div class="max-w-7xl mx-auto flex justify-end">
+    <div class="max-w-7xl mx-auto flex items-center justify-between py-1">
+        <label class="flex items-center gap-2.5 text-xs text-gray-400 cursor-pointer select-none">
+            <span class="relative inline-block w-9 h-5">
+                <input type="checkbox" id="anim-toggle" class="sr-only">
+                <span id="anim-track" class="block w-9 h-5 rounded-full transition-colors duration-200"></span>
+                <span id="anim-thumb" class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200 shadow"></span>
+            </span>
+            Animation
+        </label>
         <button id="watchlist-roll" class="btn-accent px-8">Roll</button>
     </div>
 </div>
 @endif
+
+{{-- Case opening overlay --}}
+<div id="case-overlay" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-center" style="background:rgba(0,0,0,0.88);backdrop-filter:blur(8px)">
+
+    {{-- Sunburst rays (behind everything) --}}
+    <div id="case-rays" class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0" style="width:900px;height:900px;z-index:1">
+        <div id="case-rays-inner" style="width:100%;height:100%;border-radius:50%"></div>
+    </div>
+    {{-- Central radial glow --}}
+    <div id="case-glow" class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-0" style="width:320px;height:320px;z-index:2"></div>
+
+    <p class="text-gray-500 text-xs uppercase tracking-widest mb-8" style="position:relative;z-index:20">Good luck...</p>
+
+    <div id="case-viewport" class="relative w-full overflow-hidden" style="height:220px;z-index:20">
+        {{-- Fade edges --}}
+        <div class="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-black to-transparent z-10 pointer-events-none"></div>
+        <div class="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-black to-transparent z-10 pointer-events-none"></div>
+        {{-- Center indicator --}}
+        <div class="absolute inset-y-0 left-1/2 -translate-x-px w-0.5 bg-accent z-10" style="box-shadow:0 0 14px 3px rgba(192,57,58,0.75)"></div>
+        {{-- Card strip --}}
+        <div id="case-strip" class="absolute top-1 flex" style="gap:8px"></div>
+    </div>
+
+    <div class="mt-8 text-center" style="position:relative;z-index:20">
+        <p id="case-winner-tier" class="text-xs font-bold uppercase tracking-widest mb-2 transition-opacity duration-300 opacity-0"></p>
+        <p id="case-winner-title" class="text-white font-bold text-2xl px-6 transition-opacity duration-500 opacity-0 max-w-lg"></p>
+    </div>
+</div>
 
 @endsection
