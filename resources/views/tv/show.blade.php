@@ -370,11 +370,10 @@
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
         {{-- Back button --}}
         <div class="flex-shrink-0">
-            @if(!empty($batchUrl))
-                @php $backLabel = str_contains($batchUrl, 'watchlist') ? '← Watchlist' : '← Batch'; @endphp
-                <a href="{{ $batchUrl }}" class="btn-secondary text-center">{{ $backLabel }}</a>
+            @if(request()->query('wl_status'))
+                <a href="{{ route('watchlist') }}" class="btn-secondary text-center">← Watchlist</a>
             @else
-                <a href="/roulettes" class="btn-secondary text-center hidden js-back-roulettes">← Roulettes</a>
+                <a href="{{ $batchUrl ?: '/tv/multiple' }}" class="btn-secondary text-center js-back-roulettes">← Batch</a>
             @endif
         </div>
         {{-- Right actions --}}
