@@ -23,7 +23,8 @@ document.addEventListener('change', function (e) {
 
 document.addEventListener('DOMContentLoaded', function () {
     syncAnimToggles();
-    if (sessionStorage.getItem('rollSource') === 'roulette') {
+    const rollSource = sessionStorage.getItem('rollSource');
+    if (rollSource === 'roulette' || rollSource === 'person') {
         document.querySelectorAll('.js-criteria-btn').forEach(el => el.classList.add('hidden'));
         const backUrl   = sessionStorage.getItem('rollBackUrl')   || '/roulettes';
         const backLabel = sessionStorage.getItem('rollBackLabel') || '← Roulettes';
@@ -182,7 +183,11 @@ document.addEventListener('click', function (e) {
     if (jsonUrl) {
         e.preventDefault();
         const fallback = link.href;
-        if (rollType === 'movie' || rollType === 'tv') {
+        if (isPersonRoll) {
+            sessionStorage.setItem('rollSource',    'person');
+            sessionStorage.setItem('rollBackUrl',   window.location.href);
+            sessionStorage.setItem('rollBackLabel', link.dataset.backLabel || '← Back');
+        } else if (rollType === 'movie' || rollType === 'tv') {
             sessionStorage.removeItem('rollSource');
             sessionStorage.removeItem('rollBackUrl');
             sessionStorage.removeItem('rollBackLabel');
