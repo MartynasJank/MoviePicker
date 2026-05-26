@@ -149,7 +149,7 @@ class TvPickController extends Controller
                 'vote_average_gte'       => 7,
                 'vote_count_gte'         => 100,
             ],
-            'batchUrl' => url('/tv/multiple'),
+            'batchUrl' => url('/batch/history'),
         ]);
 
         $country = $movieService->getUserCountry();
