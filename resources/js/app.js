@@ -68,30 +68,32 @@ $(document).ready(function () {
         $('body').css('overflow', '');
     });
 
-    /* ── Loading overlay ───────────────────────────────────────────────── */
-    function showLoading(text) {
-        $('.loading-text').text(text);
-        $('.overlay').fadeIn(150);
-        $('.loading-text').fadeIn(150);
-        $('.loader').fadeIn(150);
+    /* ── Progress bar ───────────────────────────────────────────────────── */
+    const progressBar = document.getElementById('progress-bar');
+
+    function showLoading() {
+        progressBar.classList.remove('active');
+        void progressBar.offsetWidth; // reflow to restart animation
+        progressBar.classList.add('active');
     }
 
+    function hideLoading() {
+        progressBar.classList.remove('active');
+        progressBar.style.width = '0';
+    }
+
+    // Hide when restored from bfcache (browser back/forward)
+    window.addEventListener('pageshow', function (e) {
+        if (e.persisted) hideLoading();
+    });
+
     $('#criteria').on('submit', function () {
-        window.addEventListener('beforeunload', () => showLoading('Finding the best match for you!'), { once: true });
+        window.addEventListener('beforeunload', showLoading, { once: true });
     });
 
-    $(document).on('click', '.long-single', function () {
-        const text = $(this).data('loading') || 'Looking for a perfect movie!';
-        const handler = () => showLoading(text);
-        window.addEventListener('beforeunload', handler, { once: true });
-        setTimeout(() => window.removeEventListener('beforeunload', handler), 150);
-    });
-
-    $(document).on('click', '.long-movie', function () {
-        const name = $(this).data('name');
-        const handler = () => showLoading('Loading ' + name + '!');
-        window.addEventListener('beforeunload', handler, { once: true });
-        setTimeout(() => window.removeEventListener('beforeunload', handler), 150);
+    $(document).on('click', '.long-single, .long-movie', function () {
+        window.addEventListener('beforeunload', showLoading, { once: true });
+        setTimeout(() => window.removeEventListener('beforeunload', showLoading), 150);
     });
 
     /* ── Roulette row drag-to-scroll ───────────────────────────────────── */

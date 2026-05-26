@@ -20,18 +20,8 @@
 </head>
 <body>
 
-    {{-- Loading overlay --}}
-    <div class="overlay"></div>
-    <div class="loader">
-        <div class="loading-text"></div>
-        <div class="loader-dots">
-            <div class="loader-dot"></div>
-            <div class="loader-dot"></div>
-            <div class="loader-dot"></div>
-            <div class="loader-dot"></div>
-            <div class="loader-dot"></div>
-        </div>
-    </div>
+    {{-- Progress bar --}}
+    <div id="progress-bar"></div>
 
     {{-- Navigation --}}
     <nav class="fixed top-0 left-0 right-0 z-50 h-16 bg-[#0f0f0f]/90 backdrop-blur-lg border-b border-white/5">
