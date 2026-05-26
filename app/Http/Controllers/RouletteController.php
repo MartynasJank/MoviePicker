@@ -119,7 +119,7 @@ class RouletteController extends Controller
         return response()->json($this->toRollCards($picked));
     }
 
-    public function pick(string $slug, MovieService $movieService, TmdbClient $tmdb): View
+    public function pick(string $slug, MovieService $movieService, TmdbClient $tmdb, \Illuminate\Http\Request $request): View
     {
         $roulette = Roulette::where('slug', $slug)
             ->where(function ($q) {
@@ -134,6 +134,23 @@ class RouletteController extends Controller
 
         $savedIds = $this->savedWatchlistIds();
 
+        if ($request->query('from') === 'roll'
+            && session('savedBatchUrl') === $request->url()
+            && session('savedBatchResults')
+        ) {
+            $results = session('savedBatchResults');
+            $genres  = $movieService->genres($tmdb, $isTv ? 'tv' : 'movie');
+            session(['batchUrl' => $request->url()]);
+            return view('batch', array_filter([
+                'movies'       => ['results' => $results],
+                'movie_genres' => $movieService->movieGenresMap($results, $genres),
+                'tag'          => $roulette->name,
+                'title'        => $roulette->name . ' — MoviePickr',
+                'savedIds'     => $savedIds,
+                'mediaType'    => $isTv ? 'tv' : null,
+            ]));
+        }
+
         if ($isTv) {
             $base     = $mapper->toCriteriaTv($roulette->tags);
             $criteria = $movieService->resolveRoulettePage($tmdb, $base, $slug, $country, 'tv');
@@ -143,7 +160,7 @@ class RouletteController extends Controller
             $allGenres        = $movieService->genres($tmdb, 'tv');
 
             session(['tvInput'  => array_merge($criteria, ['total_pages' => $shows['total_pages'] ?? 500])]);
-            session(['batchUrl' => request()->url()]);
+            session(['batchUrl' => $request->url(), 'savedBatchUrl' => $request->url(), 'savedBatchResults' => $shows['results']]);
 
             return view('batch', [
                 'movies'       => $shows,
@@ -162,7 +179,7 @@ class RouletteController extends Controller
         $all_genres          = $movieService->genres($tmdb);
 
         session(['userInput' => array_merge($criteria, ['total_pages' => $movies['total_pages'] ?? 500])]);
-        session(['batchUrl'  => request()->url()]);
+        session(['batchUrl'  => $request->url(), 'savedBatchUrl' => $request->url(), 'savedBatchResults' => $movies['results']]);
 
         return view('batch', [
             'movies'       => $movies,

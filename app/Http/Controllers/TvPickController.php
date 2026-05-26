@@ -63,7 +63,7 @@ class TvPickController extends PickController
         $all_genres   = $movieService->genres($tmdb, 'tv');
         $movie_genres = $movieService->movieGenresMap($shows['results'], $all_genres);
 
-        session(['batchUrl' => url('/tv/multiple'), 'savedBatchResults' => $shows['results'], 'savedBatchType' => 'tv']);
+        session(['batchUrl' => url('/tv/multiple'), 'savedBatchUrl' => url('/tv/multiple'), 'savedBatchResults' => $shows['results']]);
 
         return view('batch', [
             'movies'         => $shows,
