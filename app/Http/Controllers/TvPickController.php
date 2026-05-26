@@ -130,6 +130,8 @@ class TvPickController extends Controller
         $results = $tmdb->discoverTv($criteria, $country);
         $picked  = $movieService->pickBatch($results['results'] ?? []);
 
+        session(['batchUrl' => url('/tv/multiple')]);
+
         return response()->json(array_map(fn($m) => [
             'title'        => $m['name'] ?? $m['title'] ?? '',
             'poster_path'  => $m['poster_path'] ?? null,
@@ -140,12 +142,15 @@ class TvPickController extends Controller
 
     public function rollJson(MovieService $movieService, TmdbClient $tmdb): JsonResponse
     {
-        session(['tvInput' => [
-            'with_original_language' => 'en',
-            'first_air_date_gte'     => 1990,
-            'vote_average_gte'       => 7,
-            'vote_count_gte'         => 100,
-        ]]);
+        session([
+            'tvInput' => [
+                'with_original_language' => 'en',
+                'first_air_date_gte'     => 1990,
+                'vote_average_gte'       => 7,
+                'vote_count_gte'         => 100,
+            ],
+            'batchUrl' => url('/tv/multiple'),
+        ]);
 
         $country = $movieService->getUserCountry();
         $results = $tmdb->discoverTv([
