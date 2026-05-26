@@ -54,15 +54,17 @@ Route::get('/criteria',  CriteriaController::class);
 
 Route::match(['get', 'post'], '/movie',    [MoviePickController::class, 'single']);
 Route::match(['get', 'post'], '/multiple', [MoviePickController::class, 'batch']);
-Route::get('/movie/roll',     [MoviePickController::class, 'rollJson']);
-Route::get('/movie/{id}',     MovieController::class)->name('movie');
+Route::get('/movie/roll',                       [MoviePickController::class, 'rollJson']);
+Route::match(['get', 'post'], '/movie/roll/criteria', [MoviePickController::class, 'criteriaRollJson']);
+Route::get('/movie/{id}',          MovieController::class)->name('movie');
 
 // TV Shows
 Route::get('/tv/criteria',                     TvCriteriaController::class);
 Route::match(['get', 'post'], '/tv/pick',      [TvPickController::class, 'single'])->name('tv.pick');
 Route::match(['get', 'post'], '/tv/multiple',  [TvPickController::class, 'batch']);
-Route::get('/tv/roll',        [TvPickController::class, 'rollJson']);
-Route::get('/tv/{id}',        TvShowController::class)->name('tv.show');
+Route::get('/tv/roll',                          [TvPickController::class, 'rollJson']);
+Route::match(['get', 'post'], '/tv/roll/criteria',   [TvPickController::class, 'criteriaRollJson']);
+Route::get('/tv/{id}',             TvShowController::class)->name('tv.show');
 Route::get('/tv/{id}/season/{season}', TvSeasonController::class)->name('tv.season');
 Route::get('/tv/{id}/season/{season}/episode/{episode}', TvEpisodeController::class)->name('tv.episode');
 

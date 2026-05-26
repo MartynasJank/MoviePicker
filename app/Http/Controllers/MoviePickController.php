@@ -99,8 +99,33 @@ class MoviePickController extends Controller
         return null;
     }
 
+    public function criteriaRollJson(CriteriaRequest $request, MovieService $movieService, TmdbClient $tmdb): JsonResponse
+    {
+        $country   = $movieService->getUserCountry();
+        $submitted = $this->submitted($request);
+        $criteria  = $movieService->resolveSessionCriteria($submitted, $request->isMethod('post') && !empty($submitted));
+        $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country);
+
+        $results = $tmdb->discover($criteria, $country);
+        $picked  = $movieService->pickBatch($results['results'] ?? []);
+
+        return response()->json(array_map(fn($m) => [
+            'title'        => $m['title'] ?? '',
+            'poster_path'  => $m['poster_path'] ?? null,
+            'vote_average' => $m['vote_average'] ?? 0,
+            'url'          => route('movie', $m['id']),
+        ], $picked));
+    }
+
     public function rollJson(MovieService $movieService, TmdbClient $tmdb): JsonResponse
     {
+        session(['userInput' => [
+            'with_original_language'   => 'en',
+            'primary_release_date_gte' => 1990,
+            'vote_average_gte'         => 7,
+            'vote_count_gte'           => 100,
+        ]]);
+
         $country = $movieService->getUserCountry();
         $results = $tmdb->discover([
             'sort_by'            => 'popularity.desc',

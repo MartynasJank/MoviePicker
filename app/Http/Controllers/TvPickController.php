@@ -120,8 +120,33 @@ class TvPickController extends Controller
         return null;
     }
 
+    public function criteriaRollJson(TvCriteriaRequest $request, MovieService $movieService, TmdbClient $tmdb): JsonResponse
+    {
+        $country   = $movieService->getUserCountry();
+        $submitted = $this->submitted($request);
+        $criteria  = $this->resolveSessionCriteria($submitted, $request->isMethod('post') && !empty($submitted));
+        $criteria['page'] = $movieService->resolveTvPage($tmdb, $criteria, $country);
+
+        $results = $tmdb->discoverTv($criteria, $country);
+        $picked  = $movieService->pickBatch($results['results'] ?? []);
+
+        return response()->json(array_map(fn($m) => [
+            'title'        => $m['name'] ?? $m['title'] ?? '',
+            'poster_path'  => $m['poster_path'] ?? null,
+            'vote_average' => $m['vote_average'] ?? 0,
+            'url'          => route('tv.show', $m['id']),
+        ], $picked));
+    }
+
     public function rollJson(MovieService $movieService, TmdbClient $tmdb): JsonResponse
     {
+        session(['tvInput' => [
+            'with_original_language' => 'en',
+            'first_air_date_gte'     => 1990,
+            'vote_average_gte'       => 7,
+            'vote_count_gte'         => 100,
+        ]]);
+
         $country = $movieService->getUserCountry();
         $results = $tmdb->discoverTv([
             'sort_by'          => 'popularity.desc',
