@@ -29,7 +29,10 @@ inline foreach in `TvPickController` and `RouletteController`.
 - Merged `tv/batch.blade.php` into `batch.blade.php` with a `$mediaType` parameter;
   `tv/batch.blade.php` deleted.
 
-## Phase 6 — JS cleanup
-- `roulettes.js` (217 lines) handles too many concerns: roulette rolls, homepage rolls, criteria
-  form submit, person rolls, batch link tracking. Split into logical sections or lighter modules.
-- Check `watchlist.js` for patterns shared with `roulettes.js` (both use `caseOpening.js`).
+## Phase 6 — JS cleanup ✅
+Extracted three helpers in `roulettes.js`:
+- `toCards(movies)`: replaces the identical JSON→card mapping written 3 times in fetch callbacks
+- `setRollContext(source, backUrl, backLabel)`: replaces the 3-key sessionStorage write repeated 4 times
+- `rouletteBackContext()`: replaces the duplicated `isMyRoulettes` pathname check
+
+`watchlist.js` was audited — its only overlap is importing `caseOpening.js`, which is intentional.
