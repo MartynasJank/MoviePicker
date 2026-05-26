@@ -111,7 +111,7 @@ class RouletteController extends Controller
                 'batchUrl'          => $batchUrl,
                 'savedBatchUrl'     => $batchUrl,
                 'savedBatchResults' => $picked,
-                'tvInput'           => array_merge($criteria, ['total_pages' => $response['total_pages'] ?? 500]),
+                'tvInput'           => $this->criteriaForSession($criteria, $response['total_pages'] ?? 500),
             ]);
 
             return response()->json($this->toRollCards($picked, 'tv'));
@@ -126,7 +126,7 @@ class RouletteController extends Controller
             'batchUrl'          => $batchUrl,
             'savedBatchUrl'     => $batchUrl,
             'savedBatchResults' => $picked,
-            'userInput'         => array_merge($criteria, ['total_pages' => $response['total_pages'] ?? 500]),
+            'userInput'         => $this->criteriaForSession($criteria, $response['total_pages'] ?? 500),
         ]);
 
         return response()->json($this->toRollCards($picked));
@@ -172,7 +172,7 @@ class RouletteController extends Controller
             $shows['results'] = $movieService->pickBatch($movieService->normaliseShows($shows['results'] ?? []));
             $allGenres        = $movieService->genres($tmdb, 'tv');
 
-            session(['tvInput'  => array_merge($criteria, ['total_pages' => $shows['total_pages'] ?? 500])]);
+            session(['tvInput'  => $this->criteriaForSession($criteria, $shows['total_pages'] ?? 500)]);
             session(['batchUrl' => $request->url(), 'savedBatchUrl' => $request->url(), 'savedBatchResults' => $shows['results']]);
 
             return view('batch', [
@@ -191,7 +191,7 @@ class RouletteController extends Controller
         $movies['results']   = $movieService->pickBatch($movies['results']);
         $all_genres          = $movieService->genres($tmdb);
 
-        session(['userInput' => array_merge($criteria, ['total_pages' => $movies['total_pages'] ?? 500])]);
+        session(['userInput' => $this->criteriaForSession($criteria, $movies['total_pages'] ?? 500)]);
         session(['batchUrl'  => $request->url(), 'savedBatchUrl' => $request->url(), 'savedBatchResults' => $movies['results']]);
 
         return view('batch', [
@@ -201,5 +201,15 @@ class RouletteController extends Controller
             'title'        => $roulette->name . ' — MoviePickr',
             'savedIds'     => $savedIds,
         ]);
+    }
+
+    private function criteriaForSession(array $criteria, int $totalPages): array
+    {
+        $result = [];
+        foreach ($criteria as $key => $value) {
+            $result[str_replace('.', '_', $key)] = $value;
+        }
+        $result['total_pages'] = $totalPages;
+        return $result;
     }
 }
