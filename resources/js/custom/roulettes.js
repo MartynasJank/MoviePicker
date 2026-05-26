@@ -173,6 +173,7 @@ document.addEventListener('click', function (e) {
     // Batch page Roll button
     if (e.target.closest('#batch-roll-btn')) {
         e.preventDefault();
+        setRollContext('batch', window.location.pathname, '← Batch');
         rollCards(getBatchCards('.swiper-multiple'));
         return;
     }
