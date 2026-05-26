@@ -65,7 +65,7 @@ class TvPickController extends PickController
 
         session(['batchUrl' => url('/tv/multiple')]);
 
-        return view('tv.batch', [
+        return view('batch', [
             'movies'         => $shows,
             'user_input'     => session('tvInput'),
             'all_genres'     => $all_genres,
@@ -73,6 +73,7 @@ class TvPickController extends PickController
             'providersArray' => $movieService->buildProvidersArray($tmdb),
             'tag'            => 'TV Shows picked for you',
             'savedIds'       => $this->savedWatchlistIds(),
+            'mediaType'      => 'tv',
         ]);
     }
 

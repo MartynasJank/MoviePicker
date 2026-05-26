@@ -145,12 +145,13 @@ class RouletteController extends Controller
             session(['tvInput'  => array_merge($criteria, ['total_pages' => $shows['total_pages'] ?? 500])]);
             session(['batchUrl' => request()->url()]);
 
-            return view('tv.batch', [
+            return view('batch', [
                 'movies'       => $shows,
                 'movie_genres' => $movieService->movieGenresMap($shows['results'], $allGenres),
                 'tag'          => $roulette->name,
                 'title'        => $roulette->name . ' — MoviePickr',
                 'savedIds'     => $savedIds,
+                'mediaType'    => 'tv',
             ]);
         }
 

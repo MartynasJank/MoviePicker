@@ -1,25 +1,29 @@
 @extends('layouts.app')
-@section('page_title', $title ?? 'Batch — MoviePickr')
+@section('page_title', $title ?? ($mediaType === 'tv' ? 'TV Batch — MoviePickr' : 'Batch — MoviePickr'))
 @section('footer_pb', 'pb-32')
 @section('scripts')
     @vite(['resources/js/custom/carousel.js', 'resources/js/custom/trailerModal.js', 'resources/js/custom/criteriaForm.js', 'resources/js/custom/watchlist.js'])
 @endsection
 @section('content')
+@php $isTv = ($mediaType ?? 'movie') === 'tv'; @endphp
 <div class="max-w-7xl mx-auto px-4 py-8 sm:pb-20 batch-wrapper">
 
     @if(isset($providersArray) && isset($all_genres))
-        @include('includes.criteria-modal')
+        @include($isTv ? 'tv.criteria-modal' : 'includes.criteria-modal')
     @endif
 
     {{-- Header row --}}
     <div class="flex items-center justify-between gap-4 mb-6 flex-wrap">
         <div>
-            <h1 class="text-2xl font-bold text-white">{{ $tag ?? 'Movie Batch' }}</h1>
+            <h1 class="text-2xl font-bold text-white">{{ $tag ?? ($isTv ? 'TV Batch' : 'Movie Batch') }}</h1>
         </div>
     </div>
 
     {{-- Carousel --}}
-    @include('includes.carousel', ['allMovies' => $movies, 'name' => 'swiper-multiple', 'genres' => $movie_genres, 'showScore' => true, 'showSave' => true, 'savedIds' => $savedIds ?? []])
+    @include('includes.carousel', array_merge(
+        ['allMovies' => $movies, 'name' => 'swiper-multiple', 'genres' => $movie_genres, 'showScore' => true, 'showSave' => true, 'savedIds' => $savedIds ?? []],
+        $isTv ? ['linkBase' => 'tv', 'mediaType' => 'tv'] : []
+    ))
 
 </div>
 
