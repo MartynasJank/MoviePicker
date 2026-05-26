@@ -139,14 +139,7 @@ class RouletteController extends Controller
             $criteria = $movieService->resolveRoulettePage($tmdb, $base, $slug, $country, 'tv');
             $shows    = $tmdb->discoverTv($criteria, $country);
 
-            $rawResults = $shows['results'] ?? [];
-            foreach ($rawResults as &$show) {
-                $show['title']        = $show['name'] ?? '';
-                $show['release_date'] = $show['first_air_date'] ?? '';
-            }
-            unset($show);
-
-            $shows['results'] = $movieService->pickBatch($rawResults);
+            $shows['results'] = $movieService->pickBatch($movieService->normaliseShows($shows['results'] ?? []));
             $allGenres        = $movieService->genres($tmdb, 'tv');
 
             session(['tvInput'  => array_merge($criteria, ['total_pages' => $shows['total_pages'] ?? 500])]);

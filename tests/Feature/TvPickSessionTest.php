@@ -15,14 +15,17 @@ beforeEach(function () {
         ->shouldReceive('tvGenres')
         ->andReturn('{"genres":[]}');
 
-    $this->mock(MovieService::class)
-        ->shouldReceive('getUserCountry')->andReturn('US')
-        ->shouldReceive('resolvePage')->andReturn(1)
-        ->shouldReceive('randomMovie')->andReturn(['id' => 1001])
-        ->shouldReceive('genres')->andReturn([])
-        ->shouldReceive('pickBatch')->andReturn([])
-        ->shouldReceive('movieGenresMap')->andReturn([])
-        ->shouldReceive('buildProvidersArray')->andReturn([]);
+    // partialMock lets resolveSessionCriteria and normaliseShows run for real
+    // so session-manipulation tests can assert on actual session state
+    $this->partialMock(MovieService::class, function ($mock) {
+        $mock->shouldReceive('getUserCountry')->andReturn('US')
+            ->shouldReceive('resolvePage')->andReturn(1)
+            ->shouldReceive('randomMovie')->andReturn(['id' => 1001])
+            ->shouldReceive('genres')->andReturn([])
+            ->shouldReceive('pickBatch')->andReturn([])
+            ->shouldReceive('movieGenresMap')->andReturn([])
+            ->shouldReceive('buildProvidersArray')->andReturn([]);
+    });
 });
 
 it('always overwrites tvInput when criteria is submitted', function () {

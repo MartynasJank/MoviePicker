@@ -39,13 +39,20 @@ class MovieService
      * On first visit stores submitted criteria in session; subsequent visits
      * always return the session copy so "pick another" keeps the same filters.
      */
-    public function resolveSessionCriteria(array $submitted, bool $overwrite = false): array
-    {
-        if ($overwrite || session('userInput') === null) {
-            session()->put('userInput', $submitted);
+    public function resolveSessionCriteria(
+        array $submitted,
+        bool $overwrite = false,
+        string $sessionKey = 'userInput',
+        array $clearWith = []
+    ): array {
+        if ($overwrite || session($sessionKey) === null) {
+            session()->put($sessionKey, $submitted);
+            if ($clearWith) {
+                session()->forget($clearWith);
+            }
         }
 
-        return session('userInput');
+        return session($sessionKey) ?? [];
     }
 
     /**
@@ -107,6 +114,16 @@ class MovieService
         }
 
         return implode(', ', array_column((array) $movieObj->genres, 'name'));
+    }
+
+    /** Normalise TV show arrays so the shared carousel component can use title/release_date. */
+    public function normaliseShows(array $shows): array
+    {
+        return array_map(function ($show) {
+            $show['title']        = $show['name'] ?? $show['title'] ?? '';
+            $show['release_date'] = $show['first_air_date'] ?? '';
+            return $show;
+        }, $shows);
     }
 
     /** Map discover results to a movieId => 'Genre1, Genre2' string lookup. */
