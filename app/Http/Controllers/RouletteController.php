@@ -104,20 +104,30 @@ class RouletteController extends Controller
         if ($isTv) {
             $base     = $mapper->toCriteriaTv($roulette->tags);
             $criteria = $movieService->resolveRoulettePage($tmdb, $base, $slug, $country, 'tv');
-            $results  = $tmdb->discoverTv($criteria, $country)['results'] ?? [];
-            $picked   = $movieService->pickBatch($movieService->normaliseShows($results));
+            $response = $tmdb->discoverTv($criteria, $country);
+            $picked   = $movieService->pickBatch($movieService->normaliseShows($response['results'] ?? []));
 
-            session(['batchUrl' => $batchUrl, 'savedBatchUrl' => $batchUrl, 'savedBatchResults' => $picked]);
+            session([
+                'batchUrl'          => $batchUrl,
+                'savedBatchUrl'     => $batchUrl,
+                'savedBatchResults' => $picked,
+                'tvInput'           => array_merge($criteria, ['total_pages' => $response['total_pages'] ?? 500]),
+            ]);
 
             return response()->json($this->toRollCards($picked, 'tv'));
         }
 
         $base     = $mapper->toCriteria($roulette->tags);
         $criteria = $movieService->resolveRoulettePage($tmdb, $base, $slug, $country);
-        $results  = $tmdb->discover($criteria, $country)['results'] ?? [];
-        $picked   = $movieService->pickBatch($results);
+        $response = $tmdb->discover($criteria, $country);
+        $picked   = $movieService->pickBatch($response['results'] ?? []);
 
-        session(['batchUrl' => $batchUrl, 'savedBatchUrl' => $batchUrl, 'savedBatchResults' => $picked]);
+        session([
+            'batchUrl'          => $batchUrl,
+            'savedBatchUrl'     => $batchUrl,
+            'savedBatchResults' => $picked,
+            'userInput'         => array_merge($criteria, ['total_pages' => $response['total_pages'] ?? 500]),
+        ]);
 
         return response()->json($this->toRollCards($picked));
     }
