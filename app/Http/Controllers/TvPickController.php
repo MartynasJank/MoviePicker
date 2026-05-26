@@ -124,8 +124,9 @@ class TvPickController extends Controller
     {
         $country = $movieService->getUserCountry();
         $results = $tmdb->discoverTv([
-            'sort_by' => 'popularity.desc',
-            'page'    => rand(1, 20),
+            'sort_by'          => 'popularity.desc',
+            'page'             => rand(1, 20),
+            'vote_average.gte' => 5,
         ], $country);
 
         $picked = $movieService->pickBatch($results['results'] ?? []);

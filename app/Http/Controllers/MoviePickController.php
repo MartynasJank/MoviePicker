@@ -103,9 +103,10 @@ class MoviePickController extends Controller
     {
         $country = $movieService->getUserCountry();
         $results = $tmdb->discover([
-            'sort_by'          => 'popularity.desc',
-            'page'             => rand(1, 20),
-            'vote_count.gte'   => 50,
+            'sort_by'            => 'popularity.desc',
+            'page'               => rand(1, 20),
+            'vote_count.gte'     => 50,
+            'vote_average.gte'   => 5,
         ], $country);
 
         $picked = $movieService->pickBatch($results['results'] ?? []);
