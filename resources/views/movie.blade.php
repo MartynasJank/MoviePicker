@@ -287,6 +287,8 @@
                 <a href="{{ route('watchlist') }}" class="btn-secondary text-center">← Watchlist</a>
             @elseif(!empty($batchUrl))
                 <a href="{{ $batchUrl }}" class="btn-secondary text-center">← Batch</a>
+            @else
+                <a href="/roulettes" class="btn-secondary text-center hidden js-back-roulettes">← Roulettes</a>
             @endif
         </div>
         {{-- Right --}}
@@ -303,8 +305,9 @@
                 </label>
                 <button id="wl-roll-btn" class="btn-accent">Roll</button>
             @else
-                <button type="button" class="btn-secondary" data-modal-open="modal-form">Criteria</button>
-                <a href="/movie" class="btn-accent long-single text-center">Roll</a>
+                @include('includes.anim-toggle')
+                <button type="button" class="btn-secondary js-criteria-btn" data-modal-open="modal-form">Criteria</button>
+                <a href="/movie" class="btn-accent long-single text-center" data-roll="movie-criteria">Roll</a>
             @endif
         </div>
     </div>

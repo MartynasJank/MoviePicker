@@ -79,4 +79,10 @@
 
 </script>
 
+<div class="fixed bottom-0 left-0 right-0 bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 px-4 z-40 sticky-bar-safe">
+    <div class="max-w-7xl mx-auto flex items-center justify-end py-1">
+        @include('includes.anim-toggle')
+    </div>
+</div>
+
 @endsection
