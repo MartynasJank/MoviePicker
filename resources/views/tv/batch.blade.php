@@ -41,7 +41,6 @@
                 <button type="button" class="btn-secondary flex-1 sm:flex-none" data-modal-open="modal-form">Criteria</button>
             @endif
             <a href="{{ Request::url() }}" class="btn-secondary flex-1 sm:flex-none text-center long-single">New Batch</a>
-            @include('includes.anim-toggle')
             <button id="batch-roll-btn" class="btn-accent flex-1 sm:flex-none">Roll</button>
         </div>
     </div>
