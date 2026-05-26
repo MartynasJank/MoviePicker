@@ -23,10 +23,11 @@ with `$sessionKey` and `$clearWith` params so `TvPickController` no longer needs
 Added `MovieService::normaliseShows()`. Removed the private copy in `TvShowController` and the
 inline foreach in `TvPickController` and `RouletteController`.
 
-## Phase 5 — View deduplication
-- `$platformLogos` and `$tagLabels` PHP arrays are copy-pasted in `roulettes.blade.php` and
-  `my-roulettes/index.blade.php` → extract to a shared `@include` or view composer.
-- Audit `batch.blade.php` vs `tv/batch.blade.php` for shared markup.
+## Phase 5 — View deduplication ✅
+- Extracted `$platformLogos`/`$tagLabels` to `includes/roulette-labels.blade.php`; both roulette
+  views replaced their `@php` blocks with `@include('includes.roulette-labels')`.
+- Merged `tv/batch.blade.php` into `batch.blade.php` with a `$mediaType` parameter;
+  `tv/batch.blade.php` deleted.
 
 ## Phase 6 — JS cleanup
 - `roulettes.js` (217 lines) handles too many concerns: roulette rolls, homepage rolls, criteria
