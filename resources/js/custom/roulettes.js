@@ -1,5 +1,40 @@
 import { runCaseOpening } from './caseOpening.js';
 
+// ── Animation toggle (shared across all pages) ────────────────────────
+function syncAnimToggles() {
+    const on = localStorage.getItem('wl_animation') !== '0';
+    document.querySelectorAll('[data-anim-toggle]').forEach(input => {
+        input.checked = on;
+        const label = input.closest('label');
+        if (!label) return;
+        const track = label.querySelector('[data-anim-track]');
+        const thumb = label.querySelector('[data-anim-thumb]');
+        if (track) track.style.backgroundColor = on ? '#c0393a' : 'rgba(255,255,255,0.1)';
+        if (thumb) thumb.style.transform = on ? 'translateX(16px)' : 'translateX(0)';
+    });
+}
+
+document.addEventListener('change', function (e) {
+    if (e.target.matches('[data-anim-toggle]')) {
+        localStorage.setItem('wl_animation', e.target.checked ? '1' : '0');
+        syncAnimToggles();
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    syncAnimToggles();
+    if (sessionStorage.getItem('rollSource') === 'roulette') {
+        document.querySelectorAll('.js-criteria-btn').forEach(el => el.classList.add('hidden'));
+        const backUrl   = sessionStorage.getItem('rollBackUrl')   || '/roulettes';
+        const backLabel = sessionStorage.getItem('rollBackLabel') || '← Roulettes';
+        document.querySelectorAll('.js-back-roulettes').forEach(el => {
+            el.href = backUrl;
+            el.textContent = backLabel;
+            el.classList.remove('hidden');
+        });
+    }
+});
+
 function getBatchCards(rowSelector) {
     const cards = [];
     document.querySelectorAll(`${rowSelector} [data-batch-card]`).forEach(el => {
@@ -14,14 +49,64 @@ function getBatchCards(rowSelector) {
     return cards;
 }
 
-function rollCards(cards) {
+function rollCards(cards, source) {
     if (!cards.length) return false;
+    document.querySelectorAll('.modal-wrap').forEach(m => m.classList.add('hidden'));
+    const rollSource = source || sessionStorage.getItem('rollSource');
+    if (rollSource) sessionStorage.setItem('rollSource', rollSource);
     const winnerIdx = Math.floor(Math.random() * cards.length);
-    runCaseOpening(cards, winnerIdx, cards[winnerIdx].url);
+    if (localStorage.getItem('wl_animation') !== '0') {
+        runCaseOpening(cards, winnerIdx, cards[winnerIdx].url);
+    } else {
+        window.location.href = cards[winnerIdx].url;
+    }
     return true;
 }
 
+document.addEventListener('submit', function (e) {
+    const form = e.target;
+    if (form.tagName !== 'FORM') return;
+
+    const btn        = e.submitter;
+    const formaction = (btn && btn.getAttribute('formaction')) || form.getAttribute('action') || '';
+    const isMovie    = /^\/movie(\?|$)/.test(formaction);
+    const isTv       = /^\/tv\/pick(\?|$)/.test(formaction);
+    if (!isMovie && !isTv) return;
+
+    e.preventDefault();
+
+    const endpoint = isMovie ? '/movie/roll/criteria' : '/tv/roll/criteria';
+    const fallback = formaction;
+    sessionStorage.removeItem('rollSource');
+    sessionStorage.removeItem('rollBackUrl');
+    sessionStorage.removeItem('rollBackLabel');
+    const body     = new FormData(form);
+
+    fetch(endpoint, { method: 'POST', body })
+        .then(r => r.json())
+        .then(movies => {
+            const cards = movies
+                .filter(m => m.poster_path)
+                .map(m => ({
+                    url:    m.url,
+                    poster: `https://image.tmdb.org/t/p/w342${m.poster_path}`,
+                    title:  m.title,
+                    rating: m.vote_average,
+                }));
+            if (!rollCards(cards)) window.location.href = fallback;
+        })
+        .catch(() => { window.location.href = fallback; });
+});
+
 document.addEventListener('click', function (e) {
+
+    // ── Back to Roulettes ─────────────────────────────────────────
+    if (e.target.closest('.js-back-roulettes')) {
+        sessionStorage.removeItem('rollSource');
+        sessionStorage.removeItem('rollBackUrl');
+        sessionStorage.removeItem('rollBackLabel');
+        return;
+    }
 
     // ── Roulette card Roll button ─────────────────────────────────
     const rouletteBtn = e.target.closest('[data-roulette-roll]');
@@ -47,7 +132,10 @@ document.addEventListener('click', function (e) {
                 rouletteBtn.textContent = orig;
                 rouletteBtn.disabled = false;
 
-                if (!rollCards(cards)) window.location.href = `/roulettes/${slug}`;
+                const isMyRoulettes = window.location.pathname.startsWith('/my-roulettes');
+                sessionStorage.setItem('rollBackUrl',   isMyRoulettes ? '/my-roulettes' : '/roulettes');
+                sessionStorage.setItem('rollBackLabel', isMyRoulettes ? '← My Roulettes' : '← Roulettes');
+                if (!rollCards(cards, 'roulette')) window.location.href = `/roulettes/${slug}`;
             })
             .catch(() => { window.location.href = `/roulettes/${slug}`; });
         return;
@@ -60,16 +148,31 @@ document.addEventListener('click', function (e) {
         return;
     }
 
-    // ── Homepage single pick buttons ──────────────────────────────
+    // ── Any [data-roll] or homepage single pick buttons ───────────
     const link = e.target.closest('a[href]');
     if (!link) return;
-    const href = link.getAttribute('href');
+    const href     = link.getAttribute('href');
+    const rollType = link.dataset.roll
+        || (href === '/movie?i=new' ? 'movie' : null)
+        || (href === '/tv/pick?i=new' ? 'tv' : null);
 
-    if (href === '/movie?i=new' || href === '/tv/pick?i=new') {
+    const endpoints = {
+        'movie':          '/movie/roll',
+        'tv':             '/tv/roll',
+        'movie-criteria': '/movie/roll/criteria',
+        'tv-criteria':    '/tv/roll/criteria',
+    };
+
+    if (rollType && endpoints[rollType]) {
         e.preventDefault();
-        const endpoint = href === '/movie?i=new' ? '/movie/roll' : '/tv/roll';
+        const fallback = link.href;
+        if (rollType === 'movie' || rollType === 'tv') {
+            sessionStorage.removeItem('rollSource');
+            sessionStorage.removeItem('rollBackUrl');
+            sessionStorage.removeItem('rollBackLabel');
+        }
 
-        fetch(endpoint)
+        fetch(endpoints[rollType])
             .then(r => r.json())
             .then(movies => {
                 const cards = movies
@@ -80,9 +183,9 @@ document.addEventListener('click', function (e) {
                         title:  m.title,
                         rating: m.vote_average,
                     }));
-                if (!rollCards(cards)) window.location.href = href;
+                if (!rollCards(cards)) window.location.href = fallback;
             })
-            .catch(() => { window.location.href = href; });
+            .catch(() => { window.location.href = fallback; });
         return;
     }
 });

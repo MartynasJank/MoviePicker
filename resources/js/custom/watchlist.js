@@ -166,25 +166,6 @@ $(document).ready(function () {
         setTimeout(() => $('#watchlist-roll').trigger('click'), 120);
     }
 
-    /* ── Animation toggle ──────────────────────────────────────────── */
-    function getAnimEnabled() {
-        return localStorage.getItem('wl_animation') !== '0';
-    }
-
-    function syncToggle() {
-        const on = getAnimEnabled();
-        document.getElementById('anim-toggle').checked = on;
-        document.getElementById('anim-track').style.backgroundColor = on ? '#c0393a' : 'rgba(255,255,255,0.1)';
-        document.getElementById('anim-thumb').style.transform = on ? 'translateX(16px)' : 'translateX(0)';
-    }
-
-    syncToggle();
-
-    $('#anim-toggle').on('change', function () {
-        localStorage.setItem('wl_animation', this.checked ? '1' : '0');
-        syncToggle();
-    });
-
     /* ── Case opening animation ────────────────────────────────────── */
     function buildCards() {
         const cards = [];
@@ -223,7 +204,7 @@ $(document).ready(function () {
         let url = picked.find('a').first().attr('href') + '?wl_status=' + status;
         if (genres) url += '&wl_genres=' + encodeURIComponent(genres);
 
-        if (getAnimEnabled()) {
+        if (localStorage.getItem('wl_animation') !== '0') {
             const cards      = buildCards();
             const winnerHref = picked.find('a').first().attr('href');
             const winnerIdx  = cards.findIndex(c => c.url === winnerHref);
