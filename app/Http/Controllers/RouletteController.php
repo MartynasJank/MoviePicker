@@ -96,6 +96,8 @@ class RouletteController extends Controller
             })
             ->firstOrFail();
 
+        session()->forget('batchUrl');
+
         $mapper  = new RouletteTagMapper();
         $country = $movieService->getUserCountry();
         $isTv    = $roulette->media_type === 'tv';
