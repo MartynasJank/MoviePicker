@@ -225,8 +225,14 @@ $(document).ready(function () {
     }
 
     function runCaseOpening(cards, winnerIdx, fullUrl) {
-        const strip = Array.from({ length: STRIP_LEN }, (_, i) => cards[i % cards.length]);
-        strip[WINNER_POS] = cards[winnerIdx];
+        const winner = cards[winnerIdx];
+        const others = cards.filter((_, i) => i !== winnerIdx);
+        const pool = [];
+        while (pool.length < STRIP_LEN) {
+            pool.push(...[...others].sort(() => Math.random() - 0.5));
+        }
+        const strip = pool.slice(0, STRIP_LEN);
+        strip[WINNER_POS] = winner;
 
         const overlay    = document.getElementById('case-overlay');
         const stripEl    = document.getElementById('case-strip');
