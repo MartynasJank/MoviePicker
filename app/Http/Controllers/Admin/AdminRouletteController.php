@@ -9,6 +9,7 @@ use App\Services\MovieService;
 use App\Services\RouletteTagMapper;
 use App\Services\TmdbClient;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 
 class AdminRouletteController extends Controller
@@ -63,7 +64,7 @@ class AdminRouletteController extends Controller
         $data = $this->validated($request);
         Roulette::create($data);
 
-        return redirect()->route('admin.roulettes.index')->with('success', 'Roulette created.');
+        return redirect()->route('admin.roulettes.index', ['type' => $data['media_type']])->with('success', 'Roulette created.');
     }
 
     public function edit(Roulette $roulette)
@@ -77,7 +78,7 @@ class AdminRouletteController extends Controller
         $data = $this->validated($request, $roulette->id);
         $roulette->update($data);
 
-        return redirect()->route('admin.roulettes.index')->with('success', 'Roulette updated.');
+        return redirect()->route('admin.roulettes.index', ['type' => $data['media_type']])->with('success', 'Roulette updated.');
     }
 
     public function destroy(Roulette $roulette)
@@ -199,7 +200,7 @@ class AdminRouletteController extends Controller
         $tags = $this->buildTags($request);
 
         if (empty($tags)) {
-            return back()->withErrors(['tags' => 'At least one tag must be set.'])->withInput();
+            throw ValidationException::withMessages(['tags' => 'At least one tag must be set.']);
         }
 
         $fingerprint = Roulette::fingerprintFromTags($tags);
@@ -211,7 +212,7 @@ class AdminRouletteController extends Controller
             ->exists();
 
         if ($duplicate) {
-            return back()->withErrors(['tags' => 'A system roulette with this exact tag combination already exists.'])->withInput();
+            throw ValidationException::withMessages(['tags' => 'A system roulette with this exact tag combination already exists.']);
         }
 
         $request->validate([
