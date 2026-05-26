@@ -14,21 +14,14 @@ Added two protected methods to `Controller.php` to eliminate copy-pasted pattern
 - `savedWatchlistIds()` — 3-line auth+pluck that appeared in 6 controllers
 - `toRollCards(array $items, string $mediaType)` — 4-field JSON card shape built 10 times across 4 controllers
 
-## Phase 3 — Pick controller base class
-`MoviePickController` and `TvPickController` are ~80% identical. Extract a `PickController` base with:
-- `submitted(Request $request)` — identical private method in both (strips empty/null/token fields)
-- `handleSessionReset()` — same logic, different session keys and default values
-- Batch restore logic — identical `?from=roll` session restore block in both `batch()` methods
+## Phase 3 — Pick controller base class ✅
+Extracted `PickController` base with `submitted()`, `handleSessionReset()`, `restoreOrFetch()`.
+Both pick controllers now extend `PickController`. Extended `MovieService::resolveSessionCriteria`
+with `$sessionKey` and `$clearWith` params so `TvPickController` no longer needs its own copy.
 
-Both pick controllers become thin subclasses.
-
-Also: move `TvPickController::resolveSessionCriteria` into `MovieService` with a `$sessionKey`
-parameter, so both controllers call one shared method.
-
-## Phase 4 — TV normalisation
-`normaliseShows()` (`name → title`, `first_air_date → release_date`) exists as a private method
-in `TvShowController` but is copy-pasted inline in `TvPickController::batch` and
-`RouletteController::pick`. Move it to `MovieService::normaliseShows()`.
+## Phase 4 — TV normalisation ✅
+Added `MovieService::normaliseShows()`. Removed the private copy in `TvShowController` and the
+inline foreach in `TvPickController` and `RouletteController`.
 
 ## Phase 5 — View deduplication
 - `$platformLogos` and `$tagLabels` PHP arrays are copy-pasted in `roulettes.blade.php` and
