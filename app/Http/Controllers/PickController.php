@@ -50,7 +50,7 @@ abstract class PickController extends Controller
                 session()->forget(['lastBatchResults', 'lastBatchType']);
                 return ['results' => $results];
             }
-            if (session('savedBatchType') === $mediaType && session('savedBatchResults')) {
+            if (session('savedBatchUrl') === $request->url() && session('savedBatchResults')) {
                 return ['results' => session('savedBatchResults')];
             }
         }
