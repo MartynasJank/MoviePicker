@@ -361,48 +361,25 @@ html[data-theme="light"] {
     }
     .modal-close:hover { background: var(--bg-surface-hover); color: var(--text-primary); }
 
-    /* Loading overlay */
-    .overlay {
-        display: none;
+    /* Progress bar */
+    #progress-bar {
         position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.88);
-        z-index: 900;
+        top: 0;
+        left: 0;
+        height: 3px;
+        width: 0;
+        background: #c0393a;
+        z-index: 9999;
+        pointer-events: none;
+        opacity: 0;
     }
-    .loader {
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 901;
-        text-align: center;
+    #progress-bar.active {
+        opacity: 1;
+        animation: progress-run 10s cubic-bezier(0.05, 0.8, 0.1, 1) forwards;
     }
-    .loading-text {
-        display: none;
-        color: #c0393a;
-        font-size: 1.4rem;
-        font-weight: 600;
-        margin-bottom: 1.5rem;
-        letter-spacing: -0.01em;
-    }
-    .loader-dots { display: flex; gap: 8px; justify-content: center; }
-    .loader-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background-color: #c0393a;
-        animation: dotPulse 1.3s ease-in-out infinite;
-    }
-    .loader-dot:nth-child(1) { animation-delay: 0s; }
-    .loader-dot:nth-child(2) { animation-delay: 0.15s; }
-    .loader-dot:nth-child(3) { animation-delay: 0.3s; }
-    .loader-dot:nth-child(4) { animation-delay: 0.45s; }
-    .loader-dot:nth-child(5) { animation-delay: 0.6s; }
-
-    @keyframes dotPulse {
-        0%, 80%, 100% { transform: scale(0.55); opacity: 0.35; }
-        40% { transform: scale(1); opacity: 1; }
+    @keyframes progress-run {
+        0%   { width: 0%; }
+        100% { width: 88%; }
     }
 
     /* Carousel: full-height cards on mobile */
