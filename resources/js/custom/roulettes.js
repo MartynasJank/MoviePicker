@@ -54,18 +54,15 @@ document.addEventListener('change', function (e) {
 document.addEventListener('DOMContentLoaded', function () {
     syncAnimToggles();
     const rollSource = sessionStorage.getItem('rollSource');
-    if (rollSource) {
-        if (rollSource === 'roulette' || rollSource === 'person') {
-            document.querySelectorAll('.js-criteria-btn').forEach(el => el.classList.add('hidden'));
-        }
-        const backUrl   = sessionStorage.getItem('rollBackUrl')   || '/';
-        const backLabel = sessionStorage.getItem('rollBackLabel') || '← Back';
-        document.querySelectorAll('.js-back-roulettes').forEach(el => {
-            el.href = backUrl;
-            el.textContent = backLabel;
-            el.classList.remove('hidden');
-        });
+    if (rollSource === 'roulette' || rollSource === 'person') {
+        document.querySelectorAll('.js-criteria-btn').forEach(el => el.classList.add('hidden'));
     }
+    const backUrl   = sessionStorage.getItem('rollBackUrl');
+    const backLabel = sessionStorage.getItem('rollBackLabel');
+    document.querySelectorAll('.js-back-roulettes').forEach(el => {
+        if (backUrl)   el.href        = backUrl;
+        if (backLabel) el.textContent = backLabel;
+    });
 });
 
 // ── Core roll function ────────────────────────────────────────────────

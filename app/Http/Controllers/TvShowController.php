@@ -34,14 +34,6 @@ class TvShowController extends Controller
         $showCriteria = session('tvInput');
         $batchUrl     = session('batchUrl');
 
-        if ($batchUrl) {
-            $referer = $request->headers->get('referer', '');
-            if (!$referer || !str_starts_with($referer, config('app.url'))) {
-                session()->forget('batchUrl');
-                $batchUrl = null;
-            }
-        }
-
         $similarShows = null;
         $similarTitle = 'Similar Shows';
 

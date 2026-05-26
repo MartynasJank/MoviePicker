@@ -285,10 +285,8 @@
         <div class="flex-shrink-0">
             @if(request()->query('wl_status'))
                 <a href="{{ route('watchlist') }}" class="btn-secondary text-center">← Watchlist</a>
-            @elseif(!empty($batchUrl))
-                <a href="{{ $batchUrl }}" class="btn-secondary text-center">← Batch</a>
             @else
-                <a href="/roulettes" class="btn-secondary text-center hidden js-back-roulettes">← Roulettes</a>
+                <a href="{{ $batchUrl ?: '/multiple' }}" class="btn-secondary text-center js-back-roulettes">← Batch</a>
             @endif
         </div>
         {{-- Right --}}

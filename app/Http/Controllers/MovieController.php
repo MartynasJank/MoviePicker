@@ -36,14 +36,6 @@ class MovieController extends Controller
 
         $movieCriteria = session('userInput');
         $batchUrl      = session('batchUrl');
-
-        if ($batchUrl) {
-            $referer = $request->headers->get('referer', '');
-            if (!$referer || !str_starts_with($referer, config('app.url'))) {
-                session()->forget('batchUrl');
-                $batchUrl = null;
-            }
-        }
         $similarMovies = null;
         $similarTitle  = 'Similar Movies';
         $linkSuffix    = '';
