@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\TmdbClient;
 use App\Services\MovieService;
 use App\Http\Requests\TvCriteriaRequest;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -117,5 +118,23 @@ class TvPickController extends Controller
         }
 
         return null;
+    }
+
+    public function rollJson(MovieService $movieService, TmdbClient $tmdb): JsonResponse
+    {
+        $country = $movieService->getUserCountry();
+        $results = $tmdb->discoverTv([
+            'sort_by' => 'popularity.desc',
+            'page'    => rand(1, 20),
+        ], $country);
+
+        $picked = $movieService->pickBatch($results['results'] ?? []);
+
+        return response()->json(array_map(fn($m) => [
+            'title'        => $m['name'] ?? $m['title'] ?? '',
+            'poster_path'  => $m['poster_path'] ?? null,
+            'vote_average' => $m['vote_average'] ?? 0,
+            'url'          => route('tv.show', $m['id']),
+        ], $picked));
     }
 }

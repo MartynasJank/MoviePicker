@@ -7,6 +7,7 @@ use App\Models\Setting;
 use App\Services\TmdbClient;
 use App\Services\MovieService;
 use App\Services\RouletteTagMapper;
+use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 
 class RouletteController extends Controller
@@ -84,6 +85,46 @@ class RouletteController extends Controller
             : collect();
 
         return view('roulettes', compact('movieGrouped', 'tvGrouped', 'communityRoulettes', 'myRoulettes'));
+    }
+
+    public function movies(string $slug, MovieService $movieService, TmdbClient $tmdb): JsonResponse
+    {
+        $roulette = Roulette::where('slug', $slug)
+            ->where(function ($q) {
+                $q->where('is_public', true)
+                  ->orWhere('user_id', auth()->id());
+            })
+            ->firstOrFail();
+
+        $mapper  = new RouletteTagMapper();
+        $country = $movieService->getUserCountry();
+        $isTv    = $roulette->media_type === 'tv';
+
+        if ($isTv) {
+            $base     = $mapper->toCriteriaTv($roulette->tags);
+            $criteria = $movieService->resolveRoulettePageTv($tmdb, $base, $slug, $country);
+            $results  = $tmdb->discoverTv($criteria, $country)['results'] ?? [];
+            $picked   = $movieService->pickBatch($results);
+
+            return response()->json(array_map(fn($m) => [
+                'title'        => $m['name'] ?? $m['title'] ?? '',
+                'poster_path'  => $m['poster_path'] ?? null,
+                'vote_average' => $m['vote_average'] ?? 0,
+                'url'          => route('tv.show', $m['id']),
+            ], $picked));
+        }
+
+        $base    = $mapper->toCriteria($roulette->tags);
+        $criteria = $movieService->resolveRoulettePage($tmdb, $base, $slug, $country);
+        $results  = $tmdb->discover($criteria, $country)['results'] ?? [];
+        $picked   = $movieService->pickBatch($results);
+
+        return response()->json(array_map(fn($m) => [
+            'title'        => $m['title'] ?? '',
+            'poster_path'  => $m['poster_path'] ?? null,
+            'vote_average' => $m['vote_average'] ?? 0,
+            'url'          => route('movie', $m['id']),
+        ], $picked));
     }
 
     public function pick(string $slug, MovieService $movieService, TmdbClient $tmdb): View
