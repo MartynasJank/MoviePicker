@@ -159,8 +159,7 @@ document.addEventListener('click', function (e) {
             .then(movies => {
                 rouletteBtn.textContent = orig;
                 rouletteBtn.disabled = false;
-                const { backUrl, backLabel } = rouletteBackContext();
-                setRollContext('roulette', backUrl, backLabel);
+                setRollContext('roulette', `/roulettes/${slug}?from=roll`, '← Batch');
                 if (!rollCards(toCards(movies))) window.location.href = `/roulettes/${slug}`;
             })
             .catch(() => { window.location.href = `/roulettes/${slug}`; });
