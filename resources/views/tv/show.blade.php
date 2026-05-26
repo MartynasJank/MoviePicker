@@ -373,11 +373,14 @@
             @if(!empty($batchUrl))
                 @php $backLabel = str_contains($batchUrl, 'watchlist') ? '← Watchlist' : '← Batch'; @endphp
                 <a href="{{ $batchUrl }}" class="btn-secondary text-center">{{ $backLabel }}</a>
+            @else
+                <a href="/roulettes" class="btn-secondary text-center hidden js-back-roulettes">← Roulettes</a>
             @endif
         </div>
         {{-- Right actions --}}
-        <div class="flex gap-3">
-            <button type="button" class="btn-secondary" data-modal-open="modal-form">Criteria</button>
+        <div class="flex items-center gap-3">
+            @include('includes.anim-toggle')
+            <button type="button" class="btn-secondary js-criteria-btn" data-modal-open="modal-form">Criteria</button>
             @if(request()->query('wl_status'))
                 @php
                     $wlParams = ['status' => request()->query('wl_status')];
@@ -387,7 +390,7 @@
             @elseif(session('tvPersonRollIds'))
                 <a href="{{ route('person.roll.tv.next') }}" class="btn-accent long-single text-center">Roll</a>
             @else
-                <a href="/tv/pick" class="btn-accent long-single text-center">Roll</a>
+                <a href="/tv/pick" class="btn-accent long-single text-center" data-roll="tv-criteria">Roll</a>
             @endif
         </div>
     </div>

@@ -138,15 +138,11 @@
 @if($items->isNotEmpty())
 <div class="fixed bottom-0 left-0 right-0 bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 px-4 z-40 sticky-bar-safe">
     <div class="max-w-7xl mx-auto flex items-center justify-between py-1">
-        <label class="flex items-center gap-2.5 text-xs text-gray-400 cursor-pointer select-none">
-            <span class="relative inline-block w-9 h-5">
-                <input type="checkbox" id="anim-toggle" class="sr-only">
-                <span id="anim-track" class="block w-9 h-5 rounded-full transition-colors duration-200"></span>
-                <span id="anim-thumb" class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200 shadow"></span>
-            </span>
-            Animation
-        </label>
-        <button id="watchlist-roll" class="btn-accent px-8">Roll</button>
+        <div class="flex-shrink-0"></div>
+        <div class="flex items-center gap-3">
+            @include('includes.anim-toggle')
+            <button id="watchlist-roll" class="btn-accent px-8">Roll</button>
+        </div>
     </div>
 </div>
 @endif
