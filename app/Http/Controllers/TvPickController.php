@@ -19,7 +19,7 @@ class TvPickController extends Controller
 
         $country  = $movieService->getUserCountry();
         $criteria = $this->resolveSessionCriteria($this->submitted($request), $request->isMethod('post'));
-        $criteria['page'] = $movieService->resolveTvPage($tmdb, $criteria, $country);
+        $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country, 'tv');
 
         $results = $tmdb->discoverTv($criteria, $country);
 
@@ -49,7 +49,7 @@ class TvPickController extends Controller
             $shows = ['results' => $results];
         } else {
             $criteria = $this->resolveSessionCriteria($this->submitted($request), $request->isMethod('post'));
-            $criteria['page'] = $movieService->resolveTvPage($tmdb, $criteria, $country);
+            $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country, 'tv');
 
             $shows            = $tmdb->discoverTv($criteria, $country);
             $shows['results'] = $movieService->pickBatch($shows['results']);
@@ -62,7 +62,7 @@ class TvPickController extends Controller
             }, $shows['results']);
         }
 
-        $all_genres   = $movieService->tvGenres($tmdb);
+        $all_genres   = $movieService->genres($tmdb, 'tv');
         $movie_genres = $movieService->movieGenresMap($shows['results'], $all_genres);
 
         session(['batchUrl' => url('/tv/multiple')]);
@@ -132,7 +132,7 @@ class TvPickController extends Controller
         $country   = $movieService->getUserCountry();
         $submitted = $this->submitted($request);
         $criteria  = $this->resolveSessionCriteria($submitted, $request->isMethod('post') && !empty($submitted));
-        $criteria['page'] = $movieService->resolveTvPage($tmdb, $criteria, $country);
+        $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country, 'tv');
 
         $results = $tmdb->discoverTv($criteria, $country);
         $picked  = $movieService->pickBatch($results['results'] ?? []);

@@ -11,7 +11,7 @@ class TvCriteriaController extends Controller
     public function __invoke(TmdbClient $tmdb, MovieService $ms): View
     {
         return view('tv.criteria', [
-            'genres'         => $ms->tvGenres($tmdb),
+            'genres'         => $ms->genres($tmdb, 'tv'),
             'providersArray' => $ms->buildProvidersArray($tmdb),
             'userInput'      => [],
         ]);

@@ -8,7 +8,6 @@ beforeEach(function () {
 
     $this->mock(MovieService::class)
         ->shouldReceive('genres')->andReturn([])
-        ->shouldReceive('tvGenres')->andReturn([])
         ->shouldReceive('buildProvidersArray')->andReturn([]);
 });
 

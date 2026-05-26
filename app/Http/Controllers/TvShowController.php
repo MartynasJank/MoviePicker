@@ -65,7 +65,7 @@ class TvShowController extends Controller
 
         $genres     = $movieService->genresString($tmdbInfo);
         $trailer    = $movieService->getTrailer($tmdbInfo->videos->results ?? []);
-        $all_genres = $movieService->tvGenres($tmdb);
+        $all_genres = $movieService->genres($tmdb, 'tv');
         $user_input = session('tvInput', 'default');
         $savedIds   = auth()->check()
             ? auth()->user()->watchlist()->pluck('tmdb_id')->toArray()
