@@ -359,6 +359,14 @@ html[data-theme="light"] {
     }
     .modal-close:hover { background: var(--bg-surface-hover); color: var(--text-primary); }
 
+    /* Watchlist case opening */
+    #case-rays-inner {
+        animation: case-rays-spin 10s linear infinite;
+    }
+    @keyframes case-rays-spin {
+        to { transform: rotate(360deg); }
+    }
+
     /* Progress bar */
     #progress-bar {
         position: fixed;
