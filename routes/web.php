@@ -54,7 +54,6 @@ Route::get('/criteria',  CriteriaController::class);
 
 Route::match(['get', 'post'], '/movie',    [MoviePickController::class, 'single']);
 Route::match(['get', 'post'], '/multiple', [MoviePickController::class, 'batch']);
-Route::get('/batch/history',              fn() => view('batch.history'));
 Route::get('/movie/roll',                       [MoviePickController::class, 'rollJson']);
 Route::match(['get', 'post'], '/movie/roll/criteria', [MoviePickController::class, 'criteriaRollJson']);
 Route::get('/movie/{id}',          MovieController::class)->name('movie');
