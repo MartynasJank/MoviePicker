@@ -375,6 +375,12 @@ html[data-theme="light"] {
         opacity: 1;
         animation: progress-run 10s cubic-bezier(0.05, 0.8, 0.1, 1) forwards;
     }
+    #progress-bar.finishing {
+        animation: none;
+        width: 100% !important;
+        opacity: 0;
+        transition: width 0.15s ease, opacity 0.3s ease 0.15s;
+    }
     @keyframes progress-run {
         0%   { width: 0%; }
         100% { width: 88%; }

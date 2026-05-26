@@ -70,17 +70,33 @@ $(document).ready(function () {
 
     /* ── Progress bar ───────────────────────────────────────────────────── */
     const progressBar = document.getElementById('progress-bar');
+    let pendingFetches = 0;
 
     function showLoading() {
+        progressBar.classList.remove('finishing');
         progressBar.classList.remove('active');
-        void progressBar.offsetWidth; // reflow to restart animation
+        void progressBar.offsetWidth;
         progressBar.classList.add('active');
     }
 
     function hideLoading() {
         progressBar.classList.remove('active');
-        progressBar.style.width = '0';
+        progressBar.classList.add('finishing');
+        setTimeout(() => {
+            progressBar.classList.remove('finishing');
+        }, 450);
     }
+
+    // Intercept fetch only — XHR (used by TomSelect autocomplete) is intentionally ignored
+    const _fetch = window.fetch;
+    window.fetch = function (...args) {
+        pendingFetches++;
+        if (pendingFetches === 1) showLoading();
+        return _fetch.apply(this, args).finally(() => {
+            pendingFetches = Math.max(0, pendingFetches - 1);
+            if (pendingFetches === 0) hideLoading();
+        });
+    };
 
     // Hide when restored from bfcache (browser back/forward)
     window.addEventListener('pageshow', function (e) {
