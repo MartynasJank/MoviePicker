@@ -1,6 +1,34 @@
 import { runCaseOpening } from './caseOpening.js';
 
+// ── Helpers ───────────────────────────────────────────────────────────
+
+function setRollContext(source, backUrl, backLabel) {
+    sessionStorage.setItem('rollSource',    source);
+    sessionStorage.setItem('rollBackUrl',   backUrl);
+    sessionStorage.setItem('rollBackLabel', backLabel);
+}
+
+function toCards(movies) {
+    return movies
+        .filter(m => m.poster_path)
+        .map(m => ({
+            url:    m.url,
+            poster: `https://image.tmdb.org/t/p/w342${m.poster_path}`,
+            title:  m.title,
+            rating: m.vote_average,
+        }));
+}
+
+function rouletteBackContext() {
+    const isMyRoulettes = window.location.pathname.startsWith('/my-roulettes');
+    return {
+        backUrl:   isMyRoulettes ? '/my-roulettes' : '/roulettes',
+        backLabel: isMyRoulettes ? '← My Roulettes' : '← Roulettes',
+    };
+}
+
 // ── Animation toggle (shared across all pages) ────────────────────────
+
 function syncAnimToggles() {
     const on = localStorage.getItem('wl_animation') !== '0';
     document.querySelectorAll('[data-anim-toggle]').forEach(input => {
@@ -21,6 +49,8 @@ document.addEventListener('change', function (e) {
     }
 });
 
+// ── On load: restore back button + hide criteria btn if needed ────────
+
 document.addEventListener('DOMContentLoaded', function () {
     syncAnimToggles();
     const rollSource = sessionStorage.getItem('rollSource');
@@ -37,6 +67,8 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+// ── Core roll function ────────────────────────────────────────────────
 
 function getBatchCards(rowSelector) {
     const cards = [];
@@ -66,6 +98,8 @@ function rollCards(cards, source) {
     return true;
 }
 
+// ── Criteria form submit → roll animation ─────────────────────────────
+
 document.addEventListener('submit', function (e) {
     const form = e.target;
     if (form.tagName !== 'FORM') return;
@@ -80,32 +114,25 @@ document.addEventListener('submit', function (e) {
 
     const endpoint = isMovie ? '/movie/roll/criteria' : '/tv/roll/criteria';
     const fallback = formaction;
-    sessionStorage.setItem('rollSource',    'batch');
-    sessionStorage.setItem('rollBackUrl',   isMovie ? '/multiple?from=roll' : '/tv/multiple?from=roll');
-    sessionStorage.setItem('rollBackLabel', '← Batch');
-    const body = new FormData(form);
+    setRollContext('batch', isMovie ? '/multiple?from=roll' : '/tv/multiple?from=roll', '← Batch');
 
+    const body = new FormData(form);
     if (btn) { btn.textContent = 'Loading…'; btn.disabled = true; }
 
     fetch(endpoint, { method: 'POST', body })
         .then(r => r.json())
         .then(movies => {
             if (btn) { btn.textContent = isMovie ? 'Find Movie' : 'Find Show'; btn.disabled = false; }
-            const filtered = movies.filter(m => m.poster_path);
-            const cards = filtered.map(m => ({
-                url:    m.url,
-                poster: `https://image.tmdb.org/t/p/w342${m.poster_path}`,
-                title:  m.title,
-                rating: m.vote_average,
-            }));
-            if (!rollCards(cards)) window.location.href = fallback;
+            if (!rollCards(toCards(movies))) window.location.href = fallback;
         })
         .catch(() => { window.location.href = fallback; });
 });
 
+// ── Click delegation ──────────────────────────────────────────────────
+
 document.addEventListener('click', function (e) {
 
-    // ── Back to Roulettes ─────────────────────────────────────────
+    // Back to Roulettes — clear context on navigate away
     if (e.target.closest('.js-back-roulettes')) {
         sessionStorage.removeItem('rollSource');
         sessionStorage.removeItem('rollBackUrl');
@@ -113,17 +140,15 @@ document.addEventListener('click', function (e) {
         return;
     }
 
-    // ── Roulette card "Batch →" link ──────────────────────────────
+    // Roulette card "Batch →" link — set context before navigating
     const batchLink = e.target.closest('[data-roulette-batch]');
     if (batchLink) {
-        const isMyRoulettes = window.location.pathname.startsWith('/my-roulettes');
-        sessionStorage.setItem('rollSource',    'roulette');
-        sessionStorage.setItem('rollBackUrl',   isMyRoulettes ? '/my-roulettes' : '/roulettes');
-        sessionStorage.setItem('rollBackLabel', isMyRoulettes ? '← My Roulettes' : '← Roulettes');
+        const { backUrl, backLabel } = rouletteBackContext();
+        setRollContext('roulette', backUrl, backLabel);
         return;
     }
 
-    // ── Roulette card Roll button ─────────────────────────────────
+    // Roulette card Roll button
     const rouletteBtn = e.target.closest('[data-roulette-roll]');
     if (rouletteBtn) {
         e.preventDefault();
@@ -135,35 +160,24 @@ document.addEventListener('click', function (e) {
         fetch(`/roulettes/${slug}/movies`)
             .then(r => r.json())
             .then(movies => {
-                const cards = movies
-                    .filter(m => m.poster_path)
-                    .map(m => ({
-                        url:    m.url,
-                        poster: `https://image.tmdb.org/t/p/w342${m.poster_path}`,
-                        title:  m.title,
-                        rating: m.vote_average,
-                    }));
-
                 rouletteBtn.textContent = orig;
                 rouletteBtn.disabled = false;
-
-                const isMyRoulettes = window.location.pathname.startsWith('/my-roulettes');
-                sessionStorage.setItem('rollBackUrl',   isMyRoulettes ? '/my-roulettes' : '/roulettes');
-                sessionStorage.setItem('rollBackLabel', isMyRoulettes ? '← My Roulettes' : '← Roulettes');
-                if (!rollCards(cards, 'roulette')) window.location.href = `/roulettes/${slug}`;
+                const { backUrl, backLabel } = rouletteBackContext();
+                setRollContext('roulette', backUrl, backLabel);
+                if (!rollCards(toCards(movies))) window.location.href = `/roulettes/${slug}`;
             })
             .catch(() => { window.location.href = `/roulettes/${slug}`; });
         return;
     }
 
-    // ── Batch page Roll button ────────────────────────────────────
+    // Batch page Roll button
     if (e.target.closest('#batch-roll-btn')) {
         e.preventDefault();
         rollCards(getBatchCards('.swiper-multiple'));
         return;
     }
 
-    // ── Any [data-roll] or homepage single pick buttons ───────────
+    // Any [data-roll] or homepage single pick buttons
     const link = e.target.closest('a[href]');
     if (!link) return;
     const href     = link.getAttribute('href');
@@ -185,14 +199,10 @@ document.addEventListener('click', function (e) {
         e.preventDefault();
         const fallback = link.href;
         if (isPersonRoll) {
-            sessionStorage.setItem('rollSource',    'person');
-            sessionStorage.setItem('rollBackUrl',   window.location.href);
-            sessionStorage.setItem('rollBackLabel', link.dataset.backLabel || '← Back');
+            setRollContext('person', window.location.href, link.dataset.backLabel || '← Back');
         } else {
             const batchUrl = (rollType === 'tv' || rollType === 'tv-criteria') ? '/tv/multiple?from=roll' : '/multiple?from=roll';
-            sessionStorage.setItem('rollSource',    'batch');
-            sessionStorage.setItem('rollBackUrl',   batchUrl);
-            sessionStorage.setItem('rollBackLabel', '← Batch');
+            setRollContext('batch', batchUrl, '← Batch');
         }
 
         const origText = link.textContent;
@@ -202,14 +212,7 @@ document.addEventListener('click', function (e) {
             .then(r => r.json())
             .then(movies => {
                 link.textContent = origText;
-                const filtered = movies.filter(m => m.poster_path);
-                const cards = filtered.map(m => ({
-                    url:    m.url,
-                    poster: `https://image.tmdb.org/t/p/w342${m.poster_path}`,
-                    title:  m.title,
-                    rating: m.vote_average,
-                }));
-                if (!rollCards(cards)) window.location.href = fallback;
+                if (!rollCards(toCards(movies))) window.location.href = fallback;
             })
             .catch(() => { window.location.href = fallback; });
         return;
