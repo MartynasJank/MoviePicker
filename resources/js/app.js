@@ -103,13 +103,10 @@ $(document).ready(function () {
         if (e.persisted) hideLoading();
     });
 
-    $('#criteria').on('submit', function () {
-        window.addEventListener('beforeunload', showLoading, { once: true });
-    });
+    $('#criteria').on('submit', showLoading);
 
-    $(document).on('click', '.long-single, .long-movie', function () {
-        window.addEventListener('beforeunload', showLoading, { once: true });
-        setTimeout(() => window.removeEventListener('beforeunload', showLoading), 150);
+    $(document).on('click', '.long-single, .long-movie', function (e) {
+        if (!e.ctrlKey && !e.metaKey && !e.shiftKey) showLoading();
     });
 
     /* ── Roulette row drag-to-scroll ───────────────────────────────────── */

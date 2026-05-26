@@ -373,7 +373,7 @@ html[data-theme="light"] {
     }
     #progress-bar.active {
         opacity: 1;
-        animation: progress-run 10s cubic-bezier(0.05, 0.8, 0.1, 1) forwards;
+        animation: progress-run 30s cubic-bezier(0.05, 0.8, 0.1, 1) forwards;
     }
     #progress-bar.finishing {
         animation: none;

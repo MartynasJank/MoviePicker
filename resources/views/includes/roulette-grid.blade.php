@@ -15,7 +15,7 @@
                 @endphp
 
                 <a href="/roulettes/{{ $roulette->slug }}"
-                   class="group relative flex-shrink-0 w-36 md:w-44 rounded-xl overflow-hidden block bg-slate-900">
+                   class="group relative flex-shrink-0 w-36 md:w-44 rounded-xl overflow-hidden block bg-slate-900 long-single">
                     <div class="aspect-[2/3] relative overflow-hidden">
 
                         @if($poster)

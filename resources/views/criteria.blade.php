@@ -151,7 +151,7 @@
 <div class="fixed bottom-0 left-0 right-0 bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 px-4 py-3 z-40">
     <div class="max-w-2xl mx-auto flex gap-2 sm:justify-end">
         <button type="button" id="btn-reset-mobile" class="btn-secondary text-sm px-4 sm:hidden">Reset</button>
-        <button type="submit" form="criteria" formaction="/multiple" class="btn-secondary flex-1 sm:flex-none text-center">Multiple</button>
+        <button type="submit" form="criteria" formaction="/multiple" class="btn-secondary long-single flex-1 sm:flex-none text-center">Multiple</button>
         <button type="submit" form="criteria" formaction="/movie" class="btn-accent long-single flex-1 sm:flex-none text-center">Find Movie</button>
     </div>
 </div>
