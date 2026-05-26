@@ -365,6 +365,25 @@
             tvTiles.classList.remove('hidden');
             moviesTiles.classList.add('hidden');
         });
+
+        const trendMoviesBtn = document.getElementById('trend-movies');
+        const trendTvBtn     = document.getElementById('trend-tv');
+        const trendMovies    = document.getElementById('trending-movies');
+        const trendTv        = document.getElementById('trending-tv');
+        if (trendMoviesBtn) {
+            trendMoviesBtn.addEventListener('click', function () {
+                trendMoviesBtn.classList.add('active');    trendMoviesBtn.classList.remove('text-gray-400');
+                trendTvBtn.classList.remove('active');     trendTvBtn.classList.add('text-gray-400');
+                trendMovies.classList.remove('hidden');
+                trendTv.classList.add('hidden');
+            });
+            trendTvBtn.addEventListener('click', function () {
+                trendTvBtn.classList.add('active');        trendTvBtn.classList.remove('text-gray-400');
+                trendMoviesBtn.classList.remove('active'); trendMoviesBtn.classList.add('text-gray-400');
+                trendTv.classList.remove('hidden');
+                trendMovies.classList.add('hidden');
+            });
+        }
     });
     </script>
 
