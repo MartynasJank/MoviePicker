@@ -42,7 +42,7 @@
                     </div>
                     <a href="/movie?i=new" class="btn-accent long-single text-center">Random Movie</a>
                     <div class="flex gap-2">
-                        <a href="/multiple?i=new" class="btn-secondary text-center text-sm flex-1">Batch</a>
+                        <a href="/multiple?i=new" class="btn-secondary long-single text-center text-sm flex-1">Batch</a>
                         <a href="/criteria" class="btn-secondary text-center text-sm flex-1">Criteria</a>
                     </div>
                 </div>
@@ -59,7 +59,7 @@
                     </div>
                     <a href="/tv/pick?i=new" class="btn-accent long-single text-center">Random TV Show</a>
                     <div class="flex gap-2">
-                        <a href="/tv/multiple?i=new" class="btn-secondary text-center text-sm flex-1">Batch</a>
+                        <a href="/tv/multiple?i=new" class="btn-secondary long-single text-center text-sm flex-1">Batch</a>
                         <a href="/tv/criteria" class="btn-secondary text-center text-sm flex-1">Criteria</a>
                     </div>
                 </div>
