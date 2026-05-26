@@ -72,6 +72,7 @@ class PersonRollController extends Controller
         $criteria = $type === 'crew' ? ['with_crew' => [$id]] : ['with_cast' => [$id]];
 
         session(['userInput' => $criteria + ['vote_count_gte' => 10]]);
+        session()->forget('batchUrl');
 
         $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country);
         $results = $tmdb->discover($criteria, $country);
@@ -113,6 +114,7 @@ class PersonRollController extends Controller
                 'vote_count_gte'      => 10,
             ],
         ]);
+        session()->forget('batchUrl');
 
         $picked = $shows->shuffle()->take(12);
 
