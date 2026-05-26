@@ -79,12 +79,7 @@ class PersonRollController extends Controller
 
         $picked = $movieService->pickBatch($results['results'] ?? []);
 
-        return response()->json(array_map(fn($m) => [
-            'title'        => $m['title'] ?? '',
-            'poster_path'  => $m['poster_path'] ?? null,
-            'vote_average' => $m['vote_average'] ?? 0,
-            'url'          => route('movie', $m['id']),
-        ], $picked));
+        return response()->json($this->toRollCards($picked));
     }
 
     public function tvJson(Request $request, int $id, TmdbClient $tmdb, MovieService $movieService): JsonResponse
@@ -116,14 +111,9 @@ class PersonRollController extends Controller
         ]);
         session()->forget('batchUrl');
 
-        $picked = $shows->shuffle()->take(12);
+        $picked = $shows->shuffle()->take(12)->map(fn($m) => (array) $m)->values()->all();
 
-        return response()->json($picked->map(fn($m) => [
-            'title'        => $m->name ?? $m->title ?? '',
-            'poster_path'  => $m->poster_path ?? null,
-            'vote_average' => $m->vote_average ?? 0,
-            'url'          => route('tv.show', $m->id),
-        ])->values()->all());
+        return response()->json($this->toRollCards($picked, 'tv'));
     }
 
     public function tvNext(): RedirectResponse

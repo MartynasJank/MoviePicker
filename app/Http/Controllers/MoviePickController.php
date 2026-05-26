@@ -59,9 +59,7 @@ class MoviePickController extends Controller
 
         session(['batchUrl' => url('/multiple')]);
 
-        $savedIds = auth()->check()
-            ? auth()->user()->watchlist()->pluck('tmdb_id')->toArray()
-            : [];
+        $savedIds = $this->savedWatchlistIds();
 
         return view('batch', [
             'movies'         => $movies,
@@ -119,12 +117,7 @@ class MoviePickController extends Controller
         session(['lastBatchResults' => $picked, 'lastBatchType' => 'movie']);
         session()->forget('batchUrl');
 
-        return response()->json(array_map(fn($m) => [
-            'title'        => $m['title'] ?? '',
-            'poster_path'  => $m['poster_path'] ?? null,
-            'vote_average' => $m['vote_average'] ?? 0,
-            'url'          => route('movie', $m['id']),
-        ], $picked));
+        return response()->json($this->toRollCards($picked));
     }
 
     public function rollJson(MovieService $movieService, TmdbClient $tmdb): JsonResponse
@@ -149,11 +142,6 @@ class MoviePickController extends Controller
 
         session(['lastBatchResults' => $picked, 'lastBatchType' => 'movie']);
 
-        return response()->json(array_map(fn($m) => [
-            'title'        => $m['title'] ?? '',
-            'poster_path'  => $m['poster_path'] ?? null,
-            'vote_average' => $m['vote_average'] ?? 0,
-            'url'          => route('movie', $m['id']),
-        ], $picked));
+        return response()->json($this->toRollCards($picked));
     }
 }

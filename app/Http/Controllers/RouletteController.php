@@ -108,12 +108,7 @@ class RouletteController extends Controller
             $results  = $tmdb->discoverTv($criteria, $country)['results'] ?? [];
             $picked   = $movieService->pickBatch($results);
 
-            return response()->json(array_map(fn($m) => [
-                'title'        => $m['name'] ?? $m['title'] ?? '',
-                'poster_path'  => $m['poster_path'] ?? null,
-                'vote_average' => $m['vote_average'] ?? 0,
-                'url'          => route('tv.show', $m['id']),
-            ], $picked));
+            return response()->json($this->toRollCards($picked, 'tv'));
         }
 
         $base    = $mapper->toCriteria($roulette->tags);
@@ -121,12 +116,7 @@ class RouletteController extends Controller
         $results  = $tmdb->discover($criteria, $country)['results'] ?? [];
         $picked   = $movieService->pickBatch($results);
 
-        return response()->json(array_map(fn($m) => [
-            'title'        => $m['title'] ?? '',
-            'poster_path'  => $m['poster_path'] ?? null,
-            'vote_average' => $m['vote_average'] ?? 0,
-            'url'          => route('movie', $m['id']),
-        ], $picked));
+        return response()->json($this->toRollCards($picked));
     }
 
     public function pick(string $slug, MovieService $movieService, TmdbClient $tmdb): View
@@ -142,9 +132,7 @@ class RouletteController extends Controller
         $country = $movieService->getUserCountry();
         $isTv    = $roulette->media_type === 'tv';
 
-        $savedIds = auth()->check()
-            ? auth()->user()->watchlist()->pluck('tmdb_id')->toArray()
-            : [];
+        $savedIds = $this->savedWatchlistIds();
 
         if ($isTv) {
             $base     = $mapper->toCriteriaTv($roulette->tags);

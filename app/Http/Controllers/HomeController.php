@@ -9,9 +9,7 @@ class HomeController extends Controller
 {
     public function __invoke(TmdbClient $tmdb): View
     {
-        $savedIds = auth()->check()
-            ? auth()->user()->watchlist()->pluck('tmdb_id')->toArray()
-            : [];
+        $savedIds = $this->savedWatchlistIds();
 
         $normalize = fn(array $data) => array_merge($data, [
             'results' => array_map(fn($s) => array_merge($s, [
