@@ -69,6 +69,8 @@
                     <div id="desktop-search-results" class="hidden absolute right-0 top-full mt-1 w-72 bg-[#1a1a1a] border border-white/10 rounded-xl overflow-hidden shadow-2xl z-50 divide-y divide-white/5"></div>
                 </div>
 
+                @include('includes.anim-toggle')
+
                 {{-- Theme toggle --}}
                 <button id="theme-toggle"
                     class="theme-toggle p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-white/5 transition-all"
@@ -173,7 +175,7 @@
                 @endif
             @endauth
 
-            {{-- Theme toggle pinned to bottom --}}
+            {{-- Preferences pinned to bottom --}}
             <div class="mt-auto pt-4">
                 <div class="h-px bg-white/5 mb-2"></div>
                 <button class="theme-toggle w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors" aria-label="Toggle theme">
@@ -182,6 +184,14 @@
                         <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
                     </svg>
                 </button>
+                <label class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer select-none">
+                    <span>Roll animation</span>
+                    <span class="relative inline-block w-9 h-5 flex-shrink-0">
+                        <input type="checkbox" data-anim-toggle class="sr-only">
+                        <span data-anim-track class="block w-9 h-5 rounded-full transition-colors duration-200"></span>
+                        <span data-anim-thumb class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200 shadow"></span>
+                    </span>
+                </label>
             </div>
 
         </div>

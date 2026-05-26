@@ -161,7 +161,6 @@
         <button type="button" id="btn-reset-mobile" class="btn-secondary text-sm px-4 sm:hidden flex-shrink-0">Reset</button>
         <div class="flex items-center gap-2 sm:ml-auto">
             <button type="submit" form="criteria" formaction="/tv/multiple" class="btn-secondary long-single flex-1 sm:flex-none text-center">Multiple</button>
-            @include('includes.anim-toggle')
             <button type="submit" form="criteria" formaction="/tv/pick" class="btn-accent long-single flex-1 sm:flex-none text-center">Find Show</button>
         </div>
     </div>

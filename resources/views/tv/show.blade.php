@@ -379,7 +379,6 @@
         </div>
         {{-- Right actions --}}
         <div class="flex items-center gap-3">
-            @include('includes.anim-toggle')
             <button type="button" class="btn-secondary js-criteria-btn" data-modal-open="modal-form">Criteria</button>
             @if(request()->query('wl_status'))
                 @php

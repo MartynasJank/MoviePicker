@@ -140,7 +140,6 @@
     <div class="max-w-7xl mx-auto flex items-center justify-between py-1">
         <div class="flex-shrink-0"></div>
         <div class="flex items-center gap-3">
-            @include('includes.anim-toggle')
             <button id="watchlist-roll" class="btn-accent px-8">Roll</button>
         </div>
     </div>

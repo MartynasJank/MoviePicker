@@ -294,10 +294,8 @@
         {{-- Right --}}
         <div class="flex items-center gap-3">
             @if(request()->query('wl_status'))
-                @include('includes.anim-toggle')
                 <button id="wl-roll-btn" class="btn-accent">Roll</button>
             @else
-                @include('includes.anim-toggle')
                 <button type="button" class="btn-secondary js-criteria-btn" data-modal-open="modal-form">Criteria</button>
                 <a href="/movie" class="btn-accent long-single text-center" data-roll="movie-criteria">Roll</a>
             @endif
