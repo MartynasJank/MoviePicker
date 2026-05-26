@@ -44,13 +44,15 @@ abstract class PickController extends Controller
 
     protected function restoreOrFetch(Request $request, string $mediaType, callable $fetch): array
     {
-        if ($request->query('from') === 'roll'
-            && session('lastBatchType') === $mediaType
-            && session('lastBatchResults')
-        ) {
-            $results = session('lastBatchResults');
-            session()->forget(['lastBatchResults', 'lastBatchType']);
-            return ['results' => $results];
+        if ($request->query('from') === 'roll') {
+            if (session('lastBatchType') === $mediaType && session('lastBatchResults')) {
+                $results = session('lastBatchResults');
+                session()->forget(['lastBatchResults', 'lastBatchType']);
+                return ['results' => $results];
+            }
+            if (session('savedBatchType') === $mediaType && session('savedBatchResults')) {
+                return ['results' => session('savedBatchResults')];
+            }
         }
 
         return $fetch();
