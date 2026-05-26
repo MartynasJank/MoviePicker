@@ -4,8 +4,6 @@
 @source "../js";
 
 @import "tom-select/dist/css/tom-select.default.css";
-@import "swiper/css";
-@import "swiper/css/navigation";
 
 /* ─── Design tokens ─────────────────────────────────────────── */
 @theme {
@@ -410,25 +408,6 @@ html[data-theme="light"] {
         /* Batch: enough bottom padding to clear the sticky bar + safe area */
         .batch-wrapper {
             padding-bottom: calc(3.5rem + max(0.75rem, env(safe-area-inset-bottom, 0px)));
-        }
-        /* Trending / similar: fill viewport height */
-        .swiper-trending,
-        .swiper-similar {
-            height: calc(100dvh - 188px - max(0.75rem, env(safe-area-inset-bottom, 0px)));
-        }
-        .swiper-trending .swiper-slide,
-        .swiper-similar .swiper-slide {
-            height: 100%;
-        }
-        .swiper-trending .carousel-poster,
-        .swiper-similar .carousel-poster {
-            aspect-ratio: unset;
-            flex: 1;
-            min-height: 0;
-        }
-        /* Batch: natural aspect-ratio sizing, poster capped so card fits any phone */
-        .swiper-multiple .carousel-poster {
-            max-height: 52dvh;
         }
     }
 
