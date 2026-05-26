@@ -54,7 +54,7 @@ document.addEventListener('change', function (e) {
 document.addEventListener('DOMContentLoaded', function () {
     syncAnimToggles();
     const rollSource = sessionStorage.getItem('rollSource');
-    if (rollSource === 'roulette' || rollSource === 'person') {
+    if (rollSource === 'person') {
         document.querySelectorAll('.js-criteria-btn').forEach(el => el.classList.add('hidden'));
     }
     const backUrl   = sessionStorage.getItem('rollBackUrl');
