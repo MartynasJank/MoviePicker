@@ -109,7 +109,7 @@ class MoviePickController extends Controller
         $results = $tmdb->discover($criteria, $country);
         $picked  = $movieService->pickBatch($results['results'] ?? []);
 
-        session(['batchUrl' => url('/multiple')]);
+        session()->forget('batchUrl');
 
         return response()->json(array_map(fn($m) => [
             'title'        => $m['title'] ?? '',
@@ -121,15 +121,13 @@ class MoviePickController extends Controller
 
     public function rollJson(MovieService $movieService, TmdbClient $tmdb): JsonResponse
     {
-        session([
-            'userInput' => [
-                'with_original_language'   => 'en',
-                'primary_release_date_gte' => 1990,
-                'vote_average_gte'         => 7,
-                'vote_count_gte'           => 100,
-            ],
-            'batchUrl' => url('/batch/history'),
-        ]);
+        session(['userInput' => [
+            'with_original_language'   => 'en',
+            'primary_release_date_gte' => 1990,
+            'vote_average_gte'         => 7,
+            'vote_count_gte'           => 100,
+        ]]);
+        session()->forget('batchUrl');
 
         $country = $movieService->getUserCountry();
         $results = $tmdb->discover([

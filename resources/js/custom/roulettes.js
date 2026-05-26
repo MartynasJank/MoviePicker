@@ -24,10 +24,12 @@ document.addEventListener('change', function (e) {
 document.addEventListener('DOMContentLoaded', function () {
     syncAnimToggles();
     const rollSource = sessionStorage.getItem('rollSource');
-    if (rollSource === 'roulette' || rollSource === 'person') {
-        document.querySelectorAll('.js-criteria-btn').forEach(el => el.classList.add('hidden'));
-        const backUrl   = sessionStorage.getItem('rollBackUrl')   || '/roulettes';
-        const backLabel = sessionStorage.getItem('rollBackLabel') || '← Roulettes';
+    if (rollSource) {
+        if (rollSource === 'roulette' || rollSource === 'person') {
+            document.querySelectorAll('.js-criteria-btn').forEach(el => el.classList.add('hidden'));
+        }
+        const backUrl   = sessionStorage.getItem('rollBackUrl')   || '/';
+        const backLabel = sessionStorage.getItem('rollBackLabel') || '← Back';
         document.querySelectorAll('.js-back-roulettes').forEach(el => {
             el.href = backUrl;
             el.textContent = backLabel;
@@ -78,9 +80,9 @@ document.addEventListener('submit', function (e) {
 
     const endpoint = isMovie ? '/movie/roll/criteria' : '/tv/roll/criteria';
     const fallback = formaction;
-    sessionStorage.removeItem('rollSource');
-    sessionStorage.removeItem('rollBackUrl');
-    sessionStorage.removeItem('rollBackLabel');
+    sessionStorage.setItem('rollSource',    'batch');
+    sessionStorage.setItem('rollBackUrl',   '/batch/history');
+    sessionStorage.setItem('rollBackLabel', '← Batch');
     const body = new FormData(form);
 
     if (btn) { btn.textContent = 'Loading…'; btn.disabled = true; }
@@ -187,10 +189,10 @@ document.addEventListener('click', function (e) {
             sessionStorage.setItem('rollSource',    'person');
             sessionStorage.setItem('rollBackUrl',   window.location.href);
             sessionStorage.setItem('rollBackLabel', link.dataset.backLabel || '← Back');
-        } else if (rollType === 'movie' || rollType === 'tv') {
-            sessionStorage.removeItem('rollSource');
-            sessionStorage.removeItem('rollBackUrl');
-            sessionStorage.removeItem('rollBackLabel');
+        } else {
+            sessionStorage.setItem('rollSource',    'batch');
+            sessionStorage.setItem('rollBackUrl',   '/batch/history');
+            sessionStorage.setItem('rollBackLabel', '← Batch');
         }
 
         const origText = link.textContent;
