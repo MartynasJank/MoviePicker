@@ -14,8 +14,9 @@
                     $poster   = $roulette->poster_paths[0] ?? null;
                 @endphp
 
+                <div class="flex-shrink-0 w-36 md:w-44">
                 <a href="/roulettes/{{ $roulette->slug }}"
-                   class="group relative flex-shrink-0 w-36 md:w-44 rounded-xl overflow-hidden block bg-slate-900 long-single">
+                   class="group relative rounded-xl overflow-hidden block bg-slate-900 long-single">
                     <div class="aspect-[2/3] relative overflow-hidden">
 
                         @if($poster)
@@ -43,11 +44,13 @@
                                 </div>
                             @endif
                             <h3 class="text-sm font-semibold text-white leading-snug">{{ $roulette->name }}</h3>
-                            <span class="text-xs text-accent font-medium mt-1 block group-hover:underline">Roll →</span>
+                            <span class="text-xs text-accent font-medium mt-1 block group-hover:underline">Batch →</span>
                         </div>
 
                     </div>
                 </a>
+                <button class="w-full btn-accent text-xs py-1.5 mt-2" data-roulette-roll data-slug="{{ $roulette->slug }}">Roll</button>
+                </div>
 
             @endforeach
         </div>
