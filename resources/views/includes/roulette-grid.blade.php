@@ -16,6 +16,7 @@
 
                 <div class="flex-shrink-0 w-36 md:w-44">
                 <a href="/roulettes/{{ $roulette->slug }}"
+                   data-roulette-batch
                    class="group relative rounded-xl overflow-hidden block bg-slate-900 long-single">
                     <div class="aspect-[2/3] relative overflow-hidden">
 

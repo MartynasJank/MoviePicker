@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\TmdbClient;
 use App\Services\MovieService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -62,6 +63,65 @@ class PersonRollController extends Controller
         ]);
 
         return redirect()->route('tv.show', [$shows->random()->id]);
+    }
+
+    public function movieJson(Request $request, int $id, TmdbClient $tmdb, MovieService $movieService): JsonResponse
+    {
+        $country  = $movieService->getUserCountry();
+        $type     = $request->query('type', 'cast');
+        $criteria = $type === 'crew' ? ['with_crew' => [$id]] : ['with_cast' => [$id]];
+
+        session(['userInput' => $criteria + ['vote_count_gte' => 10]]);
+
+        $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country);
+        $results = $tmdb->discover($criteria, $country);
+
+        $picked = $movieService->pickBatch($results['results'] ?? []);
+
+        return response()->json(array_map(fn($m) => [
+            'title'        => $m['title'] ?? '',
+            'poster_path'  => $m['poster_path'] ?? null,
+            'vote_average' => $m['vote_average'] ?? 0,
+            'url'          => route('movie', $m['id']),
+        ], $picked));
+    }
+
+    public function tvJson(Request $request, int $id, TmdbClient $tmdb, MovieService $movieService): JsonResponse
+    {
+        $person = $tmdb->personDetail($id);
+        $type   = $request->query('type', 'cast');
+
+        $pool = $type === 'crew'
+            ? collect($person->combined_credits->crew ?? [])
+            : collect($person->combined_credits->cast ?? []);
+
+        $shows = $pool
+            ->filter($movieService->tvCreditFilter())
+            ->unique('id')
+            ->values();
+
+        if ($shows->isEmpty()) {
+            return response()->json([]);
+        }
+
+        $personKey = $type === 'crew' ? 'with_crew' : 'with_cast';
+        session([
+            'tvPersonRollIds' => $shows->pluck('id')->map(fn($i) => (int)$i)->toArray(),
+            'tvInput' => [
+                $personKey            => [$id],
+                $personKey . '_names' => [(string)($person->name ?? '')],
+                'vote_count_gte'      => 10,
+            ],
+        ]);
+
+        $picked = $shows->shuffle()->take(12);
+
+        return response()->json($picked->map(fn($m) => [
+            'title'        => $m->name ?? $m->title ?? '',
+            'poster_path'  => $m->poster_path ?? null,
+            'vote_average' => $m->vote_average ?? 0,
+            'url'          => route('tv.show', $m->id),
+        ])->values()->all());
     }
 
     public function tvNext(): RedirectResponse

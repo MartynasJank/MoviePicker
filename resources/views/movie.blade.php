@@ -294,15 +294,7 @@
         {{-- Right --}}
         <div class="flex items-center gap-3">
             @if(request()->query('wl_status'))
-                {{-- Animation toggle (shared with watchlist page) --}}
-                <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer select-none">
-                    <span class="relative inline-block w-9 h-5">
-                        <input type="checkbox" id="anim-toggle" class="sr-only">
-                        <span id="anim-track" class="block w-9 h-5 rounded-full transition-colors duration-200"></span>
-                        <span id="anim-thumb" class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200 shadow"></span>
-                    </span>
-                    Animation
-                </label>
+                @include('includes.anim-toggle')
                 <button id="wl-roll-btn" class="btn-accent">Roll</button>
             @else
                 @include('includes.anim-toggle')
@@ -315,26 +307,10 @@
 
 @if(request()->query('wl_status'))
 <script>
-(function () {
-    const track = document.getElementById('anim-track');
-    const thumb = document.getElementById('anim-thumb');
-    const toggle = document.getElementById('anim-toggle');
-    function sync() {
-        const on = localStorage.getItem('wl_animation') !== '0';
-        toggle.checked = on;
-        track.style.backgroundColor = on ? '#c0393a' : 'rgba(255,255,255,0.1)';
-        thumb.style.transform = on ? 'translateX(16px)' : 'translateX(0)';
-    }
-    sync();
-    toggle.addEventListener('change', function () {
-        localStorage.setItem('wl_animation', this.checked ? '1' : '0');
-        sync();
-    });
-    document.getElementById('wl-roll-btn').addEventListener('click', function () {
-        sessionStorage.setItem('wl_autoroll', '1');
-        window.location.href = '{{ route('watchlist') }}';
-    });
-})();
+document.getElementById('wl-roll-btn').addEventListener('click', function () {
+    sessionStorage.setItem('wl_autoroll', '1');
+    window.location.href = '{{ route('watchlist') }}';
+});
 </script>
 @endif
 

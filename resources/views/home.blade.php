@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('footer_pb', 'pb-16')
 @section('scripts')
     @vite(['resources/js/custom/carousel.js', 'resources/js/custom/watchlist.js'])
 @endsection
@@ -386,5 +387,12 @@
         }
     });
     </script>
+
+{{-- Sticky bottom bar --}}
+<div class="fixed bottom-0 left-0 right-0 bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 px-4 py-3 z-40">
+    <div class="max-w-7xl mx-auto flex items-center justify-end gap-3">
+        @include('includes.anim-toggle')
+    </div>
+</div>
 
 @endsection

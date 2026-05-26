@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('page_title', ($person->name ?? 'Person').' — MoviePickr')
+@section('footer_pb', 'pb-20')
 @section('content')
 <div class="max-w-4xl mx-auto px-4 py-8">
 
@@ -61,12 +62,16 @@
                 <div class="flex flex-wrap gap-2">
                     @if($hasMovieCast)
                     <a href="{{ route('person.roll.movie', ['id' => $person->id, 'type' => 'cast']) }}"
+                       data-roll="person-movie"
+                       data-json-url="{{ url('/person/'.$person->id.'/roll/movie/json?type=cast') }}"
                        class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent/20 transition-colors">
                         Roll as actor
                     </a>
                     @endif
                     @if($hasMovieCrew)
                     <a href="{{ route('person.roll.movie', ['id' => $person->id, 'type' => 'crew']) }}"
+                       data-roll="person-movie"
+                       data-json-url="{{ url('/person/'.$person->id.'/roll/movie/json?type=crew') }}"
                        class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent/20 transition-colors">
                         Roll as crew
                     </a>
@@ -80,12 +85,16 @@
                 <div class="flex flex-wrap gap-2">
                     @if($hasTvCast)
                     <a href="{{ route('person.roll.tv', ['id' => $person->id, 'type' => 'cast']) }}"
+                       data-roll="person-tv"
+                       data-json-url="{{ url('/person/'.$person->id.'/roll/tv/json?type=cast') }}"
                        class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent/20 transition-colors">
                         Roll as actor
                     </a>
                     @endif
                     @if($hasTvCrew)
                     <a href="{{ route('person.roll.tv', ['id' => $person->id, 'type' => 'crew']) }}"
+                       data-roll="person-tv"
+                       data-json-url="{{ url('/person/'.$person->id.'/roll/tv/json?type=crew') }}"
                        class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent hover:bg-accent/20 transition-colors">
                         Roll as crew
                     </a>
@@ -231,6 +240,13 @@
     </div>
     @endif
 
+</div>
+
+{{-- Sticky bottom bar --}}
+<div class="fixed bottom-0 left-0 right-0 bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 px-4 py-3 z-40">
+    <div class="max-w-4xl mx-auto flex items-center justify-end gap-3">
+        @include('includes.anim-toggle')
+    </div>
 </div>
 
 @if($showMovies && $showTv)

@@ -80,11 +80,14 @@ document.addEventListener('submit', function (e) {
     sessionStorage.removeItem('rollSource');
     sessionStorage.removeItem('rollBackUrl');
     sessionStorage.removeItem('rollBackLabel');
-    const body     = new FormData(form);
+    const body = new FormData(form);
+
+    if (btn) { btn.textContent = 'Loading…'; btn.disabled = true; }
 
     fetch(endpoint, { method: 'POST', body })
         .then(r => r.json())
         .then(movies => {
+            if (btn) { btn.textContent = isMovie ? 'Find Movie' : 'Find Show'; btn.disabled = false; }
             const cards = movies
                 .filter(m => m.poster_path)
                 .map(m => ({
@@ -105,6 +108,16 @@ document.addEventListener('click', function (e) {
         sessionStorage.removeItem('rollSource');
         sessionStorage.removeItem('rollBackUrl');
         sessionStorage.removeItem('rollBackLabel');
+        return;
+    }
+
+    // ── Roulette card "Batch →" link ──────────────────────────────
+    const batchLink = e.target.closest('[data-roulette-batch]');
+    if (batchLink) {
+        const isMyRoulettes = window.location.pathname.startsWith('/my-roulettes');
+        sessionStorage.setItem('rollSource',    'roulette');
+        sessionStorage.setItem('rollBackUrl',   isMyRoulettes ? '/my-roulettes' : '/roulettes');
+        sessionStorage.setItem('rollBackLabel', isMyRoulettes ? '← My Roulettes' : '← Roulettes');
         return;
     }
 
@@ -163,7 +176,10 @@ document.addEventListener('click', function (e) {
         'tv-criteria':    '/tv/roll/criteria',
     };
 
-    if (rollType && endpoints[rollType]) {
+    const isPersonRoll = rollType === 'person-movie' || rollType === 'person-tv';
+    const jsonUrl = isPersonRoll ? link.dataset.jsonUrl : (rollType ? endpoints[rollType] : null);
+
+    if (jsonUrl) {
         e.preventDefault();
         const fallback = link.href;
         if (rollType === 'movie' || rollType === 'tv') {
@@ -172,9 +188,13 @@ document.addEventListener('click', function (e) {
             sessionStorage.removeItem('rollBackLabel');
         }
 
-        fetch(endpoints[rollType])
+        const origText = link.textContent;
+        link.textContent = 'Loading…';
+
+        fetch(jsonUrl)
             .then(r => r.json())
             .then(movies => {
+                link.textContent = origText;
                 const cards = movies
                     .filter(m => m.poster_path)
                     .map(m => ({
