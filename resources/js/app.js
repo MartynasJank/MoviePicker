@@ -78,6 +78,7 @@ $(document).ready(function () {
         void progressBar.offsetWidth;
         progressBar.classList.add('active');
     }
+    window.showProgress = showLoading;
 
     function hideLoading() {
         progressBar.classList.remove('active');

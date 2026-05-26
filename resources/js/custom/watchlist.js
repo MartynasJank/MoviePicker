@@ -173,6 +173,7 @@ $(document).ready(function () {
         const picked = visible.eq(Math.floor(Math.random() * visible.length));
         let url = picked.find('a').first().attr('href') + '?wl_status=' + status;
         if (genres) url += '&wl_genres=' + encodeURIComponent(genres);
+        window.showProgress?.();
         window.location.href = url;
     });
 
