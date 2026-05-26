@@ -5,7 +5,12 @@
             $title = $result['title'] ?? $result['name'] ?? '';
         @endphp
         @if($date)
-        <div class="relative flex-shrink-0 w-44 sm:w-52 lg:w-56">
+        <div class="relative flex-shrink-0 w-44 sm:w-52 lg:w-56"
+             data-batch-card
+             data-title="{{ $title }}"
+             data-rating="{{ $result['vote_average'] ?? 0 }}"
+             data-poster="{{ $result['poster_path'] ?? '' }}"
+             data-url="{{ url(($linkBase ?? 'movie').'/'.$result['id']) }}{{ !empty($clearCriteria) ? '?i=new' : ($linkSuffix ?? '') }}">
             <a href="{{ url(($linkBase ?? 'movie').'/'.$result['id']) }}{{ !empty($clearCriteria) ? '?i=new' : (!empty($linkSuffix ?? '') ? $linkSuffix : '') }}"
                class="block h-full group long-movie" data-name="{{ $title }}">
                 <div class="card card-hover h-full flex flex-col overflow-hidden">
