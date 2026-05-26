@@ -64,8 +64,10 @@ export function runCaseOpening(cards, winnerIdx, fullUrl) {
 
     const cw     = viewport.clientWidth;
     const center = cw / 2;
-    const startX = center - (START_POS  * STEP + CARD_W / 2);
-    const endX   = center - (WINNER_POS * STEP + CARD_W / 2);
+    const startX  = center - (START_POS  * STEP + CARD_W / 2);
+    const centerX = center - (WINNER_POS * STEP + CARD_W / 2);
+    const landOffset = Math.floor(Math.random() * (CARD_W - 20)) - (CARD_W - 20) / 2;
+    const landX   = centerX + landOffset;
 
     const prefetchLink = document.createElement('link');
     prefetchLink.rel  = 'prefetch';
@@ -77,12 +79,15 @@ export function runCaseOpening(cards, winnerIdx, fullUrl) {
 
     requestAnimationFrame(() => requestAnimationFrame(() => {
         stripEl.style.transition = 'transform 7s cubic-bezier(0.12, 0.9, 0.1, 1)';
-        stripEl.style.transform  = `translateX(${endX}px)`;
+        stripEl.style.transform  = `translateX(${landX}px)`;
     }));
 
     setTimeout(() => {
         const tier     = getTier(winner.rating);
         const winnerEl = document.getElementById('case-winner-card');
+
+        stripEl.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        stripEl.style.transform  = `translateX(${centerX}px)`;
 
         if (winnerEl) {
             winnerEl.style.outline    = `2px solid ${tier.color}`;
