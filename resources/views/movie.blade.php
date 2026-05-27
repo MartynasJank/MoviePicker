@@ -55,28 +55,49 @@
                 @endauth
             </div>
             @auth
-            <div id="title-save-roulette-form" class="hidden w-full">
-                <form method="POST" action="{{ route('my-roulettes.from-criteria') }}" class="flex items-center gap-2">
-                    @csrf
-                    <input type="hidden" name="media_type" value="movie">
-                    <input type="text" name="name" required maxlength="80"
-                           class="input-dark flex-1 text-sm" placeholder="Roulette name…" id="title-roulette-name">
-                    <label class="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer flex-shrink-0">
-                        <input type="checkbox" name="is_public" value="1" class="w-3.5 h-3.5 rounded border-white/20 bg-white/5 text-accent">
-                        Public
-                    </label>
-                    <button type="submit" class="btn-accent text-sm flex-shrink-0">Save</button>
-                </form>
+            {{-- Save as Roulette modal --}}
+            <div id="save-roulette-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4">
+                <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="save-roulette-backdrop"></div>
+                <div class="relative bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+                    <h2 class="text-lg font-bold text-white mb-4">Save as Roulette</h2>
+                    <form method="POST" action="{{ route('my-roulettes.from-criteria') }}">
+                        @csrf
+                        <input type="hidden" name="media_type" value="movie">
+                        <div class="mb-4">
+                            <label class="block text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">Name</label>
+                            <input type="text" name="name" required maxlength="80"
+                                   class="input-dark w-full" placeholder="e.g. Sci-Fi on Netflix…"
+                                   id="save-roulette-name">
+                        </div>
+                        <div class="mb-6">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="is_public" value="1"
+                                       class="w-4 h-4 rounded border-white/20 bg-white/5 text-accent">
+                                <span class="text-sm text-gray-300">Public — anyone with the link can roll this</span>
+                            </label>
+                        </div>
+                        <div class="flex gap-3">
+                            <button type="submit" class="btn-accent flex-1 py-2.5 text-sm">Save</button>
+                            <button type="button" id="save-roulette-cancel" class="btn-secondary px-5 py-2.5 text-sm">Cancel</button>
+                        </div>
+                    </form>
+                </div>
             </div>
             <script>
             (function () {
-                const btn = document.getElementById('title-save-roulette-btn');
-                const form = document.getElementById('title-save-roulette-form');
-                const inp  = document.getElementById('title-roulette-name');
-                btn.addEventListener('click', function () {
-                    form.classList.toggle('hidden');
-                    if (!form.classList.contains('hidden')) inp.focus();
-                    btn.classList.toggle('opacity-60');
+                const modal = document.getElementById('save-roulette-modal');
+                const inp   = document.getElementById('save-roulette-name');
+                document.getElementById('title-save-roulette-btn').addEventListener('click', function () {
+                    modal.classList.remove('hidden'); inp.focus();
+                });
+                document.getElementById('save-roulette-cancel').addEventListener('click', function () {
+                    modal.classList.add('hidden');
+                });
+                document.getElementById('save-roulette-backdrop').addEventListener('click', function () {
+                    modal.classList.add('hidden');
+                });
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape') modal.classList.add('hidden');
                 });
             })();
             </script>
