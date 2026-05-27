@@ -29,11 +29,22 @@ export function getTier(rating, mediaType = 'movie') {
 }
 
 export function runCaseOpening(cards, winnerIdx, fullUrl, mediaType = 'movie') {
+    // Single card: no animation needed — just navigate
+    if (cards.length <= 1) {
+        window.showProgress?.();
+        window.location.href = fullUrl;
+        return;
+    }
+
     const winner = cards[winnerIdx];
-    const others = cards.filter((_, i) => i !== winnerIdx);
-    const pool = [];
+
+    // For small pools use all cards (incl. winner as fake-outs) so the strip
+    // looks varied. For larger pools exclude the winner from filler so it only
+    // appears at the landing position.
+    const source = cards.length <= 5 ? cards : cards.filter((_, i) => i !== winnerIdx);
+    const pool   = [];
     while (pool.length < STRIP_LEN) {
-        pool.push(...[...others].sort(() => Math.random() - 0.5));
+        pool.push(...[...source].sort(() => Math.random() - 0.5));
     }
     const strip = pool.slice(0, STRIP_LEN);
     strip[WINNER_POS] = winner;
