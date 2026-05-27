@@ -69,11 +69,14 @@ class RouletteTagMapper
     public function normalizeTags(array $raw): array
     {
         $tags = [];
-        if (!empty($raw['platform'])) $tags['platform'] = [$raw['platform']];
-        if (!empty($raw['genre']))    $tags['genre']    = array_values((array) $raw['genre']);
+        if (!empty($raw['platform']))      $tags['platform']      = [$raw['platform']];
+        if (!empty($raw['genre']))         $tags['genre']         = array_values((array) $raw['genre']);
         if (!empty($raw['without_genre'])) $tags['without_genre'] = array_values((array) $raw['without_genre']);
-        if (!empty($raw['era']))      $tags['era']      = [$raw['era']];
-        if (!empty($raw['country']))  $tags['country']  = [$raw['country']];
+        if (!empty($raw['era']))           $tags['era']           = [$raw['era']];
+        if (!empty($raw['country']))       $tags['country']       = [$raw['country']];
+        if (!empty($raw['language']))      $tags['language']      = [$raw['language']];
+        if (isset($raw['year_from']) && $raw['year_from'] !== '') $tags['year_from'] = (int) $raw['year_from'];
+        if (isset($raw['year_to'])   && $raw['year_to']   !== '') $tags['year_to']   = (int) $raw['year_to'];
         return $tags;
     }
 
@@ -115,7 +118,15 @@ class RouletteTagMapper
             $criteria['with_original_language'] = $tags['language'][0];
         }
 
-        if (!empty($tags['era'])) {
+        // year_from/year_to take priority; fall back to legacy era slugs
+        if (!empty($tags['year_from']) || !empty($tags['year_to'])) {
+            if (!empty($tags['year_from'])) {
+                $criteria['primary_release_date.gte'] = (int) $tags['year_from'];
+            }
+            if (!empty($tags['year_to'])) {
+                $criteria['primary_release_date.lte'] = (int) $tags['year_to'];
+            }
+        } elseif (!empty($tags['era'])) {
             $era   = (array) $tags['era'];
             $range = $era[0] === 'recent'
                 ? ['gte' => (int) date('Y') - 2]
@@ -173,7 +184,15 @@ class RouletteTagMapper
             if ($code) $criteria['with_origin_country'] = $code;
         }
 
-        if (!empty($tags['era'])) {
+        // year_from/year_to take priority; fall back to legacy era slugs
+        if (!empty($tags['year_from']) || !empty($tags['year_to'])) {
+            if (!empty($tags['year_from'])) {
+                $criteria['first_air_date.gte'] = (int) $tags['year_from'];
+            }
+            if (!empty($tags['year_to'])) {
+                $criteria['first_air_date.lte'] = (int) $tags['year_to'];
+            }
+        } elseif (!empty($tags['era'])) {
             $era   = (array) $tags['era'];
             $range = $era[0] === 'recent'
                 ? ['gte' => (int) date('Y') - 2]

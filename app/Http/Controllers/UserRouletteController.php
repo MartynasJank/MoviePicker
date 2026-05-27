@@ -282,9 +282,10 @@ class UserRouletteController extends Controller
         if ($withoutGenres = $request->input('tags.without_genre', [])) {
             $tags['without_genre'] = array_values($withoutGenres);
         }
-        if ($era = $request->input('tags.era')) {
-            $tags['era'] = [$era];
-        }
+        $yearFrom = $request->input('tags.year_from');
+        $yearTo   = $request->input('tags.year_to');
+        if ($yearFrom !== null && $yearFrom !== '') $tags['year_from'] = (int) $yearFrom;
+        if ($yearTo   !== null && $yearTo   !== '') $tags['year_to']   = (int) $yearTo;
         if ($country = $request->input('tags.country')) {
             $tags['country'] = [$country];
         }
