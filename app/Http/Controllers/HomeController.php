@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\MovieService;
 use App\Services\TmdbClient;
 use Illuminate\View\View;
 
 class HomeController extends Controller
 {
-    public function __invoke(TmdbClient $tmdb): View
+    public function __invoke(TmdbClient $tmdb, MovieService $movieService): View
     {
         // Homepage visit breaks any prior batch context
         session()->forget('batchUrl');
@@ -21,10 +22,18 @@ class HomeController extends Controller
             ]), $data['results'] ?? []),
         ]);
 
+        $trendingDay   = $tmdb->trending('day');
+        $tvTrendingDay = $normalize($tmdb->trendingTv('day'));
+
+        $movieGenres = $movieService->genres($tmdb, 'movie');
+        $tvGenres    = $movieService->genres($tmdb, 'tv');
+
         return view('home', [
-            'trendingDay'   => $tmdb->trending('day'),
-            'tvTrendingDay' => $normalize($tmdb->trendingTv('day')),
-            'savedIds'      => $savedIds,
+            'trendingDay'        => $trendingDay,
+            'tvTrendingDay'      => $tvTrendingDay,
+            'savedIds'           => $savedIds,
+            'trendingGenres'     => $movieService->movieGenresMap($trendingDay['results']   ?? [], $movieGenres),
+            'tvTrendingGenres'   => $movieService->movieGenresMap($tvTrendingDay['results'] ?? [], $tvGenres),
         ]);
     }
 }
