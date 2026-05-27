@@ -77,6 +77,11 @@ class RouletteTagMapper
         if (!empty($raw['language']))      $tags['language']      = [$raw['language']];
         if (isset($raw['year_from']) && $raw['year_from'] !== '') $tags['year_from'] = (int) $raw['year_from'];
         if (isset($raw['year_to'])   && $raw['year_to']   !== '') $tags['year_to']   = (int) $raw['year_to'];
+        if (!empty($raw['with_cast']))  $tags['with_cast']  = array_values(array_map('strval', (array) $raw['with_cast']));
+        if (!empty($raw['with_crew']))  $tags['with_crew']  = array_values(array_map('strval', (array) $raw['with_crew']));
+        if (isset($raw['vote_average_gte']) && $raw['vote_average_gte'] !== '') $tags['vote_average_gte'] = (float) $raw['vote_average_gte'];
+        if (isset($raw['vote_average_lte']) && $raw['vote_average_lte'] !== '') $tags['vote_average_lte'] = (float) $raw['vote_average_lte'];
+        if (isset($raw['vote_count_gte'])   && $raw['vote_count_gte']   !== '') $tags['vote_count_gte']   = (int)   $raw['vote_count_gte'];
         return $tags;
     }
 
@@ -141,6 +146,12 @@ class RouletteTagMapper
                 }
             }
         }
+
+        if (!empty($tags['with_cast']))        $criteria['with_cast']        = (array) $tags['with_cast'];
+        if (!empty($tags['with_crew']))        $criteria['with_crew']        = (array) $tags['with_crew'];
+        if (isset($tags['vote_average_gte']) && $tags['vote_average_gte'] !== '') $criteria['vote_average.gte'] = $tags['vote_average_gte'];
+        if (isset($tags['vote_average_lte']) && $tags['vote_average_lte'] !== '') $criteria['vote_average.lte'] = $tags['vote_average_lte'];
+        if (isset($tags['vote_count_gte'])   && $tags['vote_count_gte']   !== '') $criteria['vote_count.gte']   = $tags['vote_count_gte'];
 
         return $criteria;
     }
@@ -207,6 +218,12 @@ class RouletteTagMapper
                 }
             }
         }
+
+        if (!empty($tags['with_cast']))        $criteria['with_cast']        = (array) $tags['with_cast'];
+        if (!empty($tags['with_crew']))        $criteria['with_crew']        = (array) $tags['with_crew'];
+        if (isset($tags['vote_average_gte']) && $tags['vote_average_gte'] !== '') $criteria['vote_average.gte'] = $tags['vote_average_gte'];
+        if (isset($tags['vote_average_lte']) && $tags['vote_average_lte'] !== '') $criteria['vote_average.lte'] = $tags['vote_average_lte'];
+        if (isset($tags['vote_count_gte'])   && $tags['vote_count_gte']   !== '') $criteria['vote_count.gte']   = $tags['vote_count_gte'];
 
         return $criteria;
     }

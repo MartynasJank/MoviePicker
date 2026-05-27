@@ -292,6 +292,18 @@ class UserRouletteController extends Controller
         if ($language = $request->input('tags.language')) {
             $tags['language'] = [$language];
         }
+        if ($withCast = array_filter($request->input('tags.with_cast', []))) {
+            $tags['with_cast'] = array_values(array_map('strval', $withCast));
+        }
+        if ($withCrew = array_filter($request->input('tags.with_crew', []))) {
+            $tags['with_crew'] = array_values(array_map('strval', $withCrew));
+        }
+        $voteGte   = $request->input('tags.vote_average_gte');
+        $voteLte   = $request->input('tags.vote_average_lte');
+        $voteCount = $request->input('tags.vote_count_gte');
+        if ($voteGte   !== null && $voteGte   !== '') $tags['vote_average_gte'] = (float) $voteGte;
+        if ($voteLte   !== null && $voteLte   !== '') $tags['vote_average_lte'] = (float) $voteLte;
+        if ($voteCount !== null && $voteCount !== '') $tags['vote_count_gte']   = (int)   $voteCount;
         return $tags;
     }
 }
