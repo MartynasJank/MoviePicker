@@ -87,8 +87,13 @@ class TvPickController extends PickController
         $results = $tmdb->discoverTv($criteria, $country);
         $picked  = $movieService->pickBatch($results['results'] ?? []);
 
-        session(['lastBatchResults' => $picked, 'lastBatchType' => 'tv']);
-        session()->forget('batchUrl');
+        session([
+            'lastBatchResults'  => $picked,
+            'lastBatchType'     => 'tv',
+            'batchUrl'          => url('/tv/multiple'),
+            'savedBatchUrl'     => url('/tv/multiple'),
+            'savedBatchResults' => $picked,
+        ]);
 
         return response()->json($this->toRollCards($picked, 'tv'));
     }
@@ -96,7 +101,6 @@ class TvPickController extends PickController
     public function rollJson(MovieService $movieService, TmdbClient $tmdb): JsonResponse
     {
         session([self::SESSION_KEY => self::DEFAULTS]);
-        session()->forget('batchUrl');
 
         $country = $movieService->getUserCountry();
         $results = $tmdb->discoverTv([
@@ -107,7 +111,13 @@ class TvPickController extends PickController
 
         $picked = $movieService->pickBatch($results['results'] ?? []);
 
-        session(['lastBatchResults' => $picked, 'lastBatchType' => 'tv']);
+        session([
+            'lastBatchResults'  => $picked,
+            'lastBatchType'     => 'tv',
+            'batchUrl'          => url('/tv/multiple'),
+            'savedBatchUrl'     => url('/tv/multiple'),
+            'savedBatchResults' => $picked,
+        ]);
 
         return response()->json($this->toRollCards($picked, 'tv'));
     }
