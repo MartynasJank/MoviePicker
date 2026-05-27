@@ -12,10 +12,11 @@ function toCards(movies) {
     return movies
         .filter(m => m.poster_path)
         .map(m => ({
-            url:    m.url,
-            poster: `https://image.tmdb.org/t/p/w342${m.poster_path}`,
-            title:  m.title,
-            rating: m.vote_average,
+            url:        m.url,
+            poster:     `https://image.tmdb.org/t/p/w342${m.poster_path}`,
+            title:      m.title,
+            rating:     m.vote_average,
+            media_type: m.media_type || 'movie',
         }));
 }
 
@@ -53,6 +54,15 @@ document.addEventListener('change', function (e) {
 
 document.addEventListener('DOMContentLoaded', function () {
     syncAnimToggles();
+
+    // Clear stale roll context when landing on hub/index pages
+    const ROLL_CHAIN_BREAKERS = ['/', '/roulettes', '/my-roulettes', '/criteria', '/tv/criteria'];
+    if (ROLL_CHAIN_BREAKERS.includes(window.location.pathname)) {
+        sessionStorage.removeItem('rollSource');
+        sessionStorage.removeItem('rollBackUrl');
+        sessionStorage.removeItem('rollBackLabel');
+    }
+
     const rollSource = sessionStorage.getItem('rollSource');
     if (rollSource === 'person') {
         document.querySelectorAll('.js-criteria-btn').forEach(el => el.classList.add('hidden'));
@@ -72,10 +82,11 @@ function getBatchCards(rowSelector) {
     document.querySelectorAll(`${rowSelector} [data-batch-card]`).forEach(el => {
         if (!el.dataset.poster) return;
         cards.push({
-            url:    el.dataset.url,
-            poster: `https://image.tmdb.org/t/p/w342${el.dataset.poster}`,
-            title:  el.dataset.title,
-            rating: parseFloat(el.dataset.rating) || 0,
+            url:        el.dataset.url,
+            poster:     `https://image.tmdb.org/t/p/w342${el.dataset.poster}`,
+            title:      el.dataset.title,
+            rating:     parseFloat(el.dataset.rating) || 0,
+            media_type: el.dataset.mediaType || 'movie',
         });
     });
     return cards;
@@ -86,9 +97,10 @@ function rollCards(cards, source) {
     document.querySelectorAll('.modal-wrap').forEach(m => m.classList.add('hidden'));
     const rollSource = source || sessionStorage.getItem('rollSource');
     if (rollSource) sessionStorage.setItem('rollSource', rollSource);
-    const winnerIdx = Math.floor(Math.random() * cards.length);
+    const winnerIdx  = Math.floor(Math.random() * cards.length);
+    const mediaType  = cards[winnerIdx].media_type || 'movie';
     if (localStorage.getItem('wl_animation') !== '0') {
-        runCaseOpening(cards, winnerIdx, cards[winnerIdx].url);
+        runCaseOpening(cards, winnerIdx, cards[winnerIdx].url, mediaType);
     } else {
         window.location.href = cards[winnerIdx].url;
     }
