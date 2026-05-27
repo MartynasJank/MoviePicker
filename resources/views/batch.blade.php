@@ -95,7 +95,7 @@
                 <button type="button" class="btn-secondary flex-1 sm:flex-none" data-modal-open="modal-form">Criteria</button>
             @endif
             <a href="{{ Request::url() }}" class="btn-secondary flex-none text-center long-single">New Batch</a>
-            <button id="batch-roll-btn" class="btn-accent flex-1 sm:flex-none">Roll</button>
+            <button id="batch-roll-btn" class="btn-accent flex-1 sm:flex-none" data-media-type="{{ $isTv ? 'tv' : 'movie' }}">Roll</button>
         </div>
     </div>
 </div>

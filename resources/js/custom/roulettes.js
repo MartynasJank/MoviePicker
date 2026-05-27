@@ -178,11 +178,18 @@ document.addEventListener('click', function (e) {
         return;
     }
 
-    // Batch page Roll button
-    if (e.target.closest('#batch-roll-btn')) {
+    // Batch page Roll button — fetch a fresh pick from the server using current session criteria
+    const batchRollBtn = e.target.closest('#batch-roll-btn');
+    if (batchRollBtn) {
         e.preventDefault();
+        const isTv    = batchRollBtn.dataset.mediaType === 'tv';
+        const endpoint = isTv ? '/tv/roll/criteria' : '/movie/roll/criteria';
+        const fallback = isTv ? '/tv/pick' : '/movie';
         setRollContext('batch', window.location.pathname + '?from=roll', '← Batch');
-        rollCards(getBatchCards('.swiper-multiple'));
+        fetch(endpoint)
+            .then(r => r.json())
+            .then(movies => { if (!rollCards(toCards(movies))) window.location.href = fallback; })
+            .catch(() => { window.location.href = fallback; });
         return;
     }
 
