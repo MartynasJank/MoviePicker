@@ -29,7 +29,7 @@ class HomeController extends Controller
         $movieGenres = $movieService->genres($tmdb, 'movie');
         $tvGenres    = $movieService->genres($tmdb, 'tv');
 
-        $featuredSlugs    = ['new-releases', 'tv-new-releases', 'netflix-drama', 'netflix-horror', '90s-nostalgia', 'tv-anime', 'tv-korean', 'comedy-films', 'action-films'];
+        $featuredSlugs     = ['new-releases', 'tv-new-releases', 'netflix-drama', 'netflix-horror', '90s-nostalgia', 'tv-anime', 'tv-korean', 'genre-comedy', 'genre-action'];
         $featuredRoulettes = Roulette::whereIn('slug', $featuredSlugs)
             ->where('is_public', true)
             ->get()
