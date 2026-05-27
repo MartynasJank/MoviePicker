@@ -188,6 +188,7 @@
 @endsection
 
 @section('scripts')
+@vite(['resources/js/custom/rouletteForm.js'])
 <style>
 @media (max-width: 639px) {
     #poster-grid { display: flex; overflow-x: auto; gap: 0.5rem; padding-bottom: 0.375rem; }
