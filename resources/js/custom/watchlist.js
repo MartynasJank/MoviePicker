@@ -104,6 +104,31 @@ $(document).ready(function () {
         });
     });
 
+    // Rebuild genre dropdown options to match only the currently selected type
+    function rebuildGenreOptions() {
+        const type = $('.type-filter.active').data('type');
+
+        const genreSet = new Set();
+        $('.watchlist-card').each(function () {
+            const cardType = $(this).attr('data-type') || 'movie';
+            if (type === 'all' || cardType === type) {
+                ($(this).attr('data-genres') || '')
+                    .split(',').map(g => g.trim()).filter(Boolean)
+                    .forEach(g => genreSet.add(g));
+            }
+        });
+
+        const sorted = [...genreSet].sort();
+
+        [genreSelect, excludeSelect].forEach(ts => {
+            if (!ts) return;
+            ts.clear(true);          // clear selections silently
+            ts.clearOptions();
+            sorted.forEach(g => ts.addOption({ value: g, text: g }));
+            ts.refreshOptions(false);
+        });
+    }
+
     // Combined filter: status tab + type tab + genre include/exclude selects
     function applyFilters() {
         const status          = $('.watchlist-filter.active').data('filter');
@@ -143,6 +168,7 @@ $(document).ready(function () {
     $(document).on('click', '.type-filter', function () {
         $('.type-filter').removeClass('active').addClass('text-gray-400');
         $(this).addClass('active').removeClass('text-gray-400');
+        rebuildGenreOptions();
         applyFilters();
     });
 
