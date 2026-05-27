@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Watchlist;
+use App\Services\MovieService;
+use App\Services\TmdbClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class WatchlistController extends Controller
 {
-    public function index()
+    public function index(TmdbClient $tmdb, MovieService $movieService)
     {
         session(['batchUrl' => route('watchlist')]);
 
@@ -16,6 +18,29 @@ class WatchlistController extends Controller
             ->watchlist()
             ->orderByDesc('created_at')
             ->get();
+
+        // Back-fill genres for items saved without them (up to 15 per load)
+        $missing = $items->whereNull('genres');
+        if ($missing->isNotEmpty()) {
+            $movieGenreList = null;
+            $tvGenreList    = null;
+            foreach ($missing->take(15) as $item) {
+                try {
+                    if ($item->type === 'tv') {
+                        $tvGenreList ??= $movieService->genres($tmdb, 'tv');
+                        $info = $tmdb->tvShow($item->tmdb_id);
+                    } else {
+                        $movieGenreList ??= $movieService->genres($tmdb, 'movie');
+                        $info = $tmdb->movie($item->tmdb_id);
+                    }
+                    $genreString = $movieService->genresString($info);
+                    if ($genreString) {
+                        $item->update(['genres' => $genreString]);
+                        $item->genres = $genreString;
+                    }
+                } catch (\Throwable) {}
+            }
+        }
 
         $genres = $items->pluck('genres')
             ->filter()
