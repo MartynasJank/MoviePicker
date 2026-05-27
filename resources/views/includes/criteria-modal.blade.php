@@ -176,6 +176,46 @@
                     </div>
                 </div>
 
+                @auth
+                {{-- Save as Roulette inline --}}
+                <div id="criteria-save-roulette-row" class="hidden pt-3 border-t border-white/5">
+                    <form method="POST" action="{{ route('my-roulettes.from-criteria') }}" class="flex items-center gap-2">
+                        @csrf
+                        <input type="hidden" name="media_type" value="movie">
+                        <input type="text" name="name" required maxlength="80"
+                               class="input-dark flex-1 text-sm" placeholder="Roulette name…" id="criteria-roulette-name">
+                        <label class="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer flex-shrink-0">
+                            <input type="checkbox" name="is_public" value="1" class="w-3.5 h-3.5 rounded border-white/20 bg-white/5 text-accent">
+                            Public
+                        </label>
+                        <button type="submit" class="btn-accent text-sm flex-shrink-0">Save</button>
+                    </form>
+                </div>
+                <div class="pt-2">
+                    <button type="button" id="criteria-save-roulette-btn"
+                            class="text-xs text-gray-500 hover:text-gray-300 transition-colors flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+                        </svg>
+                        Save current criteria as Roulette
+                    </button>
+                </div>
+                <script>
+                (function () {
+                    const btn = document.getElementById('criteria-save-roulette-btn');
+                    const row = document.getElementById('criteria-save-roulette-row');
+                    const inp = document.getElementById('criteria-roulette-name');
+                    if (btn && row) {
+                        btn.addEventListener('click', function () {
+                            row.classList.toggle('hidden');
+                            if (!row.classList.contains('hidden')) inp?.focus();
+                            btn.classList.toggle('text-gray-300');
+                        });
+                    }
+                })();
+                </script>
+                @endauth
+
             </div>
         </form>
     </div>
