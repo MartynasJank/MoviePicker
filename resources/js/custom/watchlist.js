@@ -1,17 +1,26 @@
 import TomSelect from 'tom-select';
 import { getTier, runCaseOpening } from './caseOpening.js';
 
-let genreSelect = null;
+let genreSelect   = null;
+let excludeSelect = null;
 
 $(document).ready(function () {
 
     const csrf = () => $('meta[name="csrf-token"]').attr('content');
 
-    // Init genre multi-select
+    // Init genre multi-selects
     if (document.getElementById('genre-select')) {
         genreSelect = new TomSelect('#genre-select', {
             plugins: ['remove_button'],
             placeholder: 'Filter by genre…',
+            onItemAdd() { this.setTextboxValue(''); this.refreshOptions(); },
+            onChange() { applyFilters(); },
+        });
+    }
+    if (document.getElementById('exclude-genre-select')) {
+        excludeSelect = new TomSelect('#exclude-genre-select', {
+            plugins: ['remove_button'],
+            placeholder: 'Exclude genre…',
             onItemAdd() { this.setTextboxValue(''); this.refreshOptions(); },
             onChange() { applyFilters(); },
         });
@@ -95,22 +104,31 @@ $(document).ready(function () {
         });
     });
 
-    // Combined filter: status tab + type tab + genre select
+    // Combined filter: status tab + type tab + genre include/exclude selects
     function applyFilters() {
-        const status = $('.watchlist-filter.active').data('filter');
-        const type   = $('.type-filter.active').data('type');
-        const activeGenres = new Set(genreSelect ? genreSelect.getValue() : []);
+        const status          = $('.watchlist-filter.active').data('filter');
+        const type            = $('.type-filter.active').data('type');
+        const activeGenres    = new Set(genreSelect   ? genreSelect.getValue()   : []);
+        const excludedGenres  = new Set(excludeSelect ? excludeSelect.getValue() : []);
 
         $('.watchlist-card').each(function () {
             const cardStatus = $(this).attr('data-status');
             const cardType   = $(this).attr('data-type') || 'movie';
-            const cardGenres = ($(this).attr('data-genres') || '').split(',').map(g => g.trim());
+            const cardGenres = ($(this).attr('data-genres') || '').split(',').map(g => g.trim()).filter(Boolean);
 
-            const statusMatch = status === 'all' || cardStatus === status;
-            const typeMatch   = type === 'all'   || cardType === type;
-            const genreMatch  = activeGenres.size === 0 || cardGenres.some(g => activeGenres.has(g));
+            const statusMatch  = status === 'all' || cardStatus === status;
+            const typeMatch    = type === 'all'   || cardType === type;
+            // All selected include-genres must be present (AND logic)
+            // Items without stored genres are never hidden by the include filter
+            const genreMatch   = activeGenres.size === 0
+                || cardGenres.length === 0
+                || [...activeGenres].every(g => cardGenres.includes(g));
+            // No selected exclude-genre may be present (only applies when genres are stored)
+            const excludeMatch = excludedGenres.size === 0
+                || cardGenres.length === 0
+                || !cardGenres.some(g => excludedGenres.has(g));
 
-            $(this).toggle(statusMatch && typeMatch && genreMatch);
+            $(this).toggle(statusMatch && typeMatch && genreMatch && excludeMatch);
         });
 
         $('#wl-count').text('(' + $('.watchlist-card:visible').length + ')');
@@ -170,16 +188,18 @@ $(document).ready(function () {
     function buildCards() {
         const cards = [];
         $('.watchlist-card:visible').each(function () {
-            const link   = $(this).find('a[href]').first();
-            const img    = $(this).find('img').first();
-            const title  = $(this).data('title') || '';
-            const rating = parseFloat($(this).data('rating')) || 0;
+            const link      = $(this).find('a[href]').first();
+            const img       = $(this).find('img').first();
+            const title     = $(this).data('title') || '';
+            const rating    = parseFloat($(this).data('rating')) || 0;
+            const mediaType = ($(this).data('type') || 'movie') === 'tv' ? 'tv' : 'movie';
             if (link.length && img.length) {
                 cards.push({
-                    url:    link.attr('href'),
-                    poster: (img.attr('src') || '').replace('w500', 'w342'),
+                    url:        link.attr('href'),
+                    poster:     (img.attr('src') || '').replace('w500', 'w342'),
                     title,
                     rating,
+                    media_type: mediaType,
                 });
             }
         });
@@ -208,7 +228,8 @@ $(document).ready(function () {
             const cards      = buildCards();
             const winnerHref = picked.find('a').first().attr('href');
             const winnerIdx  = cards.findIndex(c => c.url === winnerHref);
-            runCaseOpening(cards, winnerIdx >= 0 ? winnerIdx : 0, url);
+            const winner     = cards[winnerIdx >= 0 ? winnerIdx : 0];
+            runCaseOpening(cards, winnerIdx >= 0 ? winnerIdx : 0, url, winner?.media_type || 'movie');
         } else {
             window.showProgress?.();
             window.location.href = url;

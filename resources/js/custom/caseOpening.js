@@ -14,11 +14,21 @@ const TIERS = [
     { min: 0,   color: '#6b7280', label: 'Mixed'       },
 ];
 
-export function getTier(rating) {
-    return TIERS.find(t => (rating || 0) >= t.min) || TIERS[TIERS.length - 1];
+// TV scores skew higher — use stricter thresholds
+const TIERS_TV = [
+    { min: 9.0, color: '#f59e0b', label: 'Masterpiece' },
+    { min: 8.2, color: '#c0393a', label: 'Excellent'   },
+    { min: 7.5, color: '#8b5cf6', label: 'Great'       },
+    { min: 6.5, color: '#3b82f6', label: 'Good'        },
+    { min: 0,   color: '#6b7280', label: 'Mixed'       },
+];
+
+export function getTier(rating, mediaType = 'movie') {
+    const table = mediaType === 'tv' ? TIERS_TV : TIERS;
+    return table.find(t => (rating || 0) >= t.min) || table[table.length - 1];
 }
 
-export function runCaseOpening(cards, winnerIdx, fullUrl) {
+export function runCaseOpening(cards, winnerIdx, fullUrl, mediaType = 'movie') {
     const winner = cards[winnerIdx];
     const others = cards.filter((_, i) => i !== winnerIdx);
     const pool = [];
@@ -39,7 +49,7 @@ export function runCaseOpening(cards, winnerIdx, fullUrl) {
 
     stripEl.innerHTML = '';
     strip.forEach((card, i) => {
-        const tier = getTier(card.rating);
+        const tier = getTier(card.rating, card.media_type || mediaType);
         const el = document.createElement('div');
         el.className = 'case-card flex-shrink-0 rounded-lg overflow-hidden relative';
         el.style.cssText = `width:${CARD_W}px;height:${CARD_H}px;box-shadow:0 0 10px 2px ${tier.color}44;outline:1px solid ${tier.color}55`;
@@ -83,7 +93,7 @@ export function runCaseOpening(cards, winnerIdx, fullUrl) {
     }));
 
     setTimeout(() => {
-        const tier     = getTier(winner.rating);
+        const tier     = getTier(winner.rating, winner.media_type || mediaType);
         const winnerEl = document.getElementById('case-winner-card');
 
         stripEl.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
