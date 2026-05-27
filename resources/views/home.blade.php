@@ -79,13 +79,17 @@
         <div class="section-divider"></div>
 
         {{-- Movie mood tiles --}}
+        {{-- Genre IDs: Comedy 35, Thriller 53, Drama 18, Horror 27, Romance 10749, Action 28, Crime 80, Animation 16, Family 10751 --}}
         <div id="mood-movies" class="grid grid-cols-3 sm:grid-cols-6 gap-3 mt-6">
 
+            {{-- Funny: Comedy, decent quality floor --}}
             <form method="POST" action="/movie?a=1">
                 @csrf
                 <input type="hidden" name="with_genres[]" value="35">
                 <input type="hidden" name="without_genres[]" value="27">
                 <input type="hidden" name="without_genres[]" value="53">
+                <input type="hidden" name="vote_average_gte" value="6.0">
+                <input type="hidden" name="vote_count_gte" value="200">
                 <button type="submit" class="mood-tile long-single" data-loading="Finding something to laugh at!">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"/>
@@ -97,12 +101,15 @@
                 </button>
             </form>
 
+            {{-- Intense: Thriller, no comedy/romance fluff --}}
             <form method="POST" action="/movie?a=1">
                 @csrf
                 <input type="hidden" name="with_genres[]" value="53">
                 <input type="hidden" name="without_genres[]" value="35">
                 <input type="hidden" name="without_genres[]" value="16">
                 <input type="hidden" name="without_genres[]" value="10749">
+                <input type="hidden" name="vote_average_gte" value="6.5">
+                <input type="hidden" name="vote_count_gte" value="200">
                 <button type="submit" class="mood-tile long-single" data-loading="Finding something to keep you on edge!">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
@@ -111,10 +118,12 @@
                 </button>
             </form>
 
+            {{-- Feel-good: Drama, high quality bar --}}
             <form method="POST" action="/movie?a=1">
                 @csrf
                 <input type="hidden" name="with_genres[]" value="18">
                 <input type="hidden" name="vote_average_gte" value="7.5">
+                <input type="hidden" name="vote_count_gte" value="200">
                 <input type="hidden" name="without_genres[]" value="27">
                 <input type="hidden" name="without_genres[]" value="53">
                 <input type="hidden" name="without_genres[]" value="80">
@@ -134,12 +143,15 @@
                 </button>
             </form>
 
+            {{-- Dark: Horror, filter out comedy/family/very low rated --}}
             <form method="POST" action="/movie?a=1">
                 @csrf
                 <input type="hidden" name="with_genres[]" value="27">
                 <input type="hidden" name="without_genres[]" value="35">
                 <input type="hidden" name="without_genres[]" value="16">
                 <input type="hidden" name="without_genres[]" value="10751">
+                <input type="hidden" name="vote_average_gte" value="6.0">
+                <input type="hidden" name="vote_count_gte" value="200">
                 <button type="submit" class="mood-tile long-single" data-loading="Finding something to haunt you!">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
@@ -148,12 +160,15 @@
                 </button>
             </form>
 
+            {{-- Romantic: Romance, exclude action/horror/thriller --}}
             <form method="POST" action="/movie?a=1">
                 @csrf
                 <input type="hidden" name="with_genres[]" value="10749">
                 <input type="hidden" name="without_genres[]" value="27">
                 <input type="hidden" name="without_genres[]" value="53">
                 <input type="hidden" name="without_genres[]" value="28">
+                <input type="hidden" name="vote_average_gte" value="6.5">
+                <input type="hidden" name="vote_count_gte" value="100">
                 <button type="submit" class="mood-tile long-single" data-loading="Finding something to fall in love with!">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
@@ -162,11 +177,14 @@
                 </button>
             </form>
 
+            {{-- Mindless: Action, exclude horror/heavy drama --}}
             <form method="POST" action="/movie?a=1">
                 @csrf
                 <input type="hidden" name="with_genres[]" value="28">
                 <input type="hidden" name="without_genres[]" value="27">
                 <input type="hidden" name="without_genres[]" value="18">
+                <input type="hidden" name="vote_average_gte" value="6.0">
+                <input type="hidden" name="vote_count_gte" value="200">
                 <button type="submit" class="mood-tile long-single" data-loading="Finding something to just enjoy!">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"/>
@@ -178,13 +196,17 @@
 
         </div>
 
-        {{-- TV mood tiles (genre IDs: Comedy 35, Crime 80, Drama 18, Mystery 9648, Action&Adventure 10759, Animation 16, Family 10751) --}}
+        {{-- TV mood tiles --}}
+        {{-- Genre IDs: Comedy 35, Crime 80, Drama 18, Mystery 9648, Action&Adventure 10759, Romance 10749, Animation 16, Family 10751 --}}
         <div id="mood-tv" class="hidden grid grid-cols-3 sm:grid-cols-6 gap-3 mt-6">
 
+            {{-- Funny: Comedy, exclude animation (separate category) --}}
             <form method="POST" action="/tv/pick?a=1">
                 @csrf
                 <input type="hidden" name="with_genres[]" value="35">
                 <input type="hidden" name="without_genres[]" value="16">
+                <input type="hidden" name="vote_average_gte" value="7.0">
+                <input type="hidden" name="vote_count_gte" value="100">
                 <button type="submit" class="mood-tile long-single" data-loading="Finding something to laugh at!">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"/>
@@ -196,12 +218,15 @@
                 </button>
             </form>
 
+            {{-- Intense: Crime or Action&Adventure, no comedy --}}
             <form method="POST" action="/tv/pick?a=1">
                 @csrf
                 <input type="hidden" name="with_genres[]" value="80">
                 <input type="hidden" name="with_genres[]" value="10759">
                 <input type="hidden" name="without_genres[]" value="35">
                 <input type="hidden" name="without_genres[]" value="16">
+                <input type="hidden" name="vote_average_gte" value="7.0">
+                <input type="hidden" name="vote_count_gte" value="100">
                 <button type="submit" class="mood-tile long-single" data-loading="Finding something to keep you on edge!">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
@@ -210,10 +235,12 @@
                 </button>
             </form>
 
+            {{-- Feel-good: Drama, high quality bar, no crime/mystery --}}
             <form method="POST" action="/tv/pick?a=1">
                 @csrf
                 <input type="hidden" name="with_genres[]" value="18">
                 <input type="hidden" name="vote_average_gte" value="7.5">
+                <input type="hidden" name="vote_count_gte" value="100">
                 <input type="hidden" name="without_genres[]" value="80">
                 <input type="hidden" name="without_genres[]" value="9648">
                 <button type="submit" class="mood-tile long-single" data-loading="Finding something to warm your heart!">
@@ -232,12 +259,15 @@
                 </button>
             </form>
 
+            {{-- Dark: Mystery, no comedy/family --}}
             <form method="POST" action="/tv/pick?a=1">
                 @csrf
                 <input type="hidden" name="with_genres[]" value="9648">
                 <input type="hidden" name="without_genres[]" value="35">
                 <input type="hidden" name="without_genres[]" value="16">
                 <input type="hidden" name="without_genres[]" value="10751">
+                <input type="hidden" name="vote_average_gte" value="7.0">
+                <input type="hidden" name="vote_count_gte" value="100">
                 <button type="submit" class="mood-tile long-single" data-loading="Finding something to haunt you!">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
@@ -246,12 +276,15 @@
                 </button>
             </form>
 
+            {{-- Romantic: Romance genre (was incorrectly Drama), no action/crime --}}
             <form method="POST" action="/tv/pick?a=1">
                 @csrf
-                <input type="hidden" name="with_genres[]" value="18">
+                <input type="hidden" name="with_genres[]" value="10749">
                 <input type="hidden" name="without_genres[]" value="80">
                 <input type="hidden" name="without_genres[]" value="9648">
                 <input type="hidden" name="without_genres[]" value="10759">
+                <input type="hidden" name="vote_average_gte" value="7.0">
+                <input type="hidden" name="vote_count_gte" value="100">
                 <button type="submit" class="mood-tile long-single" data-loading="Finding something to fall in love with!">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
@@ -260,10 +293,13 @@
                 </button>
             </form>
 
+            {{-- Mindless: Action & Adventure, no heavy drama --}}
             <form method="POST" action="/tv/pick?a=1">
                 @csrf
                 <input type="hidden" name="with_genres[]" value="10759">
                 <input type="hidden" name="without_genres[]" value="18">
+                <input type="hidden" name="vote_average_gte" value="6.5">
+                <input type="hidden" name="vote_count_gte" value="100">
                 <button type="submit" class="mood-tile long-single" data-loading="Finding something to just enjoy!">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"/>
