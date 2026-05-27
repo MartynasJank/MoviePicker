@@ -25,6 +25,7 @@ class Controller extends BaseController
             'title'        => $isTv ? ($m['name'] ?? $m['title'] ?? '') : ($m['title'] ?? ''),
             'poster_path'  => $m['poster_path'] ?? null,
             'vote_average' => $m['vote_average'] ?? 0,
+            'media_type'   => $mediaType,
             'url'          => $isTv ? route('tv.show', $m['id']) : route('movie', $m['id']),
         ], $items);
     }

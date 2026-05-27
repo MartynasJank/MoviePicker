@@ -10,6 +10,7 @@
              data-title="{{ $title }}"
              data-rating="{{ $result['vote_average'] ?? 0 }}"
              data-poster="{{ $result['poster_path'] ?? '' }}"
+             data-media-type="{{ ($linkBase ?? 'movie') === 'tv' ? 'tv' : 'movie' }}"
              data-url="{{ url(($linkBase ?? 'movie').'/'.$result['id']) }}{{ !empty($clearCriteria) ? '?i=new' : ($linkSuffix ?? '') }}">
             <a href="{{ url(($linkBase ?? 'movie').'/'.$result['id']) }}{{ !empty($clearCriteria) ? '?i=new' : (!empty($linkSuffix ?? '') ? $linkSuffix : '') }}"
                class="block h-full group long-movie" data-name="{{ $title }}">
