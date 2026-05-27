@@ -32,9 +32,9 @@
 
     $platforms = ['netflix'=>'Netflix','prime'=>'Prime Video','hbo'=>'HBO','disney'=>'Disney+','apple'=>'Apple TV+'];
     $countries = [
-        'US'=>'United States','JP'=>'Japanese','KR'=>'Korean','FR'=>'French','ES'=>'Spanish',
-        'IT'=>'Italian','CN'=>'Chinese','IN'=>'Indian','DE'=>'German','TR'=>'Turkish',
-        'PT'=>'Portuguese','MX'=>'Mexican','SE'=>'Swedish','DK'=>'Danish','LT'=>'Lithuanian',
+        'US'=>'United States','JP'=>'Japan','KR'=>'South Korea','FR'=>'France','ES'=>'Spain',
+        'IT'=>'Italy','CN'=>'China','IN'=>'India','DE'=>'Germany','TR'=>'Turkey',
+        'PT'=>'Portugal','MX'=>'Mexico','SE'=>'Sweden','DK'=>'Denmark','LT'=>'Lithuania',
     ];
     $languages = [
         'en'=>'English','ja'=>'Japanese','ko'=>'Korean','fr'=>'French','es'=>'Spanish',
