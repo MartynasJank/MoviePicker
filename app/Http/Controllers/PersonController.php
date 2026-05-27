@@ -29,32 +29,36 @@ class PersonController extends Controller
         $tvRollFilter    = $movieService->tvCreditFilter();
         $tvDisplayFilter = $movieService->tvCreditFilter(minEpisodes: 2);
 
-        // Known for: top 8 by vote_count, deduplicated by title ID
-        $knownFor = collect($person->combined_credits->cast ?? [])
-            ->sortByDesc('vote_count')
-            ->unique('id')
-            ->take(8)
-            ->values();
-
-        // Movies: all credits sorted by vote_count (most notable first)
-        $movies = $credits->filter(fn($c) => ($c->media_type ?? '') === 'movie')
+        // 4 filmography tabs
+        $movieCast = collect($person->combined_credits->cast ?? [])
+            ->filter(fn($c) => ($c->media_type ?? '') === 'movie')
             ->sortByDesc('vote_count')
             ->values();
 
-        // TV: filter out true one-offs/talk shows, sort by vote_count
-        $tvShows = $credits->filter(fn($c) => ($c->media_type ?? '') === 'tv')
+        $tvCast = collect($person->combined_credits->cast ?? [])
+            ->filter(fn($c) => ($c->media_type ?? '') === 'tv')
             ->filter($tvDisplayFilter)
             ->sortByDesc('vote_count')
             ->values();
 
-        $hasMovieCast = collect($person->combined_credits->cast ?? [])
-            ->contains(fn($c) => ($c->media_type ?? '') === 'movie');
-        $hasMovieCrew = collect($person->combined_credits->crew ?? [])
-            ->contains(fn($c) => ($c->media_type ?? '') === 'movie');
+        $movieCrew = collect($person->combined_credits->crew ?? [])
+            ->filter(fn($c) => ($c->media_type ?? '') === 'movie')
+            ->unique('id')
+            ->sortByDesc('vote_count')
+            ->values();
 
-        $hasTvCast = collect($person->combined_credits->cast ?? [])->contains($tvRollFilter);
-        $hasTvCrew = collect($person->combined_credits->crew ?? [])->contains($tvRollFilter);
+        $tvCrew = collect($person->combined_credits->crew ?? [])
+            ->filter(fn($c) => ($c->media_type ?? '') === 'tv')
+            ->filter($tvDisplayFilter)
+            ->unique('id')
+            ->sortByDesc('vote_count')
+            ->values();
 
-        return view('person', compact('person', 'knownFor', 'movies', 'tvShows', 'hasMovieCast', 'hasMovieCrew', 'hasTvCast', 'hasTvCrew'));
+        $hasMovieCast = $movieCast->isNotEmpty();
+        $hasMovieCrew = $movieCrew->isNotEmpty();
+        $hasTvCast    = $tvCast->isNotEmpty();
+        $hasTvCrew    = $tvCrew->isNotEmpty();
+
+        return view('person', compact('person', 'movieCast', 'tvCast', 'movieCrew', 'tvCrew', 'hasMovieCast', 'hasMovieCrew', 'hasTvCast', 'hasTvCrew'));
     }
 }
