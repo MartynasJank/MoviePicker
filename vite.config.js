@@ -17,6 +17,7 @@ export default defineConfig({
                 'resources/js/custom/watchlist.js',
                 'resources/js/custom/search.js',
                 'resources/js/custom/roulettes.js',
+                'resources/js/custom/rouletteForm.js',
             ],
             refresh: true,
         }),

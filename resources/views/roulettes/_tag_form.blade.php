@@ -49,6 +49,11 @@
     $selectedLanguage      = $currentTags['language'][0]       ?? null;
     $selectedYearFrom      = $currentTags['year_from']         ?? '';
     $selectedYearTo        = $currentTags['year_to']           ?? '';
+    $selectedVoteGte       = $currentTags['vote_average_gte']  ?? '';
+    $selectedVoteLte       = $currentTags['vote_average_lte']  ?? '';
+    $selectedVoteCount     = $currentTags['vote_count_gte']    ?? '';
+    $selectedWithCast      = $currentTags['with_cast']         ?? [];
+    $selectedWithCrew      = $currentTags['with_crew']         ?? [];
 @endphp
 
 <div class="space-y-6">
@@ -150,6 +155,45 @@
 
     </div>
 
+    {{-- People --}}
+    <div>
+        <label class="block text-xs font-semibold uppercase tracking-widest text-gray-500 mb-3">People</label>
+        <div class="flex flex-col gap-3">
+            <div>
+                <label class="block text-sm text-gray-400 mb-1">Actors</label>
+                <select id="roulette-with_cast" name="tags[with_cast][]" multiple></select>
+                <p class="text-xs text-gray-600 mt-1">Type to search, you can add multiple</p>
+            </div>
+            <div>
+                <label class="block text-sm text-gray-400 mb-1">Crew</label>
+                <select id="roulette-with_crew" name="tags[with_crew][]" multiple></select>
+                <p class="text-xs text-gray-600 mt-1">Directors, writers, producers</p>
+            </div>
+        </div>
+    </div>
+
+    {{-- Scores --}}
+    <div>
+        <label class="block text-xs font-semibold uppercase tracking-widest text-gray-500 mb-3">Scores</label>
+        <div class="grid grid-cols-2 gap-3 mb-3">
+            <div>
+                <label class="block text-sm text-gray-400 mb-1">Min Rating</label>
+                <input type="number" name="tags[vote_average_gte]" value="{{ $selectedVoteGte }}"
+                       class="input-dark w-full" placeholder="0" min="0" max="10" step="0.1">
+            </div>
+            <div>
+                <label class="block text-sm text-gray-400 mb-1">Max Rating</label>
+                <input type="number" name="tags[vote_average_lte]" value="{{ $selectedVoteLte }}"
+                       class="input-dark w-full" placeholder="10" min="0" max="10" step="0.1">
+            </div>
+        </div>
+        <div>
+            <label class="block text-sm text-gray-400 mb-1">Min Vote Count</label>
+            <input type="number" name="tags[vote_count_gte]" value="{{ $selectedVoteCount }}"
+                   class="input-dark w-24" placeholder="10" min="0">
+        </div>
+    </div>
+
     {{-- Year Range --}}
     <div>
         <label class="block text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">Year Range</label>
@@ -177,6 +221,12 @@
 
     @error('tags') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
 </div>
+
+{{-- Pass existing people IDs so rouletteForm.js can restore them --}}
+<script>
+window._rouletteWithCast = @json(array_values(array_map('strval', $selectedWithCast)));
+window._rouletteWithCrew = @json(array_values(array_map('strval', $selectedWithCrew)));
+</script>
 
 <style>
 .decade-chip {
