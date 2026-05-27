@@ -175,7 +175,18 @@
 
                 {{-- Actions --}}
                 <div class="flex items-center justify-between gap-2 pt-4 border-t border-white/5">
-                    <button type="button" id="modal-btn-reset" class="btn-secondary text-sm">Reset</button>
+                    <div class="flex items-center gap-2">
+                        <button type="button" id="modal-btn-reset" class="btn-secondary text-sm">Reset</button>
+                        @auth
+                        <button type="button" id="criteria-save-roulette-btn"
+                                class="btn-secondary text-sm flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+                            </svg>
+                            Save as Roulette
+                        </button>
+                        @endauth
+                    </div>
                     <div class="flex gap-2">
                         <button type="submit" class="btn-secondary text-sm long-single" formaction="/tv/multiple?a=true">Multiple</button>
                         <button type="submit" class="btn-accent text-sm long-single" formaction="/tv/pick?a=true">Find Show</button>
@@ -183,7 +194,7 @@
                 </div>
 
                 @auth
-                {{-- Save as Roulette inline --}}
+                {{-- Save as Roulette inline form (revealed on button click) --}}
                 <div id="criteria-save-roulette-row" class="hidden pt-3 border-t border-white/5">
                     <form method="POST" action="{{ route('my-roulettes.from-criteria') }}" class="flex items-center gap-2">
                         @csrf
@@ -197,15 +208,6 @@
                         <button type="submit" class="btn-accent text-sm flex-shrink-0">Save</button>
                     </form>
                 </div>
-                <div class="pt-2">
-                    <button type="button" id="criteria-save-roulette-btn"
-                            class="text-xs text-gray-500 hover:text-gray-300 transition-colors flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
-                        </svg>
-                        Save current criteria as Roulette
-                    </button>
-                </div>
                 <script>
                 (function () {
                     const btn = document.getElementById('criteria-save-roulette-btn');
@@ -215,7 +217,7 @@
                         btn.addEventListener('click', function () {
                             row.classList.toggle('hidden');
                             if (!row.classList.contains('hidden')) inp?.focus();
-                            btn.classList.toggle('text-gray-300');
+                            btn.classList.toggle('opacity-60');
                         });
                     }
                 })();
