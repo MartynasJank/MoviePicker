@@ -30,23 +30,23 @@
         </div>
     @else
 
-    <div class="flex gap-6">
+    <div class="flex flex-col md:flex-row gap-6">
 
-        {{-- Sidebar --}}
-        <div class="w-48 flex-shrink-0">
-            <nav id="group-nav" class="space-y-0.5 sticky top-20">
+        {{-- Group nav: scrollable tabs on mobile, vertical sidebar on desktop --}}
+        <div class="md:w-48 md:flex-shrink-0">
+            <nav id="group-nav" class="flex overflow-x-auto gap-1 pb-1 md:flex-col md:overflow-visible md:pb-0 md:space-y-0.5 md:sticky md:top-20">
                 @foreach($ordered as $groupName => $roulettes)
                     <button type="button"
-                            class="group-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors text-gray-500 hover:text-white hover:bg-white/5 text-left"
+                            class="group-btn flex-shrink-0 flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm transition-colors text-gray-500 hover:text-white hover:bg-white/5 text-left whitespace-nowrap md:w-full md:whitespace-normal"
                             data-panel="{{ $loop->index }}">
                         <span class="truncate">{{ $groupName }}</span>
-                        <span class="ml-2 text-xs text-gray-600 flex-shrink-0">{{ $roulettes->count() }}</span>
+                        <span class="text-xs text-gray-600 flex-shrink-0">{{ $roulettes->count() }}</span>
                     </button>
                 @endforeach
             </nav>
 
             {{-- Row management --}}
-            <div class="mt-6 pt-6 border-t border-white/5">
+            <div class="mt-4 pt-4 border-t border-white/5 md:mt-6 md:pt-6">
                 <p class="text-xs text-gray-600 uppercase tracking-widest mb-2">Rows</p>
                 <div id="row-list" class="space-y-1 mb-3">
                     @foreach($rowOrder as $row)
@@ -79,82 +79,80 @@
                     @if($roulettes->isEmpty())
                         <p class="text-sm text-gray-600">No roulettes in this row yet. Create one and assign it here.</p>
                     @else
-                    <div class="bg-white/3 rounded-xl overflow-hidden border border-white/5">
-                        <table class="w-full text-sm">
-                            <thead>
-                                <tr class="border-b border-white/5 text-left">
-                                    <th class="w-12 py-2.5 px-2"></th>
-                                    <th class="py-2.5 px-4 text-xs font-medium text-gray-500">Name</th>
-                                    <th class="py-2.5 px-4 text-xs font-medium text-gray-500 hidden sm:table-cell">Tags</th>
-                                    <th class="py-2.5 px-4 text-xs font-medium text-gray-500 text-center">Public</th>
-                                    <th class="py-2.5 px-4 text-xs font-medium text-gray-500 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($roulettes as $roulette)
-                                    <tr class="border-b border-white/5 last:border-0 hover:bg-white/2 transition-colors">
-                                        {{-- Poster thumbnail --}}
-                                        <td class="py-2 px-2">
-                                            @php $poster = ($roulette->poster_paths ?? [])[0] ?? null; @endphp
-                                            <div class="relative group w-9 h-[52px] flex-shrink-0">
-                                                @if($poster)
-                                                    <img src="https://image.tmdb.org/t/p/w92{{ $poster }}"
-                                                         class="roulette-poster w-full h-full object-cover rounded"
-                                                         data-id="{{ $roulette->id }}">
-                                                @else
-                                                    <div class="w-full h-full bg-white/5 rounded roulette-poster-placeholder" data-id="{{ $roulette->id }}"></div>
-                                                @endif
-                                                <button type="button"
-                                                        class="roll-poster-btn absolute inset-0 flex items-center justify-center bg-black/60 {{ $poster ? 'opacity-0 group-hover:opacity-100' : 'opacity-100' }} rounded transition-opacity text-white"
-                                                        data-id="{{ $roulette->id }}" title="Roll poster">
-                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </td>
-                                        <td class="py-3 px-4">
-                                            <div class="flex items-center gap-2">
-                                                <span class="text-white font-medium">{{ $roulette->name }}</span>
-                                                @if(($roulette->media_type ?? 'movie') === 'tv')
-                                                    <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-accent/15 text-accent border border-accent/20">TV</span>
-                                                @endif
-                                            </div>
-                                        </td>
-                                        <td class="py-3 px-4 hidden sm:table-cell">
-                                            <div class="flex flex-wrap gap-1">
-                                                @foreach(collect($roulette->tags)->except(['without_genre'])->flatten() as $tag)
-                                                    <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-white/5 text-gray-400 border border-white/10">{{ $tag }}</span>
-                                                @endforeach
-                                            </div>
-                                        </td>
-                                        <td class="py-3 px-4 text-center">
-                                            <form method="POST" action="{{ route('my-roulettes.toggle', $roulette) }}">
-                                                @csrf @method('PATCH')
-                                                <button type="submit"
-                                                        class="w-8 h-4 rounded-full transition-colors {{ $roulette->is_public ? 'bg-accent' : 'bg-white/10' }} relative inline-block"
-                                                        title="{{ $roulette->is_public ? 'Public — click to make private' : 'Private — click to make public' }}">
-                                                    <span class="absolute top-0.5 {{ $roulette->is_public ? 'right-0.5' : 'left-0.5' }} w-3 h-3 rounded-full bg-white shadow transition-all"></span>
-                                                </button>
-                                            </form>
-                                        </td>
-                                        <td class="py-3 px-4 text-right">
-                                            <div class="flex items-center justify-end gap-3">
-                                                <a href="/roulettes/{{ $roulette->slug }}" target="_blank"
-                                                   class="text-xs text-gray-500 hover:text-white transition-colors">Roll</a>
-                                                <a href="{{ route('my-roulettes.edit', $roulette) }}"
-                                                   class="text-xs text-gray-400 hover:text-accent transition-colors">Edit</a>
-                                                <form method="POST" action="{{ route('my-roulettes.destroy', $roulette) }}"
-                                                      onsubmit="return confirm('Delete {{ addslashes($roulette->name) }}?')">
-                                                    @csrf @method('DELETE')
-                                                    <button type="submit" class="text-xs text-gray-600 hover:text-red-400 transition-colors">Delete</button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                    <div class="bg-white/3 rounded-xl overflow-hidden border border-white/5 divide-y divide-white/5">
+                        @foreach($roulettes as $roulette)
+                            @php $poster = ($roulette->poster_paths ?? [])[0] ?? null; @endphp
+                            <div class="flex items-center gap-3 px-3 py-3 hover:bg-white/2 transition-colors">
+
+                                {{-- Poster thumbnail --}}
+                                <div class="relative group/poster w-9 h-[52px] flex-shrink-0">
+                                    @if($poster)
+                                        <img src="https://image.tmdb.org/t/p/w92{{ $poster }}"
+                                             class="roulette-poster w-full h-full object-cover rounded"
+                                             data-id="{{ $roulette->id }}">
+                                    @else
+                                        <div class="w-full h-full bg-white/5 rounded roulette-poster-placeholder" data-id="{{ $roulette->id }}"></div>
+                                    @endif
+                                    <button type="button"
+                                            class="roll-poster-btn absolute inset-0 flex items-center justify-center bg-black/60 {{ $poster ? 'opacity-0 group-hover/poster:opacity-100' : 'opacity-100' }} rounded transition-opacity text-white"
+                                            data-id="{{ $roulette->id }}" title="Roll poster">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                {{-- Name + tags --}}
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <span class="text-white font-medium text-sm">{{ $roulette->name }}</span>
+                                        @if(($roulette->media_type ?? 'movie') === 'tv')
+                                            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-accent/15 text-accent border border-accent/20">TV</span>
+                                        @endif
+                                    </div>
+                                    <div class="hidden sm:flex flex-wrap gap-1 mt-1">
+                                        @foreach(collect($roulette->tags)->except(['without_genre'])->flatten() as $tag)
+                                            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-white/5 text-gray-400 border border-white/10">{{ $tag }}</span>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                {{-- Actions --}}
+                                <div class="flex items-center gap-1 flex-shrink-0">
+                                    {{-- Public toggle --}}
+                                    <form method="POST" action="{{ route('my-roulettes.toggle', $roulette) }}" class="flex items-center">
+                                        @csrf @method('PATCH')
+                                        <button type="submit"
+                                                class="w-8 h-4 rounded-full transition-colors {{ $roulette->is_public ? 'bg-accent' : 'bg-white/10' }} relative inline-block mr-2"
+                                                title="{{ $roulette->is_public ? 'Public — click to make private' : 'Private — click to make public' }}">
+                                            <span class="absolute top-0.5 {{ $roulette->is_public ? 'right-0.5' : 'left-0.5' }} w-3 h-3 rounded-full bg-white shadow transition-all"></span>
+                                        </button>
+                                    </form>
+
+                                    {{-- Roll --}}
+                                    <a href="/roulettes/{{ $roulette->slug }}" target="_blank"
+                                       class="p-2 text-gray-500 hover:text-white transition-colors" title="Roll">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    </a>
+
+                                    {{-- Edit --}}
+                                    <a href="{{ route('my-roulettes.edit', $roulette) }}"
+                                       class="p-2 text-gray-400 hover:text-accent transition-colors" title="Edit">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                    </a>
+
+                                    {{-- Delete --}}
+                                    <form method="POST" action="{{ route('my-roulettes.destroy', $roulette) }}"
+                                          onsubmit="return confirm('Delete {{ addslashes($roulette->name) }}?')">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="p-2 text-gray-600 hover:text-red-400 transition-colors" title="Delete">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        </button>
+                                    </form>
+                                </div>
+
+                            </div>
+                        @endforeach
                     </div>
                     @endif
                 </div>
@@ -190,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(data => {
             if (!data.poster_path) return;
             const url = `https://image.tmdb.org/t/p/w92${data.poster_path}`;
-            const cell = btn.closest('td');
+            const cell = btn.closest('.relative');
             let img = cell.querySelector('.roulette-poster');
             const placeholder = cell.querySelector('.roulette-poster-placeholder');
             if (placeholder) {
@@ -199,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 img.dataset.id = id;
                 placeholder.replaceWith(img);
                 btn.classList.remove('opacity-100');
-                btn.classList.add('opacity-0', 'group-hover:opacity-100');
+                btn.classList.add('opacity-0', 'group-hover/poster:opacity-100');
             }
             img.src = url;
         })
