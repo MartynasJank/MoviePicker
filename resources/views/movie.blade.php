@@ -29,21 +29,59 @@
                 @endif
             </p>
         </div>
-        {{-- Save button in title row --}}
-        @auth
-            <button type="button" class="btn-secondary flex-shrink-0 watchlist-toggle"
-                data-tmdb-id="{{ $tmdbInfo->id }}"
-                data-title="{{ $tmdbInfo->title ?? $omdbInfo->Title }}"
-                data-poster="{{ $tmdbInfo->poster_path ?? '' }}"
-                data-year="{{ $omdbInfo->Year ?? date('Y', strtotime($tmdbInfo->release_date ?? '')) }}"
-                data-genres="{{ $genres ?? '' }}"
-                data-rating="{{ $tmdbInfo->vote_average ?? '' }}"
-                data-saved="{{ auth()->user()->watchlist()->where('tmdb_id', $tmdbInfo->id)->exists() ? '1' : '0' }}">
-                {{ auth()->user()->watchlist()->where('tmdb_id', $tmdbInfo->id)->exists() ? '★ Saved' : '☆ Save' }}
-            </button>
-        @else
-            <a href="{{ route('auth.google') }}" class="btn-secondary flex-shrink-0 text-center text-sm">☆ Save</a>
-        @endauth
+        {{-- Save buttons --}}
+        <div class="flex flex-col items-end gap-2 flex-shrink-0">
+            <div class="flex items-center gap-2">
+                @auth
+                    <button type="button" id="title-save-roulette-btn"
+                            class="btn-secondary text-sm flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+                        </svg>
+                        + Roulette
+                    </button>
+                    <button type="button" class="btn-secondary flex-shrink-0 watchlist-toggle"
+                        data-tmdb-id="{{ $tmdbInfo->id }}"
+                        data-title="{{ $tmdbInfo->title ?? $omdbInfo->Title }}"
+                        data-poster="{{ $tmdbInfo->poster_path ?? '' }}"
+                        data-year="{{ $omdbInfo->Year ?? date('Y', strtotime($tmdbInfo->release_date ?? '')) }}"
+                        data-genres="{{ $genres ?? '' }}"
+                        data-rating="{{ $tmdbInfo->vote_average ?? '' }}"
+                        data-saved="{{ auth()->user()->watchlist()->where('tmdb_id', $tmdbInfo->id)->exists() ? '1' : '0' }}">
+                        {{ auth()->user()->watchlist()->where('tmdb_id', $tmdbInfo->id)->exists() ? '★ Saved' : '☆ Save' }}
+                    </button>
+                @else
+                    <a href="{{ route('auth.google') }}" class="btn-secondary flex-shrink-0 text-center text-sm">☆ Save</a>
+                @endauth
+            </div>
+            @auth
+            <div id="title-save-roulette-form" class="hidden w-full">
+                <form method="POST" action="{{ route('my-roulettes.from-criteria') }}" class="flex items-center gap-2">
+                    @csrf
+                    <input type="hidden" name="media_type" value="movie">
+                    <input type="text" name="name" required maxlength="80"
+                           class="input-dark flex-1 text-sm" placeholder="Roulette name…" id="title-roulette-name">
+                    <label class="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer flex-shrink-0">
+                        <input type="checkbox" name="is_public" value="1" class="w-3.5 h-3.5 rounded border-white/20 bg-white/5 text-accent">
+                        Public
+                    </label>
+                    <button type="submit" class="btn-accent text-sm flex-shrink-0">Save</button>
+                </form>
+            </div>
+            <script>
+            (function () {
+                const btn = document.getElementById('title-save-roulette-btn');
+                const form = document.getElementById('title-save-roulette-form');
+                const inp  = document.getElementById('title-roulette-name');
+                btn.addEventListener('click', function () {
+                    form.classList.toggle('hidden');
+                    if (!form.classList.contains('hidden')) inp.focus();
+                    btn.classList.toggle('opacity-60');
+                });
+            })();
+            </script>
+            @endauth
+        </div>
     </div>
 
     {{-- Main content grid --}}
