@@ -126,62 +126,42 @@
     </div>
     @endif
 
-    {{-- Known for --}}
-    @if($knownFor->isNotEmpty())
-    <div class="mb-10">
-        <div class="section-header mb-4">
-            <h2 class="text-xl font-bold text-white mb-3">Known For</h2>
-            <div class="section-divider"></div>
-        </div>
-        <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-            @foreach($knownFor as $item)
-            @php
-                $link  = ($item->media_type ?? '') === 'tv' ? '/tv/'.$item->id : '/movie/'.$item->id;
-                $title = $item->title ?? $item->name ?? '';
-                $year  = substr($item->release_date ?? $item->first_air_date ?? '', 0, 4);
-            @endphp
-            <a href="{{ $link }}" class="flex-shrink-0 w-28 group">
-                <div class="aspect-[2/3] rounded-lg overflow-hidden bg-white/[0.03] group-hover:ring-1 group-hover:ring-accent/50 transition-all">
-                    @if(!empty($item->poster_path))
-                        <img src="https://image.tmdb.org/t/p/w185{{ $item->poster_path }}"
-                             alt="{{ $title }}"
-                             class="w-full h-full object-cover" loading="lazy">
-                    @else
-                        <div class="w-full h-full flex items-center justify-center text-gray-600 text-xs text-center px-2">{{ $title }}</div>
-                    @endif
-                </div>
-                <p class="text-xs text-gray-300 mt-1.5 font-medium leading-snug group-hover:text-white transition-colors truncate">{{ $title }}</p>
-                @if($year)<p class="text-xs text-gray-600">{{ $year }}</p>@endif
-            </a>
-            @endforeach
-        </div>
-    </div>
-    @endif
-
-    {{-- Filmography --}}
-    @php $showMovies = $movies->isNotEmpty(); $showTv = $tvShows->isNotEmpty(); @endphp
-    @if($showMovies || $showTv)
+    {{-- Filmography — 4 tabs --}}
+    @php
+        $tabs = array_filter([
+            $hasMovieCast ? ['id' => 'movie-cast', 'label' => 'Movies', 'sub' => 'Acting',    'count' => $movieCast->count()] : null,
+            $hasTvCast    ? ['id' => 'tv-cast',    'label' => 'TV',     'sub' => 'Acting',    'count' => $tvCast->count()]    : null,
+            $hasMovieCrew ? ['id' => 'movie-crew', 'label' => 'Movies', 'sub' => 'Crew',      'count' => $movieCrew->count()] : null,
+            $hasTvCrew    ? ['id' => 'tv-crew',    'label' => 'TV',     'sub' => 'Crew',      'count' => $tvCrew->count()]    : null,
+        ]);
+        $firstTab = array_key_first($tabs) !== null ? $tabs[array_key_first($tabs)]['id'] : null;
+    @endphp
+    @if($firstTab)
     <div>
         <div class="section-header mb-4">
             <h2 class="text-xl font-bold text-white mb-3">Filmography</h2>
             <div class="section-divider"></div>
         </div>
 
-        {{-- Tabs --}}
-        @if($showMovies && $showTv)
-        <div class="flex gap-1 mb-4">
-            <button id="tab-movies" onclick="switchTab('movies')"
-                class="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors bg-white/10 text-white">Movies ({{ $movies->count() }})</button>
-            <button id="tab-tv" onclick="switchTab('tv')"
-                class="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors text-gray-400 hover:text-white">TV Shows ({{ $tvShows->count() }})</button>
+        {{-- Tab buttons --}}
+        @if(count($tabs) > 1)
+        <div class="flex flex-wrap gap-1 mb-4">
+            @foreach($tabs as $tab)
+            <button id="tab-{{ $tab['id'] }}" onclick="switchFilmTab('{{ $tab['id'] }}')"
+                class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors {{ $tab['id'] === $firstTab ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white' }}">
+                {{ $tab['label'] }}
+                <span class="text-xs font-normal opacity-60 ml-0.5">{{ $tab['sub'] }}</span>
+                <span class="text-xs text-gray-600 ml-1">({{ $tab['count'] }})</span>
+            </button>
+            @endforeach
         </div>
         @endif
 
-        {{-- Movies list --}}
-        @if($showMovies)
-        <div id="list-movies">
+        {{-- Movie acting --}}
+        @if($hasMovieCast)
+        <div id="list-movie-cast" @if($firstTab !== 'movie-cast') style="display:none" @endif>
             <div class="flex flex-col divide-y divide-white/5">
-                @foreach($movies as $item)
+                @foreach($movieCast as $item)
                 @php $year = substr($item->release_date ?? '', 0, 4); @endphp
                 <a href="/movie/{{ $item->id }}" class="flex items-center gap-4 py-3 hover:bg-white/[0.03] -mx-2 px-2 rounded-lg transition-colors group">
                     <span class="text-sm text-gray-600 w-10 flex-shrink-0 text-right">{{ $year ?: '—' }}</span>
@@ -194,8 +174,6 @@
                         <p class="text-sm text-gray-300 group-hover:text-white transition-colors truncate">{{ $item->title ?? '' }}</p>
                         @if(!empty($item->character))
                             <p class="text-xs text-gray-600 truncate">as {{ $item->character }}</p>
-                        @elseif(!empty($item->job))
-                            <p class="text-xs text-gray-600 truncate">{{ $item->job }}</p>
                         @endif
                     </div>
                     @if(!empty($item->vote_average) && $item->vote_average > 0)
@@ -207,11 +185,11 @@
         </div>
         @endif
 
-        {{-- TV list --}}
-        @if($showTv)
-        <div id="list-tv" @if($showMovies && $showTv) style="display:none" @endif>
+        {{-- TV acting --}}
+        @if($hasTvCast)
+        <div id="list-tv-cast" @if($firstTab !== 'tv-cast') style="display:none" @endif>
             <div class="flex flex-col divide-y divide-white/5">
-                @foreach($tvShows as $item)
+                @foreach($tvCast as $item)
                 @php $year = substr($item->first_air_date ?? '', 0, 4); @endphp
                 <a href="/tv/{{ $item->id }}" class="flex items-center gap-4 py-3 hover:bg-white/[0.03] -mx-2 px-2 rounded-lg transition-colors group">
                     <span class="text-sm text-gray-600 w-10 flex-shrink-0 text-right">{{ $year ?: '—' }}</span>
@@ -224,7 +202,61 @@
                         <p class="text-sm text-gray-300 group-hover:text-white transition-colors truncate">{{ $item->name ?? '' }}</p>
                         @if(!empty($item->character))
                             <p class="text-xs text-gray-600 truncate">as {{ $item->character }}</p>
-                        @elseif(!empty($item->job))
+                        @endif
+                    </div>
+                    @if(!empty($item->vote_average) && $item->vote_average > 0)
+                        <span class="ml-auto text-xs text-gray-600 flex-shrink-0">★ {{ number_format($item->vote_average, 1) }}</span>
+                    @endif
+                </a>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
+        {{-- Movie crew --}}
+        @if($hasMovieCrew)
+        <div id="list-movie-crew" @if($firstTab !== 'movie-crew') style="display:none" @endif>
+            <div class="flex flex-col divide-y divide-white/5">
+                @foreach($movieCrew as $item)
+                @php $year = substr($item->release_date ?? '', 0, 4); @endphp
+                <a href="/movie/{{ $item->id }}" class="flex items-center gap-4 py-3 hover:bg-white/[0.03] -mx-2 px-2 rounded-lg transition-colors group">
+                    <span class="text-sm text-gray-600 w-10 flex-shrink-0 text-right">{{ $year ?: '—' }}</span>
+                    <div class="w-8 h-12 flex-shrink-0 rounded overflow-hidden bg-white/[0.03]">
+                        @if(!empty($item->poster_path))
+                            <img src="https://image.tmdb.org/t/p/w92{{ $item->poster_path }}" class="w-full h-full object-cover" loading="lazy">
+                        @endif
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-sm text-gray-300 group-hover:text-white transition-colors truncate">{{ $item->title ?? '' }}</p>
+                        @if(!empty($item->job))
+                            <p class="text-xs text-gray-600 truncate">{{ $item->job }}</p>
+                        @endif
+                    </div>
+                    @if(!empty($item->vote_average) && $item->vote_average > 0)
+                        <span class="ml-auto text-xs text-gray-600 flex-shrink-0">★ {{ number_format($item->vote_average, 1) }}</span>
+                    @endif
+                </a>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
+        {{-- TV crew --}}
+        @if($hasTvCrew)
+        <div id="list-tv-crew" @if($firstTab !== 'tv-crew') style="display:none" @endif>
+            <div class="flex flex-col divide-y divide-white/5">
+                @foreach($tvCrew as $item)
+                @php $year = substr($item->first_air_date ?? '', 0, 4); @endphp
+                <a href="/tv/{{ $item->id }}" class="flex items-center gap-4 py-3 hover:bg-white/[0.03] -mx-2 px-2 rounded-lg transition-colors group">
+                    <span class="text-sm text-gray-600 w-10 flex-shrink-0 text-right">{{ $year ?: '—' }}</span>
+                    <div class="w-8 h-12 flex-shrink-0 rounded overflow-hidden bg-white/[0.03]">
+                        @if(!empty($item->poster_path))
+                            <img src="https://image.tmdb.org/t/p/w92{{ $item->poster_path }}" class="w-full h-full object-cover" loading="lazy">
+                        @endif
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-sm text-gray-300 group-hover:text-white transition-colors truncate">{{ $item->name ?? '' }}</p>
+                        @if(!empty($item->job))
                             <p class="text-xs text-gray-600 truncate">{{ $item->job }}</p>
                         @endif
                     </div>
@@ -241,15 +273,17 @@
 
 </div>
 
-@if($showMovies && $showTv)
+@if(isset($firstTab) && $firstTab && count($tabs ?? []) > 1)
 <script>
-function switchTab(tab) {
-    document.getElementById('list-movies').style.display = tab === 'movies' ? '' : 'none';
-    document.getElementById('list-tv').style.display     = tab === 'tv'     ? '' : 'none';
-    document.getElementById('tab-movies').className = 'px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ' +
-        (tab === 'movies' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white');
-    document.getElementById('tab-tv').className = 'px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ' +
-        (tab === 'tv' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white');
+const FILM_TABS = ['movie-cast','tv-cast','movie-crew','tv-crew'];
+function switchFilmTab(tab) {
+    FILM_TABS.forEach(id => {
+        const el = document.getElementById('list-' + id);
+        const btn = document.getElementById('tab-' + id);
+        if (el)  el.style.display = id === tab ? '' : 'none';
+        if (btn) btn.className = btn.className.replace(/bg-white\/10 text-white|text-gray-400 hover:text-white/g, '')
+            .trim() + ' ' + (id === tab ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white');
+    });
 }
 </script>
 @endif
