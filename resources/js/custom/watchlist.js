@@ -144,13 +144,10 @@ $(document).ready(function () {
             const statusMatch  = status === 'all' || cardStatus === status;
             const typeMatch    = type === 'all'   || cardType === type;
             // All selected include-genres must be present (AND logic)
-            // Items without stored genres are never hidden by the include filter
             const genreMatch   = activeGenres.size === 0
-                || cardGenres.length === 0
-                || [...activeGenres].every(g => cardGenres.includes(g));
-            // No selected exclude-genre may be present (only applies when genres are stored)
+                || (cardGenres.length > 0 && [...activeGenres].every(g => cardGenres.includes(g)));
+            // No selected exclude-genre may be present
             const excludeMatch = excludedGenres.size === 0
-                || cardGenres.length === 0
                 || !cardGenres.some(g => excludedGenres.has(g));
 
             $(this).toggle(statusMatch && typeMatch && genreMatch && excludeMatch);
