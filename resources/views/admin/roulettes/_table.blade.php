@@ -26,23 +26,14 @@
                     {{-- Poster thumbnail --}}
                     <td class="py-2 px-2">
                         @php $poster = ($roulette->poster_paths ?? [])[0] ?? null; @endphp
-                        <div class="relative group w-9 h-[52px] flex-shrink-0">
+                        <div class="w-9 h-[52px] flex-shrink-0">
                             @if($poster)
                                 <img src="https://image.tmdb.org/t/p/w92{{ $poster }}"
                                      alt="{{ $roulette->name }}"
-                                     class="roulette-poster w-full h-full object-cover rounded"
-                                     data-id="{{ $roulette->id }}">
+                                     class="w-full h-full object-cover rounded">
                             @else
-                                <div class="w-full h-full bg-white/5 rounded roulette-poster-placeholder" data-id="{{ $roulette->id }}"></div>
+                                <div class="w-full h-full bg-white/5 rounded"></div>
                             @endif
-                            <button type="button"
-                                    class="roll-poster-btn absolute inset-0 flex items-center justify-center bg-black/60 {{ $poster ? 'opacity-0 group-hover:opacity-100' : 'opacity-100' }} rounded transition-opacity text-white"
-                                    data-id="{{ $roulette->id }}"
-                                    title="Roll poster">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                                </svg>
-                            </button>
                         </div>
                     </td>
                     <td class="py-3 px-3">
