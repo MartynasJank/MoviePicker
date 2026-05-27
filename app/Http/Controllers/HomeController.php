@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Roulette;
 use App\Services\MovieService;
 use App\Services\TmdbClient;
 use Illuminate\View\View;
@@ -28,12 +29,20 @@ class HomeController extends Controller
         $movieGenres = $movieService->genres($tmdb, 'movie');
         $tvGenres    = $movieService->genres($tmdb, 'tv');
 
+        $featuredSlugs    = ['new-releases', 'tv-new-releases', 'netflix-drama', 'netflix-horror', '90s-nostalgia', 'tv-anime', 'tv-korean', 'comedy-films', 'action-films'];
+        $featuredRoulettes = Roulette::whereIn('slug', $featuredSlugs)
+            ->where('is_public', true)
+            ->get()
+            ->sortBy(fn($r) => array_search($r->slug, $featuredSlugs))
+            ->values();
+
         return view('home', [
             'trendingDay'        => $trendingDay,
             'tvTrendingDay'      => $tvTrendingDay,
             'savedIds'           => $savedIds,
             'trendingGenres'     => $movieService->movieGenresMap($trendingDay['results']   ?? [], $movieGenres),
             'tvTrendingGenres'   => $movieService->movieGenresMap($tvTrendingDay['results'] ?? [], $tvGenres),
+            'featuredRoulettes'  => $featuredRoulettes,
         ]);
     }
 }
