@@ -10,6 +10,36 @@ use Illuminate\Support\Facades\Auth;
 
 class WatchlistController extends Controller
 {
+    /**
+     * Normalize TV compound genre names to canonical movie-style names so the
+     * watchlist genre filter works uniformly for both media types.
+     *   "Action & Adventure" → "Action, Adventure"
+     *   "Sci-Fi & Fantasy"   → "Sci-Fi, Fantasy"
+     *   "War & Politics"     → "War"
+     */
+    private static function normalizeGenres(string $raw): string
+    {
+        $expansions = [
+            'Action & Adventure' => ['Action', 'Adventure'],
+            'Sci-Fi & Fantasy'   => ['Sci-Fi', 'Fantasy'],
+            'War & Politics'     => ['War'],
+        ];
+
+        $normalized = [];
+        foreach (array_map('trim', explode(',', $raw)) as $genre) {
+            if ($genre === '') continue;
+            if (isset($expansions[$genre])) {
+                foreach ($expansions[$genre] as $g) {
+                    $normalized[] = $g;
+                }
+            } else {
+                $normalized[] = $genre;
+            }
+        }
+
+        return implode(', ', array_unique($normalized));
+    }
+
     public function index(TmdbClient $tmdb, MovieService $movieService)
     {
         session(['batchUrl' => route('watchlist')]);
@@ -35,11 +65,23 @@ class WatchlistController extends Controller
                     }
                     $genreString = $movieService->genresString($info);
                     if ($genreString) {
+                        $genreString = static::normalizeGenres($genreString);
                         $item->update(['genres' => $genreString]);
                         $item->genres = $genreString;
                     }
                 } catch (\Throwable) {}
             }
+        }
+
+        // Normalize existing items that still carry TV compound genre names
+        $compound = ['Action & Adventure', 'Sci-Fi & Fantasy', 'War & Politics'];
+        $toNormalize = $items->filter(fn($i) =>
+            $i->genres && collect($compound)->contains(fn($c) => str_contains($i->genres, $c))
+        );
+        foreach ($toNormalize as $item) {
+            $normalized = static::normalizeGenres($item->genres);
+            $item->update(['genres' => $normalized]);
+            $item->genres = $normalized;
         }
 
         $genres = $items->pluck('genres')
@@ -72,12 +114,14 @@ class WatchlistController extends Controller
             return response()->json(['saved' => false]);
         }
 
+        $rawGenres = $request->genres;
+
         $user->watchlist()->create([
             'tmdb_id'      => $request->tmdb_id,
             'title'        => $request->title,
             'poster_path'  => $request->poster_path,
             'year'         => $request->year,
-            'genres'       => $request->genres,
+            'genres'       => $rawGenres ? static::normalizeGenres($rawGenres) : null,
             'vote_average' => $request->vote_average ?: null,
             'type'         => $request->input('type', 'movie'),
             'status'       => 'saved',
