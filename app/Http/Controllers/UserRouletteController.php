@@ -235,6 +235,48 @@ class UserRouletteController extends Controller
         }
     }
 
+    public function fromCriteria(Request $request)
+    {
+        if (Roulette::where('user_id', auth()->id())->count() >= 20) {
+            return back()->with('error', 'You can have at most 20 roulettes.');
+        }
+
+        $request->validate(['name' => 'required|string|max:80']);
+
+        $mediaType  = $request->input('media_type') === 'tv' ? 'tv' : 'movie';
+        $sessionKey = $mediaType === 'tv' ? 'tvInput' : 'userInput';
+        $criteria   = array_diff_key(
+            session($sessionKey, []),
+            array_flip(['total_pages', 'page'])
+        );
+
+        $mapper = new RouletteTagMapper();
+        $tags   = $mapper->criteriaToTags($criteria, $mediaType);
+
+        if (empty($tags)) {
+            return back()->with('error', 'No criteria to save as a roulette.');
+        }
+
+        $fingerprint = ($mediaType === 'tv' ? 'tv:' : '') . Roulette::fingerprintFromTags($tags);
+        $existing    = Roulette::where('tag_fingerprint', $fingerprint)->whereNotNull('poster_paths')->first();
+
+        Roulette::create([
+            'user_id'         => auth()->id(),
+            'is_system'       => false,
+            'name'            => $request->input('name'),
+            'slug'            => Roulette::generateSlug($request->input('name')),
+            'description'     => null,
+            'tags'            => $tags,
+            'tag_fingerprint' => $fingerprint,
+            'is_public'       => $request->boolean('is_public'),
+            'row'             => null,
+            'media_type'      => $mediaType,
+            'poster_paths'    => $existing?->poster_paths,
+        ]);
+
+        return redirect()->route('my-roulettes.manage')->with('success', '"' . $request->input('name') . '" saved to My Roulettes.');
+    }
+
     public function reorderRows(Request $request)
     {
         $rows = $request->validate(['rows' => 'required|array', 'rows.*' => 'string'])['rows'];
