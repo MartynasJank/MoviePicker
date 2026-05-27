@@ -9,6 +9,9 @@ class HomeController extends Controller
 {
     public function __invoke(TmdbClient $tmdb): View
     {
+        // Homepage visit breaks any prior batch context
+        session()->forget('batchUrl');
+
         $savedIds = $this->savedWatchlistIds();
 
         $normalize = fn(array $data) => array_merge($data, [
