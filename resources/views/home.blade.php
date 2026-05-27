@@ -85,6 +85,7 @@
             {{-- Funny: Comedy, decent quality floor --}}
             <form method="POST" action="/movie?a=1">
                 @csrf
+                <input type="hidden" name="with_original_language" value="en">
                 <input type="hidden" name="with_genres[]" value="35">
                 <input type="hidden" name="without_genres[]" value="27">
                 <input type="hidden" name="without_genres[]" value="53">
@@ -104,6 +105,7 @@
             {{-- Intense: Thriller, no comedy/romance fluff --}}
             <form method="POST" action="/movie?a=1">
                 @csrf
+                <input type="hidden" name="with_original_language" value="en">
                 <input type="hidden" name="with_genres[]" value="53">
                 <input type="hidden" name="without_genres[]" value="35">
                 <input type="hidden" name="without_genres[]" value="16">
@@ -121,6 +123,7 @@
             {{-- Feel-good: Drama, high quality bar --}}
             <form method="POST" action="/movie?a=1">
                 @csrf
+                <input type="hidden" name="with_original_language" value="en">
                 <input type="hidden" name="with_genres[]" value="18">
                 <input type="hidden" name="vote_average_gte" value="7.5">
                 <input type="hidden" name="vote_count_gte" value="200">
@@ -146,6 +149,7 @@
             {{-- Dark: Horror, filter out comedy/family/very low rated --}}
             <form method="POST" action="/movie?a=1">
                 @csrf
+                <input type="hidden" name="with_original_language" value="en">
                 <input type="hidden" name="with_genres[]" value="27">
                 <input type="hidden" name="without_genres[]" value="35">
                 <input type="hidden" name="without_genres[]" value="16">
@@ -163,6 +167,7 @@
             {{-- Romantic: Romance, exclude action/horror/thriller --}}
             <form method="POST" action="/movie?a=1">
                 @csrf
+                <input type="hidden" name="with_original_language" value="en">
                 <input type="hidden" name="with_genres[]" value="10749">
                 <input type="hidden" name="without_genres[]" value="27">
                 <input type="hidden" name="without_genres[]" value="53">
@@ -180,6 +185,7 @@
             {{-- Mindless: Action, exclude horror/heavy drama --}}
             <form method="POST" action="/movie?a=1">
                 @csrf
+                <input type="hidden" name="with_original_language" value="en">
                 <input type="hidden" name="with_genres[]" value="28">
                 <input type="hidden" name="without_genres[]" value="27">
                 <input type="hidden" name="without_genres[]" value="18">
@@ -203,6 +209,7 @@
             {{-- Funny: Comedy, exclude animation (separate category) --}}
             <form method="POST" action="/tv/pick?a=1">
                 @csrf
+                <input type="hidden" name="with_original_language" value="en">
                 <input type="hidden" name="with_genres[]" value="35">
                 <input type="hidden" name="without_genres[]" value="16">
                 <input type="hidden" name="vote_average_gte" value="7.0">
@@ -221,6 +228,7 @@
             {{-- Intense: Crime or Action&Adventure, no comedy --}}
             <form method="POST" action="/tv/pick?a=1">
                 @csrf
+                <input type="hidden" name="with_original_language" value="en">
                 <input type="hidden" name="with_genres[]" value="80">
                 <input type="hidden" name="with_genres[]" value="10759">
                 <input type="hidden" name="without_genres[]" value="35">
@@ -238,6 +246,7 @@
             {{-- Feel-good: Drama, high quality bar, no crime/mystery --}}
             <form method="POST" action="/tv/pick?a=1">
                 @csrf
+                <input type="hidden" name="with_original_language" value="en">
                 <input type="hidden" name="with_genres[]" value="18">
                 <input type="hidden" name="vote_average_gte" value="7.5">
                 <input type="hidden" name="vote_count_gte" value="100">
@@ -262,6 +271,7 @@
             {{-- Dark: Mystery, no comedy/family --}}
             <form method="POST" action="/tv/pick?a=1">
                 @csrf
+                <input type="hidden" name="with_original_language" value="en">
                 <input type="hidden" name="with_genres[]" value="9648">
                 <input type="hidden" name="without_genres[]" value="35">
                 <input type="hidden" name="without_genres[]" value="16">
@@ -279,6 +289,7 @@
             {{-- Romantic: Romance genre (was incorrectly Drama), no action/crime --}}
             <form method="POST" action="/tv/pick?a=1">
                 @csrf
+                <input type="hidden" name="with_original_language" value="en">
                 <input type="hidden" name="with_genres[]" value="10749">
                 <input type="hidden" name="without_genres[]" value="80">
                 <input type="hidden" name="without_genres[]" value="9648">
@@ -296,6 +307,7 @@
             {{-- Mindless: Action & Adventure, no heavy drama --}}
             <form method="POST" action="/tv/pick?a=1">
                 @csrf
+                <input type="hidden" name="with_original_language" value="en">
                 <input type="hidden" name="with_genres[]" value="10759">
                 <input type="hidden" name="without_genres[]" value="18">
                 <input type="hidden" name="vote_average_gte" value="6.5">
