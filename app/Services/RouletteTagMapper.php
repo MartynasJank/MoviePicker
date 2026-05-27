@@ -227,4 +227,87 @@ class RouletteTagMapper
 
         return $criteria;
     }
+
+    /**
+     * Reverse-map session criteria (userInput / tvInput) back to roulette tag format.
+     * Used by UserRouletteController::fromCriteria() when saving a batch's criteria.
+     */
+    public function criteriaToTags(array $criteria, string $mediaType = 'movie'): array
+    {
+        $tags = [];
+
+        // Platform — take first recognised provider ID
+        if (!empty($criteria['with_watch_providers'])) {
+            $flipped = array_flip(self::PLATFORM_IDS);
+            foreach ((array) $criteria['with_watch_providers'] as $id) {
+                if ($slug = ($flipped[(int) $id] ?? null)) {
+                    $tags['platform'] = [$slug];
+                    break;
+                }
+            }
+        }
+
+        // Genre include / exclude
+        $genreMap     = $mediaType === 'tv' ? self::TV_GENRE_IDS : self::GENRE_IDS;
+        $flippedGenre = array_flip($genreMap);
+
+        if (!empty($criteria['with_genres'])) {
+            $slugs = [];
+            foreach ((array) $criteria['with_genres'] as $id) {
+                if ($slug = ($flippedGenre[(int) $id] ?? null)) $slugs[] = $slug;
+            }
+            if ($slugs) $tags['genre'] = array_values(array_unique($slugs));
+        }
+
+        if (!empty($criteria['without_genres'])) {
+            $slugs = [];
+            foreach ((array) $criteria['without_genres'] as $id) {
+                if ($slug = ($flippedGenre[(int) $id] ?? null)) $slugs[] = $slug;
+            }
+            if ($slugs) $tags['without_genre'] = array_values(array_unique($slugs));
+        }
+
+        // Language / Country
+        if (!empty($criteria['with_original_language'])) {
+            $tags['language'] = [$criteria['with_original_language']];
+        }
+        if (!empty($criteria['with_origin_country'])) {
+            $tags['country'] = [$criteria['with_origin_country']];
+        }
+
+        // Year range (session keys use underscore notation)
+        $gteKey = $mediaType === 'tv' ? 'first_air_date_gte' : 'primary_release_date_gte';
+        $lteKey = $mediaType === 'tv' ? 'first_air_date_lte' : 'primary_release_date_lte';
+        if (!empty($criteria[$gteKey])) $tags['year_from'] = (int) $criteria[$gteKey];
+        if (!empty($criteria[$lteKey])) $tags['year_to']   = (int) $criteria[$lteKey];
+
+        // Score / quality
+        if (isset($criteria['vote_average_gte']) && $criteria['vote_average_gte'] !== '') {
+            $tags['vote_average_gte'] = (float) $criteria['vote_average_gte'];
+        }
+        if (isset($criteria['vote_average_lte']) && $criteria['vote_average_lte'] !== '') {
+            $tags['vote_average_lte'] = (float) $criteria['vote_average_lte'];
+        }
+        if (isset($criteria['vote_count_gte']) && $criteria['vote_count_gte'] !== '') {
+            $tags['vote_count_gte'] = (int) $criteria['vote_count_gte'];
+        }
+
+        // People
+        if (!empty($criteria['with_cast'])) {
+            $cast = is_array($criteria['with_cast'])
+                ? $criteria['with_cast']
+                : explode(',', (string) $criteria['with_cast']);
+            $cast = array_values(array_map('strval', array_filter($cast)));
+            if ($cast) $tags['with_cast'] = $cast;
+        }
+        if (!empty($criteria['with_crew'])) {
+            $crew = is_array($criteria['with_crew'])
+                ? $criteria['with_crew']
+                : explode(',', (string) $criteria['with_crew']);
+            $crew = array_values(array_map('strval', array_filter($crew)));
+            if ($crew) $tags['with_crew'] = $crew;
+        }
+
+        return $tags;
+    }
 }
