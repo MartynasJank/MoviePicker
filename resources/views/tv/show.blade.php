@@ -372,13 +372,15 @@
         <div class="flex-shrink-0">
             @if(request()->query('wl_status'))
                 <a href="{{ route('watchlist') }}" class="btn-secondary text-center">← Watchlist</a>
-            @else
-                <a href="{{ $batchUrl ?: '/tv/multiple' }}" class="btn-secondary text-center js-back-roulettes">← Batch</a>
+            @elseif($batchUrl)
+                <a href="{{ $batchUrl }}" class="btn-secondary text-center js-back-roulettes">← Batch</a>
             @endif
         </div>
         {{-- Right actions --}}
         <div class="flex items-center gap-3">
-            <button type="button" class="btn-secondary js-criteria-btn" data-modal-open="modal-form">Criteria</button>
+            @if(!request()->query('wl_status') && !session('tvPersonRollIds'))
+                <button type="button" class="btn-secondary js-criteria-btn" data-modal-open="modal-form">Criteria</button>
+            @endif
             @if(request()->query('wl_status'))
                 @php
                     $wlParams = ['status' => request()->query('wl_status')];

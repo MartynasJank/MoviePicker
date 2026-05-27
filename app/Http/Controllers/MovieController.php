@@ -67,6 +67,7 @@ class MovieController extends Controller
                     'title'        => $item->title,
                     'poster_path'  => $item->poster_path,
                     'release_date' => $item->year ? $item->year . '-01-01' : null,
+                    'vote_average' => $item->vote_average ?? 0,
                 ])->values()->all()];
                 $similarTitle = 'More from Your Watchlist';
             }
