@@ -324,13 +324,35 @@
         </div>
     </section>
 
+    {{-- Trending --}}
+    <section class="max-w-7xl mx-auto px-4 py-8 sm:py-12 border-b border-white/5">
+        <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mb-3">
+            <h2 class="text-xl sm:text-2xl font-bold text-white">Trending Today</h2>
+            <div class="flex gap-1 bg-white/5 p-1 rounded-lg shrink-0">
+                <button id="trend-movies" class="trend-toggle active text-xs px-3 py-1.5 rounded-md transition-all">Movies</button>
+                <button id="trend-tv" class="trend-toggle text-xs px-3 py-1.5 rounded-md transition-all text-gray-400">TV</button>
+            </div>
+        </div>
+        <div class="section-divider mb-4"></div>
+
+        <div id="trending-movies">
+            @include('includes.carousel', ['allMovies' => $trendingDay, 'name' => 'swiper-trending-movies', 'genres' => $trendingGenres, 'clearCriteria' => true, 'showScore' => true, 'showSave' => true, 'savedIds' => $savedIds])
+        </div>
+        <div id="trending-tv" class="hidden">
+            @include('includes.carousel', ['allMovies' => $tvTrendingDay, 'name' => 'swiper-trending-tv', 'genres' => $tvTrendingGenres, 'clearCriteria' => true, 'showScore' => true, 'showSave' => true, 'savedIds' => $savedIds, 'linkBase' => 'tv', 'mediaType' => 'tv'])
+        </div>
+    </section>
+
     {{-- Featured Roulettes --}}
     @if($featuredRoulettes->isNotEmpty())
     @include('includes.roulette-labels')
-    <section class="max-w-7xl mx-auto px-4 py-8 sm:py-12 border-b border-white/5">
-        <div class="flex items-center justify-between mb-3">
-            <h2 class="text-xl sm:text-2xl font-bold text-white">Curated Roulettes</h2>
-            <a href="/roulettes" class="text-sm text-accent hover:underline">Browse all →</a>
+    <section class="max-w-7xl mx-auto px-4 py-8 sm:py-12">
+        <div class="flex flex-wrap items-end justify-between gap-3 mb-3">
+            <div>
+                <h2 class="text-xl sm:text-2xl font-bold text-white">Curated Roulettes</h2>
+                <p class="text-gray-500 text-sm mt-0.5">Handpicked collections — hit Roll and let fate decide.</p>
+            </div>
+            <a href="/roulettes" class="btn-secondary text-sm px-4 py-2 flex-shrink-0">Browse all roulettes →</a>
         </div>
         <div class="section-divider mb-5"></div>
         <div class="flex gap-3 overflow-x-auto pb-2">
@@ -370,28 +392,37 @@
                     <button class="w-full btn-accent text-xs py-1.5 mt-2" data-roulette-roll data-slug="{{ $roulette->slug }}">Roll</button>
                 </div>
             @endforeach
+
+            {{-- Create your own CTA card --}}
+            <div class="flex-shrink-0 w-36 md:w-44">
+                <a href="{{ auth()->check() ? route('my-roulettes.create') : route('auth.google') }}"
+                   class="group relative rounded-xl overflow-hidden block long-single border border-dashed border-white/15 hover:border-accent/50 transition-colors bg-white/3 hover:bg-white/5">
+                    <div class="aspect-[2/3] relative flex flex-col items-center justify-center p-4 text-center">
+                        <div class="w-10 h-10 rounded-full bg-accent/10 group-hover:bg-accent/20 transition-colors flex items-center justify-center mb-3">
+                            @auth
+                                <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                                </svg>
+                            @else
+                                <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                </svg>
+                            @endauth
+                        </div>
+                        @auth
+                            <p class="text-xs font-semibold text-white leading-snug mb-1">Create Your Own</p>
+                            <p class="text-[10px] text-gray-500 leading-snug">Build a roulette from your favourite genres, platforms or actors</p>
+                        @else
+                            <p class="text-xs font-semibold text-white leading-snug mb-1">Sign in to Create</p>
+                            <p class="text-[10px] text-gray-500 leading-snug">Save your own roulettes and roll them any time</p>
+                        @endauth
+                    </div>
+                </a>
+                <div class="h-[30px] mt-2"></div>{{-- spacer to align with Roll buttons --}}
+            </div>
         </div>
     </section>
     @endif
-
-    {{-- Trending --}}
-    <section class="max-w-7xl mx-auto px-4 py-8 sm:py-12">
-        <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mb-3">
-            <h2 class="text-xl sm:text-2xl font-bold text-white">Trending Today</h2>
-            <div class="flex gap-1 bg-white/5 p-1 rounded-lg shrink-0">
-                <button id="trend-movies" class="trend-toggle active text-xs px-3 py-1.5 rounded-md transition-all">Movies</button>
-                <button id="trend-tv" class="trend-toggle text-xs px-3 py-1.5 rounded-md transition-all text-gray-400">TV</button>
-            </div>
-        </div>
-        <div class="section-divider mb-4"></div>
-
-        <div id="trending-movies">
-            @include('includes.carousel', ['allMovies' => $trendingDay, 'name' => 'swiper-trending-movies', 'genres' => $trendingGenres, 'clearCriteria' => true, 'showScore' => true, 'showSave' => true, 'savedIds' => $savedIds])
-        </div>
-        <div id="trending-tv" class="hidden">
-            @include('includes.carousel', ['allMovies' => $tvTrendingDay, 'name' => 'swiper-trending-tv', 'genres' => $tvTrendingGenres, 'clearCriteria' => true, 'showScore' => true, 'showSave' => true, 'savedIds' => $savedIds, 'linkBase' => 'tv', 'mediaType' => 'tv'])
-        </div>
-    </section>
 
     {{-- About --}}
     <section class="bg-white/[0.02] border-y border-white/5 py-10 sm:py-16">
