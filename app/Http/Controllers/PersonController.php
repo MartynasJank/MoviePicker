@@ -26,8 +26,7 @@ class PersonController extends Controller
             ->sortByDesc('vote_count')
             ->values();
 
-        $tvRollFilter    = $movieService->tvCreditFilter();
-        $tvDisplayFilter = $movieService->tvCreditFilter(minEpisodes: 2);
+        $tvDisplayFilter = $movieService->tvCreditFilter();
 
         // 4 filmography tabs
         $movieCast = collect($person->combined_credits->cast ?? [])
