@@ -144,7 +144,7 @@
         {{-- Tags --}}
         <div class="bg-white/3 border border-white/5 rounded-xl p-5">
             <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-4">Tags</h3>
-            @include('roulettes._tag_form', ['roulette' => $roulette])
+            @include('roulettes._tag_form', ['roulette' => $roulette, 'mediaType' => old('media_type', $roulette?->media_type ?? 'movie')])
         </div>
 
         {{-- Public toggle --}}
