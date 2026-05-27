@@ -296,11 +296,11 @@
             @else
                 @auth
                 <button type="button" id="save-roulette-btn"
-                        class="btn-secondary text-sm flex items-center gap-1.5">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        class="btn-secondary text-sm flex items-center gap-1.5" title="Save as Roulette">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
                     </svg>
-                    Save as Roulette
+                    <span class="hidden sm:inline">Save as Roulette</span>
                 </button>
                 @endauth
                 <button type="button" class="btn-secondary js-criteria-btn" data-modal-open="modal-form">Criteria</button>
