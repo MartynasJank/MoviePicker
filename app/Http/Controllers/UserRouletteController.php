@@ -111,8 +111,8 @@ class UserRouletteController extends Controller
 
     public function store(Request $request)
     {
-        if (Roulette::where('user_id', auth()->id())->count() >= 20) {
-            return back()->withErrors(['limit' => 'You can have at most 20 roulettes.'])->withInput();
+        if (Roulette::where('user_id', auth()->id())->count() >= 100) {
+            return back()->withErrors(['limit' => 'You can have at most 100 roulettes.'])->withInput();
         }
 
         $data = $this->validated($request);
@@ -237,8 +237,8 @@ class UserRouletteController extends Controller
 
     public function fromCriteria(Request $request)
     {
-        if (Roulette::where('user_id', auth()->id())->count() >= 20) {
-            return back()->with('error', 'You can have at most 20 roulettes.');
+        if (Roulette::where('user_id', auth()->id())->count() >= 100) {
+            return back()->with('error', 'You can have at most 100 roulettes.');
         }
 
         $request->validate(['name' => 'required|string|max:80']);
