@@ -23,11 +23,18 @@
                     </div>
                 </div>
 
-                {{-- Genre select + sort --}}
+                {{-- Genre selects + sort --}}
                 <div class="flex flex-col sm:flex-row gap-2">
                     @if($genres->isNotEmpty())
                         <div class="flex-1">
                             <select id="genre-select" multiple placeholder="Filter by genre...">
+                                @foreach($genres as $genre)
+                                    <option value="{{ $genre }}">{{ $genre }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="flex-1">
+                            <select id="exclude-genre-select" multiple placeholder="Exclude genre...">
                                 @foreach($genres as $genre)
                                     <option value="{{ $genre }}">{{ $genre }}</option>
                                 @endforeach
