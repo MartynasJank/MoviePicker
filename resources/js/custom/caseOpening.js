@@ -36,18 +36,24 @@ export function runCaseOpening(cards, winnerIdx, fullUrl, mediaType = 'movie') {
         return;
     }
 
-    const winner = cards[winnerIdx];
+    const winner     = cards[winnerIdx];
+    const nonWinners = cards.filter((_, i) => i !== winnerIdx);
 
-    // For small pools use all cards (incl. winner as fake-outs) so the strip
-    // looks varied. For larger pools exclude the winner from filler so it only
-    // appears at the landing position.
-    const source = cards.length <= 5 ? cards : cards.filter((_, i) => i !== winnerIdx);
-    const pool   = [];
+    // Always use the full card pool so the winner can appear as fake-outs
+    const pool = [];
     while (pool.length < STRIP_LEN) {
-        pool.push(...[...source].sort(() => Math.random() - 0.5));
+        pool.push(...[...cards].sort(() => Math.random() - 0.5));
     }
     const strip = pool.slice(0, STRIP_LEN);
     strip[WINNER_POS] = winner;
+
+    // Winner must not be its own immediate neighbour at the landing position
+    for (const offset of [-1, 1]) {
+        const pos = WINNER_POS + offset;
+        if (pos >= 0 && pos < strip.length && strip[pos] === winner) {
+            strip[pos] = nonWinners[Math.floor(Math.random() * nonWinners.length)];
+        }
+    }
 
     const overlay   = document.getElementById('case-overlay');
     const stripEl   = document.getElementById('case-strip');
