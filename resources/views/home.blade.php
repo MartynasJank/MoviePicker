@@ -324,6 +324,56 @@
         </div>
     </section>
 
+    {{-- Featured Roulettes --}}
+    @if($featuredRoulettes->isNotEmpty())
+    @include('includes.roulette-labels')
+    <section class="max-w-7xl mx-auto px-4 py-8 sm:py-12 border-b border-white/5">
+        <div class="flex items-center justify-between mb-3">
+            <h2 class="text-xl sm:text-2xl font-bold text-white">Curated Roulettes</h2>
+            <a href="/roulettes" class="text-sm text-accent hover:underline">Browse all →</a>
+        </div>
+        <div class="section-divider mb-5"></div>
+        <div class="flex gap-3 overflow-x-auto pb-2">
+            @foreach($featuredRoulettes as $roulette)
+                @php
+                    $tags     = $roulette->tags;
+                    $platform = $tags['platform'][0] ?? null;
+                    $logo     = $platform ? ($platformLogos[$platform] ?? null) : null;
+                    $poster   = $roulette->poster_paths[0] ?? null;
+                    $isTv     = $roulette->media_type === 'tv';
+                @endphp
+                <div class="flex-shrink-0 w-36 md:w-44">
+                    <a href="/roulettes/{{ $roulette->slug }}"
+                       data-roulette-batch
+                       class="group relative rounded-xl overflow-hidden block bg-slate-900 long-single">
+                        <div class="aspect-[2/3] relative overflow-hidden">
+                            @if($poster)
+                                <img src="https://image.tmdb.org/t/p/w342{{ $poster }}"
+                                     class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                     loading="lazy">
+                            @else
+                                <div class="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900"></div>
+                            @endif
+                            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
+                            @if($logo)
+                                <img src="{{ $logo }}" class="absolute top-2 right-2 h-5 drop-shadow-lg" loading="lazy">
+                            @endif
+                            @if($isTv)
+                                <span class="absolute top-2 left-2 text-[10px] px-1.5 py-0.5 rounded-full bg-accent/80 text-white">TV</span>
+                            @endif
+                            <div class="absolute bottom-0 left-0 right-0 p-3">
+                                <h3 class="text-sm font-semibold text-white leading-snug">{{ $roulette->name }}</h3>
+                                <span class="text-xs text-accent font-medium mt-1 block group-hover:underline">Batch →</span>
+                            </div>
+                        </div>
+                    </a>
+                    <button class="w-full btn-accent text-xs py-1.5 mt-2" data-roulette-roll data-slug="{{ $roulette->slug }}">Roll</button>
+                </div>
+            @endforeach
+        </div>
+    </section>
+    @endif
+
     {{-- Trending --}}
     <section class="max-w-7xl mx-auto px-4 py-8 sm:py-12">
         <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mb-3">
