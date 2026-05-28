@@ -62,6 +62,7 @@ $(document).ready(function () {
                     const html = (resp || []).map(buildResult).join('');
                     if (!html) { $results.addClass('hidden').empty(); return; }
                     $results.html(html).removeClass('hidden');
+                    if (typeof gtag !== 'undefined') gtag('event', 'search_used');
                 });
             }, 300);
         });
@@ -76,6 +77,14 @@ $(document).ready(function () {
 
     initSearch('#desktop-search-input', '#desktop-search-results');
     initSearch('#mobile-search-input',  '#mobile-search-results');
+
+    // Track search result clicks
+    $(document).on('click', '.search-result-item', function () {
+        if (typeof gtag === 'undefined') return;
+        const href = $(this).attr('href') || '';
+        const type = href.startsWith('/person/') ? 'person' : href.startsWith('/tv/') ? 'tv' : 'movie';
+        gtag('event', 'search_result_clicked', { result_type: type });
+    });
 
     // Close desktop results when clicking outside
     $(document).on('click', function (e) {
