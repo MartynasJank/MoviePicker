@@ -48,6 +48,40 @@ class KeywordCriteriaController extends Controller
         return redirect()->route('tv.show', [$movieService->pickRandom($results['results'])['id']]);
     }
 
+    public function movieJson(int $id, string $name, TmdbClient $tmdb, MovieService $movieService): \Illuminate\Http\JsonResponse
+    {
+        $this->mergeKeyword('userInput', $id, $name);
+
+        $country  = $movieService->getUserCountry();
+        $criteria = session('roll_source') === 'criteria'
+            ? session('userInput', [])
+            : ['with_keywords' => [$id], 'with_keywords_names' => [$name], 'sort_by' => 'popularity.desc'];
+
+        $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country);
+        $results  = $tmdb->discover($criteria, $country);
+        $picked   = $movieService->pickBatch($results['results'] ?? []);
+
+        session(['roll_source' => 'criteria']);
+        return response()->json($this->toRollCards($picked));
+    }
+
+    public function tvJson(int $id, string $name, TmdbClient $tmdb, MovieService $movieService): \Illuminate\Http\JsonResponse
+    {
+        $this->mergeKeyword('tvInput', $id, $name);
+
+        $country  = $movieService->getUserCountry();
+        $criteria = session('roll_source') === 'criteria'
+            ? session('tvInput', [])
+            : ['with_keywords' => [$id], 'with_keywords_names' => [$name], 'sort_by' => 'popularity.desc'];
+
+        $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country, 'tv');
+        $results  = $tmdb->discoverTv($criteria, $country);
+        $picked   = $movieService->pickBatch($movieService->normaliseShows($results['results'] ?? []));
+
+        session(['roll_source' => 'criteria']);
+        return response()->json($this->toRollCards($picked, 'tv'));
+    }
+
     public function removeMovie(int $id): RedirectResponse
     {
         $this->removeKeyword('userInput', $id);
