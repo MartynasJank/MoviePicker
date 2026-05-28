@@ -41,7 +41,7 @@ class MoviePickController extends PickController
             return redirect('/criteria');
         }
 
-        return redirect()->route('movie', [$movieService->randomMovie($results['results'])['id']]);
+        return redirect()->route('movie', [$movieService->pickRandom($results['results'])['id']]);
     }
 
     public function batch(CriteriaRequest $request, MovieService $movieService, TmdbClient $tmdb): View|RedirectResponse
@@ -60,7 +60,7 @@ class MoviePickController extends PickController
         });
 
         $all_genres   = $movieService->genres($tmdb);
-        $movie_genres = $movieService->movieGenresMap($movies['results'], $all_genres);
+        $movie_genres = $movieService->genresMap($movies['results'], $all_genres);
 
         session(['batchUrl' => url('/multiple'), 'savedBatchUrl' => url('/multiple'), 'savedBatchResults' => $movies['results']]);
 
@@ -75,7 +75,7 @@ class MoviePickController extends PickController
         ]);
     }
 
-    public function criteriaRollJson(CriteriaRequest $request, MovieService $movieService, TmdbClient $tmdb): JsonResponse
+    public function criteriaRoll(CriteriaRequest $request, MovieService $movieService, TmdbClient $tmdb): JsonResponse
     {
         $country   = $movieService->getUserCountry();
         $submitted = $this->submitted($request);
@@ -96,7 +96,7 @@ class MoviePickController extends PickController
         return response()->json($this->toRollCards($picked));
     }
 
-    public function rollJson(MovieService $movieService, TmdbClient $tmdb): JsonResponse
+    public function homepageRoll(MovieService $movieService, TmdbClient $tmdb): JsonResponse
     {
         session([self::SESSION_KEY => self::DEFAULTS]);
 

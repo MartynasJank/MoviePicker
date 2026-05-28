@@ -50,7 +50,7 @@ class RatingsUrlBuilder
         return 'https://www.imdb.com/title/' . $omdbObj->imdbID;
     }
 
-    public function linksArray(?object $omdbObj, string $type = 'movie'): array
+    public function links(?object $omdbObj, string $type = 'movie'): array
     {
         return [
             'Internet Movie Database' => $this->imdb($omdbObj),

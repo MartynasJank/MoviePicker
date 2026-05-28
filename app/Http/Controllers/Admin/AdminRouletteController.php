@@ -110,7 +110,7 @@ class AdminRouletteController extends Controller
         $isTv   = ($request->input('media_type') ?? $roulette->media_type) === 'tv';
         $rawTags  = $request->input('tags');
         $tags     = $rawTags !== null ? $mapper->normalizeTags($rawTags) : ($roulette->tags ?? []);
-        $criteria = $isTv ? $mapper->toCriteriaTv($tags) : $mapper->toCriteria($tags);
+        $criteria = $isTv ? $mapper->toCriteriaTv($tags) : $mapper->toCriteriaMovie($tags);
         $criteria['sort_by'] = $sort === 'rating' ? 'vote_average.desc' : 'popularity.desc';
         $criteria['page']    = $page;
         if ($sort === 'rating') {

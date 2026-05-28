@@ -27,7 +27,7 @@ class RouletteController extends Controller
                 $tagsForPosters = array_diff_key($roulette->tags, ['platform' => true]);
                 $criteria       = $roulette->media_type === 'tv'
                     ? $mapper->toCriteriaTv($tagsForPosters)
-                    : $mapper->toCriteria($tagsForPosters);
+                    : $mapper->toCriteriaMovie($tagsForPosters);
                 $criteria['page'] = 1;
 
                 $results = $roulette->media_type === 'tv'
@@ -87,7 +87,7 @@ class RouletteController extends Controller
         return view('roulettes', compact('movieGrouped', 'tvGrouped', 'communityRoulettes', 'myRoulettes'));
     }
 
-    public function movies(string $slug, MovieService $movieService, TmdbClient $tmdb): JsonResponse
+    public function rollJson(string $slug, MovieService $movieService, TmdbClient $tmdb): JsonResponse
     {
         $roulette = Roulette::where('slug', $slug)
             ->where(function ($q) {
@@ -117,7 +117,7 @@ class RouletteController extends Controller
             return response()->json($this->toRollCards($picked, 'tv'));
         }
 
-        $base     = $mapper->toCriteria($roulette->tags);
+        $base     = $mapper->toCriteriaMovie($roulette->tags);
         $criteria = $movieService->resolveRoulettePage($tmdb, $base, $slug, $country);
         $response = $tmdb->discover($criteria, $country);
         $picked   = $movieService->pickBatch($response['results'] ?? []);
@@ -132,7 +132,7 @@ class RouletteController extends Controller
         return response()->json($this->toRollCards($picked));
     }
 
-    public function pick(string $slug, MovieService $movieService, TmdbClient $tmdb, \Illuminate\Http\Request $request): View
+    public function show(string $slug, MovieService $movieService, TmdbClient $tmdb, \Illuminate\Http\Request $request): View
     {
         $roulette = Roulette::where('slug', $slug)
             ->where(function ($q) {
@@ -156,7 +156,7 @@ class RouletteController extends Controller
             session(['batchUrl' => $request->url()]);
             return view('batch', array_filter([
                 'movies'       => ['results' => $results],
-                'movie_genres' => $movieService->movieGenresMap($results, $genres),
+                'movie_genres' => $movieService->genresMap($results, $genres),
                 'tag'          => $roulette->name,
                 'title'        => $roulette->name . ' — MoviePickr',
                 'savedIds'     => $savedIds,
@@ -177,7 +177,7 @@ class RouletteController extends Controller
 
             return view('batch', [
                 'movies'       => $shows,
-                'movie_genres' => $movieService->movieGenresMap($shows['results'], $allGenres),
+                'movie_genres' => $movieService->genresMap($shows['results'], $allGenres),
                 'tag'          => $roulette->name,
                 'title'        => $roulette->name . ' — MoviePickr',
                 'savedIds'     => $savedIds,
@@ -185,7 +185,7 @@ class RouletteController extends Controller
             ]);
         }
 
-        $base                = $mapper->toCriteria($roulette->tags);
+        $base                = $mapper->toCriteriaMovie($roulette->tags);
         $criteria            = $movieService->resolveRoulettePage($tmdb, $base, $slug, $country);
         $movies              = $tmdb->discover($criteria, $country);
         $movies['results']   = $movieService->pickBatch($movies['results']);
@@ -196,7 +196,7 @@ class RouletteController extends Controller
 
         return view('batch', [
             'movies'       => $movies,
-            'movie_genres' => $movieService->movieGenresMap($movies['results'], $all_genres),
+            'movie_genres' => $movieService->genresMap($movies['results'], $all_genres),
             'tag'          => $roulette->name,
             'title'        => $roulette->name . ' — MoviePickr',
             'savedIds'     => $savedIds,

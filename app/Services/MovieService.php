@@ -19,7 +19,7 @@ class MovieService
         return $page;
     }
 
-    public function randomMovie(array $movieArray): array
+    public function pickRandom(array $movieArray): array
     {
         return $movieArray[array_rand($movieArray)];
     }
@@ -127,7 +127,7 @@ class MovieService
     }
 
     /** Map discover results to a movieId => 'Genre1, Genre2' string lookup. */
-    public function movieGenresMap(array $results, array $allGenres): array
+    public function genresMap(array $results, array $allGenres): array
     {
         $idToName = [];
         foreach ($allGenres as $genre) {

@@ -54,26 +54,26 @@ Route::get('/criteria',  CriteriaController::class);
 
 Route::match(['get', 'post'], '/movie',    [MoviePickController::class, 'single']);
 Route::match(['get', 'post'], '/multiple', [MoviePickController::class, 'batch']);
-Route::get('/movie/roll',                       [MoviePickController::class, 'rollJson']);
-Route::match(['get', 'post'], '/movie/roll/criteria', [MoviePickController::class, 'criteriaRollJson']);
+Route::get('/movie/roll',                       [MoviePickController::class, 'homepageRoll']);
+Route::match(['get', 'post'], '/movie/roll/criteria', [MoviePickController::class, 'criteriaRoll']);
 Route::get('/movie/{id}',          MovieController::class)->name('movie');
 
 // TV Shows
 Route::get('/tv/criteria',                     TvCriteriaController::class);
 Route::match(['get', 'post'], '/tv/pick',      [TvPickController::class, 'single'])->name('tv.pick');
 Route::match(['get', 'post'], '/tv/multiple',  [TvPickController::class, 'batch']);
-Route::get('/tv/roll',                          [TvPickController::class, 'rollJson']);
-Route::match(['get', 'post'], '/tv/roll/criteria',   [TvPickController::class, 'criteriaRollJson']);
+Route::get('/tv/roll',                          [TvPickController::class, 'homepageRoll']);
+Route::match(['get', 'post'], '/tv/roll/criteria',   [TvPickController::class, 'criteriaRoll']);
 Route::get('/tv/{id}',             TvShowController::class)->name('tv.show');
 Route::get('/tv/{id}/season/{season}', TvSeasonController::class)->name('tv.season');
 Route::get('/tv/{id}/season/{season}/episode/{episode}', TvEpisodeController::class)->name('tv.episode');
 
-Route::get('/person/roll/tv/next',    [PersonRollController::class, 'tvNext'])->name('person.roll.tv.next');
+Route::get('/person/roll/tv/next',    [PersonRollController::class, 'nextTvRoll'])->name('person.roll.tv.next');
 Route::get('/person/{id}',            PersonController::class)->name('person');
 Route::get('/person/{id}/roll/movie',      [PersonRollController::class, 'movie'])->name('person.roll.movie');
 Route::get('/person/{id}/roll/tv',         [PersonRollController::class, 'tv'])->name('person.roll.tv');
-Route::get('/person/{id}/roll/movie/json', [PersonRollController::class, 'movieJson']);
-Route::get('/person/{id}/roll/tv/json',    [PersonRollController::class, 'tvJson']);
+Route::get('/person/{id}/roll/movie/json', [PersonRollController::class, 'movieRollJson']);
+Route::get('/person/{id}/roll/tv/json',    [PersonRollController::class, 'tvRollJson']);
 
 // My Roulettes (auth required — must be before /roulettes/{slug} wildcard)
 Route::middleware('auth')->prefix('my-roulettes')->name('my-roulettes.')->group(function () {
@@ -106,8 +106,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
 });
 
 Route::get('/roulettes',                [RouletteController::class, 'index']);
-Route::get('/roulettes/{slug}/movies',  [RouletteController::class, 'movies']);
-Route::get('/roulettes/{slug}',         [RouletteController::class, 'pick']);
+Route::get('/roulettes/{slug}/movies',  [RouletteController::class, 'rollJson']);
+Route::get('/roulettes/{slug}',         [RouletteController::class, 'show']);
 
 // Legacy roulette URLs → redirect to new slugs
 Route::get('/roulettes/netflix/horror',    fn() => redirect('/roulettes/netflix-horror', 301));

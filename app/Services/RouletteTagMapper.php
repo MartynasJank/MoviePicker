@@ -85,7 +85,7 @@ class RouletteTagMapper
         return $tags;
     }
 
-    public function toCriteria(array $tags): array
+    public function toCriteriaMovie(array $tags): array
     {
         $criteria = [];
 
