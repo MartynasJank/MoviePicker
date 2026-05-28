@@ -372,6 +372,16 @@ class TmdbClient implements ApiMovie
         return json_decode($this->client->get($url)->getBody()->getContents(), true);
     }
 
+    public function searchAll(string $query): array
+    {
+        $url = 'https://api.themoviedb.org/3/search/multi?' . http_build_query([
+            'query'         => $query,
+            'language'      => 'en-US',
+            'include_adult' => 'false',
+        ]);
+        return json_decode($this->client->get($url)->getBody()->getContents(), true);
+    }
+
     // ── Helpers ──────────────────────────────────────────────────────────────
 
     /** Rename form keys like `vote_count_gte` → `vote_count.gte` for the API. */

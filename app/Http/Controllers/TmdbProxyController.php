@@ -76,4 +76,38 @@ class TmdbProxyController extends Controller
 
         return response()->json($results);
     }
+
+    public function searchAll(Request $request, TmdbClient $tmdb): JsonResponse
+    {
+        $query = trim($request->string('q'));
+        if (!$query) {
+            return response()->json(['movies' => [], 'shows' => [], 'people' => []]);
+        }
+
+        $results = collect($tmdb->searchAll($query)['results'] ?? []);
+
+        $movies = $results
+            ->where('media_type', 'movie')
+            ->take(3)
+            ->values()
+            ->all();
+
+        $shows = $results
+            ->where('media_type', 'tv')
+            ->take(3)
+            ->map(fn($s) => array_merge($s, [
+                'title'        => $s['name'] ?? '',
+                'release_date' => $s['first_air_date'] ?? '',
+            ]))
+            ->values()
+            ->all();
+
+        $people = $results
+            ->where('media_type', 'person')
+            ->take(3)
+            ->values()
+            ->all();
+
+        return response()->json(compact('movies', 'shows', 'people'));
+    }
 }
