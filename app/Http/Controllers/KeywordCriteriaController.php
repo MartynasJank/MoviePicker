@@ -104,10 +104,9 @@ class KeywordCriteriaController extends Controller
     {
         $input = session($sessionKey, []);
 
-        // Replace existing keywords — clicking a keyword from a detail page
-        // means "show me more with this vibe", not AND-stacking with prior keywords.
         $input['with_keywords']       = [$id];
         $input['with_keywords_names'] = [$name];
+        unset($input['total_pages']); // keyword changes the result pool entirely
 
         session([$sessionKey => $input]);
     }
