@@ -39,7 +39,7 @@ class TvPickController extends PickController
         }
 
         if (empty($results['results'])) {
-            return redirect('/tv/criteria');
+            return $this->noResults('tv');
         }
 
         session(['roll_source' => 'criteria']);

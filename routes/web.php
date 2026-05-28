@@ -7,6 +7,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\UserInputController;
 use App\Http\Controllers\CriteriaController;
 use App\Http\Controllers\KeywordCriteriaController;
+use App\Http\Controllers\NoResultsController;
 use App\Http\Controllers\MoviePickController;
 use App\Http\Controllers\MovieController;
 use App\Http\Controllers\RouletteController;
@@ -53,6 +54,7 @@ Route::prefix('tmdb')->group(function () {
     Route::get('/search/tv',     [TmdbProxyController::class, 'searchTv']);
     Route::get('/people/{id}',   [TmdbProxyController::class, 'person']);
 });
+Route::get('/no-results', NoResultsController::class)->name('no-results');
 Route::get('/criteria',  CriteriaController::class);
 Route::get('/criteria/keyword/remove/{id}',       [KeywordCriteriaController::class, 'removeMovie'])->whereNumber('id');
 Route::get('/criteria/keyword/{id}/{name}',       [KeywordCriteriaController::class, 'movie'])->whereNumber('id');

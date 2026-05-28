@@ -11,6 +11,11 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
+    protected function noResults(string $mediaType = 'movie'): \Illuminate\Http\RedirectResponse
+    {
+        return redirect()->route('no-results', ['type' => $mediaType]);
+    }
+
     protected function savedWatchlistIds(): array
     {
         return auth()->check()
