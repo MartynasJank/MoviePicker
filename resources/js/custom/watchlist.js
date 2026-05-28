@@ -42,6 +42,9 @@ $(document).ready(function () {
             type:         btn.data('media-type') || 'movie',
         })
         .done(function (res) {
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'watchlist_saved', { action: res.saved ? 'save' : 'remove', media_type: btn.data('media-type') || 'movie' });
+            }
             btn.data('saved', res.saved ? '1' : '0');
             const star = btn.data('format') === 'star';
             if (star) {
@@ -220,6 +223,8 @@ $(document).ready(function () {
         const picked    = visible.eq(pickedIdx);
         let url = picked.find('a').first().attr('href') + '?wl_status=' + status;
         if (genres) url += '&wl_genres=' + encodeURIComponent(genres);
+
+        if (typeof gtag !== 'undefined') gtag('event', 'watchlist_rolled');
 
         if (localStorage.getItem('wl_animation') !== '0') {
             const cards      = buildCards();
