@@ -99,6 +99,7 @@ class MovieController extends Controller
             }
         }
 
+        $keywords   = array_slice((array) ($tmdbInfo->keywords->keywords ?? []), 0, 5);
         $genres     = $movieService->genresString($tmdbInfo);
         $urls       = $link->links($omdbInfo);
         $trailer    = $movieService->getTrailer($tmdbInfo->videos->results ?? []);
@@ -109,7 +110,7 @@ class MovieController extends Controller
         return view('movie', compact(
             'tmdbInfo', 'omdbInfo', 'urls', 'similarMovies', 'similarTitle', 'linkSuffix', 'genres',
             'trailer', 'user_input', 'all_genres', 'watchProviders', 'providersArray', 'batchUrl', 'savedIds', 'country',
-            'collection'
+            'collection', 'keywords'
         ));
     }
 }

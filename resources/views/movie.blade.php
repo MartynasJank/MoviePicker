@@ -28,6 +28,17 @@
                     · <span class="text-gray-600">{{ $omdbInfo->Rated }}</span>
                 @endif
             </p>
+            @if(!empty($keywords))
+            <div class="flex flex-wrap gap-1.5 mt-2">
+                @foreach($keywords as $kw)
+                    @php $kw = (object) $kw; @endphp
+                    <a href="{{ url('/criteria/keyword/' . $kw->id . '/' . urlencode($kw->name)) }}"
+                       class="text-xs px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-gray-500 hover:text-white hover:border-white/30 transition-colors">
+                        {{ $kw->name }}
+                    </a>
+                @endforeach
+            </div>
+            @endif
         </div>
         {{-- Save buttons --}}
         <div class="flex flex-col items-end gap-2 flex-shrink-0">

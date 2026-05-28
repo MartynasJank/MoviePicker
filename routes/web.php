@@ -6,6 +6,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\UserInputController;
 use App\Http\Controllers\CriteriaController;
+use App\Http\Controllers\KeywordCriteriaController;
 use App\Http\Controllers\MoviePickController;
 use App\Http\Controllers\MovieController;
 use App\Http\Controllers\RouletteController;
@@ -52,6 +53,10 @@ Route::prefix('tmdb')->group(function () {
     Route::get('/people/{id}',   [TmdbProxyController::class, 'person']);
 });
 Route::get('/criteria',  CriteriaController::class);
+Route::get('/criteria/keyword/{id}/{name}',       [KeywordCriteriaController::class, 'movie']);
+Route::get('/criteria/keyword/remove/{id}',       [KeywordCriteriaController::class, 'removeMovie']);
+Route::get('/tv/criteria/keyword/{id}/{name}',    [KeywordCriteriaController::class, 'tv']);
+Route::get('/tv/criteria/keyword/remove/{id}',    [KeywordCriteriaController::class, 'removeTv']);
 
 Route::match(['get', 'post'], '/movie',    [MoviePickController::class, 'single']);
 Route::match(['get', 'post'], '/multiple', [MoviePickController::class, 'batch']);
