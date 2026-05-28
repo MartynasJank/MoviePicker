@@ -17,12 +17,12 @@ it('renders movie criteria page successfully', function () {
     $this->get('/criteria')->assertOk();
 });
 
-it('passes userInput session to movie criteria view', function () {
+it('always passes empty userInput to movie criteria view (blank form)', function () {
     session(['userInput' => ['vote_count_gte' => 50, 'with_genres' => [28]]]);
 
     $this->get('/criteria')
         ->assertOk()
-        ->assertViewHas('userInput', ['vote_count_gte' => 50, 'with_genres' => [28]]);
+        ->assertViewHas('userInput', []);
 });
 
 it('passes empty array when no movie session exists', function () {
@@ -37,12 +37,12 @@ it('renders tv criteria page successfully', function () {
     $this->get('/tv/criteria')->assertOk();
 });
 
-it('passes tvInput session to tv criteria view', function () {
+it('always passes empty userInput to tv criteria view (blank form)', function () {
     session(['tvInput' => ['vote_count_gte' => 20, 'with_cast' => [123]]]);
 
     $this->get('/tv/criteria')
         ->assertOk()
-        ->assertViewHas('userInput', ['vote_count_gte' => 20, 'with_cast' => [123]]);
+        ->assertViewHas('userInput', []);
 });
 
 it('passes empty array when no tv session exists', function () {
@@ -51,13 +51,13 @@ it('passes empty array when no tv session exists', function () {
         ->assertViewHas('userInput', []);
 });
 
-it('does not expose movie session on tv criteria page', function () {
+it('always passes empty userInput on tv criteria page regardless of session', function () {
     session([
         'userInput' => ['vote_count_gte' => 99],
         'tvInput'   => ['vote_count_gte' => 5],
     ]);
 
-    $response = $this->get('/tv/criteria')->assertOk();
-
-    expect($response->viewData('userInput'))->toBe(['vote_count_gte' => 5]);
+    $this->get('/tv/criteria')
+        ->assertOk()
+        ->assertViewHas('userInput', []);
 });

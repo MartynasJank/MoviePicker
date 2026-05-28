@@ -13,7 +13,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        if ($this->app->environment('local')) {
+        if ($this->app->environment('local') && !$this->app->runningUnitTests()) {
             $this->app->register(\App\Providers\TelescopeServiceProvider::class);
         }
     }
