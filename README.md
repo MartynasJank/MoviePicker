@@ -16,6 +16,7 @@ A Laravel app that picks random movies based on your mood — filter by genre, d
 - **Roulettes** — 140+ curated collections grouped by platform, decade, genre, language, and anime; DB-driven ordering
 - **My Roulettes** — logged-in users can create personal roulettes with full tag freedom, organise them into custom rows, and optionally make them public
 - **Movie detail page** — ratings from IMDb, Rotten Tomatoes, and Metacritic; cast & crew; trailer; similar movies; where to watch (filtered to your country)
+- **TV show detail page** — same ratings coverage (IMDb, RT, Metacritic); seasons; cast & crew; trailer; similar shows; where to watch
 - **Watchlist** — save movies to watch later, mark as watched, roll a random pick from your list
 - **Roll animation** — animated strip reveal when rolling from watchlist, roulettes, batch pages, or the homepage
 - **Admin dashboard** — manage roulettes and row order, view and moderate user-created roulettes

@@ -130,7 +130,7 @@ it('redirects back to person page when no qualifying shows exist', function () {
         ->assertRedirect(route('person', 1));
 });
 
-// ── tvNext ────────────────────────────────────────────────────────────────────
+// ── nextTvRoll ────────────────────────────────────────────────────────────────
 
 it('redirects to a show from the tvPersonRollIds pool', function () {
     session(['tvPersonRollIds' => [201, 202, 203]]);
@@ -159,7 +159,7 @@ it('sets with_cast in userInput session for cast movie roll', function () {
     $this->mock(MovieService::class)
         ->shouldReceive('getUserCountry')->andReturn('US')
         ->shouldReceive('resolvePage')->andReturn(1)
-        ->shouldReceive('randomMovie')->andReturn(['id' => 550]);
+        ->shouldReceive('pickRandom')->andReturn(['id' => 550]);
 
     $this->get('/person/1/roll/movie?type=cast');
 
@@ -178,7 +178,7 @@ it('sets with_crew in userInput session for crew movie roll', function () {
     $this->mock(MovieService::class)
         ->shouldReceive('getUserCountry')->andReturn('US')
         ->shouldReceive('resolvePage')->andReturn(1)
-        ->shouldReceive('randomMovie')->andReturn(['id' => 550]);
+        ->shouldReceive('pickRandom')->andReturn(['id' => 550]);
 
     $this->get('/person/1/roll/movie?type=crew');
 

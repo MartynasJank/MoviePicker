@@ -106,7 +106,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
 });
 
 Route::get('/roulettes',                [RouletteController::class, 'index']);
-Route::get('/roulettes/{slug}/movies',  [RouletteController::class, 'rollJson']);
+Route::get('/roulettes/{slug}/movies',  [RouletteController::class, 'moviesJson']);
 Route::get('/roulettes/{slug}',         [RouletteController::class, 'show']);
 
 // Legacy roulette URLs → redirect to new slugs

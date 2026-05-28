@@ -12,11 +12,11 @@ beforeEach(function () {
     $this->mock(MovieService::class)
         ->shouldReceive('getUserCountry')->andReturn('US')
         ->shouldReceive('resolvePage')->andReturn(1)
-        ->shouldReceive('randomMovie')->andReturn(['id' => 1])
+        ->shouldReceive('pickRandom')->andReturn(['id' => 1])
         ->shouldReceive('resolveSessionCriteria')->andReturnUsing(fn($s) => $s)
         ->shouldReceive('pickBatch')->andReturn([])
         ->shouldReceive('genres')->andReturn([])
-        ->shouldReceive('movieGenresMap')->andReturn([])
+        ->shouldReceive('genresMap')->andReturn([])
         ->shouldReceive('buildProvidersArray')->andReturn([]);
 });
 

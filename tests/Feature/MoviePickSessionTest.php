@@ -15,10 +15,10 @@ beforeEach(function () {
     $this->partialMock(MovieService::class, function ($mock) {
         $mock->shouldReceive('getUserCountry')->andReturn('US');
         $mock->shouldReceive('resolvePage')->andReturn(1);
-        $mock->shouldReceive('randomMovie')->andReturn(['id' => 550]);
+        $mock->shouldReceive('pickRandom')->andReturn(['id' => 550]);
         $mock->shouldReceive('pickBatch')->andReturn([]);
         $mock->shouldReceive('genres')->andReturn([]);
-        $mock->shouldReceive('movieGenresMap')->andReturn([]);
+        $mock->shouldReceive('genresMap')->andReturn([]);
         $mock->shouldReceive('buildProvidersArray')->andReturn([]);
     });
 });

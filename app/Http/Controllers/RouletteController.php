@@ -87,7 +87,7 @@ class RouletteController extends Controller
         return view('roulettes', compact('movieGrouped', 'tvGrouped', 'communityRoulettes', 'myRoulettes'));
     }
 
-    public function rollJson(string $slug, MovieService $movieService, TmdbClient $tmdb): JsonResponse
+    public function moviesJson(string $slug, MovieService $movieService, TmdbClient $tmdb): JsonResponse
     {
         $roulette = Roulette::where('slug', $slug)
             ->where(function ($q) {
