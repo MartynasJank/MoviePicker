@@ -13,7 +13,10 @@ class KeywordCriteriaController extends Controller
         $this->mergeKeyword('userInput', $id, $name);
 
         $country  = $movieService->getUserCountry();
-        $criteria = session('userInput', []);
+        $criteria = session('roll_source') === 'criteria'
+            ? session('userInput', [])
+            : ['with_keywords' => [$id], 'with_keywords_names' => [$name]];
+
         $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country);
         $results  = $tmdb->discover($criteria, $country);
 
@@ -30,7 +33,10 @@ class KeywordCriteriaController extends Controller
         $this->mergeKeyword('tvInput', $id, $name);
 
         $country  = $movieService->getUserCountry();
-        $criteria = session('tvInput', []);
+        $criteria = session('roll_source') === 'criteria'
+            ? session('tvInput', [])
+            : ['with_keywords' => [$id], 'with_keywords_names' => [$name]];
+
         $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country, 'tv');
         $results  = $tmdb->discoverTv($criteria, $country);
 
