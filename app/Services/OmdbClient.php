@@ -39,4 +39,22 @@ class OmdbClient implements ApiMovie
             return (isset($data->Response) && $data->Response === 'False') ? null : $data;
         });
     }
+
+    public function tv($imdbId): ?object
+    {
+        if (empty($imdbId)) {
+            return null;
+        }
+
+        return Cache::remember('omdb_tv_' . $imdbId, now()->addHours(6), function () use ($imdbId) {
+            $url      = 'https://private.omdbapi.com/?' . http_build_query([
+                'apikey'   => config('api.OMDB'),
+                'i'        => $imdbId,
+                'tomatoes' => 'true',
+            ]);
+            $response = $this->client->get($url);
+            $data = json_decode($response->getBody()->getContents());
+            return (isset($data->Response) && $data->Response === 'False') ? null : $data;
+        });
+    }
 }
