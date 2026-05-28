@@ -4,6 +4,9 @@
     @vite(['resources/js/custom/criteriaForm.js'])
 @endsection
 @section('content')
+@once
+<script>if (typeof gtag !== 'undefined') gtag('event', 'no_results_hit', { media_type: '{{ $isTv ? 'tv' : 'movie' }}' });</script>
+@endonce
 
 @if($isTv)
     @include('tv.criteria-modal')
