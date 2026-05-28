@@ -324,6 +324,8 @@
     </div>
     @endif
 
+    @include('includes.reviews')
+
     {{-- Similar movies --}}
     @if ($similarMovies != null)
     <div>

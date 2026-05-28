@@ -417,6 +417,8 @@
     </div>
     @endif
 
+    @include('includes.reviews')
+
     {{-- Similar shows --}}
     @if ($similarShows != null)
     <div>
