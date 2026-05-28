@@ -8,11 +8,10 @@ $(document).ready(function () {
             .replace(/"/g, '&quot;');
     }
 
-    const TYPE_LABELS = { movie: 'Movie', tv: 'TV', person: 'Person' };
+    const TYPE_LABELS = { movie: 'Movie', tv: 'TV' };
 
     function buildResult(r) {
         const type = r.media_type;
-        const badge = `<span class="text-[10px] font-semibold uppercase tracking-wider text-gray-600 flex-shrink-0">${TYPE_LABELS[type] || ''}</span>`;
 
         if (type === 'person') {
             const photo = r.profile_path
@@ -21,14 +20,14 @@ $(document).ready(function () {
             const sub = r.known_for_department ? escHtml(r.known_for_department) : '';
             return `<a href="/person/${r.id}" class="search-result-item flex items-center gap-3 px-3 py-2 hover:bg-white/5 transition-colors">
                 ${photo}
-                <div class="min-w-0 flex-1">
+                <div class="min-w-0">
                     <div class="text-sm text-white truncate">${escHtml(r.name)}</div>
                     ${sub ? `<div class="text-xs text-gray-500">${sub}</div>` : ''}
                 </div>
-                ${badge}
             </a>`;
         }
 
+        const badge = `<span class="text-[10px] font-semibold uppercase tracking-wider text-gray-600 flex-shrink-0">${TYPE_LABELS[type] || ''}</span>`;
         const href  = type === 'tv' ? `/tv/${r.id}` : `/movie/${r.id}`;
         const title = r.title || r.name || '';
         const year  = r.release_date ? r.release_date.substring(0, 4) : '';
