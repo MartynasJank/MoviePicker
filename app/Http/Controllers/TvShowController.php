@@ -43,7 +43,7 @@ class TvShowController extends Controller
         $similarShows = null;
         $similarTitle = 'Similar Shows';
 
-        if (!empty($showCriteria)) {
+        if (!empty($showCriteria) && session('roll_source') === 'criteria') {
             $showCriteria['page'] = rand(1, min($showCriteria['total_pages'] ?? 500, 500));
             $discovered = $tmdb->discoverTv($showCriteria, $country);
             if (count($discovered['results']) >= 4) {
@@ -54,10 +54,17 @@ class TvShowController extends Controller
         }
 
         if ($similarShows === null) {
-            $raw = $tmdb->similarShows($tmdbInfo);
-            if ($raw) {
-                $raw['results'] = $movieService->normaliseShows($raw['results']);
-                $similarShows   = $raw;
+            $recommendations = array_values((array) ($tmdbInfo->recommendations->results ?? []));
+            if (count($recommendations) >= 4) {
+                $recommendations = $movieService->normaliseShows(array_map(fn($r) => (array) $r, array_slice($recommendations, 0, 20)));
+                $similarShows    = ['results' => $recommendations];
+                $similarTitle    = 'You Might Also Like';
+            } else {
+                $raw = $tmdb->similarShows($tmdbInfo);
+                if ($raw) {
+                    $raw['results'] = $movieService->normaliseShows($raw['results']);
+                    $similarShows   = $raw;
+                }
             }
         }
 

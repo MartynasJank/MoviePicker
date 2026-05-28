@@ -71,7 +71,7 @@ class MovieController extends Controller
                 ])->values()->all()];
                 $similarTitle = 'More from Your Watchlist';
             }
-        } elseif (!empty($movieCriteria)) {
+        } elseif (!empty($movieCriteria) && session('roll_source') === 'criteria') {
             $movieCriteria['page'] = rand(1, min($movieCriteria['total_pages'] ?? 500, 500));
             $discovered = $tmdb->discover($movieCriteria, $country);
             if (count($discovered['results']) >= 4) {
@@ -81,7 +81,13 @@ class MovieController extends Controller
         }
 
         if ($similarMovies === null) {
-            $similarMovies = $tmdb->similarMovies($tmdbInfo);
+            $recommendations = $tmdbInfo->recommendations->results ?? [];
+            if (count($recommendations) >= 4) {
+                $similarMovies = ['results' => array_slice($recommendations, 0, 20)];
+                $similarTitle  = 'You Might Also Like';
+            } else {
+                $similarMovies = $tmdb->similarMovies($tmdbInfo);
+            }
         }
 
         $collection = null;

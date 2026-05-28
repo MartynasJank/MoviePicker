@@ -41,6 +41,7 @@ class MoviePickController extends PickController
             return redirect('/criteria');
         }
 
+        session(['roll_source' => 'criteria']);
         return redirect()->route('movie', [$movieService->pickRandom($results['results'])['id']]);
     }
 
@@ -91,6 +92,7 @@ class MoviePickController extends PickController
             'batchUrl'          => url('/multiple'),
             'savedBatchUrl'     => url('/multiple'),
             'savedBatchResults' => $picked,
+            'roll_source'       => 'criteria',
         ]);
 
         return response()->json($this->toRollCards($picked));
@@ -118,6 +120,7 @@ class MoviePickController extends PickController
             'batchUrl'          => url('/multiple'),
             'savedBatchUrl'     => url('/multiple'),
             'savedBatchResults' => $picked,
+            'roll_source'       => 'other',
         ]);
 
         return response()->json($this->toRollCards($picked));

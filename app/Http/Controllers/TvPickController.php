@@ -42,6 +42,7 @@ class TvPickController extends PickController
             return redirect('/tv/criteria');
         }
 
+        session(['roll_source' => 'criteria']);
         return redirect()->route('tv.show', [$movieService->pickRandom($results['results'])['id']]);
     }
 
@@ -94,6 +95,7 @@ class TvPickController extends PickController
             'batchUrl'          => url('/tv/multiple'),
             'savedBatchUrl'     => url('/tv/multiple'),
             'savedBatchResults' => $picked,
+            'roll_source'       => 'criteria',
         ]);
 
         return response()->json($this->toRollCards($picked, 'tv'));
@@ -121,6 +123,7 @@ class TvPickController extends PickController
             'batchUrl'          => url('/tv/multiple'),
             'savedBatchUrl'     => url('/tv/multiple'),
             'savedBatchResults' => $picked,
+            'roll_source'       => 'other',
         ]);
 
         return response()->json($this->toRollCards($picked, 'tv'));

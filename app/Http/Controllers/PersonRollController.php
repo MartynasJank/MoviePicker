@@ -16,7 +16,7 @@ class PersonRollController extends Controller
         $type     = $request->query('type', 'cast');
         $criteria = $type === 'crew' ? ['with_crew' => [$id]] : ['with_cast' => [$id]];
 
-        session(['userInput' => $criteria + ['vote_count_gte' => 10]]);
+        session(['userInput' => $criteria + ['vote_count_gte' => 10], 'roll_source' => 'other']);
 
         $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country);
         $results = $tmdb->discover($criteria, $country);
@@ -60,6 +60,7 @@ class PersonRollController extends Controller
                 $personKey . '_names'   => [(string)($person->name ?? '')],
                 'vote_count_gte'        => 10,
             ],
+            'roll_source' => 'other',
         ]);
 
         return redirect()->route('tv.show', [$shows->random()->id]);
@@ -71,7 +72,7 @@ class PersonRollController extends Controller
         $type     = $request->query('type', 'cast');
         $criteria = $type === 'crew' ? ['with_crew' => [$id]] : ['with_cast' => [$id]];
 
-        session(['userInput' => $criteria + ['vote_count_gte' => 10]]);
+        session(['userInput' => $criteria + ['vote_count_gte' => 10], 'roll_source' => 'other']);
         session()->forget('batchUrl');
 
         $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country);
@@ -108,6 +109,7 @@ class PersonRollController extends Controller
                 $personKey . '_names' => [(string)($person->name ?? '')],
                 'vote_count_gte'      => 10,
             ],
+            'roll_source' => 'other',
         ]);
         session()->forget('batchUrl');
 
