@@ -1,21 +1,31 @@
 <!DOCTYPE html>
 <html lang="en" translate="no" data-theme="dark">
 <head>
-    <title>@yield('page_title', 'MoviePickr')</title>
+    <title>@yield('page_title', 'MoviePickr — Random Movie & TV Show Picker')</title>
     <link rel="icon" href="{{ URL::asset('/images/icon.png') }}"/>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="description" content="Random Movie Picker — find the perfect film for tonight.">
+    <meta name="description" content="@yield('meta_description', 'Pick a random movie or TV show filtered by genre, streaming service, or mood. Or just hit roll and let it decide.')">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:site_name" content="MoviePickr">
+    <meta property="og:title" content="@yield('og_title', 'MoviePickr — Random Movie & TV Show Picker')">
+    <meta property="og:description" content="@yield('og_description', 'Pick a random movie or TV show filtered by genre, streaming service, or mood. Or just hit roll and let it decide.')">
+    <meta property="og:image" content="@yield('og_image', URL::asset('/images/icon.png'))">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@yield('og_title', 'MoviePickr — Random Movie & TV Show Picker')">
+    <meta name="twitter:description" content="@yield('og_description', 'Pick a random movie or TV show filtered by genre, streaming service, or mood. Or just hit roll and let it decide.')">
+    <meta name="twitter:image" content="@yield('og_image', URL::asset('/images/icon.png'))">
     <script>!function(){var m=document.cookie.match(/(?:^|; )theme=([^;]+)/);if(m)document.documentElement.dataset.theme=m[1]}()</script>
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/custom/watchlist.js', 'resources/js/custom/search.js', 'resources/js/custom/roulettes.js'])
     @yield('scripts', '')
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-204204564-1"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RH8D2TSYJJ"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-        gtag('config', 'UA-204204564-1');
+        gtag('config', 'G-RH8D2TSYJJ');
     </script>
 </head>
 <body>

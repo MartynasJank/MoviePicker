@@ -27,7 +27,7 @@
                 <span class="text-white">Random</span><br>
                 <span class="text-accent">Movie Picker</span>
             </h1>
-            <p class="text-gray-400 text-base sm:text-lg mb-7 sm:mb-10">For evenings when you can't decide what to watch.</p>
+            <p class="text-gray-400 text-base sm:text-lg mb-7 sm:mb-10">Filter by genre, streaming service, or mood. Or just hit roll and see what comes up.</p>
             <div class="grid sm:grid-cols-2 gap-3 sm:gap-4 max-w-xl mx-auto w-full text-left">
                 {{-- Movies card --}}
                 <div class="bg-white/5 border border-white/8 rounded-2xl p-4 sm:p-6 flex flex-col gap-3 sm:gap-4 hover:bg-white/7 hover:border-white/15 transition-all duration-200 hover:shadow-[0_0_28px_rgba(192,57,58,0.12)]">
@@ -43,7 +43,7 @@
                     <a href="/movie?i=new" class="btn-accent long-single text-center">Random Movie</a>
                     <div class="flex gap-2">
                         <a href="/multiple?i=new" class="btn-secondary long-single text-center text-sm flex-1">Batch</a>
-                        <a href="/criteria" class="btn-secondary text-center text-sm flex-1">Criteria</a>
+                        <a href="/criteria" class="btn-secondary text-center text-sm flex-1">Filters</a>
                     </div>
                 </div>
                 {{-- TV Shows card --}}
@@ -60,7 +60,7 @@
                     <a href="/tv/pick?i=new" class="btn-accent long-single text-center">Random TV Show</a>
                     <div class="flex gap-2">
                         <a href="/tv/multiple?i=new" class="btn-secondary long-single text-center text-sm flex-1">Batch</a>
-                        <a href="/tv/criteria" class="btn-secondary text-center text-sm flex-1">Criteria</a>
+                        <a href="/tv/criteria" class="btn-secondary text-center text-sm flex-1">Filters</a>
                     </div>
                 </div>
             </div>
@@ -441,39 +441,6 @@
         </div>
     </section>
 
-    {{-- Contact --}}
-    <section class="max-w-2xl mx-auto px-4 pt-16 pb-8">
-        <div class="section-header text-center">
-            <h2 class="text-2xl font-bold text-white mb-3">Contact</h2>
-            <div class="section-divider mb-8"></div>
-        </div>
-        <form method="POST" action="/" class="flex flex-col gap-4">
-            @csrf
-            @include('errors.error')
-            <div class="grid md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm text-gray-400 mb-1.5">Name</label>
-                    <input type="text" name="name" value="{{ old('name') }}" placeholder="Your name" class="input-dark" required>
-                </div>
-                <div>
-                    <label class="block text-sm text-gray-400 mb-1.5">Email</label>
-                    <input type="email" name="email" value="{{ old('email') }}" placeholder="your@email.com" class="input-dark" required>
-                </div>
-            </div>
-            <div>
-                <label class="block text-sm text-gray-400 mb-1.5">Subject</label>
-                <input type="text" name="subject" value="{{ old('subject') }}" placeholder="Subject" class="input-dark" required>
-            </div>
-            <div>
-                <label class="block text-sm text-gray-400 mb-1.5">Message</label>
-                <textarea name="message" placeholder="Your message…" rows="5" class="input-dark resize-none" required>{{ old('message') }}</textarea>
-            </div>
-            <div class="flex items-center justify-end gap-3">
-                <p class="text-xs text-gray-600">Contact is currently under maintenance</p>
-                <button type="submit" name="send" class="btn-accent opacity-40 cursor-not-allowed" disabled>Send Message</button>
-            </div>
-        </form>
-    </section>
 
     <script>
     document.addEventListener('DOMContentLoaded', function () {

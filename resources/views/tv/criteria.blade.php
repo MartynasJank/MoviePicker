@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page_title', 'TV Show Criteria — MoviePickr')
+@section('page_title', 'TV Show Filters — MoviePickr')
 @section('footer_pb', 'pb-24')
 @section('scripts')
     <script>window._criteriaInput = @json($userInput ?? []);</script>
