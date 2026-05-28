@@ -130,8 +130,10 @@ document.addEventListener('submit', function (e) {
 
     fetch(endpoint, { method: 'POST', body })
         .then(r => r.json())
-        .then(movies => {
+        .then(resp => {
             if (btn) { btn.textContent = isMovie ? 'Find Movie' : 'Find Show'; btn.disabled = false; }
+            const movies = resp.cards || resp;
+            if (resp._debug) console.log('[criteria roll]', resp._debug);
             if (!rollCards(toCards(movies))) window.location.href = fallback;
         })
         .catch(() => { window.location.href = fallback; });
