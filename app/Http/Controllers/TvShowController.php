@@ -79,8 +79,8 @@ class TvShowController extends Controller
         $reviews    = collect($tmdbInfo->reviews->results ?? [])
             ->map(fn($r) => (array) $r)
             ->sortBy([
-                fn($r) => isset($r['author_details']['rating']) ? abs((float) $r['author_details']['rating'] - $refScore) : PHP_INT_MAX,
-                fn($r) => -(float) ($r['author_details']['rating'] ?? 0),
+                fn($r) => isset($r['author_details']->rating) ? abs((float) $r['author_details']->rating - $refScore) : PHP_INT_MAX,
+                fn($r) => -(float) ($r['author_details']->rating ?? 0),
                 fn($r) => -mb_strlen($r['content'] ?? ''),
             ])
             ->take(5)
