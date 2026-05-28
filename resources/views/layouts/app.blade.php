@@ -228,6 +228,7 @@
             </a>
             <span class="text-gray-700">This product uses the TMDB API but is not endorsed or certified by TMDB.</span>
             <span class="text-gray-700">Watch provider data by <a href="https://www.justwatch.com" target="_blank" class="hover:text-gray-500 transition-colors">JustWatch</a>.</span>
+            <span class="text-gray-700">Ratings data by <a href="https://www.omdbapi.com" target="_blank" class="hover:text-gray-500 transition-colors">OMDb</a>.</span>
         </div>
     </footer>
     @endunless
