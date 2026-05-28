@@ -18,6 +18,7 @@ export default defineConfig({
                 'resources/js/custom/search.js',
                 'resources/js/custom/roulettes.js',
                 'resources/js/custom/rouletteForm.js',
+                'resources/js/custom/cookieConsent.js',
             ],
             refresh: true,
         }),
