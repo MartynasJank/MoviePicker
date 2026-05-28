@@ -141,6 +141,22 @@
                 </div>
             </div>
 
+            @if(!empty($selectedKeywords))
+            <div class="card p-4">
+                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Keywords</h3>
+                <div class="flex flex-wrap gap-2">
+                    @foreach($selectedKeywords as [$kwId, $kwName])
+                        <div class="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-accent/15 border border-accent/20 text-accent">
+                            <span>{{ $kwName }}</span>
+                            <a href="{{ url('/criteria/keyword/remove/' . $kwId) }}" class="hover:text-white ml-1">✕</a>
+                            <input type="hidden" name="with_keywords[]" value="{{ $kwId }}">
+                            <input type="hidden" name="with_keywords_names[]" value="{{ $kwName }}">
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
             @include('errors.error')
 
         </div>

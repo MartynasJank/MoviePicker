@@ -68,6 +68,7 @@ class TvShowController extends Controller
             }
         }
 
+        $keywords   = array_slice((array) ($tmdbInfo->keywords->results ?? []), 0, 5);
         $genres     = $movieService->genresString($tmdbInfo);
         $trailer    = $movieService->getTrailer($tmdbInfo->videos->results ?? []);
         $all_genres = $movieService->genres($tmdb, 'tv');
@@ -77,7 +78,7 @@ class TvShowController extends Controller
         return view('tv.show', compact(
             'tmdbInfo', 'omdbInfo', 'urls', 'genres', 'trailer', 'user_input', 'all_genres',
             'watchProviders', 'providersArray', 'batchUrl', 'savedIds', 'country',
-            'similarShows', 'similarTitle'
+            'similarShows', 'similarTitle', 'keywords'
         ));
     }
 

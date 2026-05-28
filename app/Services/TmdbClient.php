@@ -32,6 +32,7 @@ class TmdbClient implements ApiMovie
     public function discover(array $input = [], string $country = 'LT'): array
     {
         $input = $this->fixMovieArrayKeys($input);
+        unset($input['with_keywords_names']);
 
         // Default language when no filters are set
         if (count($input) <= 1) {
@@ -39,7 +40,7 @@ class TmdbClient implements ApiMovie
         }
 
         // Implode array values to comma-separated strings
-        foreach (['with_genres', 'without_genres', 'with_watch_providers', 'with_cast', 'with_crew'] as $key) {
+        foreach (['with_genres', 'without_genres', 'with_watch_providers', 'with_cast', 'with_crew', 'with_keywords'] as $key) {
             if (isset($input[$key]) && is_array($input[$key])) {
                 $input[$key] = implode(',', $input[$key]);
             }
@@ -97,7 +98,7 @@ class TmdbClient implements ApiMovie
     {
         return Cache::remember('tmdb_movie_' . $movieId, now()->addHours(6), function () use ($movieId) {
             $url = 'https://api.themoviedb.org/3/movie/' . $movieId . '?'
-                . http_build_query(['append_to_response' => 'videos,credits,similar,recommendations,watch/providers']);
+                . http_build_query(['append_to_response' => 'videos,credits,similar,recommendations,keywords,watch/providers']);
 
             $response = $this->client->get($url);
             return json_decode($response->getBody()->getContents());
@@ -227,7 +228,7 @@ class TmdbClient implements ApiMovie
             $input['with_original_language'] = 'en';
         }
 
-        unset($input['with_cast_names'], $input['with_crew_names']);
+        unset($input['with_cast_names'], $input['with_crew_names'], $input['with_keywords_names']);
 
         foreach (['with_cast', 'with_crew'] as $key) {
             if (!empty($input[$key])) {
@@ -239,7 +240,7 @@ class TmdbClient implements ApiMovie
             unset($input[$key]);
         }
 
-        foreach (['with_genres', 'without_genres', 'with_watch_providers', 'with_people'] as $key) {
+        foreach (['with_genres', 'without_genres', 'with_watch_providers', 'with_people', 'with_keywords'] as $key) {
             if (isset($input[$key]) && is_array($input[$key])) {
                 $input[$key] = implode(',', $input[$key]);
             }
@@ -328,7 +329,7 @@ class TmdbClient implements ApiMovie
     {
         return Cache::remember('tmdb_tv_' . $id, now()->addHours(6), function () use ($id) {
             $url = 'https://api.themoviedb.org/3/tv/' . $id . '?'
-                . http_build_query(['append_to_response' => 'videos,credits,similar,recommendations,watch/providers,external_ids']);
+                . http_build_query(['append_to_response' => 'videos,credits,similar,recommendations,keywords,watch/providers,external_ids']);
 
             $response = $this->client->get($url);
             return json_decode($response->getBody()->getContents());
