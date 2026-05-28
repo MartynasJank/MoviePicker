@@ -38,7 +38,7 @@ class MoviePickController extends PickController
         }
 
         if (empty($results['results'])) {
-            return redirect('/criteria');
+            return $this->noResults('movie');
         }
 
         session(['roll_source' => 'criteria']);

@@ -2,20 +2,44 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\TmdbClient;
+use App\Services\MovieService;
 use Illuminate\Http\RedirectResponse;
 
 class KeywordCriteriaController extends Controller
 {
-    public function movie(int $id, string $name): RedirectResponse
+    public function movie(int $id, string $name, TmdbClient $tmdb, MovieService $movieService): RedirectResponse
     {
         $this->mergeKeyword('userInput', $id, $name);
-        return redirect('/criteria');
+
+        $country  = $movieService->getUserCountry();
+        $criteria = session('userInput', []);
+        $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country);
+        $results  = $tmdb->discover($criteria, $country);
+
+        if (empty($results['results'])) {
+            return $this->noResults('movie');
+        }
+
+        session(['roll_source' => 'criteria']);
+        return redirect()->route('movie', [$movieService->pickRandom($results['results'])['id']]);
     }
 
-    public function tv(int $id, string $name): RedirectResponse
+    public function tv(int $id, string $name, TmdbClient $tmdb, MovieService $movieService): RedirectResponse
     {
         $this->mergeKeyword('tvInput', $id, $name);
-        return redirect('/tv/criteria');
+
+        $country  = $movieService->getUserCountry();
+        $criteria = session('tvInput', []);
+        $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country, 'tv');
+        $results  = $tmdb->discoverTv($criteria, $country);
+
+        if (empty($results['results'])) {
+            return $this->noResults('tv');
+        }
+
+        session(['roll_source' => 'criteria']);
+        return redirect()->route('tv.show', [$movieService->pickRandom($results['results'])['id']]);
     }
 
     public function removeMovie(int $id): RedirectResponse
