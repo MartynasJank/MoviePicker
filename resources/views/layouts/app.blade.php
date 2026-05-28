@@ -18,15 +18,16 @@
     <meta name="twitter:description" content="@yield('og_description', 'Pick a random movie or TV show filtered by genre, streaming service, or mood. Or just hit roll and let it decide.')">
     <meta name="twitter:image" content="@yield('og_image', URL::asset('/images/icon.png'))">
     <script>!function(){var m=document.cookie.match(/(?:^|; )theme=([^;]+)/);if(m)document.documentElement.dataset.theme=m[1]}()</script>
-    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/custom/watchlist.js', 'resources/js/custom/search.js', 'resources/js/custom/roulettes.js'])
-    @yield('scripts', '')
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RH8D2TSYJJ"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
+        gtag('consent', 'default', { analytics_storage: 'denied' });
         gtag('js', new Date());
         gtag('config', 'G-RH8D2TSYJJ');
     </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RH8D2TSYJJ"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/custom/watchlist.js', 'resources/js/custom/search.js', 'resources/js/custom/roulettes.js', 'resources/js/custom/cookieConsent.js'])
+    @yield('scripts', '')
 </head>
 <body>
 
@@ -239,6 +240,7 @@
             <span class="text-gray-700">This product uses the TMDB API but is not endorsed or certified by TMDB.</span>
             <span class="text-gray-700">Watch provider data by <a href="https://www.justwatch.com" target="_blank" class="hover:text-gray-500 transition-colors">JustWatch</a>.</span>
             <span class="text-gray-700">Ratings data by <a href="https://www.omdbapi.com" target="_blank" class="hover:text-gray-500 transition-colors">OMDb</a>.</span>
+            <button data-cc="show-preferencesModal" class="hover:text-gray-400 transition-colors">Cookie settings</button>
         </div>
     </footer>
     @endunless
