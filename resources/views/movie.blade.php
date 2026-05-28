@@ -324,6 +324,8 @@
     </div>
     @endif
 
+    @include('includes.reviews')
+
     {{-- Similar movies --}}
     @if ($similarMovies != null)
     <div>
@@ -334,8 +336,6 @@
         @include('includes.carousel', ['allMovies' => $similarMovies, 'name' => 'swiper-similar', 'genres' => [], 'linkSuffix' => $linkSuffix, 'showScore' => true, 'showSave' => true, 'savedIds' => $savedIds])
     </div>
     @endif
-
-    @include('includes.reviews')
 
 </div>
 

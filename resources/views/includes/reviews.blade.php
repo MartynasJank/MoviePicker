@@ -24,14 +24,14 @@
                 ? \Carbon\Carbon::parse($review->created_at)->format('M Y')
                 : null;
         @endphp
-        @if($i === 2)
+        @if($i === 1)
         {{-- Animated wrapper for extra reviews --}}
         <div id="reviews-extra-wrapper" style="display:grid;grid-template-rows:0fr;overflow:hidden;transition:grid-template-rows 0.3s ease">
             <div style="overflow:hidden">
                 <div class="flex flex-col gap-4">
         @endif
 
-        <div class="card p-4{{ $i >= 2 ? ' pt-0 mt-0' : '' }}" @if($i === 2) style="margin-top:0" @endif>
+        <div class="card p-4">
             <div class="flex items-center gap-3 mb-3">
                 @if($avatarUrl)
                     <img src="{{ $avatarUrl }}" class="w-8 h-8 rounded-full object-cover flex-shrink-0" alt="">
@@ -59,7 +59,7 @@
             @endif
         </div>
 
-        @if($i === count($reviews) - 1 && count($reviews) > 2)
+        @if($i === count($reviews) - 1 && count($reviews) > 1)
                 </div>
             </div>
         </div>
@@ -68,10 +68,10 @@
         @endforeach
     </div>
 
-    @if(count($reviews) > 2)
+    @if(count($reviews) > 1)
     <button type="button" id="reviews-toggle"
             class="mt-3 text-sm text-gray-500 hover:text-white transition-colors">
-        Show {{ count($reviews) - 2 }} more reviews ↓
+        Show {{ count($reviews) - 1 }} more {{ Str::plural('review', count($reviews) - 1) }} ↓
     </button>
     <script>
     (function () {
@@ -83,7 +83,7 @@
             wrapper.style.gridTemplateRows = open ? '1fr' : '0fr';
             btn.textContent = open
                 ? 'Show fewer reviews ↑'
-                : 'Show {{ count($reviews) - 2 }} more reviews ↓';
+                : 'Show {{ count($reviews) - 1 }} more {{ Str::plural('review', count($reviews) - 1) }} ↓';
         });
     })();
     </script>
