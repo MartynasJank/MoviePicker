@@ -6,7 +6,6 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\UserInputController;
 use App\Http\Controllers\CriteriaController;
-use App\Http\Controllers\KeywordCriteriaController;
 use App\Http\Controllers\NoResultsController;
 use App\Http\Controllers\MoviePickController;
 use App\Http\Controllers\MovieController;
@@ -48,7 +47,6 @@ Route::get('/userinput', UserInputController::class);
 
 Route::prefix('tmdb')->group(function () {
     Route::get('/search/all',      [TmdbProxyController::class, 'searchAll']);
-    Route::get('/search/keywords', [TmdbProxyController::class, 'searchKeywords']);
     Route::get('/search/movies', [TmdbProxyController::class, 'searchMovies']);
     Route::get('/search/people', [TmdbProxyController::class, 'searchPeople']);
     Route::get('/search/tv',     [TmdbProxyController::class, 'searchTv']);
@@ -56,12 +54,6 @@ Route::prefix('tmdb')->group(function () {
 });
 Route::get('/no-results', NoResultsController::class)->name('no-results');
 Route::get('/criteria',  CriteriaController::class);
-Route::get('/criteria/keyword/remove/{id}',            [KeywordCriteriaController::class, 'removeMovie'])->whereNumber('id');
-Route::get('/criteria/keyword/{id}/{name}/json',       [KeywordCriteriaController::class, 'movieJson'])->whereNumber('id');
-Route::get('/criteria/keyword/{id}/{name}',            [KeywordCriteriaController::class, 'movie'])->whereNumber('id');
-Route::get('/tv/criteria/keyword/remove/{id}',         [KeywordCriteriaController::class, 'removeTv'])->whereNumber('id');
-Route::get('/tv/criteria/keyword/{id}/{name}/json',    [KeywordCriteriaController::class, 'tvJson'])->whereNumber('id');
-Route::get('/tv/criteria/keyword/{id}/{name}',         [KeywordCriteriaController::class, 'tv'])->whereNumber('id');
 
 Route::match(['get', 'post'], '/movie',    [MoviePickController::class, 'single']);
 Route::match(['get', 'post'], '/multiple', [MoviePickController::class, 'batch']);

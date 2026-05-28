@@ -121,62 +121,6 @@ $(document).ready(function () {
     initTs('with_watch_providers',       { plugins: ['remove_button'], placeholder: 'Select services…', maxOptions: null, render: logoRender });
     initTs('modal-with_watch_providers', { plugins: ['remove_button'], placeholder: 'Select services…', maxOptions: null, render: logoRender });
 
-    /* ── Sub-Genre (Keywords) ───────────────────────────────────── */
-    (function () {
-        const el = document.getElementById('with_keywords');
-        if (!el) return;
-        const ts = new TomSelect('#with_keywords', {
-            plugins: ['remove_button'],
-            placeholder: 'Search sub-genres…',
-            maxOptions: null,
-            create: false,
-        });
-        let timer;
-        ts.on('type', function (query) {
-            clearTimeout(timer);
-            if (!query) return;
-            if (!ts.loading) {
-                ts.loading++;
-                ts.wrapper.classList.add(ts.settings.loadingClass);
-                ts.clearOptions();
-                ts.refreshOptions(false);
-            }
-            timer = setTimeout(function () {
-                $.getJSON('/tmdb/search/keywords', { q: query })
-                    .done(function (data) {
-                        data.forEach(function (kw) {
-                            ts.addOption({ value: String(kw.id), text: kw.name });
-                        });
-                    })
-                    .always(function () {
-                        ts.loading = Math.max(ts.loading - 1, 0);
-                        if (!ts.loading) ts.wrapper.classList.remove(ts.settings.loadingClass);
-                        ts.refreshOptions(true);
-                    });
-            }, 300);
-        });
-        ts.on('item_add', function (value) {
-            let opt = el.querySelector('option[value="' + value + '"]');
-            if (!opt) { opt = document.createElement('option'); opt.value = value; el.appendChild(opt); }
-            opt.selected = true;
-            const name = ts.options[value] && ts.options[value].text;
-            if (name) {
-                const form = el.closest('form');
-                if (form) {
-                    let ni = form.querySelector('input[name="with_keywords_names[]"][data-kw-id="' + value + '"]');
-                    if (!ni) { ni = document.createElement('input'); ni.type = 'hidden'; ni.name = 'with_keywords_names[]'; ni.dataset.kwId = value; form.appendChild(ni); }
-                    ni.value = name;
-                }
-            }
-        });
-        ts.on('item_remove', function (value) {
-            const opt = el.querySelector('option[value="' + value + '"]');
-            if (opt) opt.remove();
-            const form = el.closest('form');
-            if (form) { const ni = form.querySelector('input[name="with_keywords_names[]"][data-kw-id="' + value + '"]'); if (ni) ni.remove(); }
-        });
-    })();
-
     /* ── People ─────────────────────────────────────────────────── */
     makePeopleTs('with_cast', 'Acting');
     makePeopleTs('with_crew', null);
@@ -192,68 +136,13 @@ $(document).ready(function () {
                 restorePeople(data['with_crew'], 'modal-with_crew');
             });
         }
-        if (!window['_ts_modal-with_keywords']) {
-            const el = document.getElementById('modal-with_keywords');
-            if (el) {
-                const ts = new TomSelect('#modal-with_keywords', {
-                    plugins: ['remove_button'],
-                    placeholder: 'Search sub-genres…',
-                    maxOptions: null,
-                    create: false,
-                });
-                // Create hidden name inputs for keywords pre-rendered from session
-                const form = el.closest('form');
-                if (form) {
-                    ts.items.forEach(function (value) {
-                        const name = ts.options[value] && ts.options[value].text;
-                        if (name) {
-                            let ni = form.querySelector('input[name="with_keywords_names[]"][data-kw-id="' + value + '"]');
-                            if (!ni) { ni = document.createElement('input'); ni.type = 'hidden'; ni.name = 'with_keywords_names[]'; ni.dataset.kwId = value; form.appendChild(ni); }
-                            ni.value = name;
-                        }
-                    });
-                }
-                let timer;
-                ts.on('type', function (query) {
-                    clearTimeout(timer);
-                    if (!query) return;
-                    if (!ts.loading) { ts.loading++; ts.wrapper.classList.add(ts.settings.loadingClass); ts.clearOptions(); ts.refreshOptions(false); }
-                    timer = setTimeout(function () {
-                        $.getJSON('/tmdb/search/keywords', { q: query })
-                            .done(function (data) { data.forEach(function (kw) { ts.addOption({ value: String(kw.id), text: kw.name }); }); })
-                            .always(function () { ts.loading = Math.max(ts.loading - 1, 0); if (!ts.loading) ts.wrapper.classList.remove(ts.settings.loadingClass); ts.refreshOptions(true); });
-                    }, 300);
-                });
-                ts.on('item_add', function (value) {
-                    let opt = el.querySelector('option[value="' + value + '"]');
-                    if (!opt) { opt = document.createElement('option'); opt.value = value; el.appendChild(opt); }
-                    opt.selected = true;
-                    const name = ts.options[value] && ts.options[value].text;
-                    if (name) {
-                        const form = el.closest('form');
-                        if (form) {
-                            let ni = form.querySelector('input[name="with_keywords_names[]"][data-kw-id="' + value + '"]');
-                            if (!ni) { ni = document.createElement('input'); ni.type = 'hidden'; ni.name = 'with_keywords_names[]'; ni.dataset.kwId = value; form.appendChild(ni); }
-                            ni.value = name;
-                        }
-                    }
-                });
-                ts.on('item_remove', function (value) {
-                    const opt = el.querySelector('option[value="' + value + '"]');
-                    if (opt) opt.remove();
-                    const form = el.closest('form');
-                    if (form) { const ni = form.querySelector('input[name="with_keywords_names[]"][data-kw-id="' + value + '"]'); if (ni) ni.remove(); }
-                });
-                window['_ts_modal-with_keywords'] = ts;
-            }
-        }
     });
 
     /* ── Reset ──────────────────────────────────────────────────── */
     function resetForm(formId, prefix) {
         const $form = $(formId);
         $form.find('.bg-input').val('');
-        ['with_genres', 'without_genres', 'with_watch_providers', 'with_cast', 'with_crew', 'with_keywords'].forEach(function (key) {
+        ['with_genres', 'without_genres', 'with_watch_providers', 'with_cast', 'with_crew'].forEach(function (key) {
             const ts = window['_ts_' + prefix + key];
             if (ts) ts.clear(true);
         });
