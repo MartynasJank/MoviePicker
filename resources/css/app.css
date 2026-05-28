@@ -579,18 +579,47 @@ html[data-theme="light"] .bg-white\/\[0\.02\] { background-color: rgba(0,0,0,0.0
     --cc-bg: #1a1a1a;
     --cc-primary-color: #f5f5f5;
     --cc-secondary-color: #9ca3af;
-    --cc-btn-primary-bg: #c0393a;
-    --cc-btn-primary-color: #fff;
-    --cc-btn-primary-hover-bg: #a83031;
-    --cc-btn-secondary-bg: rgba(255,255,255,0.08);
-    --cc-btn-secondary-color: #f5f5f5;
-    --cc-btn-secondary-hover-bg: rgba(255,255,255,0.13);
+    --cc-link-color: #c0393a;
     --cc-separator-border-color: rgba(255,255,255,0.08);
-    --cc-toggle-on-bg: #c0393a;
-    --cc-toggle-off-bg: rgba(255,255,255,0.15);
-    --cc-overlay-bg: rgba(0,0,0,0.6);
     --cc-modal-border-radius: 12px;
     --cc-btn-border-radius: 8px;
     --cc-z-index: 9999;
+    --cc-overlay-bg: rgba(0,0,0,0.6);
+
+    --cc-btn-primary-bg: #c0393a;
+    --cc-btn-primary-color: #fff;
+    --cc-btn-primary-hover-bg: #a83031;
+    --cc-btn-primary-border-color: transparent;
+    --cc-btn-primary-hover-border-color: transparent;
+    --cc-btn-secondary-bg: rgba(255,255,255,0.08);
+    --cc-btn-secondary-color: #f5f5f5;
+    --cc-btn-secondary-hover-bg: rgba(255,255,255,0.13);
+    --cc-btn-secondary-border-color: transparent;
+    --cc-btn-secondary-hover-border-color: transparent;
+
+    --cc-cookie-category-block-bg: rgba(255,255,255,0.05);
+    --cc-cookie-category-block-border: rgba(255,255,255,0.08);
+    --cc-cookie-category-block-hover-bg: rgba(255,255,255,0.08);
+    --cc-cookie-category-block-hover-border: rgba(255,255,255,0.12);
+    --cc-cookie-category-expanded-block-bg: rgba(255,255,255,0.03);
+    --cc-cookie-category-expanded-block-hover-bg: rgba(255,255,255,0.05);
+    --cc-section-category-border: rgba(255,255,255,0.06);
+
+    --cc-footer-bg: #141414;
+    --cc-footer-border-color: rgba(255,255,255,0.08);
+    --cc-footer-color: #9ca3af;
+
+    --cc-toggle-on-bg: #c0393a;
+    --cc-toggle-off-bg: rgba(255,255,255,0.15);
+    --cc-toggle-on-knob-bg: #fff;
+    --cc-toggle-off-knob-bg: #fff;
+    --cc-toggle-readonly-bg: rgba(255,255,255,0.08);
+    --cc-toggle-readonly-knob-bg: rgba(255,255,255,0.4);
+    --cc-toggle-readonly-knob-icon-color: rgba(255,255,255,0.3);
+    --cc-toggle-enabled-icon-color: #fff;
+    --cc-toggle-disabled-icon-color: rgba(255,255,255,0.4);
+
+    --cc-webkit-scrollbar-bg: rgba(255,255,255,0.05);
+    --cc-webkit-scrollbar-hover-bg: rgba(255,255,255,0.1);
 }
 html[data-theme="light"] .bg-white\/\[0\.03\] { background-color: rgba(0,0,0,0.03) !important; }
