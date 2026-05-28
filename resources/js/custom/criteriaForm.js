@@ -121,6 +121,53 @@ $(document).ready(function () {
     initTs('with_watch_providers',       { plugins: ['remove_button'], placeholder: 'Select services…', maxOptions: null, render: logoRender });
     initTs('modal-with_watch_providers', { plugins: ['remove_button'], placeholder: 'Select services…', maxOptions: null, render: logoRender });
 
+    /* ── Sub-Genre (Keywords) ───────────────────────────────────── */
+    (function () {
+        const el = document.getElementById('with_keywords');
+        if (!el) return;
+        const ts = new TomSelect('#with_keywords', {
+            plugins: ['remove_button'],
+            placeholder: 'Search sub-genres…',
+            maxOptions: null,
+            create: false,
+        });
+        let timer;
+        ts.on('type', function (query) {
+            clearTimeout(timer);
+            if (!query) return;
+            if (!ts.loading) {
+                ts.loading++;
+                ts.wrapper.classList.add(ts.settings.loadingClass);
+                ts.clearOptions();
+                ts.refreshOptions(false);
+            }
+            timer = setTimeout(function () {
+                $.getJSON('/tmdb/search/keywords', { q: query })
+                    .done(function (data) {
+                        data.forEach(function (kw) {
+                            ts.addOption({ value: String(kw.id), text: kw.name });
+                        });
+                    })
+                    .always(function () {
+                        ts.loading = Math.max(ts.loading - 1, 0);
+                        if (!ts.loading) ts.wrapper.classList.remove(ts.settings.loadingClass);
+                        ts.refreshOptions(true);
+                    });
+            }, 300);
+        });
+        ts.on('change', function () {
+            const sel = el;
+            [...ts.items].forEach(function (val) {
+                if (!sel.querySelector(`option[value="${val}"]`)) {
+                    const opt = document.createElement('option');
+                    opt.value = val;
+                    opt.selected = true;
+                    sel.appendChild(opt);
+                }
+            });
+        });
+    })();
+
     /* ── People ─────────────────────────────────────────────────── */
     makePeopleTs('with_cast', 'Acting');
     makePeopleTs('with_crew', null);

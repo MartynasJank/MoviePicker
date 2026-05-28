@@ -373,6 +373,15 @@ class TmdbClient implements ApiMovie
         return json_decode($this->client->get($url)->getBody()->getContents(), true);
     }
 
+    public function searchKeywords(string $query): array
+    {
+        $url = 'https://api.themoviedb.org/3/search/keyword?' . http_build_query([
+            'query' => $query,
+            'page'  => 1,
+        ]);
+        return json_decode($this->client->get($url)->getBody()->getContents(), true);
+    }
+
     public function searchAll(string $query): array
     {
         $url = 'https://api.themoviedb.org/3/search/multi?' . http_build_query([
