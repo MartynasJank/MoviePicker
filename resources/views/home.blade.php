@@ -91,7 +91,7 @@
                 <input type="hidden" name="without_genres[]" value="53">
                 <input type="hidden" name="vote_average_gte" value="6.0">
                 <input type="hidden" name="vote_count_gte" value="200">
-                <button type="submit" class="mood-tile long-single" data-loading="Finding something to laugh at!">
+                <button type="submit" class="mood-tile long-single" data-loading="Finding something to laugh at!" data-mood="funny">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"/>
                         <path d="M8 13s1.5 3 4 3 4-3 4-3"/>
@@ -112,7 +112,7 @@
                 <input type="hidden" name="without_genres[]" value="10749">
                 <input type="hidden" name="vote_average_gte" value="6.5">
                 <input type="hidden" name="vote_count_gte" value="200">
-                <button type="submit" class="mood-tile long-single" data-loading="Finding something to keep you on edge!">
+                <button type="submit" class="mood-tile long-single" data-loading="Finding something to keep you on edge!" data-mood="intense">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
                     </svg>
@@ -130,7 +130,7 @@
                 <input type="hidden" name="without_genres[]" value="27">
                 <input type="hidden" name="without_genres[]" value="53">
                 <input type="hidden" name="without_genres[]" value="80">
-                <button type="submit" class="mood-tile long-single" data-loading="Finding something to warm your heart!">
+                <button type="submit" class="mood-tile long-single" data-loading="Finding something to warm your heart!" data-mood="feel-good">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="5"/>
                         <line x1="12" y1="1" x2="12" y2="3"/>
@@ -156,7 +156,7 @@
                 <input type="hidden" name="without_genres[]" value="10751">
                 <input type="hidden" name="vote_average_gte" value="6.0">
                 <input type="hidden" name="vote_count_gte" value="200">
-                <button type="submit" class="mood-tile long-single" data-loading="Finding something to haunt you!">
+                <button type="submit" class="mood-tile long-single" data-loading="Finding something to haunt you!" data-mood="dark">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
                     </svg>
@@ -174,7 +174,7 @@
                 <input type="hidden" name="without_genres[]" value="28">
                 <input type="hidden" name="vote_average_gte" value="6.5">
                 <input type="hidden" name="vote_count_gte" value="100">
-                <button type="submit" class="mood-tile long-single" data-loading="Finding something to fall in love with!">
+                <button type="submit" class="mood-tile long-single" data-loading="Finding something to fall in love with!" data-mood="romantic">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
                     </svg>
@@ -191,7 +191,7 @@
                 <input type="hidden" name="without_genres[]" value="18">
                 <input type="hidden" name="vote_average_gte" value="6.0">
                 <input type="hidden" name="vote_count_gte" value="200">
-                <button type="submit" class="mood-tile long-single" data-loading="Finding something to just enjoy!">
+                <button type="submit" class="mood-tile long-single" data-loading="Finding something to just enjoy!" data-mood="mindless">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"/>
                         <polygon points="10 8 16 12 10 16 10 8"/>
@@ -214,7 +214,7 @@
                 <input type="hidden" name="without_genres[]" value="16">
                 <input type="hidden" name="vote_average_gte" value="7.0">
                 <input type="hidden" name="vote_count_gte" value="100">
-                <button type="submit" class="mood-tile long-single" data-loading="Finding something to laugh at!">
+                <button type="submit" class="mood-tile long-single" data-loading="Finding something to laugh at!" data-mood="funny">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"/>
                         <path d="M8 13s1.5 3 4 3 4-3 4-3"/>
@@ -235,7 +235,7 @@
                 <input type="hidden" name="without_genres[]" value="16">
                 <input type="hidden" name="vote_average_gte" value="7.0">
                 <input type="hidden" name="vote_count_gte" value="100">
-                <button type="submit" class="mood-tile long-single" data-loading="Finding something to keep you on edge!">
+                <button type="submit" class="mood-tile long-single" data-loading="Finding something to keep you on edge!" data-mood="intense">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
                     </svg>
@@ -252,7 +252,7 @@
                 <input type="hidden" name="vote_count_gte" value="100">
                 <input type="hidden" name="without_genres[]" value="80">
                 <input type="hidden" name="without_genres[]" value="9648">
-                <button type="submit" class="mood-tile long-single" data-loading="Finding something to warm your heart!">
+                <button type="submit" class="mood-tile long-single" data-loading="Finding something to warm your heart!" data-mood="feel-good">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="5"/>
                         <line x1="12" y1="1" x2="12" y2="3"/>
@@ -278,7 +278,7 @@
                 <input type="hidden" name="without_genres[]" value="10751">
                 <input type="hidden" name="vote_average_gte" value="7.0">
                 <input type="hidden" name="vote_count_gte" value="100">
-                <button type="submit" class="mood-tile long-single" data-loading="Finding something to haunt you!">
+                <button type="submit" class="mood-tile long-single" data-loading="Finding something to haunt you!" data-mood="dark">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
                     </svg>
@@ -296,7 +296,7 @@
                 <input type="hidden" name="without_genres[]" value="10759">
                 <input type="hidden" name="vote_average_gte" value="7.0">
                 <input type="hidden" name="vote_count_gte" value="100">
-                <button type="submit" class="mood-tile long-single" data-loading="Finding something to fall in love with!">
+                <button type="submit" class="mood-tile long-single" data-loading="Finding something to fall in love with!" data-mood="romantic">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
                     </svg>
@@ -312,7 +312,7 @@
                 <input type="hidden" name="without_genres[]" value="18">
                 <input type="hidden" name="vote_average_gte" value="6.5">
                 <input type="hidden" name="vote_count_gte" value="100">
-                <button type="submit" class="mood-tile long-single" data-loading="Finding something to just enjoy!">
+                <button type="submit" class="mood-tile long-single" data-loading="Finding something to just enjoy!" data-mood="mindless">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"/>
                         <polygon points="10 8 16 12 10 16 10 8"/>
