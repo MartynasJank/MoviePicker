@@ -208,14 +208,18 @@ document.addEventListener('click', function (e) {
         'tv-criteria':    '/tv/roll/criteria',
     };
 
-    const isPersonRoll = rollType === 'person-movie' || rollType === 'person-tv';
-    const jsonUrl = isPersonRoll ? link.dataset.jsonUrl : (rollType ? endpoints[rollType] : null);
+    const isPersonRoll  = rollType === 'person-movie' || rollType === 'person-tv';
+    const isKeywordRoll = rollType === 'keyword-movie' || rollType === 'keyword-tv';
+    const jsonUrl = (isPersonRoll || isKeywordRoll) ? link.dataset.jsonUrl : (rollType ? endpoints[rollType] : null);
 
     if (jsonUrl) {
         e.preventDefault();
         const fallback = link.href;
         if (isPersonRoll) {
             setRollContext('person', window.location.href, link.dataset.backLabel || '← Back');
+        } else if (isKeywordRoll) {
+            const batchUrl = rollType === 'keyword-tv' ? '/tv/multiple?from=roll' : '/multiple?from=roll';
+            setRollContext('batch', batchUrl, '← Batch');
         } else {
             const batchUrl = (rollType === 'tv' || rollType === 'tv-criteria') ? '/tv/multiple?from=roll' : '/multiple?from=roll';
             setRollContext('batch', batchUrl, '← Batch');

@@ -33,6 +33,8 @@
                 @foreach($keywords as $kw)
                     @php $kw = (object) $kw; @endphp
                     <a href="{{ url('/tv/criteria/keyword/' . $kw->id . '/' . urlencode($kw->name)) }}"
+                       data-roll="keyword-tv"
+                       data-json-url="{{ url('/tv/criteria/keyword/' . $kw->id . '/' . urlencode($kw->name) . '/json') }}"
                        class="text-xs px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-gray-500 hover:text-white hover:border-white/30 transition-colors">
                         {{ $kw->name }}
                     </a>
