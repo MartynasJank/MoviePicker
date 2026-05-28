@@ -157,16 +157,23 @@ $(document).ready(function () {
         });
         ts.on('item_add', function (value) {
             let opt = el.querySelector('option[value="' + value + '"]');
-            if (!opt) {
-                opt = document.createElement('option');
-                opt.value = value;
-                el.appendChild(opt);
-            }
+            if (!opt) { opt = document.createElement('option'); opt.value = value; el.appendChild(opt); }
             opt.selected = true;
+            const name = ts.options[value] && ts.options[value].text;
+            if (name) {
+                const form = el.closest('form');
+                if (form) {
+                    let ni = form.querySelector('input[name="with_keywords_names[]"][data-kw-id="' + value + '"]');
+                    if (!ni) { ni = document.createElement('input'); ni.type = 'hidden'; ni.name = 'with_keywords_names[]'; ni.dataset.kwId = value; form.appendChild(ni); }
+                    ni.value = name;
+                }
+            }
         });
         ts.on('item_remove', function (value) {
             const opt = el.querySelector('option[value="' + value + '"]');
             if (opt) opt.remove();
+            const form = el.closest('form');
+            if (form) { const ni = form.querySelector('input[name="with_keywords_names[]"][data-kw-id="' + value + '"]'); if (ni) ni.remove(); }
         });
     })();
 
@@ -209,10 +216,21 @@ $(document).ready(function () {
                     let opt = el.querySelector('option[value="' + value + '"]');
                     if (!opt) { opt = document.createElement('option'); opt.value = value; el.appendChild(opt); }
                     opt.selected = true;
+                    const name = ts.options[value] && ts.options[value].text;
+                    if (name) {
+                        const form = el.closest('form');
+                        if (form) {
+                            let ni = form.querySelector('input[name="with_keywords_names[]"][data-kw-id="' + value + '"]');
+                            if (!ni) { ni = document.createElement('input'); ni.type = 'hidden'; ni.name = 'with_keywords_names[]'; ni.dataset.kwId = value; form.appendChild(ni); }
+                            ni.value = name;
+                        }
+                    }
                 });
                 ts.on('item_remove', function (value) {
                     const opt = el.querySelector('option[value="' + value + '"]');
                     if (opt) opt.remove();
+                    const form = el.closest('form');
+                    if (form) { const ni = form.querySelector('input[name="with_keywords_names[]"][data-kw-id="' + value + '"]'); if (ni) ni.remove(); }
                 });
                 window['_ts_modal-with_keywords'] = ts;
             }
