@@ -77,6 +77,21 @@ class TmdbProxyController extends Controller
         return response()->json($results);
     }
 
+    public function searchKeywords(Request $request, TmdbClient $tmdb): JsonResponse
+    {
+        $query = trim($request->string('q'));
+        if (!$query) {
+            return response()->json([]);
+        }
+
+        $results = collect($tmdb->searchKeywords($query)['results'] ?? [])
+            ->take(8)
+            ->values()
+            ->all();
+
+        return response()->json($results);
+    }
+
     public function searchAll(Request $request, TmdbClient $tmdb): JsonResponse
     {
         $query = trim($request->string('q'));

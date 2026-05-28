@@ -70,6 +70,29 @@
                 </div>
             </div>
 
+            {{-- Sub-Genre (Keywords) --}}
+            <div class="card p-5">
+                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Sub-Genre</h3>
+                <select id="with_keywords" name="with_keywords[]" multiple></select>
+                <p class="text-xs text-gray-600 mt-1">e.g. heist, time travel, zombies — you can add multiple</p>
+            </div>
+
+            @if(!empty($selectedKeywords))
+            <div class="card p-4">
+                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Active Sub-Genres</h3>
+                <div class="flex flex-wrap gap-2">
+                    @foreach($selectedKeywords as [$kwId, $kwName])
+                        <div class="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-accent/15 border border-accent/20 text-accent">
+                            <span>{{ $kwName }}</span>
+                            <a href="{{ url('/tv/criteria/keyword/remove/' . $kwId) }}" class="hover:text-white ml-1">✕</a>
+                            <input type="hidden" name="with_keywords[]" value="{{ $kwId }}">
+                            <input type="hidden" name="with_keywords_names[]" value="{{ $kwName }}">
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
             {{-- Language --}}
             <div class="card p-5">
                 <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Language</h3>
@@ -148,22 +171,6 @@
                     </div>
                 </div>
             </div>
-
-            @if(!empty($selectedKeywords))
-            <div class="card p-4">
-                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Keywords</h3>
-                <div class="flex flex-wrap gap-2">
-                    @foreach($selectedKeywords as [$kwId, $kwName])
-                        <div class="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-accent/15 border border-accent/20 text-accent">
-                            <span>{{ $kwName }}</span>
-                            <a href="{{ url('/tv/criteria/keyword/remove/' . $kwId) }}" class="hover:text-white ml-1">✕</a>
-                            <input type="hidden" name="with_keywords[]" value="{{ $kwId }}">
-                            <input type="hidden" name="with_keywords_names[]" value="{{ $kwName }}">
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-            @endif
 
             @include('errors.error')
 

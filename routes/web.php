@@ -46,7 +46,8 @@ Route::middleware('auth')->group(function () {
 Route::get('/userinput', UserInputController::class);
 
 Route::prefix('tmdb')->group(function () {
-    Route::get('/search/all',    [TmdbProxyController::class, 'searchAll']);
+    Route::get('/search/all',      [TmdbProxyController::class, 'searchAll']);
+    Route::get('/search/keywords', [TmdbProxyController::class, 'searchKeywords']);
     Route::get('/search/movies', [TmdbProxyController::class, 'searchMovies']);
     Route::get('/search/people', [TmdbProxyController::class, 'searchPeople']);
     Route::get('/search/tv',     [TmdbProxyController::class, 'searchTv']);
