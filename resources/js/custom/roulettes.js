@@ -230,8 +230,10 @@ document.addEventListener('click', function (e) {
 
         fetch(jsonUrl)
             .then(r => r.json())
-            .then(movies => {
+            .then(resp => {
                 link.textContent = origText;
+                const movies = isKeywordRoll ? resp.cards : resp;
+                if (isKeywordRoll && resp._debug) console.log('[keyword roll]', resp._debug);
                 if (!rollCards(toCards(movies))) window.location.href = fallback;
             })
             .catch(() => { window.location.href = fallback; });
