@@ -62,7 +62,10 @@ class KeywordCriteriaController extends Controller
         $picked   = $movieService->pickBatch($results['results'] ?? []);
 
         session(['roll_source' => 'criteria']);
-        return response()->json($this->toRollCards($picked));
+        return response()->json([
+            'cards'  => $this->toRollCards($picked),
+            '_debug' => ['keyword' => $name, 'total_results' => $results['total_results'] ?? 0, 'total_pages' => $results['total_pages'] ?? 0, 'page' => $criteria['page']],
+        ]);
     }
 
     public function tvJson(int $id, string $name, TmdbClient $tmdb, MovieService $movieService): \Illuminate\Http\JsonResponse
@@ -79,7 +82,10 @@ class KeywordCriteriaController extends Controller
         $picked   = $movieService->pickBatch($movieService->normaliseShows($results['results'] ?? []));
 
         session(['roll_source' => 'criteria']);
-        return response()->json($this->toRollCards($picked, 'tv'));
+        return response()->json([
+            'cards'  => $this->toRollCards($picked, 'tv'),
+            '_debug' => ['keyword' => $name, 'total_results' => $results['total_results'] ?? 0, 'total_pages' => $results['total_pages'] ?? 0, 'page' => $criteria['page']],
+        ]);
     }
 
     public function removeMovie(int $id): RedirectResponse
