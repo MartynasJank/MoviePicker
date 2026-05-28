@@ -5,7 +5,7 @@
         <div class="section-divider"></div>
     </div>
     <div class="flex flex-col gap-4 mt-4">
-        @foreach($reviews as $review)
+        @foreach($reviews as $i => $review)
         @php
             $review    = (object) $review;
             $details   = (object) ($review->author_details ?? []);
@@ -24,7 +24,7 @@
                 ? \Carbon\Carbon::parse($review->created_at)->format('M Y')
                 : null;
         @endphp
-        <div class="card p-4">
+        <div class="card p-4{{ $i >= 2 ? ' review-extra hidden' : '' }}">
             <div class="flex items-center gap-3 mb-3">
                 @if($avatarUrl)
                     <img src="{{ $avatarUrl }}" class="w-8 h-8 rounded-full object-cover flex-shrink-0" alt="">
@@ -53,5 +53,26 @@
         </div>
         @endforeach
     </div>
+
+    @if(count($reviews) > 2)
+    <button type="button" id="reviews-toggle"
+            class="mt-3 text-sm text-gray-500 hover:text-white transition-colors">
+        Show {{ count($reviews) - 2 }} more reviews ↓
+    </button>
+    <script>
+    (function () {
+        const btn   = document.getElementById('reviews-toggle');
+        const extra = document.querySelectorAll('.review-extra');
+        let open    = false;
+        btn.addEventListener('click', function () {
+            open = !open;
+            extra.forEach(function (el) { el.classList.toggle('hidden', !open); });
+            btn.textContent = open
+                ? 'Show fewer reviews ↑'
+                : 'Show {{ count($reviews) - 2 }} more reviews ↓';
+        });
+    })();
+    </script>
+    @endif
 </div>
 @endif

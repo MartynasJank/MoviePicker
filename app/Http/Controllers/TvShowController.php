@@ -73,7 +73,7 @@ class TvShowController extends Controller
         $all_genres = $movieService->genres($tmdb, 'tv');
         $user_input = session('tvInput', 'default');
         $savedIds   = $this->savedWatchlistIds();
-        $reviews    = array_slice((array) ($tmdbInfo->reviews->results ?? []), 0, 2);
+        $reviews    = array_slice((array) ($tmdbInfo->reviews->results ?? []), 0, 5);
 
         return view('tv.show', compact(
             'tmdbInfo', 'omdbInfo', 'urls', 'genres', 'trailer', 'user_input', 'all_genres',

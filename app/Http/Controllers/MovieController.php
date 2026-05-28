@@ -105,7 +105,7 @@ class MovieController extends Controller
         $all_genres = $movieService->genres($tmdb);
         $user_input = $request->session()->get('userInput', 'default');
         $savedIds   = $this->savedWatchlistIds();
-        $reviews    = array_slice((array) ($tmdbInfo->reviews->results ?? []), 0, 2);
+        $reviews    = array_slice((array) ($tmdbInfo->reviews->results ?? []), 0, 5);
 
         return view('movie', compact(
             'tmdbInfo', 'omdbInfo', 'urls', 'similarMovies', 'similarTitle', 'linkSuffix', 'genres',
