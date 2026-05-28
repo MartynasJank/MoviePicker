@@ -92,6 +92,11 @@ function getBatchCards(rowSelector) {
     return cards;
 }
 
+function trackRoll(mediaType, source, extra = {}) {
+    if (typeof gtag === 'undefined') return;
+    gtag('event', mediaType === 'tv' ? 'tv_rolled' : 'movie_rolled', { source, ...extra });
+}
+
 function rollCards(cards, source) {
     if (!cards.length) return false;
     document.querySelectorAll('.modal-wrap').forEach(m => m.classList.add('hidden'));
@@ -99,6 +104,7 @@ function rollCards(cards, source) {
     if (rollSource) sessionStorage.setItem('rollSource', rollSource);
     const winnerIdx  = Math.floor(Math.random() * cards.length);
     const mediaType  = cards[winnerIdx].media_type || 'movie';
+    trackRoll(mediaType, rollSource || 'unknown');
     if (localStorage.getItem('wl_animation') !== '0') {
         runCaseOpening(cards, winnerIdx, cards[winnerIdx].url, mediaType);
     } else {
@@ -121,9 +127,17 @@ document.addEventListener('submit', function (e) {
 
     e.preventDefault();
 
-    const endpoint = isMovie ? '/movie/roll/criteria' : '/tv/roll/criteria';
-    const fallback = formaction;
-    setRollContext('batch', isMovie ? '/multiple?from=roll' : '/tv/multiple?from=roll', '← Batch');
+    const endpoint  = isMovie ? '/movie/roll/criteria' : '/tv/roll/criteria';
+    const fallback  = formaction;
+    const moodName  = btn && btn.dataset.mood;
+    const rollSource = moodName ? 'mood' : 'criteria';
+    setRollContext(rollSource, isMovie ? '/multiple?from=roll' : '/tv/multiple?from=roll', '← Batch');
+
+    if (moodName && typeof gtag !== 'undefined') {
+        gtag('event', 'mood_selected', { mood: moodName, media_type: isMovie ? 'movie' : 'tv' });
+    } else if (!moodName && typeof gtag !== 'undefined') {
+        gtag('event', 'criteria_submitted', { media_type: isMovie ? 'movie' : 'tv' });
+    }
 
     const body = new FormData(form);
     if (btn) { btn.textContent = 'Loading…'; btn.disabled = true; }
@@ -172,6 +186,7 @@ document.addEventListener('click', function (e) {
                 rouletteBtn.textContent = orig;
                 rouletteBtn.disabled = false;
                 setRollContext('roulette', `/roulettes/${slug}?from=roll`, '← Batch');
+                if (typeof gtag !== 'undefined') gtag('event', 'roulette_rolled', { roulette_slug: slug });
                 if (!rollCards(toCards(movies))) window.location.href = `/roulettes/${slug}`;
             })
             .catch(() => { window.location.href = `/roulettes/${slug}`; });
@@ -218,7 +233,8 @@ document.addEventListener('click', function (e) {
             setRollContext('person', window.location.href, link.dataset.backLabel || '← Back');
         } else {
             const batchUrl = (rollType === 'tv' || rollType === 'tv-criteria') ? '/tv/multiple?from=roll' : '/multiple?from=roll';
-            setRollContext('batch', batchUrl, '← Batch');
+            const src = (rollType === 'movie' || rollType === 'tv') ? 'homepage' : 'batch';
+            setRollContext(src, batchUrl, '← Batch');
         }
 
         const origText = link.textContent;
