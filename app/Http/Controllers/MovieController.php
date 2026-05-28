@@ -94,7 +94,7 @@ class MovieController extends Controller
         }
 
         $genres     = $movieService->genresString($tmdbInfo);
-        $urls       = $link->linksArray($omdbInfo);
+        $urls       = $link->links($omdbInfo);
         $trailer    = $movieService->getTrailer($tmdbInfo->videos->results ?? []);
         $all_genres = $movieService->genres($tmdb);
         $user_input = $request->session()->get('userInput', 'default');

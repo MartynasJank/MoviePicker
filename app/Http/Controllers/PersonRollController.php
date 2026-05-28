@@ -30,7 +30,7 @@ class PersonRollController extends Controller
             return redirect()->route('person', $id);
         }
 
-        return redirect()->route('movie', [$movieService->randomMovie($results['results'])['id']]);
+        return redirect()->route('movie', [$movieService->pickRandom($results['results'])['id']]);
     }
 
     public function tv(Request $request, int $id, TmdbClient $tmdb, MovieService $movieService): RedirectResponse
@@ -65,7 +65,7 @@ class PersonRollController extends Controller
         return redirect()->route('tv.show', [$shows->random()->id]);
     }
 
-    public function movieJson(Request $request, int $id, TmdbClient $tmdb, MovieService $movieService): JsonResponse
+    public function movieRollJson(Request $request, int $id, TmdbClient $tmdb, MovieService $movieService): JsonResponse
     {
         $country  = $movieService->getUserCountry();
         $type     = $request->query('type', 'cast');
@@ -82,7 +82,7 @@ class PersonRollController extends Controller
         return response()->json($this->toRollCards($picked));
     }
 
-    public function tvJson(Request $request, int $id, TmdbClient $tmdb, MovieService $movieService): JsonResponse
+    public function tvRollJson(Request $request, int $id, TmdbClient $tmdb, MovieService $movieService): JsonResponse
     {
         $person = $tmdb->personDetail($id);
         $type   = $request->query('type', 'cast');
@@ -116,7 +116,7 @@ class PersonRollController extends Controller
         return response()->json($this->toRollCards($picked, 'tv'));
     }
 
-    public function tvNext(): RedirectResponse
+    public function nextTvRoll(): RedirectResponse
     {
         $ids = session('tvPersonRollIds');
 

@@ -40,8 +40,8 @@ class HomeController extends Controller
             'trendingDay'        => $trendingDay,
             'tvTrendingDay'      => $tvTrendingDay,
             'savedIds'           => $savedIds,
-            'trendingGenres'     => $movieService->movieGenresMap($trendingDay['results']   ?? [], $movieGenres),
-            'tvTrendingGenres'   => $movieService->movieGenresMap($tvTrendingDay['results'] ?? [], $tvGenres),
+            'trendingGenres'     => $movieService->genresMap($trendingDay['results']   ?? [], $movieGenres),
+            'tvTrendingGenres'   => $movieService->genresMap($tvTrendingDay['results'] ?? [], $tvGenres),
             'featuredRoulettes'  => $featuredRoulettes,
         ]);
     }

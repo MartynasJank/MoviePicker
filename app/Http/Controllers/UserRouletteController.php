@@ -43,7 +43,7 @@ class UserRouletteController extends Controller
 
             try {
                 $isTv             = $roulette->media_type === 'tv';
-                $criteria         = $isTv ? $mapper->toCriteriaTv($roulette->tags) : $mapper->toCriteria($roulette->tags);
+                $criteria         = $isTv ? $mapper->toCriteriaTv($roulette->tags) : $mapper->toCriteriaMovie($roulette->tags);
                 $criteria['page'] = 1;
                 $results          = $isTv ? $tmdb->discoverTv($criteria, 'US') : $tmdb->discover($criteria, 'US');
                 $paths            = [];
@@ -191,7 +191,7 @@ class UserRouletteController extends Controller
         $isTv   = $roulette->media_type === 'tv';
         $rawTags  = $request->input('tags');
         $tags     = $rawTags !== null ? $mapper->normalizeTags($rawTags) : ($roulette->tags ?? []);
-        $criteria = $isTv ? $mapper->toCriteriaTv($tags) : $mapper->toCriteria($tags);
+        $criteria = $isTv ? $mapper->toCriteriaTv($tags) : $mapper->toCriteriaMovie($tags);
         $criteria['sort_by'] = $sort === 'rating' ? 'vote_average.desc' : 'popularity.desc';
         $criteria['page']    = $page;
         if ($sort === 'rating') {
