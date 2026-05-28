@@ -58,6 +58,7 @@ class KeywordCriteriaController extends Controller
             : ['with_keywords' => [$id], 'with_keywords_names' => [$name], 'sort_by' => 'popularity.desc'];
 
         $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country);
+        session()->forget('userInput.total_pages'); // keyword total_pages shouldn't bleed into criteria rolls
         $results  = $tmdb->discover($criteria, $country);
         $picked   = $movieService->pickBatch($results['results'] ?? []);
 
@@ -77,6 +78,7 @@ class KeywordCriteriaController extends Controller
             : ['with_keywords' => [$id], 'with_keywords_names' => [$name], 'sort_by' => 'popularity.desc'];
 
         $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country, 'tv');
+        session()->forget('tvInput.total_pages');
         $results  = $tmdb->discoverTv($criteria, $country);
         $picked   = $movieService->pickBatch($movieService->normaliseShows($results['results'] ?? []));
 
