@@ -13,9 +13,7 @@ class KeywordCriteriaController extends Controller
         $this->mergeKeyword('userInput', $id, $name);
 
         $country  = $movieService->getUserCountry();
-        $criteria = session('roll_source') === 'criteria'
-            ? session('userInput', [])
-            : ['with_keywords' => [$id], 'with_keywords_names' => [$name], 'sort_by' => 'popularity.desc'];
+        $criteria = session('userInput', []);
 
         $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country);
         $results  = $tmdb->discover($criteria, $country);
@@ -33,9 +31,7 @@ class KeywordCriteriaController extends Controller
         $this->mergeKeyword('tvInput', $id, $name);
 
         $country  = $movieService->getUserCountry();
-        $criteria = session('roll_source') === 'criteria'
-            ? session('tvInput', [])
-            : ['with_keywords' => [$id], 'with_keywords_names' => [$name], 'sort_by' => 'popularity.desc'];
+        $criteria = session('tvInput', []);
 
         $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country, 'tv');
         $results  = $tmdb->discoverTv($criteria, $country);
@@ -53,9 +49,7 @@ class KeywordCriteriaController extends Controller
         $this->mergeKeyword('userInput', $id, $name);
 
         $country  = $movieService->getUserCountry();
-        $criteria = session('roll_source') === 'criteria'
-            ? session('userInput', [])
-            : ['with_keywords' => [$id], 'with_keywords_names' => [$name], 'sort_by' => 'popularity.desc'];
+        $criteria = session('userInput', []);
 
         $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country);
         session()->forget('userInput.total_pages'); // keyword total_pages shouldn't bleed into criteria rolls
@@ -73,9 +67,7 @@ class KeywordCriteriaController extends Controller
         $this->mergeKeyword('tvInput', $id, $name);
 
         $country  = $movieService->getUserCountry();
-        $criteria = session('roll_source') === 'criteria'
-            ? session('tvInput', [])
-            : ['with_keywords' => [$id], 'with_keywords_names' => [$name], 'sort_by' => 'popularity.desc'];
+        $criteria = session('tvInput', []);
 
         $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country, 'tv');
         session()->forget('tvInput.total_pages');
