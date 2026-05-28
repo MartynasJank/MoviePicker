@@ -11,16 +11,8 @@ $(document).ready(function () {
     function buildSection(label, items, linkBase, isTv) {
         if (!items.length) return '';
         const rows = items.map(function (m) {
-            const year    = m.release_date ? m.release_date.substring(0, 4) : '';
-            const endYear = m.last_air_date ? m.last_air_date.substring(0, 4) : '';
-            const active  = ['Returning Series', 'In Production', 'Planned', 'Pilot'].includes(m.tv_status);
-            const sub     = isTv
-                ? (year
-                    ? (active
-                        ? year + ' – present'
-                        : endYear && endYear !== year ? year + ' – ' + endYear : 'Since ' + year)
-                    : 'TV Series')
-                : year;
+            const year = m.release_date ? m.release_date.substring(0, 4) : '';
+            const sub  = isTv ? (year ? 'TV Series · ' + year : 'TV Series') : year;
             const poster = m.poster_path
                 ? `<img src="https://image.tmdb.org/t/p/w92${escHtml(m.poster_path)}" class="w-8 h-12 object-cover rounded flex-shrink-0" loading="lazy">`
                 : `<div class="w-8 h-12 bg-white/5 rounded flex-shrink-0"></div>`;
@@ -69,14 +61,10 @@ $(document).ready(function () {
             if (!q) { $results.addClass('hidden').empty(); return; }
 
             timer = setTimeout(function () {
-                $.when(
-                    $.getJSON('/tmdb/search/movies', { q: q }),
-                    $.getJSON('/tmdb/search/tv',     { q: q }),
-                    $.getJSON('/tmdb/search/people', { q: q })
-                ).done(function (movieResp, tvResp, peopleResp) {
-                    const movies = (movieResp[0]  || []).slice(0, 3);
-                    const shows  = (tvResp[0]     || []).slice(0, 3);
-                    const people = (peopleResp[0] || []).slice(0, 3);
+                $.getJSON('/tmdb/search/all', { q: q }).done(function (resp) {
+                    const movies = resp.movies || [];
+                    const shows  = resp.shows  || [];
+                    const people = resp.people || [];
                     const html   = buildSection('Movies', movies, 'movie', false) +
                                    buildSection('TV Shows', shows, 'tv', true) +
                                    buildPeopleSection(people);
