@@ -28,6 +28,7 @@ use App\Http\Controllers\PersonRollController;
 
 Route::get('/',  HomeController::class);
 Route::post('/', ContactController::class);
+Route::get('/privacy', fn() => view('privacy'))->name('privacy');
 
 // Auth
 Route::get('/auth/google',          [AuthController::class, 'redirect'])->name('auth.google');
