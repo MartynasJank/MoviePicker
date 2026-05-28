@@ -15,7 +15,7 @@ class KeywordCriteriaController extends Controller
         $country  = $movieService->getUserCountry();
         $criteria = session('roll_source') === 'criteria'
             ? session('userInput', [])
-            : ['with_keywords' => [$id], 'with_keywords_names' => [$name]];
+            : ['with_keywords' => [$id], 'with_keywords_names' => [$name], 'sort_by' => 'popularity.desc'];
 
         $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country);
         $results  = $tmdb->discover($criteria, $country);
@@ -35,7 +35,7 @@ class KeywordCriteriaController extends Controller
         $country  = $movieService->getUserCountry();
         $criteria = session('roll_source') === 'criteria'
             ? session('tvInput', [])
-            : ['with_keywords' => [$id], 'with_keywords_names' => [$name]];
+            : ['with_keywords' => [$id], 'with_keywords_names' => [$name], 'sort_by' => 'popularity.desc'];
 
         $criteria['page'] = $movieService->resolvePage($tmdb, $criteria, $country, 'tv');
         $results  = $tmdb->discoverTv($criteria, $country);
