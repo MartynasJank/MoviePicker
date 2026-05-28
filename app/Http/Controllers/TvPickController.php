@@ -7,6 +7,7 @@ use App\Services\MovieService;
 use App\Http\Requests\TvCriteriaRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class TvPickController extends PickController
@@ -103,11 +104,14 @@ class TvPickController extends PickController
         session([self::SESSION_KEY => self::DEFAULTS]);
 
         $country = $movieService->getUserCountry();
-        $results = $tmdb->discoverTv([
-            'sort_by'          => 'popularity.desc',
-            'page'             => rand(1, 20),
-            'vote_average.gte' => 5,
-        ], $country);
+        $filters = ['vote_average.gte' => 5, 'vote_count.gte' => 20];
+
+        $totalPages = Cache::remember('homepage_tv_roll_pages_' . $country, now()->addDay(), function () use ($tmdb, $filters, $country) {
+            $first = $tmdb->discoverTv(array_merge($filters, ['page' => 1]), $country);
+            return min($first['total_pages'] ?? 500, 500);
+        });
+
+        $results = $tmdb->discoverTv(array_merge($filters, ['page' => rand(1, $totalPages)]), $country);
 
         $picked = $movieService->pickBatch($results['results'] ?? []);
 
