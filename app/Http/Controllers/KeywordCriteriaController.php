@@ -58,16 +58,10 @@ class KeywordCriteriaController extends Controller
     {
         $input = session($sessionKey, []);
 
-        $ids   = (array) ($input['with_keywords']       ?? []);
-        $names = (array) ($input['with_keywords_names'] ?? []);
-
-        if (!in_array($id, $ids)) {
-            $ids[]   = $id;
-            $names[] = $name;
-        }
-
-        $input['with_keywords']       = $ids;
-        $input['with_keywords_names'] = $names;
+        // Replace existing keywords — clicking a keyword from a detail page
+        // means "show me more with this vibe", not AND-stacking with prior keywords.
+        $input['with_keywords']       = [$id];
+        $input['with_keywords_names'] = [$name];
 
         session([$sessionKey => $input]);
     }
