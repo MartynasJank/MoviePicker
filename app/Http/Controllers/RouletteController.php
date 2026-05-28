@@ -112,6 +112,7 @@ class RouletteController extends Controller
                 'savedBatchUrl'     => $batchUrl,
                 'savedBatchResults' => $picked,
                 'tvInput'           => $this->criteriaForSession($criteria, $response['total_pages'] ?? 500),
+                'roll_source'       => 'other',
             ]);
 
             return response()->json($this->toRollCards($picked, 'tv'));
@@ -127,6 +128,7 @@ class RouletteController extends Controller
             'savedBatchUrl'     => $batchUrl,
             'savedBatchResults' => $picked,
             'userInput'         => $this->criteriaForSession($criteria, $response['total_pages'] ?? 500),
+            'roll_source'       => 'other',
         ]);
 
         return response()->json($this->toRollCards($picked));

@@ -174,6 +174,7 @@ class WatchlistController extends Controller
             return redirect()->route('watchlist');
         }
 
+        session(['roll_source' => 'other']);
         $picked = $items->random();
 
         $base = $picked->type === 'tv'

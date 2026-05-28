@@ -97,7 +97,7 @@ class TmdbClient implements ApiMovie
     {
         return Cache::remember('tmdb_movie_' . $movieId, now()->addHours(6), function () use ($movieId) {
             $url = 'https://api.themoviedb.org/3/movie/' . $movieId . '?'
-                . http_build_query(['append_to_response' => 'videos,credits,similar,watch/providers']);
+                . http_build_query(['append_to_response' => 'videos,credits,similar,recommendations,watch/providers']);
 
             $response = $this->client->get($url);
             return json_decode($response->getBody()->getContents());
@@ -328,7 +328,7 @@ class TmdbClient implements ApiMovie
     {
         return Cache::remember('tmdb_tv_' . $id, now()->addHours(6), function () use ($id) {
             $url = 'https://api.themoviedb.org/3/tv/' . $id . '?'
-                . http_build_query(['append_to_response' => 'videos,credits,similar,watch/providers,external_ids']);
+                . http_build_query(['append_to_response' => 'videos,credits,similar,recommendations,watch/providers,external_ids']);
 
             $response = $this->client->get($url);
             return json_decode($response->getBody()->getContents());
