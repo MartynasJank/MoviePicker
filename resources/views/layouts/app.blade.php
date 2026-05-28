@@ -12,11 +12,11 @@
     <meta property="og:site_name" content="MoviePickr">
     <meta property="og:title" content="@yield('og_title', 'MoviePickr — Random Movie & TV Show Picker')">
     <meta property="og:description" content="@yield('og_description', 'Pick a random movie or TV show filtered by genre, streaming service, or mood. Or just hit roll and let it decide.')">
-    <meta property="og:image" content="@yield('og_image', URL::asset('/images/icon.png'))">
+    <meta property="og:image" content="@yield('og_image', URL::asset('/images/og-image.png'))">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="@yield('og_title', 'MoviePickr — Random Movie & TV Show Picker')">
     <meta name="twitter:description" content="@yield('og_description', 'Pick a random movie or TV show filtered by genre, streaming service, or mood. Or just hit roll and let it decide.')">
-    <meta name="twitter:image" content="@yield('og_image', URL::asset('/images/icon.png'))">
+    <meta name="twitter:image" content="@yield('og_image', URL::asset('/images/og-image.png'))">
     <script>!function(){var m=document.cookie.match(/(?:^|; )theme=([^;]+)/);if(m)document.documentElement.dataset.theme=m[1]}()</script>
     <script>
         window.dataLayer = window.dataLayer || [];
