@@ -155,16 +155,18 @@ $(document).ready(function () {
                     });
             }, 300);
         });
-        ts.on('change', function () {
-            const sel = el;
-            [...ts.items].forEach(function (val) {
-                if (!sel.querySelector(`option[value="${val}"]`)) {
-                    const opt = document.createElement('option');
-                    opt.value = val;
-                    opt.selected = true;
-                    sel.appendChild(opt);
-                }
-            });
+        ts.on('item_add', function (value) {
+            let opt = el.querySelector('option[value="' + value + '"]');
+            if (!opt) {
+                opt = document.createElement('option');
+                opt.value = value;
+                el.appendChild(opt);
+            }
+            opt.selected = true;
+        });
+        ts.on('item_remove', function (value) {
+            const opt = el.querySelector('option[value="' + value + '"]');
+            if (opt) opt.remove();
         });
     })();
 
