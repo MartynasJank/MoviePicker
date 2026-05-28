@@ -3,13 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Services\TmdbClient;
+use App\Services\OmdbClient;
 use App\Services\MovieService;
+use App\Services\RatingsUrlBuilder;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class TvShowController extends Controller
 {
-    public function __invoke(Request $request, TmdbClient $tmdb, MovieService $movieService): View
+    public function __invoke(Request $request, TmdbClient $tmdb, OmdbClient $omdb, MovieService $movieService, RatingsUrlBuilder $link): View
     {
         $showId  = $request->route('id');
         $country = $movieService->getUserCountry();
@@ -20,6 +22,10 @@ class TvShowController extends Controller
         } catch (\Throwable) {
             abort(404);
         }
+
+        $imdbId   = $tmdbInfo->external_ids->imdb_id ?? null;
+        $omdbInfo = $omdb->tv($imdbId);
+        $urls     = $link->linksArray($omdbInfo, 'tv');
 
         $watchProviders = isset($tmdbInfo->{'watch/providers'}->results->$country->flatrate)
             ? $tmdbInfo->{'watch/providers'}->results->$country
@@ -62,7 +68,7 @@ class TvShowController extends Controller
         $savedIds   = $this->savedWatchlistIds();
 
         return view('tv.show', compact(
-            'tmdbInfo', 'genres', 'trailer', 'user_input', 'all_genres',
+            'tmdbInfo', 'omdbInfo', 'urls', 'genres', 'trailer', 'user_input', 'all_genres',
             'watchProviders', 'providersArray', 'batchUrl', 'savedIds', 'country',
             'similarShows', 'similarTitle'
         ));

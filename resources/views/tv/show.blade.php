@@ -142,6 +142,21 @@
                 </div>
             @endif
 
+            {{-- Ratings --}}
+            @if(isset($omdbInfo->Ratings) && count($omdbInfo->Ratings) > 0)
+            <div>
+                <h3 class="text-xs sm:text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2 md:mb-3">Ratings</h3>
+                @foreach ($omdbInfo->Ratings as $rating)
+                    @php $url = $urls[$rating->Source] ?? '#'; @endphp
+                    <a class="rating-pill" href="{{ $url }}"
+                        {{ $url !== '#' ? 'target="_blank"' : '' }}>
+                        <span class="text-gray-400 text-xs sm:text-sm truncate">{{ $rating->Source }}</span>
+                        <span class="ml-auto font-semibold text-accent text-xs sm:text-sm flex-shrink-0">{{ $rating->Value }}</span>
+                    </a>
+                @endforeach
+            </div>
+            @endif
+
             {{-- Plot --}}
             <div>
                 <h3 class="text-xs sm:text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Overview</h3>
