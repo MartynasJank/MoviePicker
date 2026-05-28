@@ -15,6 +15,9 @@
         <div class="mb-6 px-4 py-3 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-sm">
             {{ session('success') }}
         </div>
+        @if(session('success') === 'Roulette created.')
+            <script>if (typeof gtag !== 'undefined') gtag('event', 'roulette_created');</script>
+        @endif
     @endif
 
     @if($errors->any())
