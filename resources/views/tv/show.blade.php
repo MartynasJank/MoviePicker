@@ -417,8 +417,6 @@
     </div>
     @endif
 
-    @include('includes.reviews')
-
     {{-- Similar shows --}}
     @if ($similarShows != null)
     <div>
@@ -438,6 +436,8 @@
         ])
     </div>
     @endif
+
+    @include('includes.reviews')
 
 </div>
 

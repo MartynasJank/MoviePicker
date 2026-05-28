@@ -24,7 +24,14 @@
                 ? \Carbon\Carbon::parse($review->created_at)->format('M Y')
                 : null;
         @endphp
-        <div class="card p-4{{ $i >= 2 ? ' review-extra hidden' : '' }}">
+        @if($i === 2)
+        {{-- Animated wrapper for extra reviews --}}
+        <div id="reviews-extra-wrapper" style="display:grid;grid-template-rows:0fr;overflow:hidden;transition:grid-template-rows 0.3s ease">
+            <div style="overflow:hidden">
+                <div class="flex flex-col gap-4">
+        @endif
+
+        <div class="card p-4{{ $i >= 2 ? ' pt-0 mt-0' : '' }}" @if($i === 2) style="margin-top:0" @endif>
             <div class="flex items-center gap-3 mb-3">
                 @if($avatarUrl)
                     <img src="{{ $avatarUrl }}" class="w-8 h-8 rounded-full object-cover flex-shrink-0" alt="">
@@ -51,6 +58,13 @@
                 </a>
             @endif
         </div>
+
+        @if($i === count($reviews) - 1 && count($reviews) > 2)
+                </div>
+            </div>
+        </div>
+        @endif
+
         @endforeach
     </div>
 
@@ -61,12 +75,12 @@
     </button>
     <script>
     (function () {
-        const btn   = document.getElementById('reviews-toggle');
-        const extra = document.querySelectorAll('.review-extra');
-        let open    = false;
+        const btn     = document.getElementById('reviews-toggle');
+        const wrapper = document.getElementById('reviews-extra-wrapper');
+        let open      = false;
         btn.addEventListener('click', function () {
             open = !open;
-            extra.forEach(function (el) { el.classList.toggle('hidden', !open); });
+            wrapper.style.gridTemplateRows = open ? '1fr' : '0fr';
             btn.textContent = open
                 ? 'Show fewer reviews ↑'
                 : 'Show {{ count($reviews) - 2 }} more reviews ↓';
