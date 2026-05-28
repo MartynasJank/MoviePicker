@@ -6,6 +6,7 @@
     $openStreaming  = !empty($user_input['with_watch_providers'] ?? []);
     $openScores    = !empty($user_input['vote_average_gte'] ?? '') || !empty($user_input['vote_average_lte'] ?? '') || !empty($user_input['vote_count_gte'] ?? '');
     $openPeople    = !empty($user_input['with_cast'] ?? []) || !empty($user_input['with_crew'] ?? []);
+    $openKeywords  = !empty($user_input['with_keywords'] ?? []);
 @endphp
 
 <div id="modal-form" class="modal-wrap hidden">
@@ -72,6 +73,24 @@
                                     @endforeach
                                 </select>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Sub-Genre --}}
+                <div class="accordion-section border-t border-white/5 {{ $openKeywords ? 'accordion-open' : '' }}">
+                    <button type="button" class="accordion-header w-full flex items-center justify-between py-3.5 text-left">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Sub-Genre</h3>
+                        <svg class="accordion-chevron w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="accordion-body">
+                        <div class="pb-4">
+                            <select id="modal-with_keywords" name="with_keywords[]" multiple>
+                                @foreach((array)($user_input['with_keywords'] ?? []) as $i => $kwId)
+                                    <option value="{{ $kwId }}" selected>{{ ($user_input['with_keywords_names'] ?? [])[$i] ?? $kwId }}</option>
+                                @endforeach
+                            </select>
+                            <p class="text-xs text-gray-600 mt-1">e.g. heist, time travel, zombies</p>
                         </div>
                     </div>
                 </div>
