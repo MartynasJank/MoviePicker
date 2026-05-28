@@ -83,7 +83,7 @@ class MovieController extends Controller
         if ($similarMovies === null) {
             $recommendations = $tmdbInfo->recommendations->results ?? [];
             if (count($recommendations) >= 4) {
-                $similarMovies = ['results' => array_slice($recommendations, 0, 20)];
+                $similarMovies = ['results' => array_map(fn($r) => (array) $r, array_slice($recommendations, 0, 20))];
                 $similarTitle  = 'You Might Also Like';
             } else {
                 $similarMovies = $tmdb->similarMovies($tmdbInfo);
