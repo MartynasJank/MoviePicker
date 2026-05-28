@@ -110,9 +110,9 @@ class MoviePickController extends PickController
         session([self::SESSION_KEY => self::DEFAULTS]);
 
         $country = $movieService->getUserCountry();
-        $filters = ['vote_count.gte' => 50, 'vote_average.gte' => 5];
+        $filters = ['vote_count.gte' => 50, 'vote_average.gte' => 5, 'primary_release_date.gte' => '1990-01-01', 'with_original_language' => 'en'];
 
-        $totalPages = Cache::remember('homepage_movie_roll_pages_' . $country, now()->addDay(), function () use ($tmdb, $filters, $country) {
+        $totalPages = Cache::remember('homepage_movie_roll_pages_v2_' . $country, now()->addDay(), function () use ($tmdb, $filters, $country) {
             $first = $tmdb->discover(array_merge($filters, ['page' => 1]), $country);
             return min($first['total_pages'] ?? 500, 500);
         });
