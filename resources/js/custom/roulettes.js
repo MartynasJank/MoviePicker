@@ -190,7 +190,11 @@ document.addEventListener('click', function (e) {
         setRollContext('batch', window.location.pathname + '?from=roll', '← Batch');
         fetch(endpoint)
             .then(r => r.json())
-            .then(movies => { if (!rollCards(toCards(movies))) window.location.href = fallback; })
+            .then(resp => {
+                const movies = resp.cards || resp;
+                if (resp._debug) console.log('[criteria roll]', resp._debug);
+                if (!rollCards(toCards(movies))) window.location.href = fallback;
+            })
             .catch(() => { window.location.href = fallback; });
         return;
     }
