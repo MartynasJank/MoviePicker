@@ -76,8 +76,6 @@
                     </div>
                 </div>
 
-
-
                 {{-- Language & Country --}}
                 <div class="accordion-section border-t border-white/5 {{ $openLanguage ? 'accordion-open' : '' }}">
                     <button type="button" class="accordion-header w-full flex items-center justify-between py-3.5 text-left">

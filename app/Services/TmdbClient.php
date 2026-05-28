@@ -32,7 +32,6 @@ class TmdbClient implements ApiMovie
     public function discover(array $input = [], string $country = 'LT'): array
     {
         $input = $this->fixMovieArrayKeys($input);
-        unset($input['with_keywords_names']);
 
         // Default language when no filters are set
         if (count($input) <= 1) {
@@ -228,7 +227,7 @@ class TmdbClient implements ApiMovie
             $input['with_original_language'] = 'en';
         }
 
-        unset($input['with_cast_names'], $input['with_crew_names'], $input['with_keywords_names']);
+        unset($input['with_cast_names'], $input['with_crew_names']);
 
         foreach (['with_cast', 'with_crew'] as $key) {
             if (!empty($input[$key])) {
