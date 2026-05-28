@@ -7,6 +7,7 @@ use App\Services\MovieService;
 use App\Http\Requests\CriteriaRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class MoviePickController extends PickController
@@ -100,12 +101,14 @@ class MoviePickController extends PickController
         session([self::SESSION_KEY => self::DEFAULTS]);
 
         $country = $movieService->getUserCountry();
-        $results = $tmdb->discover([
-            'sort_by'          => 'popularity.desc',
-            'page'             => rand(1, 20),
-            'vote_count.gte'   => 50,
-            'vote_average.gte' => 5,
-        ], $country);
+        $filters = ['vote_count.gte' => 50, 'vote_average.gte' => 5];
+
+        $totalPages = Cache::remember('homepage_movie_roll_pages_' . $country, now()->addDay(), function () use ($tmdb, $filters, $country) {
+            $first = $tmdb->discover(array_merge($filters, ['page' => 1]), $country);
+            return min($first['total_pages'] ?? 500, 500);
+        });
+
+        $results = $tmdb->discover(array_merge($filters, ['page' => rand(1, $totalPages)]), $country);
 
         $picked = $movieService->pickBatch($results['results'] ?? []);
 
