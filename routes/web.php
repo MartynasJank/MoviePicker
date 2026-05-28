@@ -54,10 +54,10 @@ Route::prefix('tmdb')->group(function () {
     Route::get('/people/{id}',   [TmdbProxyController::class, 'person']);
 });
 Route::get('/criteria',  CriteriaController::class);
-Route::get('/criteria/keyword/{id}/{name}',       [KeywordCriteriaController::class, 'movie']);
-Route::get('/criteria/keyword/remove/{id}',       [KeywordCriteriaController::class, 'removeMovie']);
-Route::get('/tv/criteria/keyword/{id}/{name}',    [KeywordCriteriaController::class, 'tv']);
-Route::get('/tv/criteria/keyword/remove/{id}',    [KeywordCriteriaController::class, 'removeTv']);
+Route::get('/criteria/keyword/remove/{id}',       [KeywordCriteriaController::class, 'removeMovie'])->whereNumber('id');
+Route::get('/criteria/keyword/{id}/{name}',       [KeywordCriteriaController::class, 'movie'])->whereNumber('id');
+Route::get('/tv/criteria/keyword/remove/{id}',    [KeywordCriteriaController::class, 'removeTv'])->whereNumber('id');
+Route::get('/tv/criteria/keyword/{id}/{name}',    [KeywordCriteriaController::class, 'tv'])->whereNumber('id');
 
 Route::match(['get', 'post'], '/movie',    [MoviePickController::class, 'single']);
 Route::match(['get', 'post'], '/multiple', [MoviePickController::class, 'batch']);
