@@ -105,7 +105,19 @@ class MovieController extends Controller
         $all_genres = $movieService->genres($tmdb);
         $user_input = $request->session()->get('userInput', 'default');
         $savedIds   = $this->savedWatchlistIds();
-        $reviews    = array_slice((array) ($tmdbInfo->reviews->results ?? []), 0, 5);
+        $refScore   = (isset($omdbInfo->imdbRating) && $omdbInfo->imdbRating !== 'N/A')
+            ? (float) $omdbInfo->imdbRating
+            : (float) ($tmdbInfo->vote_average ?? 5.0);
+        $reviews    = collect($tmdbInfo->reviews->results ?? [])
+            ->map(fn($r) => (array) $r)
+            ->sortBy([
+                fn($r) => isset($r['author_details']['rating']) ? abs((float) $r['author_details']['rating'] - $refScore) : PHP_INT_MAX,
+                fn($r) => -(float) ($r['author_details']['rating'] ?? 0),
+                fn($r) => -mb_strlen($r['content'] ?? ''),
+            ])
+            ->take(5)
+            ->values()
+            ->all();
 
         return view('movie', compact(
             'tmdbInfo', 'omdbInfo', 'urls', 'similarMovies', 'similarTitle', 'linkSuffix', 'genres',
