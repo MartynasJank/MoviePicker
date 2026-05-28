@@ -96,10 +96,12 @@ class MoviePickController extends PickController
         ]);
 
         $keywords = array_values((array) ($criteria['with_keywords'] ?? []));
-        $names    = array_values((array) (session('userInput.with_keywords_names') ?? []));
-        $debug    = $keywords ? ['keywords' => array_map(null, $keywords, $names), 'total_results' => $results['total_results'] ?? 0, 'total_pages' => $results['total_pages'] ?? 0, 'page' => $criteria['page']] : null;
+        if ($keywords) {
+            $names = array_values((array) (session('userInput.with_keywords_names') ?? []));
+            \Illuminate\Support\Facades\Log::info('criteria roll with keywords', ['keywords' => array_combine($keywords, $names ?: $keywords), 'total_results' => $results['total_results'] ?? 0, 'total_pages' => $results['total_pages'] ?? 0, 'page' => $criteria['page']]);
+        }
 
-        return response()->json(['cards' => $this->toRollCards($picked), '_debug' => $debug]);
+        return response()->json($this->toRollCards($picked));
     }
 
     public function homepageRoll(MovieService $movieService, TmdbClient $tmdb): JsonResponse
