@@ -8,44 +8,42 @@ $(document).ready(function () {
             .replace(/"/g, '&quot;');
     }
 
-    function buildSection(label, items, linkBase, isTv) {
-        if (!items.length) return '';
-        const rows = items.map(function (m) {
-            const year = m.release_date ? m.release_date.substring(0, 4) : '';
-            const sub  = isTv ? (year ? 'TV Series · ' + year : 'TV Series') : year;
-            const poster = m.poster_path
-                ? `<img src="https://image.tmdb.org/t/p/w92${escHtml(m.poster_path)}" class="w-8 h-12 object-cover rounded flex-shrink-0" loading="lazy">`
-                : `<div class="w-8 h-12 bg-white/5 rounded flex-shrink-0"></div>`;
-            return `<a href="/${linkBase}/${m.id}" class="search-result-item flex items-center gap-3 px-3 py-2 hover:bg-white/5 transition-colors">
-                ${poster}
-                <div class="min-w-0">
-                    <div class="text-sm text-white truncate">${escHtml(m.title)}</div>
+    const TYPE_LABELS = { movie: 'Movie', tv: 'TV', person: 'Person' };
+
+    function buildResult(r) {
+        const type = r.media_type;
+        const badge = `<span class="text-[10px] font-semibold uppercase tracking-wider text-gray-600 flex-shrink-0">${TYPE_LABELS[type] || ''}</span>`;
+
+        if (type === 'person') {
+            const photo = r.profile_path
+                ? `<img src="https://image.tmdb.org/t/p/w92${escHtml(r.profile_path)}" class="w-8 h-8 rounded-full object-cover flex-shrink-0" loading="lazy">`
+                : `<div class="w-8 h-8 rounded-full bg-white/5 flex-shrink-0 flex items-center justify-center text-gray-600 text-xs font-bold">${escHtml(r.name.charAt(0).toUpperCase())}</div>`;
+            const sub = r.known_for_department ? escHtml(r.known_for_department) : '';
+            return `<a href="/person/${r.id}" class="search-result-item flex items-center gap-3 px-3 py-2 hover:bg-white/5 transition-colors">
+                ${photo}
+                <div class="min-w-0 flex-1">
+                    <div class="text-sm text-white truncate">${escHtml(r.name)}</div>
                     ${sub ? `<div class="text-xs text-gray-500">${sub}</div>` : ''}
                 </div>
+                ${badge}
             </a>`;
-        }).join('');
-        return `<div class="px-3 pt-2 pb-1">
-                    <span class="text-xs font-semibold uppercase tracking-widest text-gray-600">${label}</span>
-                </div>${rows}`;
-    }
+        }
 
-    function buildPeopleSection(people) {
-        if (!people.length) return '';
-        const rows = people.map(function (p) {
-            const photo = p.profile_path
-                ? `<img src="https://image.tmdb.org/t/p/w92${escHtml(p.profile_path)}" class="w-8 h-8 rounded-full object-cover flex-shrink-0" loading="lazy">`
-                : `<div class="w-8 h-8 rounded-full bg-white/5 flex-shrink-0 flex items-center justify-center text-gray-600 text-xs font-bold">${escHtml(p.name.charAt(0).toUpperCase())}</div>`;
-            return `<a href="/person/${p.id}" class="search-result-item flex items-center gap-3 px-3 py-2 hover:bg-white/5 transition-colors">
-                ${photo}
-                <div class="min-w-0">
-                    <div class="text-sm text-white truncate">${escHtml(p.name)}</div>
-                    ${p.known_for_department ? `<div class="text-xs text-gray-500">${escHtml(p.known_for_department)}</div>` : ''}
-                </div>
-            </a>`;
-        }).join('');
-        return `<div class="px-3 pt-2 pb-1">
-                    <span class="text-xs font-semibold uppercase tracking-widest text-gray-600">People</span>
-                </div>${rows}`;
+        const href  = type === 'tv' ? `/tv/${r.id}` : `/movie/${r.id}`;
+        const title = r.title || r.name || '';
+        const year  = r.release_date ? r.release_date.substring(0, 4) : '';
+        const thumb = r.poster_path
+            ? `<img src="https://image.tmdb.org/t/p/w92${escHtml(r.poster_path)}" class="w-8 h-12 object-cover rounded flex-shrink-0" loading="lazy">`
+            : `<div class="w-8 h-12 bg-white/5 rounded flex-shrink-0"></div>`;
+
+        return `<a href="${href}" class="search-result-item flex items-center gap-3 px-3 py-2 hover:bg-white/5 transition-colors">
+            ${thumb}
+            <div class="min-w-0 flex-1">
+                <div class="text-sm text-white truncate">${escHtml(title)}</div>
+                ${year ? `<div class="text-xs text-gray-500">${year}</div>` : ''}
+            </div>
+            ${badge}
+        </a>`;
     }
 
     function initSearch(inputSel, resultsSel) {
@@ -62,12 +60,7 @@ $(document).ready(function () {
 
             timer = setTimeout(function () {
                 $.getJSON('/tmdb/search/all', { q: q }).done(function (resp) {
-                    const movies = resp.movies || [];
-                    const shows  = resp.shows  || [];
-                    const people = resp.people || [];
-                    const html   = buildSection('Movies', movies, 'movie', false) +
-                                   buildSection('TV Shows', shows, 'tv', true) +
-                                   buildPeopleSection(people);
+                    const html = (resp || []).map(buildResult).join('');
                     if (!html) { $results.addClass('hidden').empty(); return; }
                     $results.html(html).removeClass('hidden');
                 });

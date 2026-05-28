@@ -81,33 +81,22 @@ class TmdbProxyController extends Controller
     {
         $query = trim($request->string('q'));
         if (!$query) {
-            return response()->json(['movies' => [], 'shows' => [], 'people' => []]);
+            return response()->json([]);
         }
 
-        $results = collect($tmdb->searchAll($query)['results'] ?? []);
-
-        $movies = $results
-            ->where('media_type', 'movie')
-            ->take(3)
+        $results = collect($tmdb->searchAll($query)['results'] ?? [])
+            ->filter(fn($r) => in_array($r['media_type'] ?? '', ['movie', 'tv', 'person']))
+            ->map(function ($r) {
+                if ($r['media_type'] === 'tv') {
+                    $r['title']        = $r['name'] ?? '';
+                    $r['release_date'] = $r['first_air_date'] ?? '';
+                }
+                return $r;
+            })
+            ->take(8)
             ->values()
             ->all();
 
-        $shows = $results
-            ->where('media_type', 'tv')
-            ->take(3)
-            ->map(fn($s) => array_merge($s, [
-                'title'        => $s['name'] ?? '',
-                'release_date' => $s['first_air_date'] ?? '',
-            ]))
-            ->values()
-            ->all();
-
-        $people = $results
-            ->where('media_type', 'person')
-            ->take(3)
-            ->values()
-            ->all();
-
-        return response()->json(compact('movies', 'shows', 'people'));
+        return response()->json($results);
     }
 }
