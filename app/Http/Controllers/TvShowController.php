@@ -25,7 +25,7 @@ class TvShowController extends Controller
 
         $imdbId   = $tmdbInfo->external_ids->imdb_id ?? null;
         $omdbInfo = $omdb->tv($imdbId);
-        $urls     = $link->linksArray($omdbInfo, 'tv');
+        $urls     = $link->links($omdbInfo, 'tv');
 
         $watchProviders = isset($tmdbInfo->{'watch/providers'}->results->$country->flatrate)
             ? $tmdbInfo->{'watch/providers'}->results->$country
