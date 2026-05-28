@@ -201,6 +201,18 @@ $(document).ready(function () {
                     maxOptions: null,
                     create: false,
                 });
+                // Create hidden name inputs for keywords pre-rendered from session
+                const form = el.closest('form');
+                if (form) {
+                    ts.items.forEach(function (value) {
+                        const name = ts.options[value] && ts.options[value].text;
+                        if (name) {
+                            let ni = form.querySelector('input[name="with_keywords_names[]"][data-kw-id="' + value + '"]');
+                            if (!ni) { ni = document.createElement('input'); ni.type = 'hidden'; ni.name = 'with_keywords_names[]'; ni.dataset.kwId = value; form.appendChild(ni); }
+                            ni.value = name;
+                        }
+                    });
+                }
                 let timer;
                 ts.on('type', function (query) {
                     clearTimeout(timer);
