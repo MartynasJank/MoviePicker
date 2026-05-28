@@ -42,6 +42,9 @@ $(document).ready(function () {
         const id = $(this).data('modal-open');
         $('#' + id).removeClass('hidden');
         $('body').css('overflow', 'hidden');
+        if (id === 'trailer-modal' && typeof gtag !== 'undefined') {
+            gtag('event', 'trailer_opened');
+        }
     });
 
     $(document).on('click', '[data-modal-close], .modal-backdrop', function () {
