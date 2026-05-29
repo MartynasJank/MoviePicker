@@ -15,7 +15,7 @@
                     <img src="https://image.tmdb.org/t/p/w342{{ $m['poster_path'] }}"
                          alt=""
                          class="w-full h-full object-cover"
-                         loading="lazy">
+                         @if($loop->first) fetchpriority="high" @elseif($loop->index >= 4) loading="lazy" @endif>
                 @endforeach
             </div>
         @endif
@@ -370,7 +370,8 @@
                        class="group relative rounded-xl overflow-hidden block bg-slate-900 long-single">
                         <div class="aspect-[2/3] relative overflow-hidden">
                             @if($poster)
-                                <img src="https://image.tmdb.org/t/p/w342{{ $poster }}"
+                                <img src="https://image.tmdb.org/t/p/w185{{ $poster }}"
+                                     alt="{{ $roulette->name }}"
                                      class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                      loading="lazy">
                             @else
@@ -378,7 +379,7 @@
                             @endif
                             <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
                             @if($logo)
-                                <img src="{{ $logo }}" class="absolute top-2 right-2 h-5 drop-shadow-lg" loading="lazy">
+                                <img src="{{ $logo }}" alt="{{ $platform }}" class="absolute top-2 right-2 h-5 drop-shadow-lg" loading="lazy">
                             @endif
                             @if($isTv)
                                 <span class="absolute top-2 left-2 text-[10px] px-1.5 py-0.5 rounded-full bg-accent/80 text-white">TV</span>
