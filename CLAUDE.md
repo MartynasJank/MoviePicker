@@ -77,6 +77,7 @@ Tests use in-memory SQLite (configured in `phpunit.xml`), so no database setup i
 - `TmdbProxyController` — proxies TMDB people/movie/TV search to keep API key off browser
 - `UserInputController` — `GET /userinput` returns session form values as JSON
 - `Admin/` — admin dashboard, roulette management, row ordering, user management
+- `CollabBatchController` — `/batch/collab` create (auth-only), show, join/leave/heartbeat, vote (veto/restore), toggleReady, toggleRefreshVote, removeVotes. Broadcasts `CollabStateUpdated` event on every state change via Laravel Reverb.
 
 ### Route Ordering
 
@@ -86,13 +87,14 @@ Tests use in-memory SQLite (configured in `phpunit.xml`), so no database setup i
 
 JS lives in `resources/js/custom/`, bundled by Vite. jQuery is injected globally via `@rollup/plugin-inject` — no explicit import needed. All entry points are listed in `vite.config.js`.
 
-- **`caseOpening.js`** — shared module (not a Vite entry point; auto-extracted as a chunk). Exports `runCaseOpening(cards, winnerIdx, url)` and `getTier(rating)`. Handles the animated strip reveal: shuffles neighbours, excludes the winner from surrounding slots, animates with CSS transform, then navigates.
+- **`caseOpening.js`** — shared module (not a Vite entry point; auto-extracted as a chunk). Exports `runCaseOpening(cards, winnerIdx, url, mediaType, onComplete?)` and `getTier(rating)`. Handles the animated strip reveal: shuffles neighbours, excludes the winner from surrounding slots, animates with CSS transform, then navigates (or calls `onComplete` if provided — used by collab batch to show the winner overlay instead of navigating).
 - **`roulettes.js`** — wires up all Roll buttons site-wide via event delegation: `[data-roulette-roll]` fetches `/roulettes/{slug}/movies`, `#batch-roll-btn` scrapes `[data-batch-card]` from the carousel, homepage "Random Movie/TV" links fetch `/movie/roll` or `/tv/roll`. Imports from `caseOpening.js`.
 - **`watchlist.js`** — watchlist filter/sort UI, toggle-watched, remove, and the Roll button. Imports from `caseOpening.js`.
 - **`criteriaForm.js`** — 5-step form using TomSelect for genre/provider and Flexdatalist autocomplete for actor/director search.
 - **`trailerModal.js`** — YouTube trailer modal; also drives the "adjust criteria" step wizard.
 - **`carousel.js`** — Swiper instances for similar movies, homepage trending, and batch results.
 - **`search.js`** — desktop and mobile search dropdowns.
+- **`collabBatch.js`** — real-time collaborative batch voting. Connects via Laravel Echo to `batch.{token}` channel. Manages participant identity in localStorage, renders vote heat overlays and pip dots, drives the graveyard and rules cards, triggers `runCaseOpening` with a callback when roll threshold is met.
 
 Batch carousel cards include `data-batch-card`, `data-title`, `data-rating`, `data-poster`, and `data-url` attributes so `roulettes.js` can scrape them without an extra API call.
 
@@ -111,6 +113,7 @@ Bootstrap 4 handles layout; Tailwind CSS 4 is also included. Dark/light theme sw
 - **`roulettes`** — both system and user-created collections; `tags` (JSON), `poster_paths` (JSON), `row`, `sort_order`, `is_public`, `media_type`
 - **`watchlist`** — `user_id`, `tmdb_id`, `type` (movie/tv), `status` (saved/watched), poster/title/year/genres/vote_average
 - **`settings`** — key/value store for admin-controlled site settings
+- **`collab_batches`** — collaborative sessions: `token` (8-char PK), `movies`/`graveyard`/`votes`/`restore_votes`/`ready`/`refresh_votes`/`participants`/`criteria` (JSON), `media_type`, `expires_at` (24h TTL)
 
 ### Auth
 
@@ -125,8 +128,15 @@ Copy `.env.example` to `.env` and fill in:
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REDIRECT_URI`
 - `ADMIN_EMAIL` — Google account email that gets admin access
 - MySQL credentials
+- `REVERB_APP_ID` / `REVERB_APP_KEY` / `REVERB_APP_SECRET` — any random strings (Reverb is self-hosted, these are just used to authenticate the WebSocket connection)
 
 API keys are accessed via `config/api.php`.
+
+**Running Reverb locally:**
+```bash
+php artisan reverb:start
+```
+Reverb must be running for the collaborative batch feature to work. In production it runs under supervisor (see Deployment below).
 
 ## Deployment
 
@@ -137,3 +147,19 @@ GitHub Actions (`.github/workflows/deploy.yml`) triggers on push to `master` (al
 4. SSHs in to run `php artisan migrate --force`, `config:cache`, `route:cache`, `view:cache`
 
 Note: `resources/js/` is **not** deployed — only the compiled output in `public/build/` matters. The `.env` file is never deployed and must be created manually on the server.
+
+**Reverb in production** — must run as a persistent process under supervisor:
+```ini
+# /etc/supervisor/conf.d/reverb.conf
+[program:reverb]
+command=php /var/www/moviepicker/artisan reverb:start
+autostart=true
+autorestart=true
+user=www-data
+redirect_stderr=true
+stdout_logfile=/var/log/reverb.log
+```
+```bash
+sudo supervisorctl reread && sudo supervisorctl update && sudo supervisorctl start reverb
+```
+The deploy script runs `php artisan reverb:restart` automatically on each deploy so Reverb reloads new config without manual intervention.
