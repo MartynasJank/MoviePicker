@@ -464,7 +464,7 @@
         {{-- Right actions --}}
         <div class="flex items-center gap-3">
             @if(!request()->query('wl_status') && !session('tvPersonRollIds'))
-                <button type="button" class="btn-secondary js-criteria-btn" data-modal-open="modal-form">Criteria</button>
+                <button type="button" class="btn-secondary js-criteria-btn" data-modal-open="modal-form">Filters</button>
             @endif
             @if(request()->query('wl_status'))
                 @php

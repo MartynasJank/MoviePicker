@@ -11,8 +11,8 @@
             <a href="/tv/pick?i=new" class="btn-accent">Random TV Show</a>
         </div>
         <div class="flex flex-wrap gap-3 justify-center">
-            <a href="/criteria" class="btn-secondary">Movie Criteria</a>
-            <a href="/tv/criteria" class="btn-secondary">TV Criteria</a>
+            <a href="/criteria" class="btn-secondary">Movie Filters</a>
+            <a href="/tv/criteria" class="btn-secondary">TV Filters</a>
             <a href="/" class="btn-secondary">Home</a>
         </div>
     </div>

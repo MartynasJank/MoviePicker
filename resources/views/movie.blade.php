@@ -364,7 +364,7 @@
             @if(request()->query('wl_status'))
                 <button id="wl-roll-btn" class="btn-accent">Roll</button>
             @else
-                <button type="button" class="btn-secondary js-criteria-btn" data-modal-open="modal-form">Criteria</button>
+                <button type="button" class="btn-secondary js-criteria-btn" data-modal-open="modal-form">Filters</button>
                 <a href="/movie" class="btn-accent long-single text-center" data-roll="movie-criteria">Roll</a>
             @endif
         </div>

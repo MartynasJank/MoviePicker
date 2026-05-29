@@ -20,13 +20,13 @@
 
     <h1 class="text-2xl font-bold text-white mb-3">No results found</h1>
     <p class="text-gray-500 text-sm mb-10">
-        Nothing matched your current filters. Try adjusting your criteria, roll something completely random, or browse our curated roulettes.
+        Nothing matched your current filters. Try adjusting your filters, roll something completely random, or browse our curated roulettes.
     </p>
 
     <div class="flex flex-col gap-3">
 
         <button type="button" class="btn-accent py-3 js-criteria-btn" data-modal-open="modal-form">
-            Adjust Criteria
+            Adjust Filters
         </button>
 
         <a href="{{ $randomUrl }}" class="btn-secondary py-3 text-center">
