@@ -1,8 +1,9 @@
 <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide carousel-row {{ $name ?? '' }}">
     @foreach ($allMovies['results'] as $result)
         @php
-            $date  = $result['release_date'] ?? $result['first_air_date'] ?? null;
-            $title = $result['title'] ?? $result['name'] ?? '';
+            $date      = $result['release_date'] ?? $result['first_air_date'] ?? null;
+            $title     = $result['title'] ?? $result['name'] ?? '';
+            $itemBase  = $result['media_type'] ?? $linkBase ?? 'movie';
         @endphp
         @if($date)
         <div class="relative flex-shrink-0 w-44 sm:w-52 lg:w-56"
@@ -10,9 +11,9 @@
              data-title="{{ $title }}"
              data-rating="{{ $result['vote_average'] ?? 0 }}"
              data-poster="{{ $result['poster_path'] ?? '' }}"
-             data-media-type="{{ ($linkBase ?? 'movie') === 'tv' ? 'tv' : 'movie' }}"
-             data-url="{{ url(($linkBase ?? 'movie').'/'.$result['id']) }}{{ !empty($clearCriteria) ? '?i=new' : ($linkSuffix ?? '') }}">
-            <a href="{{ url(($linkBase ?? 'movie').'/'.$result['id']) }}{{ !empty($clearCriteria) ? '?i=new' : (!empty($linkSuffix ?? '') ? $linkSuffix : '') }}"
+             data-media-type="{{ $itemBase === 'tv' ? 'tv' : 'movie' }}"
+             data-url="{{ url($itemBase.'/'.$result['id']) }}{{ !empty($clearCriteria) ? '?i=new' : ($linkSuffix ?? '') }}">
+            <a href="{{ url($itemBase.'/'.$result['id']) }}{{ !empty($clearCriteria) ? '?i=new' : (!empty($linkSuffix ?? '') ? $linkSuffix : '') }}"
                class="block h-full group long-movie" data-name="{{ $title }}">
                 <div class="card card-hover h-full flex flex-col overflow-hidden">
                     <div class="aspect-[2/3] bg-white/[0.03] overflow-hidden">
