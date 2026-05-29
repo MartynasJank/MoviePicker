@@ -82,6 +82,7 @@ export function runCaseOpening(cards, winnerIdx, fullUrl, mediaType = 'movie') {
     });
 
     overlay.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
     titleEl.classList.add('opacity-0');
     tierEl.classList.add('opacity-0');
     titleEl.textContent  = '';
@@ -140,11 +141,12 @@ export function runCaseOpening(cards, winnerIdx, fullUrl, mediaType = 'movie') {
         titleEl.classList.remove('opacity-0');
     }, 7050);
 
-    setTimeout(() => { window.location.href = fullUrl; }, 8500);
+    setTimeout(() => { document.body.style.overflow = ''; window.location.href = fullUrl; }, 8500);
 
     document.addEventListener('keydown', function onEsc(e) {
         if (e.key === 'Escape') {
             overlay.classList.add('hidden');
+            document.body.style.overflow = '';
             document.removeEventListener('keydown', onEsc);
         }
     });
