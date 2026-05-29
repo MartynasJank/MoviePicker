@@ -24,7 +24,7 @@
 
                 {{-- Years --}}
                 <div class="accordion-section border-t border-white/5 {{ $openYear ? 'accordion-open' : '' }}">
-                    <button type="button" class="accordion-header w-full flex items-center justify-between py-3.5 text-left">
+                    <button type="button" class="accordion-header w-full flex items-center justify-between py-2.5 sm:py-3.5 text-left">
                         <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Release Year</h3>
                         <svg class="accordion-chevron w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
                     </button>
@@ -44,7 +44,7 @@
 
                 {{-- Genres --}}
                 <div class="accordion-section border-t border-white/5 {{ $openGenres ? 'accordion-open' : '' }}">
-                    <button type="button" class="accordion-header w-full flex items-center justify-between py-3.5 text-left">
+                    <button type="button" class="accordion-header w-full flex items-center justify-between py-2.5 sm:py-3.5 text-left">
                         <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Genres</h3>
                         <svg class="accordion-chevron w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
                     </button>
@@ -78,7 +78,7 @@
 
                 {{-- Language & Country --}}
                 <div class="accordion-section border-t border-white/5 {{ $openLanguage ? 'accordion-open' : '' }}">
-                    <button type="button" class="accordion-header w-full flex items-center justify-between py-3.5 text-left">
+                    <button type="button" class="accordion-header w-full flex items-center justify-between py-2.5 sm:py-3.5 text-left">
                         <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Language & Country</h3>
                         <svg class="accordion-chevron w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
                     </button>
@@ -98,7 +98,7 @@
 
                 {{-- Streaming --}}
                 <div class="accordion-section border-t border-white/5 {{ $openStreaming ? 'accordion-open' : '' }}">
-                    <button type="button" class="accordion-header w-full flex items-center justify-between py-3.5 text-left">
+                    <button type="button" class="accordion-header w-full flex items-center justify-between py-2.5 sm:py-3.5 text-left">
                         <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Streaming</h3>
                         <svg class="accordion-chevron w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
                     </button>
@@ -119,7 +119,7 @@
 
                 {{-- People --}}
                 <div class="accordion-section border-t border-white/5 {{ $openPeople ? 'accordion-open' : '' }}">
-                    <button type="button" class="accordion-header w-full flex items-center justify-between py-3.5 text-left">
+                    <button type="button" class="accordion-header w-full flex items-center justify-between py-2.5 sm:py-3.5 text-left">
                         <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">People</h3>
                         <svg class="accordion-chevron w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
                     </button>
@@ -141,7 +141,7 @@
 
                 {{-- Scores --}}
                 <div class="accordion-section border-t border-white/5 {{ $openScores ? 'accordion-open' : '' }}">
-                    <button type="button" class="accordion-header w-full flex items-center justify-between py-3.5 text-left">
+                    <button type="button" class="accordion-header w-full flex items-center justify-between py-2.5 sm:py-3.5 text-left">
                         <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Scores</h3>
                         <svg class="accordion-chevron w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
                     </button>
