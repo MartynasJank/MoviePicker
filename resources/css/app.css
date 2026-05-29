@@ -457,6 +457,12 @@ html[data-theme="light"] {
         opacity: 0;
         transition: width 0.15s ease, opacity 0.3s ease 0.15s;
     }
+    @keyframes pulse-dot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50%       { opacity: 0.5; transform: scale(1.4); }
+    }
+    .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+
     @keyframes confetti-fall {
         0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
         100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }

@@ -28,11 +28,10 @@ export function getTier(rating, mediaType = 'movie') {
     return table.find(t => (rating || 0) >= t.min) || table[table.length - 1];
 }
 
-export function runCaseOpening(cards, winnerIdx, fullUrl, mediaType = 'movie') {
-    // Single card: no animation needed — just navigate
+export function runCaseOpening(cards, winnerIdx, fullUrl, mediaType = 'movie', onComplete = null) {
+    // Single card: no animation needed
     if (cards.length <= 1) {
-        window.showProgress?.();
-        window.location.href = fullUrl;
+        if (onComplete) { onComplete(); } else { window.showProgress?.(); window.location.href = fullUrl; }
         return;
     }
 
@@ -141,7 +140,15 @@ export function runCaseOpening(cards, winnerIdx, fullUrl, mediaType = 'movie') {
         titleEl.classList.remove('opacity-0');
     }, 7050);
 
-    setTimeout(() => { document.body.style.overflow = ''; window.location.href = fullUrl; }, 8500);
+    setTimeout(() => {
+        document.body.style.overflow = '';
+        if (onComplete) {
+            overlay.classList.add('hidden');
+            onComplete();
+        } else {
+            window.location.href = fullUrl;
+        }
+    }, 8500);
 
     document.addEventListener('keydown', function onEsc(e) {
         if (e.key === 'Escape') {

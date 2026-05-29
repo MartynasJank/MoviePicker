@@ -13,6 +13,7 @@
 @endsection
 @section('content')
 @php $isTv = ($mediaType ?? 'movie') === 'tv'; @endphp
+<script>window.batchCriteria = @json($user_input ?? []);</script>
 <div class="max-w-7xl mx-auto px-4 py-8 sm:pb-20 batch-wrapper">
 
     @if(isset($providersArray) && isset($all_genres))
@@ -106,6 +107,7 @@
                     title="Share this batch">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
                 </button>
+                @auth
                 @if(empty($isShared))
                 <button type="button" id="collab-start-btn" class="btn-secondary text-sm"
                     data-media-type="{{ $isTv ? 'tv' : 'movie' }}"
@@ -113,6 +115,7 @@
                     Pick Together
                 </button>
                 @endif
+                @endauth
             </div>
             @endif
         </div>
