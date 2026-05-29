@@ -141,7 +141,7 @@ $(document).ready(function () {
     /* ── Reset ──────────────────────────────────────────────────── */
     function resetForm(formId, prefix) {
         const $form = $(formId);
-        $form.find('.bg-input').val('');
+        $form.find('.input-dark').val('');
         ['with_genres', 'without_genres', 'with_watch_providers', 'with_cast', 'with_crew'].forEach(function (key) {
             const ts = window['_ts_' + prefix + key];
             if (ts) ts.clear(true);

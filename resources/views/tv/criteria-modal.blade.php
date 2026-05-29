@@ -11,16 +11,17 @@
 <div id="modal-form" class="modal-wrap hidden">
     <div class="modal-backdrop" data-modal-close></div>
     <div class="modal-box">
-        <button class="modal-close" data-modal-close aria-label="Close">✕</button>
-
         <form method="POST" autocomplete="off" action="/tv/pick?a=true" id="modal-criteria">
             @csrf
-            <div class="p-3 sm:p-5 pb-4 flex flex-col">
-
-                <div class="mb-2">
+            <div class="modal-sticky-header">
+                <div>
                     <h2 class="text-lg font-bold text-white">Adjust Filters</h2>
                     <p class="text-xs text-gray-500 mt-0.5">Tap a section to expand. Leave anything blank to ignore it.</p>
                 </div>
+                <button type="button" class="modal-close" data-modal-close aria-label="Close">✕</button>
+            </div>
+
+            <div class="px-3 sm:px-5 flex flex-col">
 
                 {{-- First Air Date --}}
                 <div class="accordion-section border-t border-white/5 {{ $openYear ? 'accordion-open' : '' }}">
@@ -173,16 +174,17 @@
 
                 @include('errors.error')
 
-                {{-- Actions --}}
-                <div class="flex items-center justify-between gap-2 pt-4 border-t border-white/5">
-                    <button type="button" id="modal-btn-reset" class="btn-secondary text-sm">Reset</button>
-                    <div class="flex gap-2">
-                        <button type="submit" class="btn-secondary text-sm long-single" formaction="/tv/multiple?a=true">Multiple</button>
-                        <button type="submit" class="btn-accent text-sm long-single" formaction="/tv/pick?a=true">Find Show</button>
-                    </div>
-                </div>
-
             </div>
+
+            {{-- Actions --}}
+            <div class="modal-sticky-footer">
+                <button type="button" id="modal-btn-reset" class="btn-secondary text-sm">Reset</button>
+                <div class="flex gap-2">
+                    <button type="submit" class="btn-secondary text-sm long-single" formaction="/tv/multiple?a=true">Multiple</button>
+                    <button type="submit" class="btn-accent text-sm long-single" formaction="/tv/pick?a=true">Find Show</button>
+                </div>
+            </div>
+
         </form>
     </div>
 </div>
