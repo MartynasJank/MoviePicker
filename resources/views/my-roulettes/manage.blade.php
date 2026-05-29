@@ -124,6 +124,22 @@
                                         </button>
                                     </form>
 
+                                    {{-- Share --}}
+                                    @if($roulette->is_public)
+                                    <button type="button"
+                                        class="p-2 text-gray-500 hover:text-white transition-colors"
+                                        data-share
+                                        data-share-url="{{ url('/roulettes/'.$roulette->slug) }}"
+                                        data-share-title="{{ $roulette->name }} — MoviePickr"
+                                        title="Share">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+                                    </button>
+                                    @else
+                                    <span class="p-2 text-gray-700 cursor-not-allowed" title="Make public to share">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+                                    </span>
+                                    @endif
+
                                     {{-- Roll --}}
                                     <a href="/roulettes/{{ $roulette->slug }}" target="_blank"
                                        class="p-2 text-gray-500 hover:text-white transition-colors" title="Roll">

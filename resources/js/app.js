@@ -1,3 +1,13 @@
+window.showSuccessToast = function (msg) {
+    const el = document.createElement('div');
+    el.className = 'fixed top-20 left-1/2 z-50 bg-green-900/80 border border-green-700/50 text-green-300 text-sm px-5 py-3 rounded-lg backdrop-blur-sm cursor-pointer whitespace-nowrap';
+    el.style.transform = 'translateX(-50%)';
+    el.textContent = msg;
+    el.onclick = () => el.remove();
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+};
+
 window.showErrorToast = function (msg) {
     const el = document.createElement('div');
     el.className = 'fixed top-20 left-1/2 z-50 bg-red-900/80 border border-red-700/50 text-red-300 text-sm px-5 py-3 rounded-lg backdrop-blur-sm cursor-pointer whitespace-nowrap';
@@ -70,6 +80,33 @@ $(document).ready(function () {
         lockBodyScroll();
         if (id === 'trailer-modal' && typeof gtag !== 'undefined') {
             gtag('event', 'trailer_opened');
+        }
+    });
+
+    $(document).on('click', '[data-share]', function () {
+        const url   = $(this).data('share-url') || window.location.href;
+        const title = $(this).data('share-title') || document.title;
+        if (navigator.share) {
+            navigator.share({ title, url }).catch(() => {});
+        } else if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(() => {
+                window.showSuccessToast('Link copied!');
+            }).catch(() => {
+                window.showErrorToast('Could not copy link.');
+            });
+        } else {
+            const ta = document.createElement('textarea');
+            ta.value = url;
+            ta.style.cssText = 'position:fixed;opacity:0';
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+                window.showSuccessToast('Link copied!');
+            } catch {
+                window.showErrorToast('Could not copy link.');
+            }
+            document.body.removeChild(ta);
         }
     });
 

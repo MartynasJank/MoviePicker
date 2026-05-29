@@ -73,6 +73,7 @@ class MoviePickController extends PickController
             'providersArray' => $movieService->buildProvidersArray($tmdb),
             'tag'            => 'Movies picked for you',
             'savedIds'       => $this->savedWatchlistIds(),
+            'shareToken'     => BatchShareController::encode($movies['results'], 'movie'),
         ]);
     }
 

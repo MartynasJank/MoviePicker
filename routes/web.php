@@ -114,6 +114,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     Route::delete('users/{user}/roulettes/{roulette}',         [AdminUserController::class, 'destroyRoulette'])->name('users.roulettes.destroy');
 });
 
+Route::get('/batch/share/{token}',      [\App\Http\Controllers\BatchShareController::class, 'show'])->name('batch.share');
 Route::get('/roulettes',                [RouletteController::class, 'index']);
 Route::get('/roulettes/{slug}/movies',  [RouletteController::class, 'moviesJson']);
 Route::get('/roulettes/{slug}',         [RouletteController::class, 'show']);
