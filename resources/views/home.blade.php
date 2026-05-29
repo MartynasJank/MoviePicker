@@ -15,7 +15,7 @@
                     <img src="https://image.tmdb.org/t/p/w342{{ $m['poster_path'] }}"
                          alt=""
                          class="w-full h-full object-cover"
-                         @if($loop->first) fetchpriority="high" @elseif($loop->index >= 4) loading="lazy" @endif>
+                         @if($loop->first) fetchpriority="high" @endif>
                 @endforeach
             </div>
         @endif
