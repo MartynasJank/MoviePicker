@@ -115,9 +115,14 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
 });
 
 Route::get('/batch/share/{token}',           [\App\Http\Controllers\BatchShareController::class,  'show'])->name('batch.share');
-Route::post('/batch/collab',                 [\App\Http\Controllers\CollabBatchController::class, 'create'])->name('batch.collab.create');
-Route::get('/batch/collab/{token}',          [\App\Http\Controllers\CollabBatchController::class, 'show'])->name('batch.collab.show');
-Route::delete('/batch/collab/{token}/{id}',  [\App\Http\Controllers\CollabBatchController::class, 'veto'])->name('batch.collab.veto');
+Route::post('/batch/collab',                           [\App\Http\Controllers\CollabBatchController::class, 'create'])->name('batch.collab.create')->middleware('auth');
+Route::get('/batch/collab/{token}',                    [\App\Http\Controllers\CollabBatchController::class, 'show'])->name('batch.collab.show');
+Route::post('/batch/collab/{token}/join',              [\App\Http\Controllers\CollabBatchController::class, 'join']);
+Route::post('/batch/collab/{token}/leave',             [\App\Http\Controllers\CollabBatchController::class, 'leave']);
+Route::post('/batch/collab/{token}/heartbeat',         [\App\Http\Controllers\CollabBatchController::class, 'heartbeat']);
+Route::post('/batch/collab/{token}/vote/{movieId}',    [\App\Http\Controllers\CollabBatchController::class, 'vote']);
+Route::post('/batch/collab/{token}/ready',             [\App\Http\Controllers\CollabBatchController::class, 'toggleReady']);
+Route::post('/batch/collab/{token}/refresh',           [\App\Http\Controllers\CollabBatchController::class, 'toggleRefreshVote']);
 Route::get('/roulettes',                [RouletteController::class, 'index']);
 Route::get('/roulettes/{slug}/movies',  [RouletteController::class, 'moviesJson']);
 Route::get('/roulettes/{slug}',         [RouletteController::class, 'show']);

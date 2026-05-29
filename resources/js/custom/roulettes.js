@@ -394,7 +394,7 @@ $(document).on('click', '#collab-start-btn', function () {
         method:      'POST',
         contentType: 'application/json',
         headers:     { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-        data:        JSON.stringify({ movies, media_type: mediaType }),
+        data:        JSON.stringify({ movies, media_type: mediaType, criteria: window.batchCriteria ?? {} }),
         success:     function (data) {
             if (data.token) window.location.href = '/batch/collab/' + data.token;
         },
