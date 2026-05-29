@@ -98,13 +98,22 @@
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
         <div class="flex-shrink-0">
             @if(isset($shareToken))
-            <button type="button" class="btn-secondary text-sm"
-                data-share
-                data-share-url="{{ url('/batch/share/'.$shareToken) }}"
-                data-share-title="{{ $tag ?? 'Shared Batch' }} — MoviePickr"
-                title="Share this batch">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
-            </button>
+            <div class="flex items-center gap-2">
+                <button type="button" class="btn-secondary text-sm"
+                    data-share
+                    data-share-url="{{ url('/batch/share/'.$shareToken) }}"
+                    data-share-title="{{ $tag ?? 'Shared Batch' }} — MoviePickr"
+                    title="Share this batch">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+                </button>
+                @if(empty($isShared))
+                <button type="button" id="collab-start-btn" class="btn-secondary text-sm"
+                    data-media-type="{{ $isTv ? 'tv' : 'movie' }}"
+                    title="Pick together — veto movies in real time with friends">
+                    Pick Together
+                </button>
+                @endif
+            </div>
             @endif
         </div>
         <div class="flex items-center gap-3">
