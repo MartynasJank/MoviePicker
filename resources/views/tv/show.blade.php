@@ -437,7 +437,7 @@
 
     {{-- Similar shows --}}
     @if ($similarShows != null)
-    <div>
+    <div id="similar-section">
         <div class="section-header">
             <h2 class="text-xl font-bold text-white mb-3">{{ $similarTitle }}</h2>
             <div class="section-divider"></div>
@@ -464,8 +464,8 @@
         <div class="flex-shrink-0">
             @if(request()->query('wl_status'))
                 <a href="{{ route('watchlist') }}" class="btn-secondary text-center">← Watchlist</a>
-            @elseif($batchUrl)
-                <a href="{{ $batchUrl }}" class="btn-secondary text-center js-back-roulettes">← Batch</a>
+            @else
+                <a href="{{ $batchUrl ?? '#' }}" class="btn-secondary text-center js-back-roulettes {{ $batchUrl ? '' : 'hidden' }}">← Batch</a>
             @endif
         </div>
         {{-- Right actions --}}
