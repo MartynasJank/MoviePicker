@@ -35,6 +35,7 @@
         <span class="text-xs text-gray-500 flex-shrink-0">You:</span>
         <input id="identity-input" type="text" maxlength="24"
                class="bg-transparent text-sm text-white flex-1 outline-none placeholder-gray-600 min-w-0"
+               style="font-size:16px"
                placeholder="Enter your name…">
         <span class="text-xs text-green-400 flex-shrink-0 transition-opacity" id="identity-saved"></span>
         <div class="w-px h-4 bg-white/10 flex-shrink-0"></div>
@@ -168,14 +169,14 @@
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
         <div class="flex items-center gap-2">
             @if($batch->criteria)
-            <button id="refresh-btn" class="btn-secondary text-sm" title="Vote to roll a new batch">
+            <button id="refresh-btn" class="btn-secondary text-sm min-h-[44px]" title="Vote to roll a new batch">
                 New Batch
                 <span id="refresh-votes-count" class="text-xs text-gray-500 ml-1"></span>
             </button>
             @endif
         </div>
         <div class="flex items-center gap-3">
-            <button id="ready-btn" class="btn-accent px-6">
+            <button id="ready-btn" class="btn-accent px-6 min-h-[44px]">
                 Ready to Roll
                 <span id="ready-count" class="text-xs opacity-70 ml-1"></span>
             </button>
@@ -187,7 +188,7 @@
 <div id="winner-overlay" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm px-4">
     <div class="text-center max-w-sm w-full">
         <p class="text-gray-500 text-sm mb-5">Last one standing 🎉</p>
-        <div id="winner-poster" class="mx-auto w-40 rounded-xl overflow-hidden mb-5 shadow-2xl ring-2 ring-accent/50"></div>
+        <div id="winner-poster" class="mx-auto w-32 sm:w-40 rounded-xl overflow-hidden mb-5 shadow-2xl ring-2 ring-accent/50"></div>
         <h2 class="text-2xl font-bold text-white mb-1" id="winner-title"></h2>
         <p class="text-gray-500 text-sm mb-6" id="winner-rating"></p>
         <div class="flex gap-3 justify-center">

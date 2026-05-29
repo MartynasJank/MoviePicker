@@ -123,6 +123,7 @@ Route::post('/batch/collab/{token}/heartbeat',         [\App\Http\Controllers\Co
 Route::post('/batch/collab/{token}/vote/{movieId}',    [\App\Http\Controllers\CollabBatchController::class, 'vote']);
 Route::post('/batch/collab/{token}/ready',             [\App\Http\Controllers\CollabBatchController::class, 'toggleReady']);
 Route::post('/batch/collab/{token}/refresh',           [\App\Http\Controllers\CollabBatchController::class, 'toggleRefreshVote']);
+Route::post('/batch/collab/{token}/remove-votes',      [\App\Http\Controllers\CollabBatchController::class, 'removeVotes']);
 Route::get('/roulettes',                [RouletteController::class, 'index']);
 Route::get('/roulettes/{slug}/movies',  [RouletteController::class, 'moviesJson']);
 Route::get('/roulettes/{slug}',         [RouletteController::class, 'show']);

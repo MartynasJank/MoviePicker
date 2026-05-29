@@ -25,9 +25,20 @@ class CollabStateUpdated implements ShouldBroadcast
         public array  $winner     = [],
     )
     {
+        $slim = fn(array $movies) => array_values(array_map(fn($m) => [
+            'id'           => $m['id'],
+            'poster_path'  => $m['poster_path'] ?? null,
+            'title'        => $m['title'] ?? $m['name'] ?? '',
+            'name'         => $m['name'] ?? $m['title'] ?? '',
+            'vote_average' => $m['vote_average'] ?? 0,
+            'media_type'   => $m['media_type'] ?? null,
+            'release_date' => $m['release_date'] ?? null,
+            'first_air_date' => $m['first_air_date'] ?? null,
+        ], $movies));
+
         $this->state = [
-            'movies'        => array_values($batch->movies ?? []),
-            'graveyard'     => array_values($batch->graveyard ?? []),
+            'movies'        => $slim($batch->movies ?? []),
+            'graveyard'     => $slim($batch->graveyard ?? []),
             'votes'         => $batch->votes ?? [],
             'restore_votes' => $batch->restore_votes ?? [],
             'ready'         => array_values($batch->ready ?? []),

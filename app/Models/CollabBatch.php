@@ -26,11 +26,4 @@ class CollabBatch extends Model
         'criteria'      => 'array',
         'expires_at'    => 'datetime',
     ];
-
-    public function getVotesAttribute($value): array         { return $value ? json_decode($value, true) : []; }
-    public function getRestoreVotesAttribute($value): array  { return $value ? json_decode($value, true) : []; }
-    public function getGraveyardAttribute($value): array     { return $value ? json_decode($value, true) : []; }
-    public function getReadyAttribute($value): array         { return $value ? json_decode($value, true) : []; }
-    public function getRefreshVotesAttribute($value): array  { return $value ? json_decode($value, true) : []; }
-    public function getParticipantsAttribute($value): array  { return $value ? json_decode($value, true) : []; }
 }
