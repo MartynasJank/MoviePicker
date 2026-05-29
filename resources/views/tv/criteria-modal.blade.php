@@ -18,7 +18,7 @@
             <div class="p-5 pb-4 flex flex-col">
 
                 <div class="mb-2">
-                    <h2 class="text-lg font-bold text-white">Adjust Criteria</h2>
+                    <h2 class="text-lg font-bold text-white">Adjust Filters</h2>
                     <p class="text-xs text-gray-500 mt-0.5">Tap a section to expand. Leave anything blank to ignore it.</p>
                 </div>
 

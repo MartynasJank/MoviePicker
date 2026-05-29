@@ -9,7 +9,7 @@
 <div class="max-w-2xl mx-auto px-4 py-10 pb-24">
 
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-white">Movie Criteria</h1>
+        <h1 class="text-3xl font-bold text-white">Movie Filters</h1>
         <p class="text-gray-500 text-sm mt-1">Fill in what you want, leave the rest blank.</p>
     </div>
 

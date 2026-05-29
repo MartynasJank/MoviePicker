@@ -130,7 +130,7 @@
                 <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
             </a>
             <a href="/criteria" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">
-                Movie Criteria
+                Movie Filters
             </a>
 
             {{-- TV Shows --}}
@@ -145,7 +145,7 @@
                 <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
             </a>
             <a href="/tv/criteria" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">
-                TV Criteria
+                TV Filters
             </a>
 
             {{-- Account --}}

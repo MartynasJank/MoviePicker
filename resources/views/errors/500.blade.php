@@ -8,7 +8,7 @@
         <p class="text-gray-500 mb-8">A server error occurred. Try again in a moment.</p>
         <div class="flex flex-wrap gap-3 justify-center">
             <a href="/movie?i=new" class="btn-accent">Random Movie</a>
-            <a href="/criteria" class="btn-secondary">Set Criteria</a>
+            <a href="/criteria" class="btn-secondary">Set Filters</a>
         </div>
     </div>
 </div>
