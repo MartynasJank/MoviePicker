@@ -15,7 +15,7 @@
 
         <form method="POST" autocomplete="off" action="/movie?a=true" id="modal-criteria">
             @csrf
-            <div class="p-5 pb-4 flex flex-col">
+            <div class="p-3 sm:p-5 pb-4 flex flex-col">
 
                 <div class="mb-2">
                     <h2 class="text-lg font-bold text-white">Adjust Filters</h2>
