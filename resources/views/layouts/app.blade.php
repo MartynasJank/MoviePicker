@@ -3,9 +3,6 @@
 <head>
     <title>@yield('page_title', 'MoviePickr — Random Movie & TV Show Picker')</title>
     <link rel="icon" href="{{ URL::asset('/images/icon.png') }}"/>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="description" content="@yield('meta_description', 'Pick a random movie or TV show filtered by genre, streaming service, or mood. Or just hit roll and let it decide.')">
