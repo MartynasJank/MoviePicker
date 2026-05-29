@@ -30,7 +30,7 @@
         <div class="mb-10">
             <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-4">{{ $groupName }}</h2>
 
-            <div class="flex gap-3 overflow-x-auto pb-2 roulette-row">
+            <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide roulette-row">
                 @foreach($roulettes as $roulette)
                     @php
                         $tags     = $roulette->tags;

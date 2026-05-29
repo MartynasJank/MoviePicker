@@ -372,7 +372,7 @@
             <a href="/roulettes" class="btn-secondary text-sm px-4 py-2 flex-shrink-0">Browse all roulettes →</a>
         </div>
         <div class="section-divider mb-5"></div>
-        <div class="flex gap-3 overflow-x-auto pb-2">
+        <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
             @foreach($featuredRoulettes as $roulette)
                 @php
                     $tags     = $roulette->tags;

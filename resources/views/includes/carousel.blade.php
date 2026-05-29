@@ -1,4 +1,4 @@
-<div class="flex gap-3 overflow-x-auto pb-2 carousel-row {{ $name ?? '' }}">
+<div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide carousel-row {{ $name ?? '' }}">
     @foreach ($allMovies['results'] as $result)
         @php
             $date  = $result['release_date'] ?? $result['first_air_date'] ?? null;
