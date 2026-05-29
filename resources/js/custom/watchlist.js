@@ -238,4 +238,57 @@ $(document).ready(function () {
         }
     });
 
+    /* ── Share visible watchlist as a batch ───────────────────────── */
+    $('#watchlist-share').on('click', function () {
+        const movies = [];
+        $('.watchlist-card:visible').each(function () {
+            const link      = $(this).find('a[href]').first();
+            const img       = $(this).find('img').first();
+            const href      = link.attr('href') || '';
+            const idMatch   = href.match(/\/(?:movie|tv)\/(\d+)/);
+            const id        = idMatch ? parseInt(idMatch[1]) : 0;
+            if (!id) return;
+            const posterSrc  = (img.attr('src') || '').replace('w500', 'w342');
+            const posterPath = posterSrc.replace(/https:\/\/image\.tmdb\.org\/t\/p\/w\d+/, '');
+            const title      = $(this).data('title') || '';
+            const rating     = parseFloat($(this).data('rating')) || 0;
+            const mediaType  = ($(this).data('type') || 'movie') === 'tv' ? 'tv' : 'movie';
+            const year       = parseInt($(this).data('year')) || 2000;
+            const dateStr    = year + '-01-01';
+            movies.push({
+                id,
+                poster_path:    posterPath,
+                title,
+                name:           title,
+                vote_average:   rating,
+                media_type:     mediaType,
+                release_date:   mediaType === 'movie' ? dateStr : null,
+                first_air_date: mediaType === 'tv'    ? dateStr : null,
+                genre_ids:      [],
+            });
+        });
+
+        if (!movies.length) { window.showErrorToast('Nothing to share.'); return; }
+
+        const hasTV  = movies.some(m => m.media_type === 'tv');
+        const hasMov = movies.some(m => m.media_type === 'movie');
+        const type   = hasTV && hasMov ? 'mixed' : (hasTV ? 'tv' : 'movie');
+
+        const token = btoa(unescape(encodeURIComponent(JSON.stringify({ type, movies })))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+        const url   = window.location.origin + '/batch/share/' + token;
+        const title = 'My Watchlist — MoviePickr';
+
+        if (navigator.share) {
+            navigator.share({ title, url }).catch(() => {});
+        } else if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(() => window.showSuccessToast('Link copied!'));
+        } else {
+            const ta = document.createElement('textarea');
+            ta.value = url; ta.style.cssText = 'position:fixed;opacity:0';
+            document.body.appendChild(ta); ta.select();
+            try { document.execCommand('copy'); window.showSuccessToast('Link copied!'); } catch {}
+            document.body.removeChild(ta);
+        }
+    });
+
 });

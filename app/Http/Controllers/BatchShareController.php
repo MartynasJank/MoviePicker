@@ -18,21 +18,30 @@ class BatchShareController extends Controller
             abort(404);
         }
 
-        $isTv    = $data['type'] === 'tv';
+        $type    = $data['type'];
+        $isTv    = $type === 'tv';
+        $isMixed = $type === 'mixed';
         $results = $data['movies'];
 
+        $tags = match(true) {
+            $isMixed => 'Shared Watchlist',
+            $isTv    => 'Shared TV Batch',
+            default  => 'Shared Movie Batch',
+        };
+
         return view('batch', [
-            'movies'      => ['results' => $results],
-            'all_genres'  => [],
-            'movie_genres'=> [],
+            'movies'         => ['results' => $results],
+            'all_genres'     => [],
+            'movie_genres'   => [],
             'providersArray' => [],
-            'user_input'  => [],
-            'tag'         => $isTv ? 'Shared TV Batch' : 'Shared Movie Batch',
-            'savedIds'    => auth()->check()
+            'user_input'     => [],
+            'tag'            => $tags,
+            'savedIds'       => auth()->check()
                 ? auth()->user()->watchlist()->pluck('tmdb_id')->toArray()
                 : [],
-            'mediaType'   => $isTv ? 'tv' : 'movie',
-            'isShared'    => true,
+            'mediaType'      => $isMixed ? 'mixed' : ($isTv ? 'tv' : 'movie'),
+            'isShared'       => true,
+            'shareToken'     => self::encode($results, $type),
         ]);
     }
 
@@ -58,7 +67,9 @@ class BatchShareController extends Controller
     private static function decode(string $token): ?array
     {
         try {
-            $json = base64_decode(strtr($token, '-_', '+/') . str_repeat('=', strlen($token) % 4));
+            $padded = strtr($token, '-_', '+/');
+            $padded .= str_repeat('=', (4 - strlen($padded) % 4) % 4);
+            $json   = base64_decode($padded, strict: true) ?: base64_decode($padded);
             $data = json_decode($json, true);
             if (!isset($data['type'], $data['movies']) || !is_array($data['movies'])) {
                 return null;
