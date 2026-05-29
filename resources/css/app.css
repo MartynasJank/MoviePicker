@@ -222,7 +222,7 @@ html[data-theme="light"] {
         outline: none;
     }
     @media (max-width: 639px) {
-        .modal-box .input-dark { padding-top: 0.4rem; padding-bottom: 0.4rem; font-size: 0.8125rem; }
+        .modal-box .input-dark { padding-top: 0.4rem; padding-bottom: 0.4rem; }
     }
     .input-dark::placeholder { color: var(--text-faint); }
     .input-dark:focus {
@@ -638,3 +638,8 @@ html[data-theme="light"] .bg-white\/\[0\.02\] { background-color: rgba(0,0,0,0.0
     --cc-webkit-scrollbar-hover-bg: rgba(255,255,255,0.1);
 }
 html[data-theme="light"] .bg-white\/\[0\.03\] { background-color: rgba(0,0,0,0.03) !important; }
+
+/* Prevent iOS Safari auto-zoom on input focus */
+@media (max-width: 639px) {
+    input, select, textarea, .ts-control input { font-size: 16px !important; }
+}
