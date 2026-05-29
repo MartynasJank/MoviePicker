@@ -37,13 +37,6 @@
                         @endif
 
                         <div class="absolute bottom-0 left-0 right-0 p-3">
-                            @if($allTags->isNotEmpty())
-                                <div class="flex gap-1 mb-1.5 flex-wrap">
-                                    @foreach($allTags as $tag)
-                                        <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 text-gray-400 border border-white/10">{{ $tag }}</span>
-                                    @endforeach
-                                </div>
-                            @endif
                             <h3 class="text-sm font-semibold text-white leading-snug">{{ $roulette->name }}</h3>
                             <span class="text-xs text-accent font-medium mt-1 block group-hover:underline">Batch →</span>
                         </div>
