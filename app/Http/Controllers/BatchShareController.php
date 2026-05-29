@@ -29,6 +29,10 @@ class BatchShareController extends Controller
             default  => 'Shared Movie Batch',
         };
 
+        $titles   = collect($results)->pluck('title')->filter()->take(4)->implode(', ');
+        $ogImage  = collect($results)->first(fn($m) => !empty($m['poster_path']));
+        $ogImage  = $ogImage ? 'https://image.tmdb.org/t/p/w500' . $ogImage['poster_path'] : null;
+
         return view('batch', [
             'movies'         => ['results' => $results],
             'all_genres'     => [],
@@ -42,6 +46,9 @@ class BatchShareController extends Controller
             'mediaType'      => $isMixed ? 'mixed' : ($isTv ? 'tv' : 'movie'),
             'isShared'       => true,
             'shareToken'     => self::encode($results, $type),
+            'ogTitle'        => $tags . ' — MoviePickr',
+            'ogDescription'  => $titles ? 'Includes: ' . $titles . '...' : $tags,
+            'ogImage'        => $ogImage,
         ]);
     }
 
