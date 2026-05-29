@@ -43,6 +43,13 @@
         {{-- Save buttons --}}
         <div class="flex flex-col items-end gap-2 flex-shrink-0">
             <div class="flex items-center gap-2">
+                <button type="button" class="btn-secondary flex-shrink-0 text-sm"
+                    data-share
+                    data-share-url="{{ url()->current() }}"
+                    data-share-title="{{ $tmdbInfo->title ?? '' }} — MoviePickr"
+                    title="Share">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+                </button>
                 @auth
                     <button type="button" id="title-save-roulette-btn"
                             class="btn-secondary text-sm flex items-center gap-1.5">
