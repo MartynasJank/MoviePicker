@@ -240,10 +240,10 @@
             <a href="{{ route('privacy') }}" class="hover:text-gray-400 transition-colors">Privacy Policy</a>
             <button data-cc="show-preferencesModal" class="hover:text-gray-400 transition-colors">Cookie settings</button>
         </div>
-        <p class="hidden sm:block mt-2 text-gray-700">
-            This product uses the TMDB API but is not endorsed or certified by TMDB.
-            Watch provider data by <a href="https://www.justwatch.com" target="_blank" class="hover:text-gray-500 transition-colors">JustWatch</a>.
-            Ratings data by <a href="https://www.omdbapi.com" target="_blank" class="hover:text-gray-500 transition-colors">OMDb</a>.
+        <p class="mt-2 text-gray-700 leading-relaxed max-w-sm mx-auto sm:max-w-none">
+            Not endorsed by TMDB.
+            Streaming data by <a href="https://www.justwatch.com" target="_blank" class="hover:text-gray-500 transition-colors">JustWatch</a>.
+            Ratings by <a href="https://www.omdbapi.com" target="_blank" class="hover:text-gray-500 transition-colors">OMDb</a>.
         </p>
     </footer>
     @endunless
