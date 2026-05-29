@@ -10,11 +10,11 @@
         {{-- Poster collage background --}}
         @php $bgPosters = array_values(array_filter(array_slice($trendingDay['results'] ?? [], 0, 12), fn($m) => !empty($m['poster_path']))); @endphp
         @if(count($bgPosters) >= 3)
-            <div class="absolute inset-0 grid grid-cols-4 md:grid-cols-6 opacity-[0.18] pointer-events-none overflow-hidden" aria-hidden="true">
+            <div class="absolute inset-0 grid grid-cols-3 md:grid-cols-6 opacity-[0.18] pointer-events-none overflow-hidden" aria-hidden="true">
                 @foreach($bgPosters as $m)
                     <img src="https://image.tmdb.org/t/p/w342{{ $m['poster_path'] }}"
                          alt=""
-                         class="w-full h-full object-cover"
+                         class="w-full h-full object-cover {{ $loop->index >= 6 ? 'hidden md:block' : '' }}"
                          @if($loop->first) fetchpriority="high" @endif>
                 @endforeach
             </div>
@@ -343,6 +343,23 @@
         </div>
     </section>
 
+    {{-- About --}}
+    <section class="bg-white/[0.02] border-y border-white/5 py-10 sm:py-16">
+        <div class="max-w-2xl mx-auto px-4 text-center">
+            <h2 class="text-2xl font-bold text-white mb-3">About MoviePickr</h2>
+            <div class="section-divider mb-6"></div>
+            <p class="text-gray-400 leading-relaxed mb-8">
+                Sometimes the best movie is one you never would have chosen yourself.
+                Tell MoviePickr what you're in the mood for and it'll find something worth watching.
+                Filter by genre, decade, streaming service, or cast, or skip the filters entirely and let it surprise you.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center items-stretch sm:items-center">
+                <a href="/movie?i=new" class="btn-accent long-single text-center">Random Movie</a>
+                <a href="/criteria" class="btn-secondary text-center">Set Preferences</a>
+            </div>
+        </div>
+    </section>
+
     {{-- Featured Roulettes --}}
     @if($featuredRoulettes->isNotEmpty())
     @include('includes.roulette-labels')
@@ -424,23 +441,6 @@
         </div>
     </section>
     @endif
-
-    {{-- About --}}
-    <section class="bg-white/[0.02] border-y border-white/5 py-10 sm:py-16">
-        <div class="max-w-2xl mx-auto px-4 text-center">
-            <h2 class="text-2xl font-bold text-white mb-3">About MoviePickr</h2>
-            <div class="section-divider mb-6"></div>
-            <p class="text-gray-400 leading-relaxed mb-8">
-                Sometimes the best movie is one you never would have chosen yourself.
-                Tell MoviePickr what you're in the mood for and it'll find something worth watching.
-                Filter by genre, decade, streaming service, or cast, or skip the filters entirely and let it surprise you.
-            </p>
-            <div class="flex flex-col sm:flex-row gap-3 justify-center items-stretch sm:items-center">
-                <a href="/movie?i=new" class="btn-accent long-single text-center">Random Movie</a>
-                <a href="/criteria" class="btn-secondary text-center">Set Preferences</a>
-            </div>
-        </div>
-    </section>
 
 
     <script>
