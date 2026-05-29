@@ -56,28 +56,33 @@ Route::prefix('tmdb')->group(function () {
 Route::get('/no-results', NoResultsController::class)->name('no-results');
 Route::get('/criteria',  CriteriaController::class);
 
-Route::match(['get', 'post'], '/movie',    [MoviePickController::class, 'single']);
-Route::match(['get', 'post'], '/multiple', [MoviePickController::class, 'batch']);
-Route::get('/movie/roll',                       [MoviePickController::class, 'homepageRoll']);
-Route::match(['get', 'post'], '/movie/roll/criteria', [MoviePickController::class, 'criteriaRoll']);
+Route::middleware('throttle:60,1')->group(function () {
+    Route::match(['get', 'post'], '/movie',               [MoviePickController::class, 'single']);
+    Route::match(['get', 'post'], '/multiple',            [MoviePickController::class, 'batch']);
+    Route::get('/movie/roll',                             [MoviePickController::class, 'homepageRoll']);
+    Route::match(['get', 'post'], '/movie/roll/criteria', [MoviePickController::class, 'criteriaRoll']);
+
+    Route::match(['get', 'post'], '/tv/pick',             [TvPickController::class, 'single'])->name('tv.pick');
+    Route::match(['get', 'post'], '/tv/multiple',         [TvPickController::class, 'batch']);
+    Route::get('/tv/roll',                                [TvPickController::class, 'homepageRoll']);
+    Route::match(['get', 'post'], '/tv/roll/criteria',    [TvPickController::class, 'criteriaRoll']);
+
+    Route::get('/person/{id}/roll/movie',                 [PersonRollController::class, 'movie'])->name('person.roll.movie');
+    Route::get('/person/{id}/roll/tv',                    [PersonRollController::class, 'tv'])->name('person.roll.tv');
+    Route::get('/person/{id}/roll/movie/json',            [PersonRollController::class, 'movieRollJson']);
+    Route::get('/person/{id}/roll/tv/json',               [PersonRollController::class, 'tvRollJson']);
+});
+
 Route::get('/movie/{id}',          MovieController::class)->name('movie');
 
 // TV Shows
 Route::get('/tv/criteria',                     TvCriteriaController::class);
-Route::match(['get', 'post'], '/tv/pick',      [TvPickController::class, 'single'])->name('tv.pick');
-Route::match(['get', 'post'], '/tv/multiple',  [TvPickController::class, 'batch']);
-Route::get('/tv/roll',                          [TvPickController::class, 'homepageRoll']);
-Route::match(['get', 'post'], '/tv/roll/criteria',   [TvPickController::class, 'criteriaRoll']);
 Route::get('/tv/{id}',             TvShowController::class)->name('tv.show');
 Route::get('/tv/{id}/season/{season}', TvSeasonController::class)->name('tv.season');
 Route::get('/tv/{id}/season/{season}/episode/{episode}', TvEpisodeController::class)->name('tv.episode');
 
 Route::get('/person/roll/tv/next',    [PersonRollController::class, 'nextTvRoll'])->name('person.roll.tv.next');
 Route::get('/person/{id}',            PersonController::class)->name('person');
-Route::get('/person/{id}/roll/movie',      [PersonRollController::class, 'movie'])->name('person.roll.movie');
-Route::get('/person/{id}/roll/tv',         [PersonRollController::class, 'tv'])->name('person.roll.tv');
-Route::get('/person/{id}/roll/movie/json', [PersonRollController::class, 'movieRollJson']);
-Route::get('/person/{id}/roll/tv/json',    [PersonRollController::class, 'tvRollJson']);
 
 // My Roulettes (auth required — must be before /roulettes/{slug} wildcard)
 Route::middleware('auth')->prefix('my-roulettes')->name('my-roulettes.')->group(function () {
@@ -130,15 +135,3 @@ if (app()->environment('local')) {
         return redirect('/');
     });
 }
-
-// Obfuscated utility routes (cache/config clear, scheduler trigger)
-Route::get('/fdsdfsds', function () {
-    Artisan::call('config:clear');
-    Artisan::call('view:clear');
-    Artisan::call('cache:clear');
-    Artisan::call('config:cache');
-});
-
-Route::get('/asdsadasdasdsadsaghfgh', function () {
-    Artisan::call('schedule:run');
-});
