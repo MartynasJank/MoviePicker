@@ -2,7 +2,7 @@
 @section('page_title', ($tmdbInfo->title ?? $omdbInfo->Title ?? 'Movie').' — MoviePickr')
 @section('og_title', ($tmdbInfo->title ?? $omdbInfo->Title ?? 'Movie').' — MoviePickr')
 @section('og_description', Str::limit($tmdbInfo->overview ?? 'Watch this movie picked by MoviePickr.', 200))
-@section('og_image', $tmdbInfo->poster_path ? 'https://image.tmdb.org/t/p/w500'.$tmdbInfo->poster_path : '')
+@section('og_image', $tmdbInfo->backdrop_path ? 'https://image.tmdb.org/t/p/w1280'.$tmdbInfo->backdrop_path : ($tmdbInfo->poster_path ? 'https://image.tmdb.org/t/p/w500'.$tmdbInfo->poster_path : ''))
 @section('footer_pb', 'pb-32')
 @section('scripts')
     @vite(['resources/js/custom/showMore.js', 'resources/js/custom/carousel.js', 'resources/js/custom/trailerModal.js', 'resources/js/custom/criteriaForm.js'])
