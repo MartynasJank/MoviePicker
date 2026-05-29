@@ -10,6 +10,7 @@ $(document).ready(function () {
 
         // Prevent double initialization
         if (el.tomselect) {
+            window['_ts_' + id] = el.tomselect;
             return el.tomselect;
         }
 
