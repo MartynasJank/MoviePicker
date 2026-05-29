@@ -38,10 +38,26 @@ $(document).ready(function () {
     });
 
     /* ── Custom modals ─────────────────────────────────────────────────── */
+    let _modalScrollY = 0;
+    function lockBodyScroll() {
+        _modalScrollY = window.scrollY;
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.top = '-' + _modalScrollY + 'px';
+        document.body.style.width = '100%';
+    }
+    function unlockBodyScroll() {
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        window.scrollTo(0, _modalScrollY);
+    }
+
     $(document).on('click', '[data-modal-open]', function () {
         const id = $(this).data('modal-open');
         $('#' + id).removeClass('hidden');
-        $('body').css('overflow', 'hidden');
+        lockBodyScroll();
         if (id === 'trailer-modal' && typeof gtag !== 'undefined') {
             gtag('event', 'trailer_opened');
         }
@@ -49,13 +65,13 @@ $(document).ready(function () {
 
     $(document).on('click', '[data-modal-close], .modal-backdrop', function () {
         $(this).closest('.modal-wrap').addClass('hidden');
-        $('body').css('overflow', '');
+        unlockBodyScroll();
     });
 
     $(document).on('keydown', function (e) {
         if (e.key === 'Escape') {
             $('.modal-wrap').addClass('hidden');
-            $('body').css('overflow', '');
+            unlockBodyScroll();
             stopTrailer();
         }
     });
@@ -68,7 +84,7 @@ $(document).ready(function () {
     $(document).on('click', '#trailer-modal-close, #trailer-modal .modal-backdrop', function () {
         stopTrailer();
         $('#trailer-modal').addClass('hidden');
-        $('body').css('overflow', '');
+        unlockBodyScroll();
     });
 
     /* ── Progress bar ───────────────────────────────────────────────────── */
