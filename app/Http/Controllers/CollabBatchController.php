@@ -16,7 +16,7 @@ class CollabBatchController extends Controller
 
     private function activeParticipants(CollabBatch $batch): array
     {
-        return collect($batch->participants)
+        return collect($batch->participants ?? [])
             ->filter(fn($p) => Carbon::parse($p['last_seen'])->gt(now()->subMinutes(3)))
             ->values()
             ->all();
@@ -84,7 +84,7 @@ class CollabBatchController extends Controller
         $userId   = $request->input('userId');
         $name     = $request->input('name', 'Anonymous');
 
-        $participants = collect($batch->participants)
+        $participants = collect($batch->participants ?? [])
             ->reject(fn($p) => $p['userId'] === $userId)
             ->push(['userId' => $userId, 'name' => $name, 'last_seen' => now()->toISOString()])
             ->values()
@@ -102,20 +102,42 @@ class CollabBatchController extends Controller
         if (!$batch) return response()->json(['ok' => true]);
 
         $userId = $request->input('userId');
-        $name   = collect($batch->participants)->firstWhere('userId', $userId)['name'] ?? '';
+        $name   = collect($batch->participants ?? [])->firstWhere('userId', $userId)['name'] ?? '';
 
-        $participants = collect($batch->participants)
+        $participants = collect($batch->participants ?? [])
             ->reject(fn($p) => $p['userId'] === $userId)
             ->values()
             ->all();
 
         $batch->update([
             'participants'  => $participants,
-            'ready'         => array_values(array_diff($batch->ready, [$userId])),
-            'refresh_votes' => array_values(array_diff($batch->refresh_votes, [$userId])),
+            'ready'         => array_values(array_diff($batch->ready ?? [], [$userId])),
+            'refresh_votes' => array_values(array_diff($batch->refresh_votes ?? [], [$userId])),
         ]);
 
         $this->broadcast($batch, 'leave', $name, $userId);
+        return response()->json(['ok' => true]);
+    }
+
+    public function removeVotes(Request $request, string $token)
+    {
+        $batch        = CollabBatch::where('token', $token)->first();
+        if (!$batch) return response()->json(['ok' => true]);
+
+        $targetUserId = $request->input('targetUserId');
+
+        // Remove from all vote maps idempotently
+        $votes = collect($batch->votes ?? [])
+            ->map(fn($voters) => array_values(array_diff($voters, [$targetUserId])))
+            ->all();
+
+        $restoreVotes = collect($batch->restore_votes ?? [])
+            ->map(fn($voters) => array_values(array_diff($voters, [$targetUserId])))
+            ->all();
+
+        $batch->update(['votes' => $votes, 'restore_votes' => $restoreVotes]);
+        $this->broadcast($batch, 'vote_cleanup');
+
         return response()->json(['ok' => true]);
     }
 
@@ -124,9 +146,9 @@ class CollabBatchController extends Controller
         $batch    = $this->guardBatch($token);
         $userId   = $request->input('userId');
         $name     = $request->input('name', 'Anonymous');
-        $oldName  = collect($batch->participants)->firstWhere('userId', $userId)['name'] ?? null;
+        $oldName  = collect($batch->participants ?? [])->firstWhere('userId', $userId)['name'] ?? null;
 
-        $participants = collect($batch->participants)
+        $participants = collect($batch->participants ?? [])
             ->map(fn($p) => $p['userId'] === $userId
                 ? array_merge($p, ['name' => $name, 'last_seen' => now()->toISOString()])
                 : $p)
@@ -161,7 +183,7 @@ class CollabBatchController extends Controller
         $pCount  = $this->participantCount($batch);
 
         if ($type === 'veto') {
-            $votes    = $batch->votes;
+            $votes    = $batch->votes ?? [];
             $voters   = $votes[$key] ?? [];
             $removing = in_array($userId, $voters);
 
@@ -176,7 +198,7 @@ class CollabBatchController extends Controller
                 // Move to graveyard
                 $movie = collect($batch->movies)->first(fn($m) => $m['id'] === $movieId);
                 if ($movie) {
-                    $graveyard = $batch->graveyard;
+                    $graveyard = $batch->graveyard ?? [];
                     $graveyard[] = $movie;
                     $movies = collect($batch->movies)->reject(fn($m) => $m['id'] === $movieId)->values()->all();
                     unset($votes[$key]);
@@ -187,7 +209,7 @@ class CollabBatchController extends Controller
             }
         } else {
             // Restore vote
-            $restoreVotes = $batch->restore_votes;
+            $restoreVotes = $batch->restore_votes ?? [];
             $voters       = $restoreVotes[$key] ?? [];
             $removing     = in_array($userId, $voters);
 
@@ -200,11 +222,11 @@ class CollabBatchController extends Controller
 
             if (count($voters) >= $this->vetoThreshold($pCount)) {
                 // Restore from graveyard
-                $movie = collect($batch->graveyard)->first(fn($m) => $m['id'] === $movieId);
+                $movie = collect($batch->graveyard ?? [])->first(fn($m) => $m['id'] === $movieId);
                 if ($movie) {
                     $movies = $batch->movies;
                     $movies[] = $movie;
-                    $graveyard = collect($batch->graveyard)->reject(fn($m) => $m['id'] === $movieId)->values()->all();
+                    $graveyard = collect($batch->graveyard ?? [])->reject(fn($m) => $m['id'] === $movieId)->values()->all();
                     unset($restoreVotes[$key]);
                     $batch->update(['movies' => $movies, 'graveyard' => $graveyard, 'restore_votes' => $restoreVotes]);
                 }
@@ -233,7 +255,7 @@ class CollabBatchController extends Controller
         $name    = $request->input('name', 'Someone');
         $pCount  = $this->participantCount($batch);
 
-        $ready = $batch->ready;
+        $ready = $batch->ready ?? [];
         if (in_array($userId, $ready)) {
             $ready = array_values(array_diff($ready, [$userId]));
         } else {
@@ -262,7 +284,7 @@ class CollabBatchController extends Controller
         $name    = $request->input('name', 'Someone');
         $pCount  = $this->participantCount($batch);
 
-        $refreshVotes = $batch->refresh_votes;
+        $refreshVotes = $batch->refresh_votes ?? [];
         if (in_array($userId, $refreshVotes)) {
             $refreshVotes = array_values(array_diff($refreshVotes, [$userId]));
             $batch->update(['refresh_votes' => $refreshVotes]);

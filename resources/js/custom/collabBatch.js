@@ -161,10 +161,11 @@ function applyState(newState, eventType, byName = '', byId = '', movieTitle = ''
                 showToast(`${who} joined`, 'green');
             }
         } else if (eventType === 'leave') {
-            // Delay 8s — if they rejoin (page refresh) the toast is cancelled
+            // Delay 8s — if they rejoin (page refresh) the toast and vote cleanup are cancelled
             const t = setTimeout(() => {
                 leavePending.delete(byId);
                 showToast(`${who} left`);
+                api('remove-votes', { targetUserId: byId });
             }, 8000);
             leavePending.set(byId, t);
         }
@@ -502,7 +503,7 @@ function showToast(msg, color = 'white') {
     const cls = color === 'green'
         ? 'bg-green-900/80 border-green-700/50 text-green-300'
         : 'bg-black/80 border-white/10 text-white';
-    el.className = `${cls} border text-sm px-4 py-2.5 rounded-lg backdrop-blur-sm whitespace-nowrap pointer-events-auto`;
+    el.className = `${cls} border text-sm px-4 py-2.5 rounded-lg backdrop-blur-sm pointer-events-auto max-w-[90vw] text-center`;
     el.textContent = msg;
     document.getElementById('veto-toasts').appendChild(el);
     setTimeout(() => el.remove(), 3000);
