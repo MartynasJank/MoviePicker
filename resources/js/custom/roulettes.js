@@ -61,18 +61,88 @@ document.addEventListener('DOMContentLoaded', function () {
         sessionStorage.removeItem('rollSource');
         sessionStorage.removeItem('rollBackUrl');
         sessionStorage.removeItem('rollBackLabel');
+        sessionStorage.removeItem('sharedBatchCards');
     }
 
     const rollSource = sessionStorage.getItem('rollSource');
-    if (rollSource === 'person') {
+    if (rollSource === 'person' || rollSource === 'shared_batch') {
         document.querySelectorAll('.js-criteria-btn').forEach(el => el.classList.add('hidden'));
     }
     const backUrl   = sessionStorage.getItem('rollBackUrl');
     const backLabel = sessionStorage.getItem('rollBackLabel');
     document.querySelectorAll('.js-back-roulettes').forEach(el => {
-        if (backUrl)   el.href        = backUrl;
+        if (backUrl) {
+            el.href = backUrl;
+            el.classList.remove('hidden');
+        }
         if (backLabel) el.textContent = backLabel;
     });
+
+    // On shared batch pages, set context on any card click so direct clicks
+    // (not just roll animation) carry the ← Shared Batch back button
+    if (window.location.pathname.startsWith('/batch/share/')) {
+        document.addEventListener('click', function (e) {
+            if (e.target.closest('[data-batch-card]')) {
+                const cards = getBatchCards('.swiper-multiple');
+                sessionStorage.setItem('sharedBatchCards', JSON.stringify(cards));
+                setRollContext('shared_batch', window.location.href, '← Shared Batch');
+                sessionStorage.setItem('rollSource', 'shared_batch');
+            }
+        });
+    }
+
+    // On movie/TV detail pages reached from a shared batch — replace similar section
+    // and override Roll to pick from the same batch
+    if (rollSource === 'shared_batch') {
+        const storedCards = JSON.parse(sessionStorage.getItem('sharedBatchCards') || '[]');
+        const currentPath = window.location.pathname;
+        const otherCards  = storedCards.filter(c => {
+            try { return new URL(c.url, location.origin).pathname !== currentPath; }
+            catch { return true; }
+        });
+
+        if (otherCards.length) {
+            const section = document.getElementById('similar-section');
+            if (section) {
+                const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+                const items = otherCards.map(c => `
+                    <div class="relative flex-shrink-0 w-44 sm:w-52"
+                         data-batch-card data-title="${esc(c.title)}" data-rating="${c.rating}"
+                         data-poster="${c.poster ? c.poster.replace('https://image.tmdb.org/t/p/w342','') : ''}"
+                         data-media-type="${c.media_type}" data-url="${esc(c.url)}">
+                        <a href="${esc(c.url)}" class="block group long-movie" data-name="${esc(c.title)}">
+                            <div class="card card-hover overflow-hidden">
+                                <div class="aspect-[2/3] bg-white/[0.03] overflow-hidden">
+                                    ${c.poster ? `<img src="${esc(c.poster)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" alt="${esc(c.title)}">` : '<div class="w-full h-full"></div>'}
+                                </div>
+                                <div class="p-2">
+                                    <div class="text-xs font-medium text-white truncate">${esc(c.title)}</div>
+                                    ${c.rating ? `<div class="text-xs text-gray-500 mt-0.5">★ ${Number(c.rating).toFixed(1)}</div>` : ''}
+                                </div>
+                            </div>
+                        </a>
+                    </div>`).join('');
+
+                section.innerHTML = `
+                    <div class="section-header">
+                        <h2 class="text-xl font-bold text-white mb-3">From This Batch</h2>
+                        <div class="section-divider"></div>
+                    </div>
+                    <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">${items}</div>`;
+            }
+
+            // Override Roll button to re-roll from the shared batch
+            document.querySelectorAll('[data-roll="movie-criteria"],[data-roll="tv-criteria"]').forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    setRollContext('shared_batch', sessionStorage.getItem('rollBackUrl'), '← Shared Batch');
+                    rollCards(otherCards.length ? otherCards : storedCards, 'shared_batch');
+                });
+            });
+        }
+    }
+
 });
 
 // ── Core roll function ────────────────────────────────────────────────
@@ -232,6 +302,18 @@ document.addEventListener('click', function (e) {
                 if (err && err.throttled) { window.showErrorToast('Rolling too fast — slow down a bit and try again.'); return; }
                 window.location.href = fallback;
             });
+        return;
+    }
+
+    // Shared batch Roll — picks from cards already on the page, back goes to shared batch URL
+    const sharedRollBtn = e.target.closest('#shared-batch-roll-btn');
+    if (sharedRollBtn) {
+        e.preventDefault();
+        const cards = getBatchCards('.swiper-multiple');
+        if (!cards.length) return;
+        sessionStorage.setItem('sharedBatchCards', JSON.stringify(cards));
+        setRollContext('shared_batch', window.location.href, '← Shared Batch');
+        rollCards(cards, 'shared_batch');
         return;
     }
 

@@ -107,6 +107,8 @@
             @if(empty($isShared))
                 <a href="{{ Request::url() }}" class="btn-secondary flex-none text-center long-single">New Batch</a>
                 <button id="batch-roll-btn" class="btn-accent flex-1 sm:flex-none" data-media-type="{{ $isTv ? 'tv' : 'movie' }}">Roll</button>
+            @else
+                <button id="shared-batch-roll-btn" class="btn-accent flex-1 sm:flex-none" data-media-type="{{ $isTv ? 'tv' : 'movie' }}">Roll</button>
             @endif
         </div>
     </div>
