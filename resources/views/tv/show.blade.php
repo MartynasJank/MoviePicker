@@ -8,7 +8,7 @@
     @vite(['resources/js/custom/showMore.js', 'resources/js/custom/carousel.js', 'resources/js/custom/trailerModal.js', 'resources/js/custom/criteriaForm.js'])
 @endsection
 @section('content')
-<div class="max-w-7xl mx-auto px-4 py-8 pb-36 sm:pb-20">
+<div class="max-w-7xl mx-auto px-4 py-8 pb-20">
 
     @if (isset($trailer))
         @include('includes.trailer-modal')
