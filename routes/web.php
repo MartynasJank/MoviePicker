@@ -114,7 +114,10 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     Route::delete('users/{user}/roulettes/{roulette}',         [AdminUserController::class, 'destroyRoulette'])->name('users.roulettes.destroy');
 });
 
-Route::get('/batch/share/{token}',      [\App\Http\Controllers\BatchShareController::class, 'show'])->name('batch.share');
+Route::get('/batch/share/{token}',           [\App\Http\Controllers\BatchShareController::class,  'show'])->name('batch.share');
+Route::post('/batch/collab',                 [\App\Http\Controllers\CollabBatchController::class, 'create'])->name('batch.collab.create');
+Route::get('/batch/collab/{token}',          [\App\Http\Controllers\CollabBatchController::class, 'show'])->name('batch.collab.show');
+Route::delete('/batch/collab/{token}/{id}',  [\App\Http\Controllers\CollabBatchController::class, 'veto'])->name('batch.collab.veto');
 Route::get('/roulettes',                [RouletteController::class, 'index']);
 Route::get('/roulettes/{slug}/movies',  [RouletteController::class, 'moviesJson']);
 Route::get('/roulettes/{slug}',         [RouletteController::class, 'show']);

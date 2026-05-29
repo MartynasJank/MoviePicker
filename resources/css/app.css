@@ -457,6 +457,11 @@ html[data-theme="light"] {
         opacity: 0;
         transition: width 0.15s ease, opacity 0.3s ease 0.15s;
     }
+    @keyframes confetti-fall {
+        0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+
     @keyframes progress-run {
         0%   { width: 0%; }
         100% { width: 88%; }

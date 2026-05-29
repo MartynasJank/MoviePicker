@@ -368,4 +368,39 @@ document.addEventListener('click', function (e) {
             });
         return;
     }
+
+});
+
+// ── Pick Together — create collab session and redirect ────────────────
+$(document).on('click', '#collab-start-btn', function () {
+    const btn       = $(this);
+    const mediaType = btn.data('media-type') || 'movie';
+    btn.text('Creating…').prop('disabled', true);
+
+    const movies = getBatchCards('.swiper-multiple').map(c => {
+        const idMatch = (c.url || '').match(/\/(?:movie|tv)\/(\d+)/);
+        return {
+            id:           idMatch ? parseInt(idMatch[1]) : 0,
+            poster_path:  (c.poster || '').replace(/https:\/\/image\.tmdb\.org\/t\/p\/w\d+/, ''),
+            title:        c.title,
+            name:         c.title,
+            vote_average: c.rating,
+            media_type:   c.media_type,
+        };
+    }).filter(m => m.id > 0);
+
+    $.ajax({
+        url:         '/batch/collab',
+        method:      'POST',
+        contentType: 'application/json',
+        headers:     { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+        data:        JSON.stringify({ movies, media_type: mediaType }),
+        success:     function (data) {
+            if (data.token) window.location.href = '/batch/collab/' + data.token;
+        },
+        error: function () {
+            btn.text('Pick Together').prop('disabled', false);
+            window.showErrorToast('Could not start session.');
+        },
+    });
 });
