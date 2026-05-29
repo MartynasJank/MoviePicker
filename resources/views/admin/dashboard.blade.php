@@ -174,11 +174,11 @@
             {{-- By endpoint --}}
             <div>
                 <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">By Endpoint — Today</h2>
-                <div class="bg-white/3 border border-white/5 rounded-xl overflow-hidden">
+                <div class="bg-white/3 border border-white/5 rounded-xl overflow-x-auto">
                     @if($tmdb['by_endpoint']->isEmpty())
                         <div class="px-5 py-6 text-sm text-gray-500">No requests yet today.</div>
                     @else
-                    <table class="w-full text-sm">
+                    <table class="w-full text-sm min-w-[380px]">
                         <thead>
                             <tr class="border-b border-white/5">
                                 <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Endpoint</th>
@@ -207,11 +207,11 @@
             {{-- Last 7 days --}}
             <div>
                 <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Last 7 Days</h2>
-                <div class="bg-white/3 border border-white/5 rounded-xl overflow-hidden">
+                <div class="bg-white/3 border border-white/5 rounded-xl overflow-x-auto">
                     @if($tmdb['daily']->isEmpty())
                         <div class="px-5 py-6 text-sm text-gray-500">No data yet.</div>
                     @else
-                    <table class="w-full text-sm">
+                    <table class="w-full text-sm min-w-[320px]">
                         <thead>
                             <tr class="border-b border-white/5">
                                 <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Date</th>
@@ -316,10 +316,11 @@
             @if($tmdb['recent']->isEmpty())
                 <div class="px-5 py-6 text-sm text-gray-500">No requests logged yet.</div>
             @else
-            <table class="w-full text-sm min-w-[640px]">
+            <table class="w-full text-sm min-w-[780px]">
                 <thead>
                     <tr class="border-b border-white/5">
                         <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Time</th>
+                        <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Route</th>
                         <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Endpoint</th>
                         <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Type</th>
                         <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Status</th>
@@ -331,6 +332,7 @@
                     @foreach($tmdb['recent'] as $log)
                     <tr>
                         <td class="px-4 py-2 text-gray-500 text-xs whitespace-nowrap">{{ $log->created_at->format('H:i:s') }}</td>
+                        <td class="px-4 py-2 font-mono text-xs text-gray-500 whitespace-nowrap">{{ $log->route ?? '—' }}</td>
                         <td class="px-4 py-2 font-mono text-xs text-gray-300">{{ str_replace('_', '/', $log->endpoint) }}</td>
                         <td class="px-4 py-2">
                             @if($log->cached)

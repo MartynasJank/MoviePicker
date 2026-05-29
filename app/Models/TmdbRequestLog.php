@@ -10,6 +10,7 @@ class TmdbRequestLog extends Model
 
     protected $fillable = [
         'endpoint',
+        'route',
         'cached',
         'status_code',
         'response_time_ms',

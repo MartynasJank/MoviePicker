@@ -447,6 +447,7 @@ class TmdbClient implements ApiMovie
         try {
             TmdbRequestLog::create([
                 'endpoint'         => $endpoint,
+                'route'            => $this->currentRoute(),
                 'cached'           => $cached,
                 'status_code'      => $statusCode,
                 'response_time_ms' => $ms,
@@ -455,6 +456,16 @@ class TmdbClient implements ApiMovie
             ]);
         } catch (\Throwable) {
             // Never let logging break a request
+        }
+    }
+
+    private function currentRoute(): string
+    {
+        try {
+            $req = request();
+            return strtoupper($req->method()) . ' /' . ltrim($req->path(), '/');
+        } catch (\Throwable) {
+            return '';
         }
     }
 
