@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('page_title', $title ?? (($mediaType ?? 'movie') === 'tv' ? 'TV Batch — MoviePickr' : 'Batch — MoviePickr'))
-@section('footer_pb', 'pb-32')
+@section('footer_pb', 'pb-24')
 @section('scripts')
     @vite(['resources/js/custom/carousel.js', 'resources/js/custom/trailerModal.js', 'resources/js/custom/criteriaForm.js', 'resources/js/custom/watchlist.js'])
 @endsection

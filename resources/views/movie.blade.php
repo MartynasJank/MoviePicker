@@ -3,12 +3,12 @@
 @section('og_title', ($tmdbInfo->title ?? $omdbInfo->Title ?? 'Movie').' — MoviePickr')
 @section('og_description', Str::limit($tmdbInfo->overview ?? 'Watch this movie picked by MoviePickr.', 200))
 @section('og_image', $tmdbInfo->poster_path ? 'https://image.tmdb.org/t/p/w500'.$tmdbInfo->poster_path : '')
-@section('footer_pb', 'pb-32')
+@section('footer_pb', 'pb-24')
 @section('scripts')
     @vite(['resources/js/custom/showMore.js', 'resources/js/custom/carousel.js', 'resources/js/custom/trailerModal.js', 'resources/js/custom/criteriaForm.js'])
 @endsection
 @section('content')
-<div class="max-w-7xl mx-auto px-4 py-8 pb-20">
+<div class="max-w-7xl mx-auto px-4 py-8 pb-4">
 
     @if (isset($trailer))
         @include('includes.trailer-modal')
