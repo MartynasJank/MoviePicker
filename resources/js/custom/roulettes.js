@@ -142,13 +142,23 @@ document.addEventListener('submit', function (e) {
     const body = new FormData(form);
     if (btn) { btn.textContent = 'Loading…'; btn.disabled = true; }
 
-    fetch(endpoint, { method: 'POST', body })
-        .then(r => r.json())
+    fetch(endpoint, { method: 'POST', body, headers: { 'Accept': 'application/json' } })
+        .then(r => {
+            if (r.status === 429) throw { throttled: true };
+            return r.json();
+        })
         .then(movies => {
             if (btn) { btn.textContent = isMovie ? 'Find Movie' : 'Find Show'; btn.disabled = false; }
             if (!rollCards(toCards(movies))) window.location.href = fallback;
         })
-        .catch(() => { window.location.href = fallback; });
+        .catch(err => {
+            if (err && err.throttled) {
+                if (btn) { btn.textContent = isMovie ? 'Find Movie' : 'Find Show'; btn.disabled = false; }
+                window.showErrorToast('Rolling too fast — slow down a bit and try again.');
+                return;
+            }
+            window.location.href = fallback;
+        });
 });
 
 // ── Click delegation ──────────────────────────────────────────────────
@@ -180,8 +190,11 @@ document.addEventListener('click', function (e) {
         rouletteBtn.textContent = 'Loading…';
         rouletteBtn.disabled = true;
 
-        fetch(`/roulettes/${slug}/movies`)
-            .then(r => r.json())
+        fetch(`/roulettes/${slug}/movies`, { headers: { 'Accept': 'application/json' } })
+            .then(r => {
+                if (r.status === 429) throw { throttled: true };
+                return r.json();
+            })
             .then(movies => {
                 rouletteBtn.textContent = orig;
                 rouletteBtn.disabled = false;
@@ -189,7 +202,15 @@ document.addEventListener('click', function (e) {
                 if (typeof gtag !== 'undefined') gtag('event', 'roulette_rolled', { roulette_slug: slug });
                 if (!rollCards(toCards(movies))) window.location.href = `/roulettes/${slug}`;
             })
-            .catch(() => { window.location.href = `/roulettes/${slug}`; });
+            .catch(err => {
+                if (err && err.throttled) {
+                    rouletteBtn.textContent = orig;
+                    rouletteBtn.disabled = false;
+                    window.showErrorToast('Rolling too fast — slow down a bit and try again.');
+                    return;
+                }
+                window.location.href = `/roulettes/${slug}`;
+            });
         return;
     }
 
@@ -201,10 +222,16 @@ document.addEventListener('click', function (e) {
         const endpoint = isTv ? '/tv/roll/criteria' : '/movie/roll/criteria';
         const fallback = isTv ? '/tv/pick' : '/movie';
         setRollContext('batch', window.location.pathname + '?from=roll', '← Batch');
-        fetch(endpoint)
-            .then(r => r.json())
+        fetch(endpoint, { headers: { 'Accept': 'application/json' } })
+            .then(r => {
+                if (r.status === 429) throw { throttled: true };
+                return r.json();
+            })
             .then(movies => { if (!rollCards(toCards(movies))) window.location.href = fallback; })
-            .catch(() => { window.location.href = fallback; });
+            .catch(err => {
+                if (err && err.throttled) { window.showErrorToast('Rolling too fast — slow down a bit and try again.'); return; }
+                window.location.href = fallback;
+            });
         return;
     }
 
@@ -240,13 +267,23 @@ document.addEventListener('click', function (e) {
         const origText = link.textContent;
         link.textContent = 'Loading…';
 
-        fetch(jsonUrl)
-            .then(r => r.json())
+        fetch(jsonUrl, { headers: { 'Accept': 'application/json' } })
+            .then(r => {
+                if (r.status === 429) throw { throttled: true };
+                return r.json();
+            })
             .then(movies => {
                 link.textContent = origText;
                 if (!rollCards(toCards(movies))) window.location.href = fallback;
             })
-            .catch(() => { window.location.href = fallback; });
+            .catch(err => {
+                if (err && err.throttled) {
+                    link.textContent = origText;
+                    window.showErrorToast('Rolling too fast — slow down a bit and try again.');
+                    return;
+                }
+                window.location.href = fallback;
+            });
         return;
     }
 });

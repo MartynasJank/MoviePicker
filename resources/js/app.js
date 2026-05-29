@@ -1,3 +1,13 @@
+window.showErrorToast = function (msg) {
+    const el = document.createElement('div');
+    el.className = 'fixed top-20 left-1/2 z-50 bg-red-900/80 border border-red-700/50 text-red-300 text-sm px-5 py-3 rounded-lg backdrop-blur-sm cursor-pointer whitespace-nowrap';
+    el.style.transform = 'translateX(-50%)';
+    el.textContent = msg;
+    el.onclick = () => el.remove();
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 5000);
+};
+
 $(document).ready(function () {
 
     /* ── Nav hamburger ─────────────────────────────────────────────────── */

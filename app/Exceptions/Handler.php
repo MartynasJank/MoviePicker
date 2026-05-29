@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -50,6 +51,14 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
+        if ($exception instanceof ThrottleRequestsException) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['error' => 'Rolling too fast — slow down a bit and try again.'], 429);
+            }
+            $destination = str_contains($request->path(), 'tv') ? '/tv/criteria' : '/criteria';
+            return redirect($destination)->with('error', 'You\'re rolling too fast — wait a moment and try again.');
+        }
+
         return parent::render($request, $exception);
     }
 }
