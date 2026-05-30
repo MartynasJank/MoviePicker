@@ -34,14 +34,16 @@
                 title="Share this batch">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
             </button>
+            @endif
             @auth
+            @if(isset($shareToken))
             <button type="button" id="collab-start-btn" class="btn-secondary text-sm"
-                data-media-type="{{ $isTv ? 'tv' : 'movie' }}"
+                data-media-type="{{ $mediaType ?? 'movie' }}"
                 title="Pick together — veto movies in real time with friends">
                 Pick Together
             </button>
-            @endauth
             @endif
+            @endauth
             @auth
             <button type="button" id="save-roulette-btn"
                     class="btn-secondary text-sm flex items-center gap-1.5">
