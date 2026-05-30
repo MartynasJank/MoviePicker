@@ -34,6 +34,9 @@ const hasCriteria = window.collabHasCriteria;
 // ── Grace period for leave toasts ────────────────────────────────────
 const leavePending = new Map(); // userId → timeout
 
+// ── Roll guard (prevents double animation) ────────────────────────────
+let rollInProgress = false;
+
 // ── Local state ───────────────────────────────────────────────────────
 let state = {
     movies:       window.collabMovies       || [],
@@ -104,11 +107,9 @@ window.addEventListener('beforeunload', () => {
         new Blob([JSON.stringify({ userId: myId, _token: csrf() })], { type: 'application/json' }));
 });
 
-// ── Card tap — single tap on poster = vote ────────────────────────────
+// ── Card tap — click anywhere on card = vote ─────────────────────────
 document.getElementById('collab-grid').addEventListener('click', (e) => {
-    const target = e.target.closest('.vote-target');
-    if (!target) return;
-    const card = target.closest('.collab-card');
+    const card = e.target.closest('.collab-card');
     if (!card) return;
     castVote(parseInt(card.dataset.id), 'veto');
 });
@@ -455,6 +456,8 @@ function updateProgress() {
 
 // ── Roll animation then winner overlay ───────────────────────────────
 function triggerRoll(winner) {
+    if (rollInProgress) return;
+    rollInProgress = true;
     const allCards = [...state.movies, winner].filter((m, i, arr) =>
         m.poster_path && arr.findIndex(x => x.id === m.id) === i
     );
@@ -494,7 +497,10 @@ function showWinner(movie) {
 
 document.getElementById('winner-dismiss').addEventListener('click', () => {
     document.getElementById('winner-overlay').classList.add('hidden');
-    api('ready'); // toggle ready off so session can continue
+    rollInProgress = false;
+    if (state.ready.includes(myId)) {
+        api('ready'); // toggle ready off so session can continue
+    }
 });
 
 // ── Toasts ────────────────────────────────────────────────────────────
