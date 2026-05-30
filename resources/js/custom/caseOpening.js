@@ -70,12 +70,13 @@ export function runCaseOpening(cards, winnerIdx, fullUrl, mediaType = 'movie', o
         el.className = 'case-card flex-shrink-0 rounded-lg overflow-hidden relative';
         el.style.cssText = `width:${CARD_W}px;height:${CARD_H}px;box-shadow:0 0 10px 2px ${tier.color}44;outline:1px solid ${tier.color}55`;
         if (i === WINNER_POS) el.id = 'case-winner-card';
+        const score = card.rating ? Number(card.rating).toFixed(1) : null;
         el.innerHTML = `
             <img src="${card.poster}" alt="" class="w-full h-full object-cover" loading="eager">
             <div style="position:absolute;inset:0;background:linear-gradient(to top,${tier.color}cc 0%,${tier.color}33 35%,transparent 65%);pointer-events:none"></div>
-            <div style="position:absolute;bottom:0;left:0;right:0;padding:5px 6px;text-align:center">
-                <span style="font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.8)">${tier.label}</span>
-            </div>
+            ${score ? `<div style="position:absolute;bottom:0;left:0;right:0;padding:5px 6px;text-align:center">
+                <span style="font-size:13px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.8)">★ ${score}</span>
+            </div>` : ''}
         `;
         stripEl.appendChild(el);
     });
