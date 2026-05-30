@@ -81,7 +81,7 @@ class MovieController extends Controller
         }
 
         if ($similarMovies === null) {
-            $recommendations = $tmdbInfo->recommendations->results ?? [];
+            $recommendations = $tmdbInfo->recommendations?->results ?? [];
             if (count($recommendations) >= 4) {
                 $similarMovies = ['results' => array_map(fn($r) => (array) $r, array_slice($recommendations, 0, 20))];
                 $similarTitle  = 'You Might Also Like';
@@ -99,10 +99,10 @@ class MovieController extends Controller
             }
         }
 
-        $keywords   = array_slice((array) ($tmdbInfo->keywords->keywords ?? []), 0, 5);
+        $keywords   = array_slice((array) ($tmdbInfo->keywords?->keywords ?? []), 0, 5);
         $genres     = $movieService->genresString($tmdbInfo);
         $urls       = $link->links($omdbInfo);
-        $trailer    = $movieService->getTrailer($tmdbInfo->videos->results ?? []);
+        $trailer    = $movieService->getTrailer($tmdbInfo->videos?->results ?? []);
         $all_genres = $movieService->genres($tmdb);
         $user_input = $request->session()->get('userInput', 'default');
         $savedIds   = $this->savedWatchlistIds();

@@ -110,11 +110,11 @@ class TmdbClient implements ApiMovie
      */
     public function similarMovies(object $movieObj): ?array
     {
-        if ($movieObj->similar->total_results == 0) {
+        if (($movieObj->similar?->total_results ?? 0) == 0) {
             return null;
         }
 
-        $maxPage = min($movieObj->similar->total_pages, 20);
+        $maxPage = min($movieObj->similar->total_pages ?? 1, 20);
         $url     = 'https://api.themoviedb.org/3/movie/' . $movieObj->id . '/similar?'
             . http_build_query(['language' => 'en-US', 'page' => rand(1, $maxPage)]);
 
