@@ -84,8 +84,8 @@ class AdminController extends Controller
 
             $tmdb['recent'] = TmdbRequestLog::with('user')
                 ->orderByDesc('id')
-                ->limit(50)
-                ->get();
+                ->paginate(25)
+                ->appends(['tab' => 'tmdb']);
         }
 
         return view('admin.dashboard', compact('stats', 'rowOrder', 'activeTab', 'tmdb'));
