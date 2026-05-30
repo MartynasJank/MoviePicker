@@ -109,6 +109,9 @@
                     @if(!empty($movie['vote_average']) && $movie['vote_average'] > 0)
                         <div class="text-xs text-gray-500 mt-0.5">★ {{ number_format($movie['vote_average'], 1) }}</div>
                     @endif
+                    @if(!empty($movie['genres']))
+                        <div class="text-xs text-gray-600 mt-0.5 truncate">{{ $movie['genres'] }}</div>
+                    @endif
                 </a>
             </div>
         </div>
