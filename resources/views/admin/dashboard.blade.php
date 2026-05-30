@@ -360,6 +360,9 @@
             </table>
             @endif
         </div>
+        @if($tmdb['recent']->hasPages())
+            <div class="mt-4">{{ $tmdb['recent']->links() }}</div>
+        @endif
 
     @endif
 
