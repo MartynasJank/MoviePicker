@@ -151,6 +151,7 @@
             </button>
         </div>
         <div class="flex items-center gap-3">
+            <button id="watchlist-collab" class="btn-secondary text-sm">Pick Together</button>
             <button id="watchlist-roll" class="btn-accent px-8">Roll</button>
         </div>
     </div>
