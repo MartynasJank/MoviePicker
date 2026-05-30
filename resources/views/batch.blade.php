@@ -25,15 +25,33 @@
         <div>
             <h1 class="text-2xl font-bold text-white">{{ $tag ?? ($isTv ? 'TV Batch' : 'Movie Batch') }}</h1>
         </div>
-        @auth
-        <button type="button" id="save-roulette-btn"
-                class="btn-secondary text-sm flex items-center gap-1.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
-            </svg>
-            Save as Roulette
-        </button>
-        @endauth
+        <div class="flex items-center gap-2">
+            @if(isset($shareToken) && empty($isShared))
+            <button type="button" class="btn-secondary text-sm"
+                data-share
+                data-share-url="{{ url('/batch/share/'.$shareToken) }}"
+                data-share-title="{{ $tag ?? 'Shared Batch' }} — MoviePickr"
+                title="Share this batch">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+            </button>
+            @auth
+            <button type="button" id="collab-start-btn" class="btn-secondary text-sm"
+                data-media-type="{{ $isTv ? 'tv' : 'movie' }}"
+                title="Pick together — veto movies in real time with friends">
+                Pick Together
+            </button>
+            @endauth
+            @endif
+            @auth
+            <button type="button" id="save-roulette-btn"
+                    class="btn-secondary text-sm flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+                </svg>
+                Save as Roulette
+            </button>
+            @endauth
+        </div>
     </div>
 
     {{-- Save as Roulette modal --}}
@@ -96,40 +114,16 @@
 
 {{-- Sticky bottom bar --}}
 <div class="fixed bottom-0 left-0 right-0 bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 px-4 z-40 sticky-bar-safe">
-    <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
-        <div class="flex-shrink-0">
-            @if(isset($shareToken))
-            <div class="flex items-center gap-2">
-                <button type="button" class="btn-secondary text-sm"
-                    data-share
-                    data-share-url="{{ url('/batch/share/'.$shareToken) }}"
-                    data-share-title="{{ $tag ?? 'Shared Batch' }} — MoviePickr"
-                    title="Share this batch">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
-                </button>
-                @auth
-                @if(empty($isShared))
-                <button type="button" id="collab-start-btn" class="btn-secondary text-sm"
-                    data-media-type="{{ $isTv ? 'tv' : 'movie' }}"
-                    title="Pick together — veto movies in real time with friends">
-                    Pick Together
-                </button>
-                @endif
-                @endauth
-            </div>
-            @endif
-        </div>
-        <div class="flex items-center gap-3">
-            @if(isset($providersArray) && isset($all_genres) && empty($isShared))
-                <button type="button" class="btn-secondary flex-1 sm:flex-none" data-modal-open="modal-form">Filters</button>
-            @endif
-            @if(empty($isShared))
-                <a href="{{ Request::url() }}" class="btn-secondary flex-none text-center long-single">New Batch</a>
-                <button id="batch-roll-btn" class="btn-accent flex-1 sm:flex-none" data-media-type="{{ $isTv ? 'tv' : 'movie' }}">Roll</button>
-            @else
-                <button id="shared-batch-roll-btn" class="btn-accent flex-1 sm:flex-none" data-media-type="{{ $isTv ? 'tv' : 'movie' }}">Roll</button>
-            @endif
-        </div>
+    <div class="max-w-7xl mx-auto flex items-center justify-end gap-3">
+        @if(isset($providersArray) && isset($all_genres) && empty($isShared))
+            <button type="button" class="btn-secondary flex-1 sm:flex-none" data-modal-open="modal-form">Filters</button>
+        @endif
+        @if(empty($isShared))
+            <a href="{{ Request::url() }}" class="btn-secondary flex-none text-center long-single">New Batch</a>
+            <button id="batch-roll-btn" class="btn-accent flex-1 sm:flex-none" data-media-type="{{ $isTv ? 'tv' : 'movie' }}">Roll</button>
+        @else
+            <button id="shared-batch-roll-btn" class="btn-accent flex-1 sm:flex-none" data-media-type="{{ $isTv ? 'tv' : 'movie' }}">Roll</button>
+        @endif
     </div>
 </div>
 
