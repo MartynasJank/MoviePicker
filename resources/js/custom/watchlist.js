@@ -300,4 +300,58 @@ $(document).ready(function () {
         .catch(() => window.showErrorToast('Could not create share link.'));
     });
 
+    /* ── Pick Together from visible watchlist ─────────────────────── */
+    $('#watchlist-collab').on('click', function () {
+        const btn    = $(this);
+        const movies = [];
+        $('.watchlist-card:visible').each(function () {
+            const link     = $(this).find('a[href]').first();
+            const img      = $(this).find('img').first();
+            const href     = link.attr('href') || '';
+            const idMatch  = href.match(/\/(?:movie|tv)\/(\d+)/);
+            const id       = idMatch ? parseInt(idMatch[1]) : 0;
+            if (!id) return;
+            const posterPath = (img.attr('src') || '').replace(/https:\/\/image\.tmdb\.org\/t\/p\/w\d+/, '');
+            const title      = $(this).data('title') || '';
+            const rating     = parseFloat($(this).data('rating')) || 0;
+            const mediaType  = ($(this).data('type') || 'movie') === 'tv' ? 'tv' : 'movie';
+            const year       = parseInt($(this).data('year')) || 2000;
+            const dateStr    = year + '-01-01';
+            movies.push({
+                id,
+                poster_path:    posterPath,
+                title,
+                name:           title,
+                vote_average:   rating,
+                media_type:     mediaType,
+                release_date:   mediaType === 'movie' ? dateStr : null,
+                first_air_date: mediaType === 'tv'    ? dateStr : null,
+                genre_ids:      [],
+            });
+        });
+
+        if (!movies.length) { window.showErrorToast('Nothing to pick from.'); return; }
+
+        const hasTV     = movies.some(m => m.media_type === 'tv');
+        const hasMov    = movies.some(m => m.media_type === 'movie');
+        const mediaType = hasTV && hasMov ? 'mixed' : (hasTV ? 'tv' : 'movie');
+
+        btn.text('Creating…').prop('disabled', true);
+
+        fetch('/batch/collab', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+            body:    JSON.stringify({ movies, media_type: mediaType, criteria: {} }),
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.token) window.location.href = '/batch/collab/' + data.token;
+            else throw new Error();
+        })
+        .catch(() => {
+            btn.text('Pick Together').prop('disabled', false);
+            window.showErrorToast('Could not start session.');
+        });
+    });
+
 });
