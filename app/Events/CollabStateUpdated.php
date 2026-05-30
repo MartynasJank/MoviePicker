@@ -26,14 +26,15 @@ class CollabStateUpdated implements ShouldBroadcast
     )
     {
         $slim = fn(array $movies) => array_values(array_map(fn($m) => [
-            'id'           => $m['id'],
-            'poster_path'  => $m['poster_path'] ?? null,
-            'title'        => $m['title'] ?? $m['name'] ?? '',
-            'name'         => $m['name'] ?? $m['title'] ?? '',
-            'vote_average' => $m['vote_average'] ?? 0,
-            'media_type'   => $m['media_type'] ?? null,
-            'release_date' => $m['release_date'] ?? null,
+            'id'             => $m['id'],
+            'poster_path'    => $m['poster_path'] ?? null,
+            'title'          => $m['title'] ?? $m['name'] ?? '',
+            'name'           => $m['name'] ?? $m['title'] ?? '',
+            'vote_average'   => $m['vote_average'] ?? 0,
+            'media_type'     => $m['media_type'] ?? null,
+            'release_date'   => $m['release_date'] ?? null,
             'first_air_date' => $m['first_air_date'] ?? null,
+            'genres'         => $m['genres'] ?? '',
         ], $movies));
 
         $this->state = [
