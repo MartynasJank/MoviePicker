@@ -274,21 +274,30 @@ $(document).ready(function () {
         const hasMov = movies.some(m => m.media_type === 'movie');
         const type   = hasTV && hasMov ? 'mixed' : (hasTV ? 'tv' : 'movie');
 
-        const token = btoa(unescape(encodeURIComponent(JSON.stringify({ type, movies })))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-        const url   = window.location.origin + '/batch/share/' + token;
         const title = 'My Watchlist — MoviePickr';
+        const csrf  = document.querySelector('meta[name="csrf-token"]').content;
 
-        if (navigator.share) {
-            navigator.share({ title, url }).catch(() => {});
-        } else if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(url).then(() => window.showSuccessToast('Link copied!'));
-        } else {
-            const ta = document.createElement('textarea');
-            ta.value = url; ta.style.cssText = 'position:fixed;opacity:0';
-            document.body.appendChild(ta); ta.select();
-            try { document.execCommand('copy'); window.showSuccessToast('Link copied!'); } catch {}
-            document.body.removeChild(ta);
-        }
+        fetch('/batch/share', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
+            body: JSON.stringify({ type, movies }),
+        })
+        .then(r => r.json())
+        .then(data => {
+            const url = window.location.origin + '/batch/share/' + data.token;
+            if (navigator.share) {
+                navigator.share({ title, url }).catch(() => {});
+            } else if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(() => window.showSuccessToast('Link copied!'));
+            } else {
+                const ta = document.createElement('textarea');
+                ta.value = url; ta.style.cssText = 'position:fixed;opacity:0';
+                document.body.appendChild(ta); ta.select();
+                try { document.execCommand('copy'); window.showSuccessToast('Link copied!'); } catch {}
+                document.body.removeChild(ta);
+            }
+        })
+        .catch(() => window.showErrorToast('Could not create share link.'));
     });
 
 });

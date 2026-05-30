@@ -115,6 +115,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
 });
 
 Route::get('/batch/share/{token}',           [\App\Http\Controllers\BatchShareController::class,  'show'])->name('batch.share');
+Route::post('/batch/share',                  [\App\Http\Controllers\BatchShareController::class,  'create'])->name('batch.share.create');
 Route::post('/batch/collab',                           [\App\Http\Controllers\CollabBatchController::class, 'create'])->name('batch.collab.create')->middleware('auth');
 Route::get('/batch/collab/{token}',                    [\App\Http\Controllers\CollabBatchController::class, 'show'])->name('batch.collab.show');
 Route::post('/batch/collab/{token}/join',              [\App\Http\Controllers\CollabBatchController::class, 'join']);

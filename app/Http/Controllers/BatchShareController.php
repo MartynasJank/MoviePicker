@@ -68,6 +68,18 @@ class BatchShareController extends Controller
         ]);
     }
 
+    public function create(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    {
+        $movies = $request->input('movies', []);
+        $type   = $request->input('type', 'movie');
+
+        if (empty($movies) || !is_array($movies)) {
+            return response()->json(['error' => 'No movies'], 422);
+        }
+
+        return response()->json(['token' => self::store($movies, $type)]);
+    }
+
     public static function store(array $results, string $type): string
     {
         $token = Str::random(8);
