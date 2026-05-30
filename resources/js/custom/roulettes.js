@@ -372,6 +372,11 @@ document.addEventListener('click', function (e) {
 });
 
 // ── Pick Together — create collab session and redirect ────────────────
+$(document).ready(function () {
+    const btn = document.getElementById('collab-start-btn');
+    if (btn && getBatchCards('.swiper-multiple').length <= 1) btn.disabled = true;
+});
+
 $(document).on('click', '#collab-start-btn', function () {
     const btn       = $(this);
     const mediaType = btn.data('media-type') || 'movie';
