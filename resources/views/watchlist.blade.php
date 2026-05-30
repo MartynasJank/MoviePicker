@@ -12,12 +12,12 @@
                 {{-- Status + type filters --}}
                 <div class="flex flex-wrap gap-2">
                     <div class="flex gap-1 bg-white/5 p-1 rounded-lg">
-                        <button class="watchlist-filter active text-xs px-3 py-1.5 rounded-md transition-all" data-filter="all">All</button>
+                        <button class="watchlist-filter active text-xs px-3 py-1.5 rounded-md transition-all text-accent" data-filter="all">All</button>
                         <button class="watchlist-filter text-xs px-3 py-1.5 rounded-md transition-all text-gray-400" data-filter="saved">To Watch</button>
                         <button class="watchlist-filter text-xs px-3 py-1.5 rounded-md transition-all text-gray-400" data-filter="watched">Watched</button>
                     </div>
                     <div class="flex gap-1 bg-white/5 p-1 rounded-lg">
-                        <button class="type-filter active text-xs px-3 py-1.5 rounded-md transition-all" data-type="all">All</button>
+                        <button class="type-filter active text-xs px-3 py-1.5 rounded-md transition-all text-accent" data-type="all">All</button>
                         <button class="type-filter text-xs px-3 py-1.5 rounded-md transition-all text-gray-400" data-type="movie">Films</button>
                         <button class="type-filter text-xs px-3 py-1.5 rounded-md transition-all text-gray-400" data-type="tv">TV</button>
                     </div>
