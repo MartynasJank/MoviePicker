@@ -1,5 +1,5 @@
 @if ($paginator->hasPages())
-<nav class="flex items-center justify-between gap-2 text-sm">
+<nav class="flex items-center justify-between gap-2 text-sm mt-4">
     <div>
         @if ($paginator->onFirstPage())
             <span class="px-3 py-1.5 rounded-md text-gray-600 cursor-not-allowed">« Previous</span>
