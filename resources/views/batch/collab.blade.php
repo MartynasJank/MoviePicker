@@ -74,7 +74,7 @@
             $itemUrl = ($isTv ? '/tv/' : '/movie/') . $movie['id'];
             $title   = $movie['title'] ?? $movie['name'] ?? '';
         @endphp
-        <div class="collab-card relative select-none" data-id="{{ $movie['id'] }}">
+        <div class="collab-card relative select-none cursor-pointer" data-id="{{ $movie['id'] }}">
             <div class="card overflow-hidden">
                 {{-- Poster — tap to vote --}}
                 <div class="vote-target aspect-[2/3] bg-white/[0.03] overflow-hidden relative cursor-pointer">

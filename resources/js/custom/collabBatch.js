@@ -106,9 +106,7 @@ window.addEventListener('beforeunload', () => {
 
 // ── Card tap — single tap on poster = vote ────────────────────────────
 document.getElementById('collab-grid').addEventListener('click', (e) => {
-    const target = e.target.closest('.vote-target');
-    if (!target) return;
-    const card = target.closest('.collab-card');
+    const card = e.target.closest('.collab-card');
     if (!card) return;
     castVote(parseInt(card.dataset.id), 'veto');
 });
