@@ -103,8 +103,7 @@
                 </div>
 
                 {{-- Title — tap to open details --}}
-                <a href="{{ $itemUrl }}" target="_blank"
-                   class="block p-2 hover:bg-white/5 transition-colors">
+                <div class="p-2">
                     <div class="text-xs font-medium text-white truncate">{{ $title }}</div>
                     @if(!empty($movie['vote_average']) && $movie['vote_average'] > 0)
                         <div class="text-xs text-gray-500 mt-0.5">★ {{ number_format($movie['vote_average'], 1) }}</div>
@@ -112,7 +111,7 @@
                     @if(!empty($movie['genres']))
                         <div class="text-xs text-gray-600 mt-0.5 truncate">{{ $movie['genres'] }}</div>
                     @endif
-                </a>
+                </div>
             </div>
         </div>
         @endforeach
