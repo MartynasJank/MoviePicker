@@ -324,6 +324,7 @@ $(document).ready(function () {
             const mediaType  = ($(this).data('type') || 'movie') === 'tv' ? 'tv' : 'movie';
             const year       = parseInt($(this).data('year')) || 2000;
             const dateStr    = year + '-01-01';
+            const genres     = $(this).data('genres') || '';
             movies.push({
                 id,
                 poster_path:    posterPath,
@@ -334,6 +335,7 @@ $(document).ready(function () {
                 release_date:   mediaType === 'movie' ? dateStr : null,
                 first_air_date: mediaType === 'tv'    ? dateStr : null,
                 genre_ids:      [],
+                genres,
             });
         });
 

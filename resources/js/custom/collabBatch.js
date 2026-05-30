@@ -276,6 +276,7 @@ function addCardToGrid(movie) {
             <div class="p-2">
                 <div class="text-xs font-medium text-white truncate">${esc(title)}</div>
                 ${movie.vote_average ? `<div class="text-xs text-gray-500 mt-0.5">★ ${Number(movie.vote_average).toFixed(1)}</div>` : ''}
+                ${movie.genres ? `<div class="text-xs text-gray-600 mt-0.5 truncate">${esc(movie.genres)}</div>` : ''}
             </div>
         </div>`;
 

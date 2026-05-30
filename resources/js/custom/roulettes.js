@@ -157,6 +157,7 @@ function getBatchCards(rowSelector) {
             title:      el.dataset.title,
             rating:     parseFloat(el.dataset.rating) || 0,
             media_type: el.dataset.mediaType || 'movie',
+            genres:     el.dataset.genres || '',
         });
     });
     return cards;
@@ -391,6 +392,7 @@ $(document).on('click', '#collab-start-btn', function () {
             name:         c.title,
             vote_average: c.rating,
             media_type:   c.media_type,
+            genres:       c.genres || '',
         };
     }).filter(m => m.id > 0);
 
