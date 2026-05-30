@@ -216,6 +216,10 @@ function applyState(newState, eventType, byName = '', byId = '', movieTitle = ''
         setTimeout(() => triggerRoll(e_winner), 400);
     }
 
+    if (prevMovieIds.size > 1 && state.movies.length === 1 && eventType !== 'rolled' && eventType !== 'refreshed') {
+        setTimeout(() => triggerRoll(state.movies[0]), 600);
+    }
+
     if (eventType === 'refreshed') {
         // Full re-render — wipe grid and graveyard, add all new cards
         document.getElementById('collab-grid').innerHTML = '';
