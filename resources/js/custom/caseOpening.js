@@ -74,8 +74,8 @@ export function runCaseOpening(cards, winnerIdx, fullUrl, mediaType = 'movie', o
         el.innerHTML = `
             <img src="${card.poster}" alt="" class="w-full h-full object-cover" loading="eager">
             <div style="position:absolute;inset:0;background:linear-gradient(to top,${tier.color}cc 0%,${tier.color}33 35%,transparent 65%);pointer-events:none"></div>
-            ${score ? `<div style="position:absolute;bottom:0;left:0;right:0;padding:5px 6px;text-align:center">
-                <span style="font-size:13px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.8)">★ ${score}</span>
+            ${score ? `<div style="position:absolute;top:5px;left:6px">
+                <span style="font-size:11px;font-weight:700;color:#c0393a;text-shadow:0 1px 4px rgba(0,0,0,0.9)">★ ${score}</span>
             </div>` : ''}
         `;
         stripEl.appendChild(el);
