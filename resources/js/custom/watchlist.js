@@ -142,14 +142,14 @@ $(document).ready(function () {
     }
 
     $(document).on('click', '.watchlist-filter', function () {
-        $('.watchlist-filter').removeClass('active');
-        $(this).addClass('active');
+        $('.watchlist-filter').removeClass('active').removeClass('text-accent').addClass('text-gray-400');
+        $(this).addClass('active').addClass('text-accent').removeClass('text-gray-400');
         applyFilters();
     });
 
     $(document).on('click', '.type-filter', function () {
-        $('.type-filter').removeClass('active').addClass('text-gray-400');
-        $(this).addClass('active').removeClass('text-gray-400');
+        $('.type-filter').removeClass('active').removeClass('text-accent').addClass('text-gray-400');
+        $(this).addClass('active').addClass('text-accent').removeClass('text-gray-400');
         applyFilters();
     });
 
