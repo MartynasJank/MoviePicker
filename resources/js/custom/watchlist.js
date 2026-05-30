@@ -26,6 +26,9 @@ $(document).ready(function () {
         });
     }
 
+    // Disable Pick Together when fewer than 2 cards are visible
+    $('#watchlist-collab').prop('disabled', $('.watchlist-card:visible').length <= 1);
+
     // Save / unsave toggle on movie detail page
     $(document).on('click', '.watchlist-toggle', function () {
         const btn = $(this);
@@ -102,7 +105,9 @@ $(document).ready(function () {
         }).done(function () {
             btn.closest('.watchlist-card').fadeOut(200, function () {
                 $(this).remove();
-                if ($('.watchlist-card:visible').length === 0) location.reload();
+                const remaining = $('.watchlist-card:visible').length;
+                if (remaining === 0) location.reload();
+                $('#watchlist-collab').prop('disabled', remaining <= 1);
             });
         });
     });
@@ -131,7 +136,9 @@ $(document).ready(function () {
             $(this).toggle(statusMatch && typeMatch && genreMatch && excludeMatch);
         });
 
-        $('#wl-count').text('(' + $('.watchlist-card:visible').length + ')');
+        const visibleCount = $('.watchlist-card:visible').length;
+        $('#wl-count').text('(' + visibleCount + ')');
+        $('#watchlist-collab').prop('disabled', visibleCount <= 1);
     }
 
     $(document).on('click', '.watchlist-filter', function () {
