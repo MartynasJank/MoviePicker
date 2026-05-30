@@ -8,7 +8,8 @@
         @endif
     </div>
 
-    <div class="flex items-center gap-1">
+    {{-- Page numbers: hidden on mobile, visible on sm+ --}}
+    <div class="hidden sm:flex items-center gap-1">
         @foreach ($elements as $element)
             @if (is_string($element))
                 <span class="px-2 py-1 text-gray-600">{{ $element }}</span>
@@ -24,6 +25,9 @@
             @endif
         @endforeach
     </div>
+
+    {{-- Page X of Y: mobile only --}}
+    <span class="sm:hidden text-gray-500 text-xs">{{ $paginator->currentPage() }} / {{ $paginator->lastPage() }}</span>
 
     <div>
         @if ($paginator->hasMorePages())
