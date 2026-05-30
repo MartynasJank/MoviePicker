@@ -11,6 +11,7 @@
              data-title="{{ $title }}"
              data-rating="{{ $result['vote_average'] ?? 0 }}"
              data-poster="{{ $result['poster_path'] ?? '' }}"
+             data-genres="{{ $genres[$result['id']] ?? '' }}"
              data-media-type="{{ $itemBase === 'tv' ? 'tv' : 'movie' }}"
              data-url="{{ url($itemBase.'/'.$result['id']) }}{{ !empty($clearCriteria) ? '?i=new' : ($linkSuffix ?? '') }}">
             <a href="{{ url($itemBase.'/'.$result['id']) }}{{ !empty($clearCriteria) ? '?i=new' : (!empty($linkSuffix ?? '') ? $linkSuffix : '') }}"
