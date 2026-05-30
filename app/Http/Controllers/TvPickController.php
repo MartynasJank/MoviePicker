@@ -76,7 +76,7 @@ class TvPickController extends PickController
             'tag'            => 'TV Shows picked for you',
             'savedIds'       => $this->savedWatchlistIds(),
             'mediaType'      => 'tv',
-            'shareToken'     => BatchShareController::encode($shows['results'], 'tv'),
+            'shareToken'     => BatchShareController::store($shows['results'], 'tv'),
         ]);
     }
 

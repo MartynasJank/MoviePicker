@@ -163,7 +163,7 @@ class RouletteController extends Controller
                 'title'        => $roulette->name . ' — MoviePickr',
                 'savedIds'     => $savedIds,
                 'mediaType'    => $isTv ? 'tv' : null,
-                'shareToken'   => BatchShareController::encode($results, $isTv ? 'tv' : 'movie'),
+                'shareToken'   => BatchShareController::store($results, $isTv ? 'tv' : 'movie'),
             ]));
         }
 
@@ -185,7 +185,7 @@ class RouletteController extends Controller
                 'title'        => $roulette->name . ' — MoviePickr',
                 'savedIds'     => $savedIds,
                 'mediaType'    => 'tv',
-                'shareToken'   => BatchShareController::encode($shows['results'], 'tv'),
+                'shareToken'   => BatchShareController::store($shows['results'], 'tv'),
             ]);
         }
 
@@ -204,7 +204,7 @@ class RouletteController extends Controller
             'tag'          => $roulette->name,
             'title'        => $roulette->name . ' — MoviePickr',
             'savedIds'     => $savedIds,
-            'shareToken'   => BatchShareController::encode($movies['results'], 'movie'),
+            'shareToken'   => BatchShareController::store($movies['results'], 'movie'),
         ]);
     }
 
