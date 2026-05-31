@@ -17,8 +17,8 @@ class TvPickController extends PickController
     private const DEFAULTS    = [
         'with_original_language' => 'en',
         'first_air_date_gte'     => 1990,
-        'vote_average_gte'       => 7,
-        'vote_count_gte'         => 100,
+        'vote_average_gte'       => 6,
+        'vote_count_gte'         => 50,
     ];
 
     public function single(TvCriteriaRequest $request, MovieService $movieService, TmdbClient $tmdb): RedirectResponse
@@ -107,7 +107,7 @@ class TvPickController extends PickController
         session([self::SESSION_KEY => self::DEFAULTS]);
 
         $country = $movieService->getUserCountry();
-        $filters = ['vote_average.gte' => 5, 'vote_count.gte' => 20, 'first_air_date.gte' => '1990-01-01', 'with_original_language' => 'en'];
+        $filters = ['vote_average.gte' => 6, 'vote_count.gte' => 50, 'first_air_date.gte' => '1990-01-01', 'with_original_language' => 'en'];
 
         $totalPages = Cache::remember('homepage_tv_roll_pages_v2_' . $country, now()->addDay(), function () use ($tmdb, $filters, $country) {
             $first = $tmdb->discoverTv(array_merge($filters, ['page' => 1]), $country);
