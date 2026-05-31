@@ -12,6 +12,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('collab:cleanup')->daily();
+        $schedule->command('watchlist:refresh-ratings')->daily();
     }
 
     protected function commands(): void
