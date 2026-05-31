@@ -19,6 +19,14 @@ class MovieService
         return $page;
     }
 
+    private function safeMaxPage(int $totalPages, int $totalResults): int
+    {
+        if ($totalPages > 1 && ($totalResults % 20) === 1) {
+            return $totalPages - 1;
+        }
+        return $totalPages;
+    }
+
     public function pickRandom(array $movieArray): array
     {
         return $movieArray[array_rand($movieArray)];
@@ -71,8 +79,9 @@ class MovieService
 
         $all        = $mediaType === 'tv' ? $tmdb->discoverTv($criteria, $country) : $tmdb->discover($criteria, $country);
         $sessionKey = $mediaType === 'tv' ? 'tvInput' : 'userInput';
-        session()->put($sessionKey . '.total_pages', $all['total_pages']);
-        return $this->randomPage($all['total_pages']);
+        $maxPage    = $this->safeMaxPage($all['total_pages'], $all['total_results'] ?? 0);
+        session()->put($sessionKey . '.total_pages', $maxPage);
+        return $this->randomPage($maxPage);
     }
 
     /**
@@ -91,8 +100,9 @@ class MovieService
             $criteria['page'] = $this->randomPage(session($sessionKey . '.total_pages'));
         } else {
             $all = $mediaType === 'tv' ? $tmdb->discoverTv($criteria, $country) : $tmdb->discover($criteria, $country);
-            session()->put($sessionKey, ['type' => $type, 'total_pages' => $all['total_pages']]);
-            $criteria['page'] = $this->randomPage($all['total_pages']);
+            $maxPage = $this->safeMaxPage($all['total_pages'], $all['total_results'] ?? 0);
+            session()->put($sessionKey, ['type' => $type, 'total_pages' => $maxPage]);
+            $criteria['page'] = $this->randomPage($maxPage);
         }
 
         return $criteria;
