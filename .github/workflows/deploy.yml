@@ -58,6 +58,7 @@ jobs:
           script: |
             cd /var/www/moviepicker
             mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs
+            chown -R www-data:www-data storage
             php artisan migrate --force
             php artisan config:cache
             php artisan route:cache
