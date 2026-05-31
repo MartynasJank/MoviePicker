@@ -57,6 +57,7 @@ jobs:
           port: 2244
           script: |
             cd /var/www/moviepicker
+            mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs
             php artisan migrate --force
             php artisan config:cache
             php artisan route:cache
