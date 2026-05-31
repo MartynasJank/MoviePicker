@@ -16,8 +16,8 @@ class MoviePickController extends PickController
     private const DEFAULTS = [
         'with_original_language'   => 'en',
         'primary_release_date_gte' => 1990,
-        'vote_average_gte'         => 7,
-        'vote_count_gte'           => 100,
+        'vote_average_gte'         => 6,
+        'vote_count_gte'           => 50,
     ];
 
     public function single(CriteriaRequest $request, MovieService $movieService, TmdbClient $tmdb): RedirectResponse
@@ -104,7 +104,7 @@ class MoviePickController extends PickController
         session([self::SESSION_KEY => self::DEFAULTS]);
 
         $country = $movieService->getUserCountry();
-        $filters = ['vote_count.gte' => 50, 'vote_average.gte' => 5, 'primary_release_date.gte' => '1990-01-01', 'with_original_language' => 'en'];
+        $filters = ['vote_count.gte' => 50, 'vote_average.gte' => 6, 'primary_release_date.gte' => '1990-01-01', 'with_original_language' => 'en'];
 
         $totalPages = Cache::remember('homepage_movie_roll_pages_v2_' . $country, now()->addDay(), function () use ($tmdb, $filters, $country) {
             $first = $tmdb->discover(array_merge($filters, ['page' => 1]), $country);
