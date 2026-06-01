@@ -3,6 +3,7 @@
 @section('scripts')
     @vite(['resources/js/custom/carousel.js', 'resources/js/custom/watchlist.js'])
     <script type="application/ld+json">
+    @verbatim
     {
         "@context": "https://schema.org",
         "@type": "WebApplication",
@@ -18,6 +19,7 @@
         },
         "featureList": "Random movie picker, Random TV show picker, Filter by genre, Filter by streaming service, Filter by rating, Filter by year range, Filter by actor or director, Mood-based quick picks, Batch picking, Real-time collaborative movie picking with veto voting, Curated roulettes by streaming service, Curated roulettes by genre, Curated roulettes by decade, Personal roulette builder, Watchlist, Trailer previews"
     }
+    @endverbatim
     </script>
 @endsection
 @section('content')
