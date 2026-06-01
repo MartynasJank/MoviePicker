@@ -44,10 +44,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware('internal')->group(function () {
     Route::get('/userinput', UserInputController::class);
     Route::prefix('tmdb')->group(function () {
-        Route::get('/search/all', [TmdbProxyController::class, 'searchAll']);
-        Route::get('/search/movies', [TmdbProxyController::class, 'searchMovies']);
+        Route::get('/search/all',    [TmdbProxyController::class, 'searchAll']);
         Route::get('/search/people', [TmdbProxyController::class, 'searchPeople']);
-        Route::get('/search/tv', [TmdbProxyController::class, 'searchTv']);
         Route::get('/people/{id}', [TmdbProxyController::class, 'person']);
     });
 });
