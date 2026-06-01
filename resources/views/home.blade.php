@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('meta_description', 'MoviePickr rolls a random movie or TV show tailored to your mood. Filter by genre, streaming service, rating, and year — then let it decide.')
 @section('scripts')
     @vite(['resources/js/custom/carousel.js', 'resources/js/custom/watchlist.js'])
 @endsection

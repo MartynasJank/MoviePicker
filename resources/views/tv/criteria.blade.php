@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('page_title', 'TV Show Filters — MoviePickr')
+@section('meta_description', 'Find your next TV show with filters for genre, streaming service, rating, year range, and cast. Hit roll and get an instant pick.')
 @section('footer_pb', 'pb-24')
 @section('scripts')
     <script>window._criteriaInput = @json($userInput ?? []);</script>

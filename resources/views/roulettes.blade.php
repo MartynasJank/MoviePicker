@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('page_title', 'Roulettes — MoviePickr')
+@section('meta_description', 'Browse curated movie and TV roulettes by streaming service, genre, decade, and more. Roll to get a random pick from any collection.')
 @section('content')
 <div class="max-w-7xl mx-auto px-4 py-10">
 
