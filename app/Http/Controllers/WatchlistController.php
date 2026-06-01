@@ -151,6 +151,7 @@ class WatchlistController extends Controller
     public function roll(Request $request)
     {
         $status = $request->query('status', 'all');
+        $type   = $request->query('type', 'all');
         $genres = $request->query('genres', '');
 
         $query = Auth::user()->watchlist();
@@ -160,6 +161,10 @@ class WatchlistController extends Controller
         }
 
         $items = $query->get();
+
+        if ($type !== 'all') {
+            $items = $items->filter(fn($item) => ($item->type ?? 'movie') === $type);
+        }
 
         if ($genres) {
             $genreList = array_map('trim', explode(',', $genres));
@@ -174,17 +179,20 @@ class WatchlistController extends Controller
             return redirect()->route('watchlist');
         }
 
+        $exclude   = (int) $request->query('exclude', 0);
+        $pickFrom  = $exclude ? $items->filter(fn($i) => $i->tmdb_id !== $exclude) : $items;
+        if ($pickFrom->isEmpty()) $pickFrom = $items;
+
         session(['roll_source' => 'other']);
-        $picked = $items->random();
+        $picked = $pickFrom->random();
 
         $base = $picked->type === 'tv'
             ? url('tv/' . $picked->tmdb_id)
             : route('movie', $picked->tmdb_id);
 
         $url = $base . '?wl_status=' . urlencode($status);
-        if ($genres) {
-            $url .= '&wl_genres=' . urlencode($genres);
-        }
+        if ($genres) $url .= '&wl_genres=' . urlencode($genres);
+        if ($type !== 'all') $url .= '&wl_type=' . urlencode($type);
 
         return redirect($url);
     }
