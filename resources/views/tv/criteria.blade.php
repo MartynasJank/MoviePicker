@@ -11,7 +11,7 @@
 
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-white">TV Show Filters</h1>
-        <p class="text-gray-500 text-sm mt-1">Fill in what you want, leave the rest blank.</p>
+        <p class="text-gray-500 text-sm mt-1">Filter by genre, streaming service, rating, year range, or cast. Combine as many as you like and hit Roll.</p>
     </div>
 
     @php $ui = $userInput ?? []; @endphp
