@@ -1,8 +1,16 @@
 User-agent: *
+
+Allow: /criteria
+Allow: /tv/criteria
+Allow: /roulettes/
+
 Disallow: /movie
-Disallow: /movie/*
+Disallow: /multiple
+Disallow: /tv/
+Disallow: /person/
+Disallow: /my-roulettes
+Disallow: /batch/
+Disallow: /admin/
+Disallow: /dev/
+Disallow: /userinput
 Disallow: /index.php
-Disallow: /index.php/criteria
-Disallow: /index.php/movie
-Disallow: /index.php/multiple
-Disallow: /index.php/*
