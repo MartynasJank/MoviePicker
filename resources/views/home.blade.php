@@ -17,7 +17,7 @@
                          alt=""
                          width="185" height="278"
                          class="w-full h-full object-cover {{ $loop->index >= 6 ? 'hidden md:block' : '' }}"
-                         loading="lazy">
+                         @if($loop->first) fetchpriority="high" @else loading="lazy" @endif>
                 @endforeach
             </div>
         @endif
