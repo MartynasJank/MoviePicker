@@ -2,6 +2,23 @@
 @section('meta_description', 'MoviePickr rolls a random movie or TV show tailored to your mood. Filter by genre, streaming service, rating, and year — then let it decide.')
 @section('scripts')
     @vite(['resources/js/custom/carousel.js', 'resources/js/custom/watchlist.js'])
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "MoviePickr",
+        "url": "https://moviepicker.martybuilds.dev",
+        "description": "Pick a random movie or TV show filtered by genre, streaming service, rating, and year.",
+        "applicationCategory": "EntertainmentApplication",
+        "operatingSystem": "Web",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "featureList": "Random movie picker, Random TV show picker, Filter by genre, Filter by streaming service, Filter by rating, Filter by year range, Filter by actor or director, Mood-based quick picks, Batch picking, Real-time collaborative movie picking with veto voting, Curated roulettes by streaming service, Curated roulettes by genre, Curated roulettes by decade, Personal roulette builder, Watchlist, Trailer previews"
+    }
+    </script>
 @endsection
 @section('content')
 
