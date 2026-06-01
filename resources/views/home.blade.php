@@ -338,7 +338,7 @@
         <div class="section-divider mb-4"></div>
 
         <div id="trending-movies">
-            @include('includes.carousel', ['allMovies' => $trendingDay, 'name' => 'swiper-trending-movies', 'genres' => $trendingGenres, 'clearCriteria' => true, 'showScore' => true, 'showSave' => true, 'savedIds' => $savedIds])
+            @include('includes.carousel', ['allMovies' => $trendingDay, 'name' => 'swiper-trending-movies', 'genres' => $trendingGenres, 'clearCriteria' => true, 'showScore' => true, 'showSave' => true, 'savedIds' => $savedIds, 'eagerCount' => 2])
         </div>
         <div id="trending-tv" class="hidden">
             @include('includes.carousel', ['allMovies' => $tvTrendingDay, 'name' => 'swiper-trending-tv', 'genres' => $tvTrendingGenres, 'clearCriteria' => true, 'showScore' => true, 'showSave' => true, 'savedIds' => $savedIds, 'linkBase' => 'tv', 'mediaType' => 'tv'])

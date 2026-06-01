@@ -24,7 +24,7 @@
                                 alt="{{ $title }}"
                                 width="342" height="513"
                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                loading="lazy"
+                                @if($loop->index < ($eagerCount ?? 0)) fetchpriority="high" @else loading="lazy" @endif
                             >
                         @else
                             <div class="w-full h-full flex items-center justify-center text-gray-600 text-xs text-center px-3">
