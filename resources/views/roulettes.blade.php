@@ -5,14 +5,14 @@
 <div class="max-w-7xl mx-auto px-4 py-10">
 
     <div class="mb-8">
-        <div class="flex items-center gap-4 flex-wrap">
-            <h1 class="text-3xl font-bold text-white">Roulettes</h1>
+        <div class="flex items-center justify-between gap-4 flex-wrap">
+            <h1 id="roulettes-heading" class="text-3xl font-bold text-white">Movie Roulettes</h1>
             <div class="flex gap-1 bg-white/5 p-1 rounded-lg">
                 <button class="roulette-tab active text-xs px-4 py-1.5 rounded-md transition-all font-medium" data-tab="movies">Movies</button>
                 <button class="roulette-tab text-xs px-4 py-1.5 rounded-md transition-all font-medium text-gray-400" data-tab="tv">TV Shows</button>
             </div>
         </div>
-        <p class="text-gray-500 text-sm mt-1">Curated collections — just hit Roll.</p>
+        <p class="text-gray-500 text-sm mt-1">Curated movie and TV collections by streaming service, genre, and decade. Hit Roll for an instant random pick.</p>
         <div class="section-divider mt-3"></div>
     </div>
 
@@ -49,6 +49,7 @@
                 panels[key].classList.toggle('hidden', key !== tab);
             });
             localStorage.setItem('roulette_tab', tab);
+            document.getElementById('roulettes-heading').textContent = tab === 'tv' ? 'TV Roulettes' : 'Movie Roulettes';
         }
 
         activate(stored);
