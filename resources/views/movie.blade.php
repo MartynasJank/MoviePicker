@@ -381,8 +381,16 @@
 @if(request()->query('wl_status'))
 <script>
 document.getElementById('wl-roll-btn').addEventListener('click', function () {
-    sessionStorage.setItem('wl_autoroll', '1');
-    window.location.href = '{{ route('watchlist') }}';
+    const params  = new URLSearchParams(window.location.search);
+    const status  = params.get('wl_status') || 'all';
+    const type    = params.get('wl_type') || 'all';
+    const genres  = params.get('wl_genres') || '';
+    const exclude = (window.location.pathname.match(/\/movie\/(\d+)/) || [])[1] || '';
+    let url = '{{ route('watchlist') }}?autoroll=1&wl_status=' + encodeURIComponent(status);
+    if (genres)  url += '&wl_genres='  + encodeURIComponent(genres);
+    if (type !== 'all') url += '&wl_type=' + encodeURIComponent(type);
+    if (exclude) url += '&wl_exclude=' + exclude;
+    window.location.href = url;
 });
 </script>
 @endif

@@ -474,11 +474,7 @@
                 <button type="button" class="btn-secondary js-criteria-btn" data-modal-open="modal-form">Filters</button>
             @endif
             @if(request()->query('wl_status'))
-                @php
-                    $wlParams = ['status' => request()->query('wl_status')];
-                    if (request()->query('wl_genres')) $wlParams['genres'] = request()->query('wl_genres');
-                @endphp
-                <a href="{{ route('watchlist.roll', $wlParams) }}" class="btn-accent long-single text-center">Roll</a>
+                <button id="wl-roll-btn" class="btn-accent long-single">Roll</button>
             @elseif(session('tvPersonRollIds'))
                 <a href="{{ route('person.roll.tv.next') }}" class="btn-accent long-single text-center">Roll</a>
             @else
@@ -487,5 +483,22 @@
         </div>
     </div>
 </div>
+
+@if(request()->query('wl_status'))
+<script>
+document.getElementById('wl-roll-btn').addEventListener('click', function () {
+    const params  = new URLSearchParams(window.location.search);
+    const status  = params.get('wl_status') || 'all';
+    const type    = params.get('wl_type') || 'all';
+    const genres  = params.get('wl_genres') || '';
+    const exclude = (window.location.pathname.match(/\/tv\/(\d+)/) || [])[1] || '';
+    let url = '{{ route('watchlist') }}?autoroll=1&wl_status=' + encodeURIComponent(status);
+    if (genres)  url += '&wl_genres='  + encodeURIComponent(genres);
+    if (type !== 'all') url += '&wl_type=' + encodeURIComponent(type);
+    if (exclude) url += '&wl_exclude=' + exclude;
+    window.location.href = url;
+});
+</script>
+@endif
 
 @endsection

@@ -186,9 +186,59 @@ $(document).ready(function () {
     $('#sort-select').on('change', applySort);
 
     /* ── Auto-roll when returning from movie page ──────────────────── */
-    if (sessionStorage.getItem('wl_autoroll') === '1') {
-        sessionStorage.removeItem('wl_autoroll');
-        setTimeout(() => $('#watchlist-roll').trigger('click'), 120);
+    const _autoParams = new URLSearchParams(window.location.search);
+    if (_autoParams.get('autoroll') === '1') {
+        const _status    = _autoParams.get('wl_status') || 'all';
+        const _type      = _autoParams.get('wl_type') || 'all';
+        const _genres    = _autoParams.get('wl_genres') || '';
+        const _exclude   = _autoParams.get('wl_exclude') || '';
+        const _genreList = _genres ? _genres.split(',').map(g => g.trim()).filter(Boolean) : [];
+
+        const eligible = $('.watchlist-card').filter(function () {
+            const statusMatch = _status === 'all' || $(this).attr('data-status') === _status;
+            const typeMatch   = _type === 'all'   || $(this).attr('data-type')   === _type;
+            if (!statusMatch || !typeMatch) return false;
+            if (_genreList.length === 0) return true;
+            const cardGenres = ($(this).attr('data-genres') || '').split(',').map(g => g.trim()).filter(Boolean);
+            return _genreList.every(g => cardGenres.includes(g));
+        });
+
+        if (eligible.length) {
+            // Pick winner from non-excluded items; fall back to full pool if only 1 item
+            const winnerPool = _exclude
+                ? eligible.filter(function () {
+                    return !($(this).find('a[href]').first().attr('href') || '').includes('/' + _exclude);
+                })
+                : eligible;
+            const pickFrom   = winnerPool.length > 0 ? winnerPool : eligible;
+            const picked     = pickFrom.eq(Math.floor(Math.random() * pickFrom.length));
+            const winnerHref = picked.find('a[href]').first().attr('href');
+            let   rollUrl    = winnerHref + '?wl_status=' + encodeURIComponent(_status);
+            if (_genres) rollUrl += '&wl_genres=' + encodeURIComponent(_genres);
+            if (_type !== 'all') rollUrl += '&wl_type=' + encodeURIComponent(_type);
+
+            const rollCards = eligible.toArray().map(el => {
+                const $el  = $(el);
+                const img  = $el.find('img').first();
+                return {
+                    url:        $el.find('a[href]').first().attr('href'),
+                    poster:     img.length ? (img.attr('src') || '').replace('w500', 'w342') : '',
+                    title:      $el.data('title') || '',
+                    rating:     parseFloat($el.data('rating')) || 0,
+                    media_type: ($el.data('type') || 'movie') === 'tv' ? 'tv' : 'movie',
+                };
+            });
+
+            const winnerIdx = rollCards.findIndex(c => c.url === winnerHref);
+            setTimeout(() => {
+                if (localStorage.getItem('wl_animation') !== '0') {
+                    runCaseOpening(rollCards, winnerIdx >= 0 ? winnerIdx : 0, rollUrl, rollCards[0]?.media_type || 'movie');
+                } else {
+                    window.showProgress?.();
+                    window.location.href = rollUrl;
+                }
+            }, 120);
+        }
     }
 
     /* ── Case opening animation ────────────────────────────────────── */
@@ -200,10 +250,10 @@ $(document).ready(function () {
             const title     = $(this).data('title') || '';
             const rating    = parseFloat($(this).data('rating')) || 0;
             const mediaType = ($(this).data('type') || 'movie') === 'tv' ? 'tv' : 'movie';
-            if (link.length && img.length) {
+            if (link.length) {
                 cards.push({
                     url:        link.attr('href'),
-                    poster:     (img.attr('src') || '').replace('w500', 'w342'),
+                    poster:     img.length ? (img.attr('src') || '').replace('w500', 'w342') : '',
                     title,
                     rating,
                     media_type: mediaType,
@@ -225,11 +275,13 @@ $(document).ready(function () {
         }
 
         const status    = $('.watchlist-filter.active').data('filter') || 'all';
+        const type      = $('.type-filter.active').data('type') || 'all';
         const genres    = genreSelect ? genreSelect.getValue().join(',') : '';
         const pickedIdx = Math.floor(Math.random() * visible.length);
         const picked    = visible.eq(pickedIdx);
         let url = picked.find('a').first().attr('href') + '?wl_status=' + status;
         if (genres) url += '&wl_genres=' + encodeURIComponent(genres);
+        if (type !== 'all') url += '&wl_type=' + encodeURIComponent(type);
 
         if (typeof gtag !== 'undefined') gtag('event', 'watchlist_rolled');
 
