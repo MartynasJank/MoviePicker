@@ -13,10 +13,11 @@
         @if(count($bgPosters) >= 3)
             <div class="absolute inset-0 grid grid-cols-3 md:grid-cols-6 opacity-[0.18] pointer-events-none overflow-hidden" aria-hidden="true">
                 @foreach($bgPosters as $m)
-                    <img src="https://image.tmdb.org/t/p/w342{{ $m['poster_path'] }}"
+                    <img src="https://image.tmdb.org/t/p/w185{{ $m['poster_path'] }}"
                          alt=""
+                         width="185" height="278"
                          class="w-full h-full object-cover {{ $loop->index >= 6 ? 'hidden md:block' : '' }}"
-                         @if($loop->first) fetchpriority="high" @endif>
+                         loading="lazy">
                 @endforeach
             </div>
         @endif
@@ -390,6 +391,7 @@
                             @if($poster)
                                 <img src="https://image.tmdb.org/t/p/w185{{ $poster }}"
                                      alt="{{ $roulette->name }}"
+                                     width="185" height="278"
                                      class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                      loading="lazy">
                             @else

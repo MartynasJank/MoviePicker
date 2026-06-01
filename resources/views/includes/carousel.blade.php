@@ -22,6 +22,7 @@
                             <img
                                 src="https://image.tmdb.org/t/p/w342{{ $result['poster_path'] }}"
                                 alt="{{ $title }}"
+                                width="342" height="513"
                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                 loading="lazy"
                             >
