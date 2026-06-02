@@ -473,6 +473,12 @@ html[data-theme="light"] {
     }
     .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
 
+    @keyframes collab-voting-ring {
+        0%, 100% { opacity: 0.5; transform: scale(1); }
+        50%       { opacity: 1;   transform: scale(1.02); }
+    }
+    .collab-voting-ring { animation: collab-voting-ring 0.7s ease-in-out infinite; }
+
     @keyframes collab-veto-glow-pulse {
         0%, 100% { box-shadow: 0 0 var(--glow-min, 4px) var(--glow-spread-min, 2px) rgba(239,68,68,var(--glow-opacity, 0.3)); }
         50%       { box-shadow: 0 0 var(--glow-max, 14px) var(--glow-spread-max, 6px) rgba(239,68,68,var(--glow-opacity, 0.5)); }
