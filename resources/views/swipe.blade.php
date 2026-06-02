@@ -56,7 +56,7 @@
     </div>
     {{-- Scrollable grid --}}
     <div class="flex-1 overflow-y-auto min-h-0">
-        <div id="results-grid" class="p-4 grid grid-cols-3 gap-3"></div>
+        <div id="results-grid" class="p-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3"></div>
     </div>
     {{-- Sticky footer --}}
     <div class="flex-shrink-0 p-4 flex gap-3 border-t border-white/10 bg-[#0f0f0f]">

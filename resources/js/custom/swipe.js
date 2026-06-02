@@ -55,7 +55,7 @@ function buildCard(movie) {
                 : `<div class="w-full h-full bg-white/5 flex items-center justify-center text-gray-600 text-sm px-4 text-center">${title}</div>`}
             <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent"></div>
             <div class="absolute bottom-0 left-0 right-0 p-5">
-                <a href="${url}" class="block" onclick="event.stopPropagation()">
+                <a href="${url}" target="_blank" rel="noopener" class="block" onclick="event.stopPropagation()">
                     <h2 class="text-2xl font-bold text-white leading-tight">${title}</h2>
                     <div class="flex items-center gap-2 mt-1.5 flex-wrap">
                         ${year ? `<span class="text-sm text-gray-300">${year}</span>` : ''}
@@ -252,7 +252,7 @@ function triggerUndo() {
         if (isLoggedIn) {
             const isTv = last.movie.media_type === 'tv';
             const year = (last.movie.release_date || last.movie.first_air_date || '').slice(0, 4);
-            fetch('/watchlist/add', {
+            fetch('/watchlist/toggle', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content },
                 body: JSON.stringify({
