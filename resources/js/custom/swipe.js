@@ -1,3 +1,5 @@
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
 // ── State ─────────────────────────────────────────────────────────────
 const SESSION_KEY = 'swipe_session';
 
