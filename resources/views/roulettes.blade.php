@@ -37,7 +37,8 @@
             movies: document.getElementById('roulette-panel-movies'),
             tv:     document.getElementById('roulette-panel-tv')
         };
-        var stored = localStorage.getItem('roulette_tab') || 'movies';
+        var urlTab = new URLSearchParams(location.search).get('tab');
+        var stored = urlTab || localStorage.getItem('roulette_tab') || 'movies';
 
         function activate(tab) {
             tabs.forEach(function (t) {

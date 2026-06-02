@@ -51,28 +51,72 @@
                 <div id="desktop-search-results" class="hidden absolute left-0 top-full mt-1 w-full min-w-72 bg-[#1a1a1a] border border-white/10 rounded-xl overflow-hidden shadow-2xl z-50 divide-y divide-white/5"></div>
             </div>
 
-            {{-- Desktop nav links — right side --}}
-            <div class="hidden md:flex items-center gap-5 flex-shrink-0 ml-auto">
-                @auth
-                    @if(auth()->user()->email === config('api.admin_email'))
-                        <a href="{{ route('admin.dashboard') }}" class="text-xs font-medium px-2 py-1 rounded-md bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-colors">Admin</a>
-                    @endif
-                @endauth
-                <a href="/roulettes" class="nav-link-highlight text-sm">Roulettes</a>
+            {{-- Desktop nav links --}}
+            <div class="hidden md:flex items-center gap-1 flex-shrink-0 ml-auto">
 
-                {{-- User section --}}
+                {{-- Movies dropdown --}}
+                <div class="nav-dropdown group relative">
+                    <button class="nav-link text-sm flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-white/5">
+                        Movies
+                        <svg class="w-3 h-3 text-gray-500 group-hover:text-white transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="nav-dropdown-menu hidden group-hover:flex absolute top-full left-0 pt-1 z-50">
+                        <div class="bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl py-1.5 min-w-44 flex flex-col">
+                            <a href="/movie?i=new" class="long-single px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">Random Movie</a>
+                            <a href="/swipe?reset=1" class="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors flex items-center justify-between">
+                                Movie Swipe
+                                <span class="text-[10px] bg-accent/20 text-accent px-1.5 py-0.5 rounded-full">New</span>
+                            </a>
+                            <a href="/multiple?i=new" class="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">Batch Pick</a>
+                            <div class="h-px bg-white/5 my-1"></div>
+                            <a href="/criteria" class="px-4 py-2 text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-colors">Filters</a>
+                            <a href="/roulettes" class="px-4 py-2 text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-colors">Roulettes</a>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- TV dropdown --}}
+                <div class="nav-dropdown group relative">
+                    <button class="nav-link text-sm flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-white/5">
+                        TV Shows
+                        <svg class="w-3 h-3 text-gray-500 group-hover:text-white transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="nav-dropdown-menu hidden group-hover:flex absolute top-full left-0 pt-1 z-50">
+                        <div class="bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl py-1.5 min-w-44 flex flex-col">
+                            <a href="/tv/pick?i=new" class="long-single px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">Random TV Show</a>
+                            <a href="/tv/multiple?i=new" class="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">Batch Pick</a>
+                            <div class="h-px bg-white/5 my-1"></div>
+                            <a href="/tv/criteria" class="px-4 py-2 text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-colors">Filters</a>
+                            <a href="/roulettes?tab=tv" class="px-4 py-2 text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-colors">Roulettes</a>
+                        </div>
+                    </div>
+                </div>
+
                 @auth
-                    <a href="{{ route('my-roulettes.index') }}" class="nav-link text-sm">My Roulettes</a>
-                    <a href="{{ route('watchlist') }}" class="nav-link text-sm">Watchlist</a>
-                    <form method="POST" action="{{ route('logout') }}" class="flex items-center">
-                        @csrf
-                        <button type="submit" class="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
+                    <a href="{{ route('watchlist') }}" class="nav-link text-sm px-3 py-2 rounded-lg hover:bg-white/5">Watchlist</a>
+
+                    {{-- User dropdown --}}
+                    <div class="nav-dropdown group relative">
+                        <button class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
                             @if(Auth::user()->avatar)
                                 <img src="{{ Auth::user()->avatar }}" class="w-6 h-6 rounded-full ring-1 ring-white/10" alt="">
                             @endif
-                            Sign out
+                            <svg class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
                         </button>
-                    </form>
+                        <div class="nav-dropdown-menu hidden group-hover:flex absolute top-full right-0 pt-1 z-50">
+                            <div class="bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl py-1.5 min-w-44 flex flex-col">
+                                <a href="{{ route('my-roulettes.index') }}" class="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">My Roulettes</a>
+                                @if(auth()->user()->email === config('api.admin_email'))
+                                    <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-white/5 transition-colors">Admin</a>
+                                @endif
+                                <div class="h-px bg-white/5 my-1"></div>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-colors">Sign out</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 @else
                     @if(app()->environment('local'))
                         <a href="/dev/login" class="text-sm px-3 py-1.5 rounded-lg border border-yellow-500/40 text-yellow-400 hover:border-yellow-500/70 transition-all">Dev Login</a>
@@ -83,13 +127,8 @@
 
                 @include('includes.anim-toggle')
 
-                {{-- Theme toggle --}}
-                <button id="theme-toggle"
-                    class="theme-toggle p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-white/5 transition-all"
-                    aria-label="Toggle theme" title="Toggle theme">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-                    </svg>
+                <button id="theme-toggle" class="theme-toggle p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-white/5 transition-all" aria-label="Toggle theme">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
                 </button>
             </div>
 
@@ -112,45 +151,49 @@
                 <div id="mobile-search-results" class="hidden mt-1 bg-[#1a1a1a] border border-white/10 rounded-xl overflow-hidden divide-y divide-white/5"></div>
             </div>
 
-            {{-- Roulettes --}}
-            <a href="/roulettes" class="flex items-center justify-between px-4 py-3.5 rounded-xl text-sm font-semibold transition-colors mb-1" style="color:#c0393a; background:rgba(192,57,58,0.08)">
-                Roulettes
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-            </a>
+            {{-- Movies expandable --}}
+            <div class="mobile-nav-section">
+                <button class="mobile-nav-toggle w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold text-white hover:bg-white/5 transition-colors">
+                    Movies
+                    <svg class="mobile-nav-chevron w-4 h-4 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <div class="mobile-nav-body hidden flex-col gap-1 pb-1">
+                    <a href="/movie?i=new" class="long-single flex items-center justify-between px-4 py-3 rounded-xl bg-accent/15 hover:bg-accent/25 text-white font-medium text-sm transition-colors">
+                        Random Movie
+                        <svg class="w-4 h-4 text-accent/60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+                    </a>
+                    <a href="/swipe?reset=1" class="flex items-center justify-between px-4 py-3 rounded-xl bg-white/5 hover:bg-white/8 text-white text-sm transition-colors">
+                        Movie Swipe
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+                    </a>
+                    <a href="/multiple?i=new" class="flex items-center justify-between px-4 py-3 rounded-xl bg-white/5 hover:bg-white/8 text-white text-sm transition-colors">
+                        Batch Pick
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+                    </a>
+                    <a href="/criteria" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors">Filters</a>
+                    <a href="/roulettes" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors">Roulettes</a>
+                </div>
+            </div>
 
-            {{-- Movies --}}
-            <div class="h-px bg-white/5 my-1"></div>
-            <p class="px-4 pt-1 pb-0.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Movies</p>
-            <a href="/movie?i=new" class="long-single flex items-center justify-between px-4 py-3.5 rounded-xl bg-accent/15 hover:bg-accent/25 text-white font-medium text-sm transition-colors">
-                Random Movie
-                <svg class="w-4 h-4 text-accent/60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-            </a>
-            <a href="/multiple?i=new" class="flex items-center justify-between px-4 py-3.5 rounded-xl bg-white/5 hover:bg-white/8 text-white font-medium text-sm transition-colors">
-                Random Batch
-                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-            </a>
-            <a href="/swipe?reset=1" class="flex items-center justify-between px-4 py-3.5 rounded-xl bg-white/5 hover:bg-white/8 text-white font-medium text-sm transition-colors">
-                Movie Swipe
-                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-            </a>
-            <a href="/criteria" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">
-                Movie Filters
-            </a>
-
-            {{-- TV Shows --}}
-            <div class="h-px bg-white/5 my-2"></div>
-            <p class="px-4 pb-0.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">TV Shows</p>
-            <a href="/tv/pick?i=new" class="long-single flex items-center justify-between px-4 py-3.5 rounded-xl bg-accent/15 hover:bg-accent/25 text-white font-medium text-sm transition-colors">
-                Random TV Show
-                <svg class="w-4 h-4 text-accent/60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-            </a>
-            <a href="/tv/multiple?i=new" class="flex items-center justify-between px-4 py-3.5 rounded-xl bg-white/5 hover:bg-white/8 text-white font-medium text-sm transition-colors">
-                Random TV Batch
-                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-            </a>
-            <a href="/tv/criteria" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">
-                TV Filters
-            </a>
+            {{-- TV Shows expandable --}}
+            <div class="mobile-nav-section">
+                <button class="mobile-nav-toggle w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold text-white hover:bg-white/5 transition-colors">
+                    TV Shows
+                    <svg class="mobile-nav-chevron w-4 h-4 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <div class="mobile-nav-body hidden flex-col gap-1 pb-1">
+                    <a href="/tv/pick?i=new" class="long-single flex items-center justify-between px-4 py-3 rounded-xl bg-accent/15 hover:bg-accent/25 text-white font-medium text-sm transition-colors">
+                        Random TV Show
+                        <svg class="w-4 h-4 text-accent/60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+                    </a>
+                    <a href="/tv/multiple?i=new" class="flex items-center justify-between px-4 py-3 rounded-xl bg-white/5 hover:bg-white/8 text-white text-sm transition-colors">
+                        Batch Pick
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+                    </a>
+                    <a href="/tv/criteria" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors">Filters</a>
+                    <a href="/roulettes?tab=tv" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors">Roulettes</a>
+                </div>
+            </div>
 
             {{-- Account --}}
             <div class="h-px bg-white/5 my-2"></div>
@@ -172,8 +215,8 @@
                 @if(auth()->user()->email === config('api.admin_email'))
                     <a href="{{ route('admin.dashboard') }}" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-red-400 hover:text-red-300 hover:bg-red-500/5 transition-colors">Admin</a>
                 @endif
-                <a href="{{ route('my-roulettes.index') }}" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">My Roulettes</a>
                 <a href="{{ route('watchlist') }}" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">Watchlist</a>
+                <a href="{{ route('my-roulettes.index') }}" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">My Roulettes</a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="w-full text-left px-4 py-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors">Sign out</button>
