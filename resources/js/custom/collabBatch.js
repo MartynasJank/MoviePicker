@@ -223,7 +223,7 @@ function applyDelta(eventType, byName, byId, movieTitle, delta) {
             delete state.restoreVotes[String(delta.movieId)];
             state.movies.push(delta.movie);
             removeGraveyardCard(delta.movieId);
-            addCardToGrid(delta.movie);
+            addCardToGrid(delta.movie, true);
             updateAllVoteBars();
             updateProgress();
             break;
@@ -299,95 +299,107 @@ function applyDelta(eventType, byName, byId, movieTitle, delta) {
 function animateToGraveyard(movieId) {
     const card = document.querySelector(`.collab-card[data-id="${movieId}"]`);
     if (!card) return;
-    card.style.transition = 'transform 0.2s, opacity 0.3s';
-    card.style.transform  = 'scale(0.8)';
-    card.style.opacity    = '0';
-    setTimeout(() => card.remove(), 320);
+    const inner = card.querySelector('.card');
+    if (inner) inner.style.animation = 'collab-red-flash 0.4s ease-out';
+    card.style.animation = 'collab-veto-shake 0.35s ease-in-out';
+    setTimeout(() => {
+        card.style.animation = 'collab-veto-out 0.3s ease-in forwards';
+        setTimeout(() => card.remove(), 300);
+    }, 350);
 }
 
 function removeGraveyardCard(movieId) {
     const card = document.querySelector(`.graveyard-card[data-id="${movieId}"]`);
     if (card) {
-        card.style.transition = 'opacity 0.3s';
-        card.style.opacity = '0';
-        setTimeout(() => card.remove(), 320);
+        card.style.animation = 'collab-veto-out 0.25s ease-in forwards';
+        setTimeout(() => card.remove(), 250);
     }
 }
 
-function addCardToGrid(movie) {
-    const isTv   = mediaType === 'tv' || movie.media_type === 'tv';
-    const url    = (isTv ? '/tv/' : '/movie/') + movie.id;
+function buildCard(movie, isGraveyard = false) {
     const title  = movie.title ?? movie.name ?? '';
+    const year   = (movie.release_date || movie.first_air_date || '').slice(0, 4);
+    const imgCls = `w-full h-full object-cover transition-all duration-300${isGraveyard ? ' grayscale' : ''}`;
     const poster = movie.poster_path
-        ? `<img src="https://image.tmdb.org/t/p/w342${movie.poster_path}" alt="${esc(title)}" class="w-full h-full object-cover transition-all duration-300" loading="lazy">`
+        ? `<img src="https://image.tmdb.org/t/p/w342${movie.poster_path}" alt="${esc(title)}" class="${imgCls}" loading="lazy">`
         : `<div class="w-full h-full flex items-center justify-center text-gray-600 text-xs px-2 text-center">${esc(title)}</div>`;
 
-    const el = document.createElement('div');
-    el.className = 'collab-card relative group cursor-pointer select-none';
-    el.dataset.id = movie.id;
-    el.style.opacity = '0';
-    el.style.transform = 'scale(0.8)';
-    el.innerHTML = `
-        <div class="card overflow-hidden transition-all duration-200" id="card-inner-${movie.id}">
-            <div class="vote-target aspect-[2/3] bg-white/[0.03] overflow-hidden relative cursor-pointer">
-                ${poster}
-                <div class="vote-heat absolute inset-0 bg-red-900/0 transition-all duration-500 pointer-events-none"></div>
-                <div class="voted-overlay absolute inset-0 border-2 border-red-500/70 hidden pointer-events-none"></div>
-                <div class="absolute bottom-0 left-0 right-0">
-                    <div class="vote-info hidden px-2 py-1 flex items-center gap-1.5 bg-black/50">
-                        <div class="vote-avatars flex -space-x-1.5"></div>
-                        <span class="vote-count text-xs text-red-300"></span>
-                    </div>
-                    <div class="h-1 bg-white/10">
-                        <div class="vote-bar h-full bg-red-500 transition-all duration-300" style="width:0%"></div>
-                    </div>
-                </div>
+    const posterOverlays = isGraveyard ? `
+        <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-black/70 flex items-center justify-center text-xs">↩</div>
+        <div class="absolute bottom-0 left-0 right-0">
+            <div class="vote-info hidden px-2 py-1 flex items-center gap-1.5 bg-black/50">
+                <div class="vote-avatars flex -space-x-1.5"></div>
+                <span class="vote-count text-xs text-green-300"></span>
             </div>
-            <div class="p-2">
-                <div class="text-xs font-medium text-white truncate">${esc(title)}</div>
-                ${movie.vote_average ? `<div class="text-xs text-gray-500 mt-0.5">★ ${Number(movie.vote_average).toFixed(1)}</div>` : ''}
-                ${(movie.release_date || movie.first_air_date) ? `<div class="text-xs text-gray-600 mt-0.5">${(movie.release_date || movie.first_air_date).slice(0, 4)}</div>` : ''}
-                ${movie.genres ? `<div class="text-xs text-gray-600 mt-0.5 truncate">${esc(movie.genres)}</div>` : ''}
+            <div class="h-1 bg-white/10">
+                <div class="restore-bar h-full bg-green-500 transition-all duration-300" style="width:0%"></div>
+            </div>
+        </div>` : `
+        <div class="vote-heat absolute inset-0 bg-red-900/0 transition-all duration-500 pointer-events-none"></div>
+        <div class="voted-overlay absolute inset-0 hidden pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 right-0">
+            <div class="vote-info hidden px-2 py-1 flex items-center gap-1.5 bg-black/50">
+                <div class="vote-avatars flex -space-x-1.5"></div>
+                <span class="vote-count text-xs text-red-300"></span>
+            </div>
+            <div class="h-1 bg-white/10">
+                <div class="vote-bar h-full bg-red-500 transition-all duration-300" style="width:0%"></div>
             </div>
         </div>`;
 
+    const titleCls  = isGraveyard ? 'text-xs font-medium text-gray-400 truncate' : 'text-xs font-medium text-white truncate';
+    const ratingCls = isGraveyard ? 'text-xs text-gray-600 mt-0.5' : 'text-xs text-gray-500 mt-0.5';
+    const metaCls   = 'text-xs text-gray-600 mt-0.5';
+
+    const el = document.createElement('div');
+    el.className = isGraveyard
+        ? 'graveyard-card relative select-none cursor-pointer opacity-50 hover:opacity-75 active:opacity-90 transition-opacity'
+        : 'collab-card relative group cursor-pointer select-none';
+    el.dataset.id = movie.id;
+    el.innerHTML = `
+        <div class="card overflow-hidden transition-all duration-200">
+            <div class="${isGraveyard ? 'aspect-[2/3]' : 'vote-target aspect-[2/3]'} bg-white/[0.03] overflow-hidden relative${isGraveyard ? '' : ' cursor-pointer'}">
+                ${poster}
+                ${posterOverlays}
+            </div>
+            <div class="p-2">
+                <div class="${titleCls}">${esc(title)}</div>
+                ${movie.vote_average ? `<div class="${ratingCls}">★ ${Number(movie.vote_average).toFixed(1)}</div>` : ''}
+                ${year ? `<div class="${metaCls}">${year}</div>` : ''}
+                ${!isGraveyard && movie.genres ? `<div class="${metaCls} truncate">${esc(movie.genres)}</div>` : ''}
+            </div>
+        </div>`;
+
+    return el;
+}
+
+function addCardToGrid(movie, animate = false) {
+    const el = buildCard(movie, false);
+    el.style.opacity = '0';
     document.getElementById('collab-grid').appendChild(el);
     requestAnimationFrame(() => {
-        el.style.transition = 'transform 0.3s, opacity 0.3s';
-        el.style.transform = 'scale(1)';
+        if (animate) {
+            el.style.animation = 'collab-restore-in 0.4s ease-out forwards';
+            const inner = el.querySelector('.card');
+            if (inner) inner.style.animation = 'collab-green-flash 0.5s ease-out';
+        } else {
+            el.style.transition = 'opacity 0.2s';
+        }
         el.style.opacity = '1';
     });
 }
 
 function addCardToGraveyard(movie) {
-    const title  = movie.title ?? movie.name ?? '';
-    const year   = (movie.release_date || movie.first_air_date || '').slice(0, 4);
-    const poster = movie.poster_path
-        ? `<img src="https://image.tmdb.org/t/p/w342${movie.poster_path}" alt="${esc(title)}" class="w-full h-full object-cover grayscale">`
-        : `<div class="w-full h-full flex items-center justify-center text-gray-600 text-xs px-2 text-center">${esc(title)}</div>`;
-
-    const el = document.createElement('div');
-    el.className = 'graveyard-card relative select-none cursor-pointer opacity-50 hover:opacity-75 active:opacity-90 transition-opacity';
-    el.dataset.id = movie.id;
-    el.innerHTML = `
-        <div class="card overflow-hidden">
-            <div class="aspect-[2/3] bg-white/[0.03] overflow-hidden relative">
-                ${poster}
-                <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-black/70 flex items-center justify-center text-xs">↩</div>
-                <div class="restore-pips absolute top-2 left-0 right-0 flex justify-center gap-1 hidden"></div>
-                <div class="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
-                    <div class="restore-bar h-full bg-green-500 transition-all duration-300" style="width:0%"></div>
-                </div>
-            </div>
-            <div class="p-2">
-                <div class="text-xs font-medium text-gray-400 truncate">${esc(title)}</div>
-                ${movie.vote_average ? `<div class="text-xs text-gray-600 mt-0.5">★ ${Number(movie.vote_average).toFixed(1)}</div>` : ''}
-                ${year ? `<div class="text-xs text-gray-600 mt-0.5">${year}</div>` : ''}
-            </div>
-        </div>`;
-
+    const el = buildCard(movie, true);
+    el.style.opacity = '0';
     document.getElementById('graveyard-grid').appendChild(el);
     document.getElementById('graveyard-section').classList.remove('hidden');
+    requestAnimationFrame(() => {
+        el.style.animation = 'collab-restore-in 0.4s ease-out forwards';
+        el.style.opacity = '1';
+        const inner = el.querySelector('.card');
+        if (inner) inner.style.animation = 'collab-red-flash 0.5s ease-out';
+    });
 }
 
 // ── Vote bars & badges ────────────────────────────────────────────────
@@ -431,45 +443,85 @@ function updateAllVoteBars() {
             }
         }
 
-        // Heat overlay — visible to everyone, intensity scales with vote progress
-        if (heat) {
-            const opacity = votes === 0 ? 0 : Math.round((votes / vetoNeeded) * 50);
-            heat.style.backgroundColor = `rgba(127,29,29,${opacity / 100})`;
+        // Compound veto overlay — desaturation + gradient + pulsing glow
+        const intensity = votes / vetoNeeded; // 0 to 1
+        const img       = card.querySelector('img');
+        const inner     = card.querySelector('.card');
+
+        if (img) {
+            img.style.filter = votes > 0 ? `grayscale(${Math.round(intensity * 75)}%)` : '';
         }
 
-        if (votedOvl) votedOvl.classList.toggle('hidden', !iVoted);
-        if (voteTarget) {
-            voteTarget.classList.toggle('ring-2', iVoted);
-            voteTarget.classList.toggle('ring-red-500/60', iVoted);
+        if (heat) {
+            heat.style.background = votes > 0
+                ? `linear-gradient(to top, rgba(185,28,28,${(intensity * 0.75).toFixed(2)}), transparent 65%)`
+                : '';
+        }
+
+        if (inner) {
+            if (votes > 0) {
+                const boost       = iVoted ? 0.2 : 0;
+                const glowOpacity = Math.min(0.9, 0.3 + intensity * 0.5 + boost).toFixed(2);
+                const glowMin     = Math.round(intensity * 8 + boost * 4);
+                const glowMax     = Math.round(intensity * 22 + boost * 8);
+                const glowSpread  = Math.round(intensity * 4);
+                const duration    = Math.max(0.7, 1.8 - intensity * 1.1).toFixed(1);
+                inner.style.setProperty('--glow-min',        `${glowMin}px`);
+                inner.style.setProperty('--glow-max',        `${glowMax}px`);
+                inner.style.setProperty('--glow-spread-min', `${glowSpread}px`);
+                inner.style.setProperty('--glow-spread-max', `${glowSpread * 2}px`);
+                inner.style.setProperty('--glow-opacity',    glowOpacity);
+                inner.style.animation = `collab-veto-glow-pulse ${duration}s ease-in-out infinite`;
+            } else {
+                inner.style.animation = '';
+                inner.style.removeProperty('--glow-min');
+                inner.style.removeProperty('--glow-max');
+                inner.style.removeProperty('--glow-spread-min');
+                inner.style.removeProperty('--glow-spread-max');
+                inner.style.removeProperty('--glow-opacity');
+            }
+        }
+
+        // "You" badge — shows when current user has voted on this card
+        if (votedOvl) {
+            if (iVoted) {
+                votedOvl.classList.remove('hidden');
+                votedOvl.innerHTML = '<span class="absolute top-2 left-2 text-[9px] font-bold text-white bg-accent px-1.5 py-0.5 rounded-full">✓ You</span>';
+            } else {
+                votedOvl.classList.add('hidden');
+                votedOvl.innerHTML = '';
+            }
         }
     });
 
     // Graveyard
     document.querySelectorAll('.graveyard-card').forEach(card => {
-        const movieId = String(card.dataset.id);
-        const voters  = state.restoreVotes[movieId] || [];
-        const votes   = voters.length;
-        const pct     = pCount > 0 ? Math.round((votes / vetoNeeded) * 100) : 0;
-        const bar     = card.querySelector('.restore-bar');
-        const pips    = card.querySelector('.restore-pips');
+        const movieId     = String(card.dataset.id);
+        const voters      = state.restoreVotes[movieId] || [];
+        const votes       = voters.length;
+        const pct         = pCount > 0 ? Math.round((votes / vetoNeeded) * 100) : 0;
+        const bar         = card.querySelector('.restore-bar');
+        const voteInfo    = card.querySelector('.vote-info');
+        const voteAvatars = card.querySelector('.vote-avatars');
+        const voteCount   = card.querySelector('.vote-count');
+
         if (bar) bar.style.width = Math.min(pct, 100) + '%';
 
-        if (pips) {
+        if (voteInfo) {
             if (votes > 0) {
-                pips.classList.remove('hidden');
-                pips.innerHTML = Array.from({ length: vetoNeeded }, (_, i) => {
-                    if (i < votes) {
-                        const vid     = voters[i];
-                        const p       = state.participants.find(p => p.userId === vid);
-                        const initial = p ? p.name.slice(0, 1).toUpperCase() : '✓';
-                        const isMe    = vid === myId;
-                        return `<span class="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white
-                            ${isMe ? 'bg-accent' : 'bg-green-500'}" title="${p ? p.name : ''}">${initial}</span>`;
-                    }
-                    return `<span class="w-4 h-4 rounded-full border border-white/20 bg-white/5"></span>`;
-                }).join('');
+                voteInfo.classList.remove('hidden');
+                const visible  = voters.slice(0, 3);
+                const overflow = voters.length - visible.length;
+                voteAvatars.innerHTML = visible.map(vid => {
+                    const p       = state.participants.find(p => p.userId === vid);
+                    const initial = p ? p.name.slice(0, 1).toUpperCase() : '?';
+                    const isMe    = vid === myId;
+                    return `<span class="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white ring-1 ring-black
+                        ${isMe ? 'bg-accent' : 'bg-green-500'}" title="${p ? esc(p.name) : ''}">${initial}</span>`;
+                }).join('') + (overflow > 0 ? `<span class="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white bg-white/20 ring-1 ring-black">+${overflow}</span>` : '');
+                voteCount.textContent = `${votes}/${vetoNeeded} to restore`;
             } else {
-                pips.classList.add('hidden');
+                voteInfo.classList.add('hidden');
             }
         }
     });
@@ -537,7 +589,7 @@ function updateReadyButton() {
     btn.appendChild(span);
     btn.classList.toggle('btn-secondary', iReady);
     btn.classList.toggle('btn-accent', !iReady);
-    btn.classList.toggle('animate-pulse', isDeciding);
+    btn.classList.toggle('collab-btn-glow', isDeciding);
 }
 
 // ── Refresh button ────────────────────────────────────────────────────
