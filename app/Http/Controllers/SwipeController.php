@@ -27,7 +27,7 @@ class SwipeController extends Controller
         $user_input     = session('userInput', 'default');
         $page           = $movieService->resolvePage($tmdb, $criteria, $country);
         $results        = $tmdb->discover(array_merge($criteria, ['page' => $page]), $country);
-        $movies         = $this->attachGenres($movieService->pickBatch($results['results'] ?? []), $all_genres);
+        $movies         = $this->attachGenres($movieService->pickBatch($results['results'] ?? []), $all_genres, $page);
         $totalResults   = $results['total_results'] ?? 0;
 
         $watchlistIds = auth()->check()
@@ -39,6 +39,7 @@ class SwipeController extends Controller
             'initialPage'    => $page,
             'totalResults'   => $totalResults,
             'isLoggedIn'     => auth()->check(),
+            'isAdmin'        => auth()->check() && auth()->user()->email === config('api.admin_email'),
             'watchlistIds'   => $watchlistIds,
             'all_genres'     => $all_genres,
             'providersArray' => $providersArray,
@@ -71,7 +72,7 @@ class SwipeController extends Controller
         $genres  = $movieService->genres($tmdb);
         $page    = $movieService->resolvePage($tmdb, $input, $country);
         $results = $tmdb->discover(array_merge($input, ['page' => $page]), $country);
-        $movies  = $this->attachGenres($movieService->pickBatch($results['results'] ?? []), $genres);
+        $movies  = $this->attachGenres($movieService->pickBatch($results['results'] ?? []), $genres, $page);
 
         return response()->json(['movies' => $movies, 'page' => $page, 'total_results' => $results['total_results'] ?? 0]);
     }
@@ -85,19 +86,21 @@ class SwipeController extends Controller
         $genres  = $movieService->genres($tmdb);
         $page    = $this->pickPage((int) $totalPages, $seenPages);
         $results = $tmdb->discover(array_merge($criteria, ['page' => $page]), $country);
-        $movies  = $this->attachGenres($movieService->pickBatch($results['results'] ?? []), $genres);
+        $movies  = $this->attachGenres($movieService->pickBatch($results['results'] ?? []), $genres, $page);
 
         return response()->json(['movies' => $movies, 'page' => $page]);
     }
 
-    private function attachGenres(array $movies, array $allGenres): array
+    private function attachGenres(array $movies, array $allGenres, int $page = 0): array
     {
         $idToName = collect($allGenres)->pluck('name', 'id')->all();
-        return array_map(function ($movie) use ($idToName) {
+        return array_map(function ($movie, $i) use ($idToName, $page) {
             $names = array_filter(array_map(fn($id) => $idToName[$id] ?? null, $movie['genre_ids'] ?? []));
-            $movie['genres'] = implode(', ', $names);
+            $movie['genres']    = implode(', ', $names);
+            $movie['_page']     = $page;
+            $movie['_pos']      = $i + 1;
             return $movie;
-        }, $movies);
+        }, $movies, array_keys($movies));
     }
 
     private function pickPage(int $total, array $exclude): int

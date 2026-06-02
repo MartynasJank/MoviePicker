@@ -20,10 +20,11 @@
         <div id="card-stack" class="relative h-full w-full" style="max-width:min(100%, calc((100vh - 160px) * 2/3))"></div>
     </div>
 
-    {{-- Counter --}}
-    <div class="flex-shrink-0 text-center pb-1">
+    @if($isAdmin)
+    <div class="flex-shrink-0 text-center pb-1 debug-only" id="swipe-counter-wrap">
         <span id="swipe-counter" class="text-xs text-gray-600"></span>
     </div>
+    @endif
 
     {{-- Action buttons --}}
     <div class="flex items-center justify-center gap-6 pt-1 pb-4 flex-shrink-0">

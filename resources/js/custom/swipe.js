@@ -5,7 +5,6 @@ const SESSION_KEY   = 'swipe_session';
 const counter       = document.getElementById('swipe-counter');
 let watchlistIds    = new Set(window.swipeWatchlistIds || []);
 let totalResults    = window.swipeTotalResults || 0;
-let swipeCount      = 0;
 
 if (new URLSearchParams(window.location.search).get('reset') === '1') {
     sessionStorage.removeItem(SESSION_KEY);
@@ -20,10 +19,9 @@ let liked      = JSON.parse(localStorage.getItem('swipe_liked') || '[]');
 let fetching   = false;
 let animating  = false;
 const isLoggedIn = window.swipeLoggedIn;
-const THRESHOLD     = 90;
-const VEL_THRESHOLD = 0.5;  // px/ms — fast flick triggers even if distance is short
-const MIN_FLICK_DX  = 40;   // minimum horizontal distance even for velocity-based trigger
-const DIR_LOCK_PX   = 8;    // after this many px of movement, lock to horizontal or cancel
+const THRESHOLD     = 70;
+const VEL_THRESHOLD = 0.25; // px/ms — fast flick triggers even if distance is short
+const MIN_FLICK_DX  = 20;   // minimum horizontal distance even for velocity-based trigger
 
 function saveSession() {
     sessionStorage.setItem(SESSION_KEY, JSON.stringify({ queue, seenPages }));
@@ -179,12 +177,11 @@ function attachDrag(card) {
     if (card.dataset.dragAttached) return;
     card.dataset.dragAttached = '1';
     let startX = 0, startY = 0, dx = 0, startTime = 0;
-    let active = false, locked = false; // locked: confirmed horizontal gesture
+    let active = false;
 
     const onStart = (e) => {
         if (animating) return;
         active = true;
-        locked = false;
         dx     = 0;
         const pt = e.touches ? e.touches[0] : e;
         startX    = pt.clientX;
@@ -195,18 +192,10 @@ function attachDrag(card) {
 
     const onMove = (e) => {
         if (!active) return;
+        e.preventDefault();
         const pt = e.touches ? e.touches[0] : e;
         dx       = pt.clientX - startX;
         const dy = pt.clientY - startY;
-
-        // Direction lock: decide horizontal vs vertical once moved enough
-        if (!locked) {
-            if (Math.abs(dx) < DIR_LOCK_PX && Math.abs(dy) < DIR_LOCK_PX) return;
-            if (Math.abs(dy) > Math.abs(dx)) { active = false; return; } // vertical — cancel
-            locked = true;
-        }
-
-        e.preventDefault();
         const rotate = dx * 0.08;
         card.style.transform = `translate(${dx}px, ${dy * 0.3}px) rotate(${rotate}deg)`;
 
@@ -225,8 +214,6 @@ function attachDrag(card) {
         active = false;
         overlayLike.style.opacity = 0;
         overlaySkip.style.opacity = 0;
-
-        if (!locked) { dx = 0; return; } // never confirmed as horizontal
 
         const velocity = Math.abs(dx) / Math.max(Date.now() - startTime, 1);
         const isFlick  = velocity > VEL_THRESHOLD && Math.abs(dx) > MIN_FLICK_DX;
@@ -249,10 +236,12 @@ function attachDrag(card) {
 // ── Undo button state ─────────────────────────────────────────────────
 function updateCounter() {
     if (!counter) return;
-    if (totalResults > 0 && swipeCount > 0) {
-        counter.textContent = `${swipeCount} / ~${totalResults.toLocaleString()}`;
+    const movie = queue[0];
+    if (totalResults > 0 && movie?._page) {
+        const pos = movie._page * 20 + movie._pos;
+        counter.textContent = `${pos.toLocaleString()} / ${totalResults.toLocaleString()}`;
     } else if (totalResults > 0) {
-        counter.textContent = `~${totalResults.toLocaleString()} movies found`;
+        counter.textContent = `${totalResults.toLocaleString()} movies found`;
     } else {
         counter.textContent = '';
     }
@@ -269,7 +258,6 @@ function updateUndo() {
 function triggerLike(card) {
     const movie = queue[0];
     history.push({ movie, action: 'like' });
-    swipeCount++;
     flyOut(card, 1, () => { advanceStack(); updateUndo(); updateCounter(); });
     saveLike(movie);
 }
@@ -277,7 +265,6 @@ function triggerLike(card) {
 function triggerSkip(card) {
     const movie = queue[0];
     history.push({ movie, action: 'skip' });
-    swipeCount++;
     flyOut(card, -1, () => { advanceStack(); updateUndo(); updateCounter(); });
 }
 
@@ -306,7 +293,6 @@ function triggerUndo() {
         }
     }
 
-    swipeCount = Math.max(0, swipeCount - 1);
     saveSession();
     renderUndo(last.movie, last.action === 'like' ? 1 : -1);
     updateUndo();
@@ -490,7 +476,6 @@ document.addEventListener('submit', async (e) => {
             queue        = [...json.movies];
             seenPages    = [json.page];
             history      = [];
-            swipeCount   = 0;
             totalResults = json.total_results || 0;
             saveSession();
             stack.innerHTML = '';
