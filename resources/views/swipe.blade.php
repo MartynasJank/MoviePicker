@@ -20,8 +20,13 @@
         <div id="card-stack" class="relative h-full w-full" style="max-width:min(100%, calc((100vh - 160px) * 2/3))"></div>
     </div>
 
+    {{-- Counter --}}
+    <div class="flex-shrink-0 text-center pb-1">
+        <span id="swipe-counter" class="text-xs text-gray-600"></span>
+    </div>
+
     {{-- Action buttons --}}
-    <div class="flex items-center justify-center gap-6 pt-3 pb-4 flex-shrink-0">
+    <div class="flex items-center justify-center gap-6 pt-1 pb-4 flex-shrink-0">
         <button id="btn-skip" class="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center text-red-400 hover:bg-red-500/20 transition-all active:scale-90">
             <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
@@ -66,8 +71,10 @@
 </div>
 
 <script>
-window.swipeMovies   = @json($movies);
-window.swipePage     = {{ $initialPage }};
-window.swipeLoggedIn = {{ $isLoggedIn ? 'true' : 'false' }};
+window.swipeMovies      = @json($movies);
+window.swipePage        = {{ $initialPage }};
+window.swipeLoggedIn    = {{ $isLoggedIn ? 'true' : 'false' }};
+window.swipeTotalResults = {{ $totalResults }};
+window.swipeWatchlistIds = @json($watchlistIds);
 </script>
 @endsection

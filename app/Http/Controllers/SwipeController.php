@@ -28,11 +28,18 @@ class SwipeController extends Controller
         $page           = $movieService->resolvePage($tmdb, $criteria, $country);
         $results        = $tmdb->discover(array_merge($criteria, ['page' => $page]), $country);
         $movies         = $this->attachGenres($movieService->pickBatch($results['results'] ?? []), $all_genres);
+        $totalResults   = $results['total_results'] ?? 0;
+
+        $watchlistIds = auth()->check()
+            ? auth()->user()->watchlist()->pluck('tmdb_id')->all()
+            : [];
 
         return view('swipe', [
             'movies'         => $movies,
             'initialPage'    => $page,
+            'totalResults'   => $totalResults,
             'isLoggedIn'     => auth()->check(),
+            'watchlistIds'   => $watchlistIds,
             'all_genres'     => $all_genres,
             'providersArray' => $providersArray,
             'user_input'     => $user_input,
@@ -66,7 +73,7 @@ class SwipeController extends Controller
         $results = $tmdb->discover(array_merge($input, ['page' => $page]), $country);
         $movies  = $this->attachGenres($movieService->pickBatch($results['results'] ?? []), $genres);
 
-        return response()->json(['movies' => $movies, 'page' => $page]);
+        return response()->json(['movies' => $movies, 'page' => $page, 'total_results' => $results['total_results'] ?? 0]);
     }
 
     public function next(Request $request, MovieService $movieService, TmdbClient $tmdb): JsonResponse

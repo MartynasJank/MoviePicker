@@ -1,7 +1,11 @@
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
 // ── State ─────────────────────────────────────────────────────────────
-const SESSION_KEY = 'swipe_session';
+const SESSION_KEY   = 'swipe_session';
+const counter       = document.getElementById('swipe-counter');
+let watchlistIds    = new Set(window.swipeWatchlistIds || []);
+let totalResults    = window.swipeTotalResults || 0;
+let swipeCount      = 0;
 
 if (new URLSearchParams(window.location.search).get('reset') === '1') {
     sessionStorage.removeItem(SESSION_KEY);
@@ -57,6 +61,7 @@ function buildCard(movie) {
                 ? `<img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" class="w-full h-full object-cover" draggable="false">`
                 : `<div class="w-full h-full bg-white/5 flex items-center justify-center text-gray-600 text-sm px-4 text-center">${title}</div>`}
             <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent"></div>
+            ${watchlistIds.has(movie.id) ? `<div class="absolute top-3 right-3 z-10 bg-black/50 backdrop-blur-sm rounded-full p-1.5" title="Already in watchlist"><svg class="w-4 h-4 text-accent" fill="currentColor" viewBox="0 0 24 24"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg></div>` : ''}
             <div class="absolute bottom-0 left-0 right-0 p-5">
                 <a href="${url}" target="_blank" rel="noopener" class="block" onclick="event.stopPropagation()">
                     <h2 class="text-2xl font-bold text-white leading-tight">${title}</h2>
@@ -229,6 +234,17 @@ function attachDrag(card) {
 }
 
 // ── Undo button state ─────────────────────────────────────────────────
+function updateCounter() {
+    if (!counter) return;
+    if (totalResults > 0 && swipeCount > 0) {
+        counter.textContent = `${swipeCount} / ~${totalResults.toLocaleString()}`;
+    } else if (totalResults > 0) {
+        counter.textContent = `~${totalResults.toLocaleString()} movies found`;
+    } else {
+        counter.textContent = '';
+    }
+}
+
 function updateUndo() {
     const btn = document.getElementById('btn-undo');
     btn.disabled = history.length === 0;
@@ -240,14 +256,16 @@ function updateUndo() {
 function triggerLike(card) {
     const movie = queue[0];
     history.push({ movie, action: 'like' });
-    flyOut(card, 1, () => { advanceStack(); updateUndo(); });
+    swipeCount++;
+    flyOut(card, 1, () => { advanceStack(); updateUndo(); updateCounter(); });
     saveLike(movie);
 }
 
 function triggerSkip(card) {
     const movie = queue[0];
     history.push({ movie, action: 'skip' });
-    flyOut(card, -1, () => { advanceStack(); updateUndo(); });
+    swipeCount++;
+    flyOut(card, -1, () => { advanceStack(); updateUndo(); updateCounter(); });
 }
 
 function triggerUndo() {
@@ -275,9 +293,11 @@ function triggerUndo() {
         }
     }
 
+    swipeCount = Math.max(0, swipeCount - 1);
     saveSession();
     renderUndo(last.movie, last.action === 'like' ? 1 : -1);
     updateUndo();
+    updateCounter();
 }
 
 function flyOut(card, direction, cb) {
@@ -299,6 +319,7 @@ function saveLike(movie) {
     updateEndBtn();
 
     if (isLoggedIn) {
+        watchlistIds.add(movie.id);
         const isTv = movie.media_type === 'tv';
         const year = (movie.release_date || movie.first_air_date || '').slice(0, 4);
         fetch('/watchlist/add', {
@@ -453,13 +474,16 @@ document.addEventListener('submit', async (e) => {
         const res  = await fetch('/swipe/load', { method: 'POST', body: data });
         const json = await res.json();
         if (json.movies?.length) {
-            queue     = [...json.movies];
-            seenPages = [json.page];
-            history   = [];
+            queue        = [...json.movies];
+            seenPages    = [json.page];
+            history      = [];
+            swipeCount   = 0;
+            totalResults = json.total_results || 0;
             saveSession();
             stack.innerHTML = '';
             renderStack();
             updateUndo();
+            updateCounter();
             document.querySelector('#modal-form')?.classList.add('hidden');
         } else {
             showEmpty();
@@ -479,4 +503,5 @@ document.addEventListener('keydown', (e) => {
 // ── Init ──────────────────────────────────────────────────────────────
 updateEndBtn();
 updateUndo();
+updateCounter();
 renderStack();
