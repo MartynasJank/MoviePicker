@@ -8,6 +8,8 @@
 @endsection
 @section('content')
 
+</div>
+
 <div class="max-w-7xl mx-auto px-4 py-6" id="collab-root"
      data-token="{{ $batch->token }}"
      data-media-type="{{ $batch->media_type }}"
