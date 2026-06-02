@@ -90,8 +90,8 @@
                     {{-- Ambient vote heat (visible to all) --}}
                     <div class="vote-heat absolute inset-0 bg-red-900/0 transition-all duration-500 pointer-events-none"></div>
 
-                    {{-- My vote indicator (border glow) --}}
-                    <div class="voted-overlay absolute inset-0 border-2 border-red-500/70 hidden pointer-events-none"></div>
+                    {{-- My vote indicator --}}
+                    <div class="voted-overlay absolute inset-0 hidden pointer-events-none"></div>
 
                     {{-- Vote info + bar --}}
                     <div class="absolute bottom-0 left-0 right-0">
@@ -162,9 +162,14 @@
                             <div class="w-full h-full flex items-center justify-center text-gray-600 text-xs px-2 text-center">{{ $title }}</div>
                         @endif
                         <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-black/70 flex items-center justify-center text-xs">↩</div>
-                        <div class="restore-pips absolute top-2 left-0 right-0 flex justify-center gap-1 hidden"></div>
-                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
-                            <div class="restore-bar h-full bg-green-500 transition-all duration-300" style="width:0%"></div>
+                        <div class="absolute bottom-0 left-0 right-0">
+                            <div class="vote-info hidden px-2 py-1 flex items-center gap-1.5 bg-black/50">
+                                <div class="vote-avatars flex -space-x-1.5"></div>
+                                <span class="vote-count text-xs text-green-300"></span>
+                            </div>
+                            <div class="h-1 bg-white/10">
+                                <div class="restore-bar h-full bg-green-500 transition-all duration-300" style="width:0%"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="p-2">
