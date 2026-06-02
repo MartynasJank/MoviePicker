@@ -165,9 +165,9 @@ document.getElementById('refresh-btn')?.addEventListener('click', () => {
     api('refresh');
 });
 
-// ── Try Again ─────────────────────────────────────────────────────────
+// ── Try Again (on winner screen) ──────────────────────────────────────
 function updateTryAgainButton(needed = null) {
-    const btn    = document.getElementById('try-again-btn');
+    const btn    = document.getElementById('winner-try-again');
     const pCount = needed ?? activeParticipantCount();
     const iVoted = state.tryAgainVotes.includes(myId);
     const count  = state.tryAgainVotes.length;
@@ -176,7 +176,7 @@ function updateTryAgainButton(needed = null) {
     btn.classList.toggle('btn-secondary', !iVoted);
 }
 
-document.getElementById('try-again-btn').addEventListener('click', () => {
+document.getElementById('winner-try-again').addEventListener('click', () => {
     api('restart').then(() => updateTryAgainButton());
 });
 
@@ -321,6 +321,8 @@ function applyDelta(eventType, byName, byId, movieTitle, delta) {
 
         case 'restarted':
             winnerShown = false;
+            rollInProgress = false;
+            document.getElementById('winner-overlay').classList.add('hidden');
             state.tryAgainVotes = [];
             state.graveyard    = [];
             state.votes        = {};
@@ -715,8 +717,6 @@ function updateTensionMode(remaining) {
     const graveyard  = document.getElementById('graveyard-section');
     const grid       = document.getElementById('collab-grid');
     const gravGrid   = document.getElementById('graveyard-grid');
-    const tryAgain   = document.getElementById('try-again-btn');
-
     if (isTension) {
         vignette.classList.remove('hidden');
         vignette.classList.add('tension-vignette');
@@ -739,7 +739,6 @@ function updateTensionMode(remaining) {
     // Lock/unlock voting
     grid.style.pointerEvents     = isLocked ? 'none' : '';
     gravGrid.style.pointerEvents = isLocked ? 'none' : '';
-    tryAgain.classList.toggle('hidden', !isLocked);
     document.getElementById('ready-btn').classList.toggle('hidden', isLocked);
     if (isLocked) updateTryAgainButton();
 
@@ -780,6 +779,12 @@ function showWinner(movie) {
     const url   = (isTv ? '/tv/' : '/movie/') + movie.id;
     const title = movie.title ?? movie.name ?? '';
 
+    // Blurred background
+    if (movie.poster_path) {
+        document.getElementById('winner-bg').style.backgroundImage
+            = `url(https://image.tmdb.org/t/p/w342${movie.poster_path})`;
+    }
+
     document.getElementById('winner-poster').innerHTML = movie.poster_path
         ? `<img src="https://image.tmdb.org/t/p/w342${movie.poster_path}" class="w-full h-full object-cover">`
         : '';
@@ -794,15 +799,11 @@ function showWinner(movie) {
     confetti();
 }
 
-document.getElementById('winner-dismiss').addEventListener('click', () => {
-    document.getElementById('winner-overlay').classList.add('hidden');
-    rollInProgress = false;
-    if (state.ready.includes(myId)) {
-        api('ready');
-    }
-    updateTensionMode(state.movies.length);
-    updateReadyButton();
+document.getElementById('winner-share').addEventListener('click', () => {
+    const link = document.getElementById('winner-details-link').href;
+    navigator.clipboard.writeText(link).then(() => showToast('Link copied!', 'green'));
 });
+
 
 // ── Toasts ────────────────────────────────────────────────────────────
 function showToast(msg, color = 'white') {
@@ -819,14 +820,22 @@ function showToast(msg, color = 'white') {
 // ── Confetti ──────────────────────────────────────────────────────────
 function confetti() {
     const container = document.getElementById('winner-overlay');
-    for (let i = 0; i < 60; i++) {
-        const dot = document.createElement('div');
-        dot.style.cssText = `position:absolute;width:8px;height:8px;border-radius:50%;
-            left:${Math.random()*100}%;top:-10px;
-            background:hsl(${Math.random()*360},80%,60%);
-            animation:confetti-fall ${1.5+Math.random()}s linear ${Math.random()*0.5}s forwards;`;
-        container.appendChild(dot);
-        setTimeout(() => dot.remove(), 2500);
+    const shapes    = ['50%', '0', '0'];
+    for (let i = 0; i < 80; i++) {
+        const piece = document.createElement('div');
+        const w     = 6 + Math.random() * 6;
+        const h     = 10 + Math.random() * 8;
+        const shape = shapes[Math.floor(Math.random() * shapes.length)];
+        const dur   = 1.4 + Math.random() * 1.2;
+        const delay = Math.random() * 0.8;
+        const spin  = Math.random() * 720 - 360;
+        piece.style.cssText = `position:absolute;width:${w}px;height:${h}px;border-radius:${shape};
+            left:${Math.random()*100}%;top:-16px;pointer-events:none;
+            background:hsl(${Math.random()*360},85%,60%);
+            animation:confetti-fall ${dur}s ease-in ${delay}s forwards;
+            transform:rotate(${Math.random()*360}deg);`;
+        container.appendChild(piece);
+        setTimeout(() => piece.remove(), (dur + delay) * 1000 + 100);
     }
 }
 
