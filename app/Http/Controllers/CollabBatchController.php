@@ -331,6 +331,45 @@ class CollabBatchController extends Controller
         return response()->json(['ok' => true, 'rolled' => false]);
     }
 
+    // ── Try Again — vote-based, requires all participants ────────────
+
+    public function restart(Request $request, string $token)
+    {
+        $batch  = $this->guardBatch($token);
+        $userId = $request->input('userId');
+        $name   = $request->input('name', 'Someone');
+        $pCount = $this->participantCount($batch);
+
+        $votes = $batch->try_again_votes ?? [];
+
+        if (in_array($userId, $votes)) {
+            $votes = array_values(array_diff($votes, [$userId]));
+            $batch->update(['try_again_votes' => $votes]);
+            $this->broadcast($token, 'try_again_off', $name, $userId, '', ['tryAgainVotes' => $votes, 'needed' => $pCount]);
+            return response()->json(['ok' => true]);
+        }
+
+        $votes[] = $userId;
+        $batch->update(['try_again_votes' => $votes]);
+
+        if (count($votes) >= $pCount) {
+            $movies = array_merge($batch->movies, $batch->graveyard ?? []);
+            $batch->update([
+                'movies'          => $movies,
+                'graveyard'       => [],
+                'votes'           => [],
+                'restore_votes'   => [],
+                'ready'           => [],
+                'try_again_votes' => [],
+            ]);
+            $this->broadcast($token, 'restarted', $name, $userId, '', ['movies' => $this->slimAll($movies)]);
+            return response()->json(['ok' => true, 'restarted' => true]);
+        }
+
+        $this->broadcast($token, 'try_again_on', $name, $userId, '', ['tryAgainVotes' => $votes, 'needed' => $pCount]);
+        return response()->json(['ok' => true]);
+    }
+
     // ── Roll New Batch ────────────────────────────────────────────────
 
     public function toggleRefreshVote(Request $request, string $token, MovieService $movieService, TmdbClient $tmdb)

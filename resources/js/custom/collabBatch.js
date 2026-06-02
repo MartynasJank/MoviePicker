@@ -36,16 +36,20 @@ const leavePending = new Map(); // userId → timeout
 
 // ── Roll guard (prevents double animation) ────────────────────────────
 let rollInProgress = false;
+let winnerShown    = false;
 
 // ── Local state ───────────────────────────────────────────────────────
+let originalOrder = (window.collabMovies || []).map(m => m.id);
+
 let state = {
-    movies:       window.collabMovies       || [],
-    graveyard:    window.collabGraveyard    || [],
-    votes:        window.collabVotes        || {},
-    restoreVotes: window.collabRestore      || {},
-    ready:        window.collabReady        || [],
-    refreshVotes: window.collabRefresh      || [],
-    participants: window.collabParticipants || [],
+    movies:         window.collabMovies       || [],
+    graveyard:      window.collabGraveyard    || [],
+    votes:          window.collabVotes        || {},
+    restoreVotes:   window.collabRestore      || {},
+    ready:          window.collabReady        || [],
+    refreshVotes:   window.collabRefresh      || [],
+    participants:   window.collabParticipants || [],
+    tryAgainVotes:  [],
 };
 let totalMovies = state.movies.length + state.graveyard.length;
 
@@ -148,13 +152,32 @@ function castVote(movieId, type) {
 // ── Ready to Roll ─────────────────────────────────────────────────────
 document.getElementById('ready-btn').addEventListener('click', () => {
     api('ready').then(data => {
-        if (data.rolled && data.winner) triggerRoll(data.winner);
+        if (data.rolled && data.winner) {
+            state.movies.length === 1
+                ? showWinner(data.winner)
+                : triggerRoll(data.winner);
+        }
     });
 });
 
 // ── New Batch vote ────────────────────────────────────────────────────
 document.getElementById('refresh-btn')?.addEventListener('click', () => {
     api('refresh');
+});
+
+// ── Try Again ─────────────────────────────────────────────────────────
+function updateTryAgainButton(needed = null) {
+    const btn    = document.getElementById('try-again-btn');
+    const pCount = needed ?? activeParticipantCount();
+    const iVoted = state.tryAgainVotes.includes(myId);
+    const count  = state.tryAgainVotes.length;
+    btn.textContent = `Try Again (${count}/${pCount})`;
+    btn.classList.toggle('btn-accent', iVoted);
+    btn.classList.toggle('btn-secondary', !iVoted);
+}
+
+document.getElementById('try-again-btn').addEventListener('click', () => {
+    api('restart').then(() => updateTryAgainButton());
 });
 
 // ── Apply delta from broadcast ────────────────────────────────────────
@@ -278,10 +301,47 @@ function applyDelta(eventType, byName, byId, movieTitle, delta) {
             break;
 
         case 'rolled':
-            setTimeout(() => triggerRoll(delta.winner), 400);
+            winnerShown = true;
+            setTimeout(() => {
+                state.movies.length === 1
+                    ? showWinner(delta.winner)
+                    : triggerRoll(delta.winner);
+            }, 400);
+            break;
+
+        case 'try_again_on':
+        case 'try_again_off':
+            state.tryAgainVotes = delta.tryAgainVotes;
+            updateTryAgainButton(delta.needed);
+            if (!isMe) {
+                const action = eventType === 'try_again_on' ? 'wants to try again' : 'changed their mind on try again';
+                showToast(`${who} ${action}`);
+            }
+            break;
+
+        case 'restarted':
+            winnerShown = false;
+            state.tryAgainVotes = [];
+            state.graveyard    = [];
+            state.votes        = {};
+            state.restoreVotes = {};
+            state.ready        = [];
+            // Add graveyard cards back in original order
+            delta.movies.filter(m => !state.movies.find(s => s.id === m.id)).forEach(m => {
+                state.movies.push(m);
+                addCardToGrid(m, true);
+            });
+            document.getElementById('graveyard-grid').innerHTML = '';
+            document.getElementById('graveyard-section').classList.add('hidden');
+            updateAllVoteBars();
+            updateReadyButton();
+            updateProgress();
+            showToast(`${who} hit Try Again — all movies are back!`, 'green');
             break;
 
         case 'refreshed':
+            winnerShown = false;
+            originalOrder  = delta.movies.map(m => m.id);
             state.movies       = delta.movies;
             state.graveyard    = [];
             state.votes        = {};
@@ -302,10 +362,6 @@ function applyDelta(eventType, byName, byId, movieTitle, delta) {
             break;
     }
 
-    // Auto-roll when 1 movie left
-    if (prevMovieCount > 1 && state.movies.length === 1 && eventType !== 'rolled' && eventType !== 'refreshed') {
-        setTimeout(() => triggerRoll(state.movies[0]), 600);
-    }
 }
 
 // ── Animate card to graveyard ─────────────────────────────────────────
@@ -387,9 +443,14 @@ function buildCard(movie, isGraveyard = false) {
 }
 
 function addCardToGrid(movie, animate = false) {
-    const el = buildCard(movie, false);
+    const el   = buildCard(movie, false);
     el.style.opacity = '0';
-    document.getElementById('collab-grid').appendChild(el);
+    const grid = document.getElementById('collab-grid');
+    const pos  = originalOrder.indexOf(movie.id);
+    const after = [...grid.querySelectorAll('.collab-card')].find(card =>
+        originalOrder.indexOf(parseInt(card.dataset.id)) > pos
+    );
+    after ? grid.insertBefore(el, after) : grid.appendChild(el);
     requestAnimationFrame(() => {
         if (animate) {
             el.style.animation = 'collab-restore-in 0.4s ease-out forwards';
@@ -508,7 +569,7 @@ function updateAllVoteBars() {
 
         if (heat) {
             heat.style.background = votes > 0
-                ? `linear-gradient(to top, rgba(185,28,28,${(intensity * 0.75).toFixed(2)}), transparent 65%)`
+                ? `linear-gradient(to top, rgba(200,0,0,${(0.3 + intensity * 0.6).toFixed(2)}) 0%, rgba(180,0,0,${(intensity * 0.25).toFixed(2)}) 50%, transparent 80%)`
                 : '';
         }
 
@@ -641,6 +702,52 @@ function updateProgress() {
     const pct = totalMovies > 0 ? (remaining / totalMovies) * 100 : 0;
     document.getElementById('remaining-num').textContent = remaining;
     document.getElementById('veto-progress').style.width = pct + '%';
+    updateTensionMode(remaining);
+}
+
+// ── Tension mode ──────────────────────────────────────────────────────
+function updateTensionMode(remaining) {
+    const isTension  = remaining <= 3 && remaining > 0;
+    const isLocked   = remaining === 1;
+    const vignette   = document.getElementById('tension-vignette');
+    const title      = document.getElementById('collab-title');
+    const bar        = document.getElementById('veto-progress');
+    const graveyard  = document.getElementById('graveyard-section');
+    const grid       = document.getElementById('collab-grid');
+    const gravGrid   = document.getElementById('graveyard-grid');
+    const tryAgain   = document.getElementById('try-again-btn');
+
+    if (isTension) {
+        vignette.classList.remove('hidden');
+        vignette.classList.add('tension-vignette');
+
+        const labels = { 3: 'Final 3 🔥', 2: 'Final 2 🔥', 1: 'Last One Standing 🔥' };
+        if (title) title.textContent = labels[remaining];
+
+        bar.classList.add('tension-progress', '!bg-red-600');
+        if (graveyard) graveyard.style.opacity = isLocked ? '0.2' : '0.35';
+    } else {
+        vignette.classList.add('hidden');
+        vignette.classList.remove('tension-vignette');
+
+        if (title) title.textContent = 'Pick Together';
+
+        bar.classList.remove('tension-progress', '!bg-red-600');
+        if (graveyard) graveyard.style.opacity = '';
+    }
+
+    // Lock/unlock voting
+    grid.style.pointerEvents     = isLocked ? 'none' : '';
+    gravGrid.style.pointerEvents = isLocked ? 'none' : '';
+    tryAgain.classList.toggle('hidden', !isLocked);
+    document.getElementById('ready-btn').classList.toggle('hidden', isLocked);
+    if (isLocked) updateTryAgainButton();
+
+    // Auto-show winner when 1 card left (once only)
+    if (isLocked && state.movies.length === 1 && !winnerShown) {
+        winnerShown = true;
+        setTimeout(() => showWinner(state.movies[0]), 800);
+    }
 }
 
 // ── Roll animation then winner overlay ───────────────────────────────
@@ -691,8 +798,10 @@ document.getElementById('winner-dismiss').addEventListener('click', () => {
     document.getElementById('winner-overlay').classList.add('hidden');
     rollInProgress = false;
     if (state.ready.includes(myId)) {
-        api('ready'); // toggle ready off so session can continue
+        api('ready');
     }
+    updateTensionMode(state.movies.length);
+    updateReadyButton();
 });
 
 // ── Toasts ────────────────────────────────────────────────────────────
@@ -748,4 +857,5 @@ updateAllVoteBars();
 updateReadyButton();
 updateRefreshButton();
 updateProgress();
+updateTensionMode(state.movies.length);
 document.getElementById('total-num').textContent = totalMovies;
