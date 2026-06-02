@@ -163,7 +163,7 @@
                         <svg class="w-4 h-4 text-accent/60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
                     </a>
                     <a href="/swipe?reset=1" class="flex items-center justify-between px-4 py-3 rounded-xl bg-white/5 hover:bg-white/8 text-white text-sm transition-colors">
-                        Movie Swipe
+                        <span class="flex items-center gap-2">Movie Swipe <span class="text-[10px] bg-accent/20 text-accent px-1.5 py-0.5 rounded-full font-medium">New</span></span>
                         <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
                     </a>
                     <a href="/multiple?i=new" class="flex items-center justify-between px-4 py-3 rounded-xl bg-white/5 hover:bg-white/8 text-white text-sm transition-colors">
