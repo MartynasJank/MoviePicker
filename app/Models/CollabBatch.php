@@ -12,7 +12,7 @@ class CollabBatch extends Model
 
     protected $fillable = [
         'token','movies','media_type','created_by','expires_at',
-        'votes','restore_votes','graveyard','ready','refresh_votes','participants','criteria',
+        'votes','restore_votes','graveyard','ready','refresh_votes','try_again_votes','participants','criteria',
     ];
 
     protected $casts = [
@@ -21,7 +21,8 @@ class CollabBatch extends Model
         'restore_votes' => 'array',
         'graveyard'     => 'array',
         'ready'         => 'array',
-        'refresh_votes' => 'array',
+        'refresh_votes'   => 'array',
+        'try_again_votes' => 'array',
         'participants'  => 'array',
         'criteria'      => 'array',
         'expires_at'    => 'datetime',

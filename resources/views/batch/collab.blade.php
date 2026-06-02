@@ -18,7 +18,7 @@
     {{-- Header --}}
     <div class="flex items-start justify-between mb-4 gap-3">
         <div>
-            <h1 class="text-xl font-bold text-white">Pick Together</h1>
+            <h1 id="collab-title" class="text-xl font-bold text-white">Pick Together</h1>
             <p class="text-xs text-gray-500 mt-0.5">Vote out movies — last one standing wins</p>
         </div>
         <div class="flex items-center gap-2 flex-shrink-0">
@@ -201,6 +201,7 @@
             @endif
         </div>
         <div class="flex items-center gap-3">
+            <button id="try-again-btn" class="btn-secondary px-6 min-h-[44px] hidden">Try Again</button>
             <button id="ready-btn" class="btn-accent px-6 min-h-[44px]">
                 Ready to Roll
                 <span id="ready-count" class="text-xs opacity-70 ml-1"></span>
@@ -208,6 +209,9 @@
         </div>
     </div>
 </div>
+
+{{-- Tension vignette --}}
+<div id="tension-vignette" class="hidden fixed inset-0 pointer-events-none z-30" style="background:radial-gradient(ellipse at center, transparent 30%, rgba(180,0,0,0.25) 100%)"></div>
 
 {{-- Winner overlay --}}
 <div id="winner-overlay" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm px-4">

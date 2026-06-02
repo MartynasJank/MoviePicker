@@ -101,6 +101,7 @@ Route::prefix('batch/collab/{token}')->group(function () {
     Route::post('/ready',        [CollabBatchController::class, 'toggleReady']);
     Route::post('/refresh',      [CollabBatchController::class, 'toggleRefreshVote']);
     Route::post('/remove-votes', [CollabBatchController::class, 'removeVotes']);
+    Route::post('/restart',      [CollabBatchController::class, 'restart']);
 });
 
 // ── Watchlist (auth required) ─────────────────────────────────────────────────
