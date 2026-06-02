@@ -168,6 +168,8 @@ function getTopCard() {
 
 // ── Drag logic ────────────────────────────────────────────────────────
 function attachDrag(card) {
+    if (card.dataset.dragAttached) return;
+    card.dataset.dragAttached = '1';
     let startX = 0, startY = 0, dx = 0;
     let active = false;
 
