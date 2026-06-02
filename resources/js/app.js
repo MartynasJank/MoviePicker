@@ -83,31 +83,37 @@ $(document).ready(function () {
         }
     });
 
-    $(document).on('click', '[data-share]', function () {
-        const url   = $(this).data('share-url') || window.location.href;
-        const title = $(this).data('share-title') || document.title;
+    window.shareOrCopy = function (url, title = document.title, btn = null) {
+        const setLabel = (text) => {
+            if (!btn) return;
+            const orig = btn.textContent;
+            btn.textContent = text;
+            setTimeout(() => btn.textContent = orig, 2000);
+        };
+
         if (navigator.share) {
             navigator.share({ title, url }).catch(() => {});
         } else if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(url).then(() => {
+                setLabel('Copied ✓');
                 window.showSuccessToast('Link copied!');
-            }).catch(() => {
-                window.showErrorToast('Could not copy link.');
-            });
+            }).catch(() => window.showErrorToast('Could not copy link.'));
         } else {
             const ta = document.createElement('textarea');
             ta.value = url;
             ta.style.cssText = 'position:fixed;opacity:0';
             document.body.appendChild(ta);
             ta.select();
-            try {
-                document.execCommand('copy');
-                window.showSuccessToast('Link copied!');
-            } catch {
-                window.showErrorToast('Could not copy link.');
-            }
+            try { document.execCommand('copy'); setLabel('Copied ✓'); window.showSuccessToast('Link copied!'); }
+            catch { window.showErrorToast('Could not copy link.'); }
             document.body.removeChild(ta);
         }
+    };
+
+    $(document).on('click', '[data-share]', function () {
+        const url   = $(this).data('share-url') || window.location.href;
+        const title = $(this).data('share-title') || document.title;
+        window.shareOrCopy(url, title, this);
     });
 
     $(document).on('click', '[data-modal-close], .modal-backdrop', function () {

@@ -99,14 +99,9 @@ function saveName() {
 identityInput.addEventListener('blur', saveName);
 identityInput.addEventListener('keydown', e => { if (e.key === 'Enter') { identityInput.blur(); } });
 
-// ── Invite — always copy to clipboard ────────────────────────────────
+// ── Invite ────────────────────────────────────────────────────────────
 document.getElementById('invite-btn').addEventListener('click', function () {
-    const url = this.dataset.url;
-    navigator.clipboard.writeText(url).then(() => {
-        showToast('Invite link copied!', 'green');
-    }).catch(() => {
-        showToast('Could not copy link.');
-    });
+    window.shareOrCopy(this.dataset.url, 'Pick a movie with me! — MoviePickr', this);
 });
 
 // ── Join / Leave / Heartbeat ──────────────────────────────────────────
@@ -799,9 +794,10 @@ function showWinner(movie) {
     confetti();
 }
 
-document.getElementById('winner-share').addEventListener('click', () => {
-    const link = document.getElementById('winner-details-link').href;
-    navigator.clipboard.writeText(link).then(() => showToast('Link copied!', 'green'));
+document.getElementById('winner-share').addEventListener('click', function () {
+    const link  = document.getElementById('winner-details-link').href;
+    const title = document.getElementById('winner-title').textContent;
+    window.shareOrCopy(link, title, this);
 });
 
 
