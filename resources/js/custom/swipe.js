@@ -359,13 +359,22 @@ function renderResults() {
         const isTv  = movie.media_type === 'tv';
         const url   = (isTv ? '/tv/' : '/movie/') + movie.id;
         const title = movie.title ?? movie.name ?? '';
+        const year  = (movie.release_date || movie.first_air_date || '').slice(0, 4);
         return `
-            <a href="${url}" class="block rounded-xl overflow-hidden bg-white/5 hover:bg-white/10 transition-colors">
-                ${movie.poster_path
-                    ? `<img src="https://image.tmdb.org/t/p/w342${movie.poster_path}" class="w-full aspect-[2/3] object-cover">`
-                    : `<div class="w-full aspect-[2/3] bg-white/5 flex items-center justify-center text-gray-600 text-xs p-2 text-center">${title}</div>`}
-                <div class="p-1.5">
-                    <p class="text-xs font-medium text-white truncate">${title}</p>
+            <a href="${url}" target="_blank" rel="noopener" class="block rounded-2xl overflow-hidden bg-[#1a1a1a] relative select-none">
+                <div class="aspect-[2/3] relative">
+                    ${movie.poster_path
+                        ? `<img src="https://image.tmdb.org/t/p/w342${movie.poster_path}" class="w-full h-full object-cover">`
+                        : `<div class="w-full h-full bg-white/5 flex items-center justify-center text-gray-600 text-xs p-2 text-center">${esc(title)}</div>`}
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-2">
+                        <p class="text-xs font-bold text-white leading-tight">${esc(title)}</p>
+                        <div class="flex items-center gap-1.5 mt-0.5">
+                            ${year ? `<span class="text-[10px] text-gray-400">${year}</span>` : ''}
+                            ${movie.vote_average ? `<span class="text-[10px] text-gray-400">★ ${Number(movie.vote_average).toFixed(1)}</span>` : ''}
+                        </div>
+                        ${movie.genres ? `<div class="flex flex-wrap gap-0.5 mt-1">${movie.genres.split(', ').slice(0, 2).map(g => `<span class="text-[9px] bg-white/15 text-white/80 px-1.5 py-0.5 rounded-full">${esc(g)}</span>`).join('')}</div>` : ''}
+                    </div>
                 </div>
             </a>`;
     }).join('') : '<p class="col-span-3 text-center text-gray-500 text-sm pt-8">No liked movies yet</p>';
