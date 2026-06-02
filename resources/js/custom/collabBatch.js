@@ -63,7 +63,7 @@ const echo = new Echo({
 });
 
 echo.channel('batch.' + token).listen('.CollabStateUpdated', (e) => {
-    applyState(e.state, e.eventType, e.byName, e.byId, e.movieTitle, e.winner || null);
+    applyDelta(e.eventType, e.byName || '', e.byId || '', e.movieTitle || '', e.delta || {});
 });
 
 // ── API helpers ───────────────────────────────────────────────────────
@@ -138,23 +138,25 @@ document.getElementById('refresh-btn')?.addEventListener('click', () => {
     api('refresh');
 });
 
-// ── Apply state from broadcast ────────────────────────────────────────
-function applyState(newState, eventType, byName = '', byId = '', movieTitle = '', e_winner = null) {
-    const isMe = byId === myId || byName === myName;
+// ── Apply delta from broadcast ────────────────────────────────────────
+function applyDelta(eventType, byName, byId, movieTitle, delta) {
+    const isMe = byId === myId;
     const who  = byName || 'Someone';
 
-    if (!isMe && who) {
+    // ── Toasts ──
+    if (!isMe) {
         if      (eventType === 'vote_veto_on'     && movieTitle) showToast(`${who} voted to skip ${movieTitle}`);
         else if (eventType === 'vote_veto_off'    && movieTitle) showToast(`${who} changed their mind on ${movieTitle}`);
+        else if (eventType === 'veto_threshold'   && movieTitle) showToast(`${movieTitle} was voted out`);
         else if (eventType === 'vote_restore_on'  && movieTitle) showToast(`${who} voted to restore ${movieTitle}`);
         else if (eventType === 'vote_restore_off' && movieTitle) showToast(`${who} changed their mind on restoring ${movieTitle}`);
-        else if (eventType === 'ready_on')                   showToast(`${who} is ready to roll`);
-        else if (eventType === 'ready_off')                  showToast(`${who} is no longer ready`);
-        else if (eventType === 'refresh_on')                 showToast(`${who} wants a new batch`);
-        else if (eventType === 'refresh_off')                showToast(`${who} changed their mind on new batch`);
-        else if (eventType === 'rename')                     showToast(`${movieTitle || 'Someone'} is now ${who}`, 'green');
+        else if (eventType === 'restore_threshold'&& movieTitle) showToast(`${movieTitle} was restored`, 'green');
+        else if (eventType === 'ready_on')                       showToast(`${who} is ready to roll`);
+        else if (eventType === 'ready_off')                      showToast(`${who} is no longer ready`);
+        else if (eventType === 'refresh_on')                     showToast(`${who} wants a new batch`);
+        else if (eventType === 'refresh_off')                    showToast(`${who} changed their mind on new batch`);
+        else if (eventType === 'rename')                         showToast(`${movieTitle || 'Someone'} is now ${who}`, 'green');
         else if (eventType === 'join') {
-            // Cancel pending leave toast — they just refreshed
             if (leavePending.has(byId)) {
                 clearTimeout(leavePending.get(byId));
                 leavePending.delete(byId);
@@ -162,7 +164,6 @@ function applyState(newState, eventType, byName = '', byId = '', movieTitle = ''
                 showToast(`${who} joined`, 'green');
             }
         } else if (eventType === 'leave') {
-            // Delay 8s — if they rejoin (page refresh) the toast and vote cleanup are cancelled
             const t = setTimeout(() => {
                 leavePending.delete(byId);
                 showToast(`${who} left`);
@@ -171,67 +172,110 @@ function applyState(newState, eventType, byName = '', byId = '', movieTitle = ''
             leavePending.set(byId, t);
         }
     }
-    const prevMovieIds    = new Set(state.movies.map(m => m.id));
-    const prevGraveyardIds = new Set(state.graveyard.map(m => m.id));
 
-    state = {
-        movies:       newState.movies        || [],
-        graveyard:    newState.graveyard      || [],
-        votes:        newState.votes          || {},
-        restoreVotes: newState.restore_votes  || {},
-        ready:        newState.ready          || [],
-        refreshVotes: newState.refresh_votes  || [],
-        participants: newState.participants    || [],
-    };
+    const prevMovieCount = state.movies.length;
 
-    const newMovieIds     = new Set(state.movies.map(m => m.id));
-    const newGraveyardIds = new Set(state.graveyard.map(m => m.id));
+    // ── State updates ──
+    switch (eventType) {
 
-    // Cards moved to graveyard
-    prevMovieIds.forEach(id => {
-        if (!newMovieIds.has(id)) animateToGraveyard(id);
-    });
+        case 'vote_veto_on':
+        case 'vote_veto_off':
+            if (delta.voters.length) {
+                state.votes[String(delta.movieId)] = delta.voters;
+            } else {
+                delete state.votes[String(delta.movieId)];
+            }
+            updateAllVoteBars();
+            break;
 
-    // Cards restored from graveyard
-    prevGraveyardIds.forEach(id => {
-        if (!newGraveyardIds.has(id)) removeGraveyardCard(id);
-    });
+        case 'veto_threshold':
+            state.movies = state.movies.filter(m => m.id !== delta.movieId);
+            delete state.votes[String(delta.movieId)];
+            state.graveyard.push(delta.movie);
+            animateToGraveyard(delta.movieId);
+            addCardToGraveyard(delta.movie);
+            updateAllVoteBars();
+            updateProgress();
+            break;
 
-    // Add newly restored cards to grid
-    state.movies.forEach(movie => {
-        if (!prevMovieIds.has(movie.id)) addCardToGrid(movie);
-    });
+        case 'vote_restore_on':
+        case 'vote_restore_off':
+            if (delta.voters.length) {
+                state.restoreVotes[String(delta.movieId)] = delta.voters;
+            } else {
+                delete state.restoreVotes[String(delta.movieId)];
+            }
+            updateAllVoteBars();
+            break;
 
-    // Add new graveyard cards
-    state.graveyard.forEach(movie => {
-        if (!prevGraveyardIds.has(movie.id)) addCardToGraveyard(movie);
-    });
+        case 'restore_threshold':
+            state.graveyard = state.graveyard.filter(m => m.id !== delta.movieId);
+            delete state.restoreVotes[String(delta.movieId)];
+            state.movies.push(delta.movie);
+            removeGraveyardCard(delta.movieId);
+            addCardToGrid(delta.movie);
+            updateAllVoteBars();
+            updateProgress();
+            break;
 
-    updateAllVoteBars();
-    updateParticipants();
-    updateReadyButton();
-    updateRefreshButton();
-    updateProgress();
+        case 'join':
+        case 'rename':
+            state.participants = state.participants.filter(p => p.userId !== delta.participant.userId);
+            state.participants.push(delta.participant);
+            updateParticipants();
+            break;
 
-    if (eventType === 'rolled' && e_winner) {
-        setTimeout(() => triggerRoll(e_winner), 400);
+        case 'leave':
+            state.participants = state.participants.filter(p => p.userId !== byId);
+            updateParticipants();
+            break;
+
+        case 'ready_on':
+        case 'ready_off':
+            state.ready = delta.ready;
+            updateReadyButton();
+            break;
+
+        case 'refresh_on':
+        case 'refresh_off':
+            state.refreshVotes = delta.refreshVotes;
+            updateRefreshButton();
+            break;
+
+        case 'vote_cleanup':
+            state.votes        = delta.votes;
+            state.restoreVotes = delta.restoreVotes;
+            updateAllVoteBars();
+            break;
+
+        case 'rolled':
+            setTimeout(() => triggerRoll(delta.winner), 400);
+            break;
+
+        case 'refreshed':
+            state.movies       = delta.movies;
+            state.graveyard    = [];
+            state.votes        = {};
+            state.restoreVotes = {};
+            state.ready        = [];
+            state.refreshVotes = [];
+            document.getElementById('collab-grid').innerHTML    = '';
+            document.getElementById('graveyard-grid').innerHTML = '';
+            document.getElementById('graveyard-section').classList.add('hidden');
+            totalMovies = state.movies.length;
+            document.getElementById('total-num').textContent = totalMovies;
+            state.movies.forEach(movie => addCardToGrid(movie));
+            updateAllVoteBars();
+            updateReadyButton();
+            updateRefreshButton();
+            updateProgress();
+            showToast('New batch loaded — let\'s go!', 'green');
+            break;
     }
 
-    if (prevMovieIds.size > 1 && state.movies.length === 1 && eventType !== 'rolled' && eventType !== 'refreshed') {
+    // Auto-roll when 1 movie left
+    if (prevMovieCount > 1 && state.movies.length === 1 && eventType !== 'rolled' && eventType !== 'refreshed') {
         setTimeout(() => triggerRoll(state.movies[0]), 600);
-    }
-
-    if (eventType === 'refreshed') {
-        // Full re-render — wipe grid and graveyard, add all new cards
-        document.getElementById('collab-grid').innerHTML = '';
-        document.getElementById('graveyard-grid').innerHTML = '';
-        document.getElementById('graveyard-section').classList.add('hidden');
-
-        totalMovies = state.movies.length;
-        document.getElementById('total-num').textContent = totalMovies;
-
-        state.movies.forEach(movie => addCardToGrid(movie));
-        showToast('New batch loaded — let\'s go!', 'green');
     }
 }
 
@@ -281,6 +325,7 @@ function addCardToGrid(movie) {
             <div class="p-2">
                 <div class="text-xs font-medium text-white truncate">${esc(title)}</div>
                 ${movie.vote_average ? `<div class="text-xs text-gray-500 mt-0.5">★ ${Number(movie.vote_average).toFixed(1)}</div>` : ''}
+                ${(movie.release_date || movie.first_air_date) ? `<div class="text-xs text-gray-600 mt-0.5">${(movie.release_date || movie.first_air_date).slice(0, 4)}</div>` : ''}
                 ${movie.genres ? `<div class="text-xs text-gray-600 mt-0.5 truncate">${esc(movie.genres)}</div>` : ''}
             </div>
         </div>`;
