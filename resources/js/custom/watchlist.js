@@ -112,28 +112,29 @@ $(document).ready(function () {
         });
     });
 
-    // Combined filter: status tab + type tab + genre include/exclude selects
+    // Combined filter: status tab + type tab + source tab + genre include/exclude selects
     function applyFilters() {
         const status          = $('.watchlist-filter.active').data('filter');
         const type            = $('.type-filter.active').data('type');
+        const source          = $('.source-filter.active').data('source') || 'all';
         const activeGenres    = new Set(genreSelect   ? genreSelect.getValue()   : []);
         const excludedGenres  = new Set(excludeSelect ? excludeSelect.getValue() : []);
 
         $('.watchlist-card').each(function () {
             const cardStatus = $(this).attr('data-status');
             const cardType   = $(this).attr('data-type') || 'movie';
+            const cardSource = $(this).attr('data-source') || '';
             const cardGenres = ($(this).attr('data-genres') || '').split(',').map(g => g.trim()).filter(Boolean);
 
             const statusMatch  = status === 'all' || cardStatus === status;
             const typeMatch    = type === 'all'   || cardType === type;
-            // All selected include-genres must be present (AND logic)
+            const sourceMatch  = source === 'all' || (source === 'manual' ? cardSource !== 'swipe' : cardSource === source);
             const genreMatch   = activeGenres.size === 0
                 || (cardGenres.length > 0 && [...activeGenres].every(g => cardGenres.includes(g)));
-            // No selected exclude-genre may be present
             const excludeMatch = excludedGenres.size === 0
                 || !cardGenres.some(g => excludedGenres.has(g));
 
-            $(this).toggle(statusMatch && typeMatch && genreMatch && excludeMatch);
+            $(this).toggle(statusMatch && typeMatch && sourceMatch && genreMatch && excludeMatch);
         });
 
         const visibleCount = $('.watchlist-card:visible').length;
@@ -149,6 +150,12 @@ $(document).ready(function () {
 
     $(document).on('click', '.type-filter', function () {
         $('.type-filter').removeClass('active').removeClass('text-accent').addClass('text-gray-400');
+        $(this).addClass('active').addClass('text-accent').removeClass('text-gray-400');
+        applyFilters();
+    });
+
+    $(document).on('click', '.source-filter', function () {
+        $('.source-filter').removeClass('active').removeClass('text-accent').addClass('text-gray-400');
         $(this).addClass('active').addClass('text-accent').removeClass('text-gray-400');
         applyFilters();
     });

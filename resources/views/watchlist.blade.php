@@ -21,6 +21,13 @@
                         <button class="type-filter text-xs px-3 py-1.5 rounded-md transition-all text-gray-400" data-type="movie">Films</button>
                         <button class="type-filter text-xs px-3 py-1.5 rounded-md transition-all text-gray-400" data-type="tv">TV</button>
                     </div>
+                    @if($items->where('source', 'swipe')->isNotEmpty())
+                    <div class="flex gap-1 bg-white/5 p-1 rounded-lg">
+                        <button class="source-filter active text-xs px-3 py-1.5 rounded-md transition-all text-accent" data-source="all">All</button>
+                        <button class="source-filter text-xs px-3 py-1.5 rounded-md transition-all text-gray-400" data-source="swipe">Swipe</button>
+                        <button class="source-filter text-xs px-3 py-1.5 rounded-md transition-all text-gray-400" data-source="manual">Manual</button>
+                    </div>
+                    @endif
                 </div>
 
                 {{-- Genre selects + sort --}}
@@ -70,6 +77,7 @@
                      data-status="{{ $item->status }}"
                      data-type="{{ $item->type ?? 'movie' }}"
                      data-genres="{{ $item->genres }}"
+                     data-source="{{ $item->source }}"
                      data-date="{{ $item->created_at->timestamp }}"
                      data-title="{{ $item->title }}"
                      data-year="{{ $item->year ?? 0 }}"
