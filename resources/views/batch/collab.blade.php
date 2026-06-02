@@ -22,10 +22,8 @@
             <p class="text-xs text-gray-500 mt-0.5">Vote out movies — last one standing wins</p>
         </div>
         <div class="flex items-center gap-2 flex-shrink-0">
-            <button class="btn-secondary text-sm flex items-center gap-1.5"
-                data-share
-                data-share-url="{{ url()->current() }}"
-                data-share-title="Pick a movie with me! — MoviePickr">
+            <button class="btn-secondary text-sm flex items-center gap-1.5" id="invite-btn"
+                data-url="{{ url()->current() }}">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
                 Invite
             </button>
@@ -95,20 +93,27 @@
                     {{-- My vote indicator (border glow) --}}
                     <div class="voted-overlay absolute inset-0 border-2 border-red-500/70 hidden pointer-events-none"></div>
 
-                    {{-- Vote progress bar --}}
-                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
-                        <div class="vote-bar h-full bg-red-500 transition-all duration-300" style="width:0%"></div>
+                    {{-- Vote info + bar --}}
+                    <div class="absolute bottom-0 left-0 right-0">
+                        <div class="vote-info hidden px-2 py-1 flex items-center gap-1.5 bg-black/50">
+                            <div class="vote-avatars flex -space-x-1.5"></div>
+                            <span class="vote-count text-xs text-red-300"></span>
+                        </div>
+                        <div class="h-1 bg-white/10">
+                            <div class="vote-bar h-full bg-red-500 transition-all duration-300" style="width:0%"></div>
+                        </div>
                     </div>
-
-                    {{-- Vote pip dots --}}
-                    <div class="vote-pips absolute top-2 left-0 right-0 flex justify-center gap-1 hidden"></div>
                 </div>
 
-                {{-- Title — tap to open details --}}
+                {{-- Title --}}
                 <div class="p-2">
                     <div class="text-xs font-medium text-white truncate">{{ $title }}</div>
                     @if(!empty($movie['vote_average']) && $movie['vote_average'] > 0)
                         <div class="text-xs text-gray-500 mt-0.5">★ {{ number_format($movie['vote_average'], 1) }}</div>
+                    @endif
+                    @php $year = !empty($movie['release_date']) ? substr($movie['release_date'], 0, 4) : (!empty($movie['first_air_date']) ? substr($movie['first_air_date'], 0, 4) : null); @endphp
+                    @if($year)
+                        <div class="text-xs text-gray-600 mt-0.5">{{ $year }}</div>
                     @endif
                     @if(!empty($movie['genres']))
                         <div class="text-xs text-gray-600 mt-0.5 truncate">{{ $movie['genres'] }}</div>
@@ -122,8 +127,10 @@
     {{-- Graveyard --}}
     <div id="graveyard-section" class="{{ count($batch->graveyard ?? []) > 0 ? '' : 'hidden' }} mb-24">
         <div class="flex items-center gap-3 mb-3">
-            <h2 class="text-sm font-semibold text-gray-500">Graveyard</h2>
+            <span class="text-base">⚰️</span>
+            <h2 class="text-sm font-semibold text-white">Graveyard</h2>
             <div class="flex-1 h-px bg-white/10"></div>
+            <span class="text-xs text-gray-500">Tap a movie to vote restore</span>
         </div>
         <div class="bg-white/5 rounded-xl px-4 py-3 mb-4 grid grid-cols-3 gap-3 text-center">
             <div>
@@ -139,28 +146,37 @@
                 <div class="text-xs text-gray-500 mt-0.5">to vote restore</div>
             </div>
         </div>
-        <div id="graveyard-grid" class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+        <div id="graveyard-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
             @foreach($batch->graveyard ?? [] as $movie)
             @php
-                $isTv    = ($batch->media_type === 'tv') || ($movie['media_type'] ?? '') === 'tv';
-                $title   = $movie['title'] ?? $movie['name'] ?? '';
+                $title = $movie['title'] ?? $movie['name'] ?? '';
+                $year  = !empty($movie['release_date']) ? substr($movie['release_date'], 0, 4) : (!empty($movie['first_air_date']) ? substr($movie['first_air_date'], 0, 4) : null);
             @endphp
-            <div class="graveyard-card relative flex-shrink-0 w-28 sm:w-32 cursor-pointer opacity-50 hover:opacity-80 transition-opacity group"
-                 data-id="{{ $movie['id'] }}">
-                <div class="aspect-[2/3] rounded-lg overflow-hidden bg-white/[0.03] relative">
-                    @if(!empty($movie['poster_path']))
-                        <img src="https://image.tmdb.org/t/p/w185{{ $movie['poster_path'] }}"
-                             alt="{{ $title }}" class="w-full h-full object-cover grayscale">
-                    @endif
-                    <div class="restore-overlay absolute inset-0 bg-black/70 flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <span class="text-lg">↩</span>
-                        <span class="text-xs text-gray-300">Restore</span>
+            <div class="graveyard-card relative select-none cursor-pointer opacity-50 hover:opacity-75 active:opacity-90 transition-opacity" data-id="{{ $movie['id'] }}">
+                <div class="card overflow-hidden">
+                    <div class="aspect-[2/3] bg-white/[0.03] overflow-hidden relative">
+                        @if(!empty($movie['poster_path']))
+                            <img src="https://image.tmdb.org/t/p/w342{{ $movie['poster_path'] }}"
+                                 alt="{{ $title }}" class="w-full h-full object-cover grayscale">
+                        @else
+                            <div class="w-full h-full flex items-center justify-center text-gray-600 text-xs px-2 text-center">{{ $title }}</div>
+                        @endif
+                        <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-black/70 flex items-center justify-center text-xs">↩</div>
+                        <div class="restore-pips absolute top-2 left-0 right-0 flex justify-center gap-1 hidden"></div>
+                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
+                            <div class="restore-bar h-full bg-green-500 transition-all duration-300" style="width:0%"></div>
+                        </div>
                     </div>
-                    <div class="restore-vote-bar absolute bottom-0 left-0 right-0 h-1 bg-white/10">
-                        <div class="restore-bar h-full bg-green-500 transition-all duration-300" style="width:0%"></div>
+                    <div class="p-2">
+                        <div class="text-xs font-medium text-gray-400 truncate">{{ $title }}</div>
+                        @if(!empty($movie['vote_average']) && $movie['vote_average'] > 0)
+                            <div class="text-xs text-gray-600 mt-0.5">★ {{ number_format($movie['vote_average'], 1) }}</div>
+                        @endif
+                        @if($year)
+                            <div class="text-xs text-gray-600 mt-0.5">{{ $year }}</div>
+                        @endif
                     </div>
                 </div>
-                <div class="text-xs text-gray-500 truncate mt-1 text-center">{{ $title }}</div>
             </div>
             @endforeach
         </div>
@@ -194,7 +210,8 @@
         <p class="text-gray-500 text-sm mb-5">Last one standing 🎉</p>
         <div id="winner-poster" class="mx-auto w-32 sm:w-40 rounded-xl overflow-hidden mb-5 shadow-2xl ring-2 ring-accent/50"></div>
         <h2 class="text-2xl font-bold text-white mb-1" id="winner-title"></h2>
-        <p class="text-gray-500 text-sm mb-6" id="winner-rating"></p>
+        <p class="text-gray-400 text-sm" id="winner-rating"></p>
+        <p class="text-gray-500 text-xs mt-0.5 mb-6" id="winner-meta"></p>
         <div class="flex gap-3 justify-center">
             <a id="winner-details-link" href="#" class="btn-accent px-6 py-3">View Details</a>
             <button id="winner-dismiss" class="btn-secondary px-6 py-3">Stay Here</button>
