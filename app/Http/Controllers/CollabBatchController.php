@@ -74,7 +74,7 @@ class CollabBatchController extends Controller
         ]);
 
         $sessionKey = $request->input('media_type') === 'tv' ? 'tvInput' : 'userInput';
-        $movies     = collect($request->movies)->shuffle()->take(100)->values()->all();
+        $movies     = $request->movies;
 
         $batch = CollabBatch::create([
             'token'      => Str::random(8),
