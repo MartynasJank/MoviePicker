@@ -201,7 +201,6 @@
             @endif
         </div>
         <div class="flex items-center gap-3">
-            <button id="try-again-btn" class="btn-secondary px-6 min-h-[44px] hidden">Try Again</button>
             <button id="ready-btn" class="btn-accent px-6 min-h-[44px]">
                 Ready to Roll
                 <span id="ready-count" class="text-xs opacity-70 ml-1"></span>
@@ -214,16 +213,27 @@
 <div id="tension-vignette" class="hidden fixed inset-0 pointer-events-none z-30" style="background:radial-gradient(ellipse at center, transparent 30%, rgba(180,0,0,0.25) 100%)"></div>
 
 {{-- Winner overlay --}}
-<div id="winner-overlay" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm px-4">
-    <div class="text-center max-w-sm w-full">
-        <p class="text-gray-500 text-sm mb-5">Last one standing 🎉</p>
-        <div id="winner-poster" class="mx-auto w-32 sm:w-40 rounded-xl overflow-hidden mb-5 shadow-2xl ring-2 ring-accent/50"></div>
-        <h2 class="text-2xl font-bold text-white mb-1" id="winner-title"></h2>
-        <p class="text-gray-400 text-sm" id="winner-rating"></p>
-        <p class="text-gray-500 text-xs mt-0.5 mb-6" id="winner-meta"></p>
-        <div class="flex gap-3 justify-center">
-            <a id="winner-details-link" href="#" class="btn-accent px-6 py-3">View Details</a>
-            <button id="winner-dismiss" class="btn-secondary px-6 py-3">Stay Here</button>
+<div id="winner-overlay" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4">
+    {{-- Blurred poster background --}}
+    <div id="winner-bg" class="absolute inset-0 bg-cover bg-center scale-110" style="filter:blur(24px)"></div>
+    <div class="absolute inset-0 bg-black/70"></div>
+
+    {{-- Content --}}
+    <div class="relative z-10 text-center max-w-xs w-full">
+        <p class="text-white/60 text-xs font-medium uppercase tracking-widest mb-4">Last one standing</p>
+
+        <div id="winner-poster" class="mx-auto w-44 sm:w-52 rounded-2xl overflow-hidden mb-6 shadow-[0_0_60px_rgba(0,0,0,0.8)] ring-2 ring-white/20"></div>
+
+        <h2 class="text-3xl font-bold text-white mb-1 leading-tight" id="winner-title"></h2>
+        <p class="text-accent font-semibold text-sm mt-1" id="winner-rating"></p>
+        <p class="text-white/50 text-xs mt-1 mb-8" id="winner-meta"></p>
+
+        <div class="flex flex-col gap-2.5 items-center">
+            <a id="winner-details-link" href="#" class="btn-accent w-full py-3 text-center">View Details</a>
+            <div class="flex gap-2.5 w-full">
+                <button id="winner-share" class="btn-secondary flex-1 py-3">Share</button>
+                <button id="winner-try-again" class="btn-secondary flex-1 py-3">Try Again</button>
+            </div>
         </div>
     </div>
 </div>
