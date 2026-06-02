@@ -130,6 +130,37 @@ class WatchlistController extends Controller
         return response()->json(['saved' => true]);
     }
 
+    public function add(Request $request)
+    {
+        $request->validate([
+            'tmdb_id'      => 'required|integer',
+            'title'        => 'required|string|max:255',
+            'poster_path'  => 'nullable|string',
+            'year'         => 'nullable|integer',
+            'genres'       => 'nullable|string',
+            'vote_average' => 'nullable|numeric|min:0|max:10',
+            'type'         => 'nullable|in:movie,tv',
+        ]);
+
+        $user = Auth::user();
+        if ($user->watchlist()->where('tmdb_id', $request->tmdb_id)->exists()) {
+            return response()->json(['saved' => true]);
+        }
+
+        $user->watchlist()->create([
+            'tmdb_id'      => $request->tmdb_id,
+            'title'        => $request->title,
+            'poster_path'  => $request->poster_path,
+            'year'         => $request->year,
+            'genres'       => $request->genres ? static::normalizeGenres($request->genres) : null,
+            'vote_average' => $request->vote_average ?: null,
+            'type'         => $request->input('type', 'movie'),
+            'status'       => 'saved',
+        ]);
+
+        return response()->json(['saved' => true]);
+    }
+
     public function remove(Request $request, $tmdbId)
     {
         Auth::user()->watchlist()->where('tmdb_id', $tmdbId)->delete();

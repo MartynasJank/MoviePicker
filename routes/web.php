@@ -115,6 +115,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/watchlist', [WatchlistController::class, 'index'])->name('watchlist');
     Route::get('/watchlist/roll', [WatchlistController::class, 'roll'])->name('watchlist.roll');
     Route::post('/watchlist/toggle', [WatchlistController::class, 'toggle'])->name('watchlist.toggle');
+    Route::post('/watchlist/add', [WatchlistController::class, 'add'])->name('watchlist.add');
     Route::delete('/watchlist/{tmdbId}', [WatchlistController::class, 'remove'])->name('watchlist.remove');
     Route::patch('/watchlist/{tmdbId}/status', [WatchlistController::class, 'setStatus'])->name('watchlist.status');
 });
