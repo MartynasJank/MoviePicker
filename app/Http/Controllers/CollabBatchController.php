@@ -197,6 +197,22 @@ class CollabBatchController extends Controller
         return response()->json(['ok' => true]);
     }
 
+    // ── Voting signal (ephemeral, no DB write) ────────────────────────
+
+    public function voting(Request $request, string $token)
+    {
+        $batch   = $this->guardBatch($token);
+        $userId  = $request->input('userId');
+        $name    = $request->input('name', 'Someone');
+        $movieId = (int) $request->input('movieId');
+
+        if (!$movieId) return response()->json(['ok' => true]);
+
+        $isRecalling = (bool) $request->input('isRecalling', false);
+        $this->broadcast($token, 'voting', $name, $userId, '', ['movieId' => $movieId, 'isRecalling' => $isRecalling]);
+        return response()->json(['ok' => true]);
+    }
+
     // ── Voting ────────────────────────────────────────────────────────
 
     public function vote(Request $request, string $token, int $movieId)

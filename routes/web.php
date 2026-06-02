@@ -97,6 +97,7 @@ Route::prefix('batch/collab/{token}')->group(function () {
     Route::post('/leave',        [CollabBatchController::class, 'leave']);
     Route::post('/heartbeat',    [CollabBatchController::class, 'heartbeat']);
     Route::post('/vote/{movieId}', [CollabBatchController::class, 'vote']);
+    Route::post('/voting',       [CollabBatchController::class, 'voting']);
     Route::post('/ready',        [CollabBatchController::class, 'toggleReady']);
     Route::post('/refresh',      [CollabBatchController::class, 'toggleRefreshVote']);
     Route::post('/remove-votes', [CollabBatchController::class, 'removeVotes']);

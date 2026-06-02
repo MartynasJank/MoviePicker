@@ -117,6 +117,15 @@ window.addEventListener('beforeunload', () => {
         new Blob([JSON.stringify({ userId: myId, _token: csrf() })], { type: 'application/json' }));
 });
 
+// ── Voting signal — debounced pointerdown ─────────────────────────────
+document.getElementById('collab-grid').addEventListener('pointerdown', (e) => {
+    const card = e.target.closest('.collab-card');
+    if (!card) return;
+    const movieId     = parseInt(card.dataset.id);
+    const isRecalling = (state.votes[String(movieId)] || []).includes(myId);
+    api('voting', { movieId, isRecalling });
+});
+
 // ── Card tap — single tap on poster = vote ────────────────────────────
 document.getElementById('collab-grid').addEventListener('click', (e) => {
     const card = e.target.closest('.collab-card');
@@ -256,6 +265,10 @@ function applyDelta(eventType, byName, byId, movieTitle, delta) {
         case 'refresh_off':
             state.refreshVotes = delta.refreshVotes;
             updateRefreshButton();
+            break;
+
+        case 'voting':
+            if (!isMe) showVotingIndicator(delta.movieId, who, delta.isRecalling);
             break;
 
         case 'vote_cleanup':
@@ -402,6 +415,47 @@ function addCardToGraveyard(movie) {
     });
 }
 
+// ── Voting indicator ──────────────────────────────────────────────────
+const VOTING_MAX = 10;
+
+function getVotingContainer(voteTarget) {
+    let container = voteTarget.querySelector('.voting-badges');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'voting-badges absolute top-1.5 left-0 right-0 flex flex-col items-center gap-0.5 pointer-events-none z-20';
+        voteTarget.appendChild(container);
+    }
+    return container;
+}
+
+function showVotingIndicator(movieId, name, isRecalling = false) {
+    const card = document.querySelector(`.collab-card[data-id="${movieId}"]`);
+    if (!card) return;
+
+    const voteTarget = card.querySelector('.vote-target');
+    if (!voteTarget) return;
+
+    const container = getVotingContainer(voteTarget);
+
+    // Enforce limit — remove oldest instantly
+    while (container.children.length >= VOTING_MAX) {
+        const oldest = container.lastElementChild;
+        if (oldest._timeout) clearTimeout(oldest._timeout);
+        oldest.remove();
+    }
+
+    const badgeBg = isRecalling ? 'rgba(21,128,61,0.9)' : 'rgba(192,57,58,0.9)';
+    const label   = isRecalling ? `${esc(name)} reconsidering…` : `${esc(name)} is vetoing…`;
+
+    const badge = document.createElement('div');
+    badge.style.cssText = `font-size:9px;font-weight:600;color:#fff;background:${badgeBg};padding:2px 8px;border-radius:9999px;white-space:nowrap`;
+    badge.textContent = label;
+
+    container.prepend(badge);
+
+    badge._timeout = setTimeout(() => badge.remove(), 2000);
+}
+
 // ── Vote bars & badges ────────────────────────────────────────────────
 function updateAllVoteBars() {
     const pCount = activeParticipantCount();
@@ -458,29 +512,6 @@ function updateAllVoteBars() {
                 : '';
         }
 
-        if (inner) {
-            if (votes > 0) {
-                const boost       = iVoted ? 0.2 : 0;
-                const glowOpacity = Math.min(0.9, 0.3 + intensity * 0.5 + boost).toFixed(2);
-                const glowMin     = Math.round(intensity * 8 + boost * 4);
-                const glowMax     = Math.round(intensity * 22 + boost * 8);
-                const glowSpread  = Math.round(intensity * 4);
-                const duration    = Math.max(0.7, 1.8 - intensity * 1.1).toFixed(1);
-                inner.style.setProperty('--glow-min',        `${glowMin}px`);
-                inner.style.setProperty('--glow-max',        `${glowMax}px`);
-                inner.style.setProperty('--glow-spread-min', `${glowSpread}px`);
-                inner.style.setProperty('--glow-spread-max', `${glowSpread * 2}px`);
-                inner.style.setProperty('--glow-opacity',    glowOpacity);
-                inner.style.animation = `collab-veto-glow-pulse ${duration}s ease-in-out infinite`;
-            } else {
-                inner.style.animation = '';
-                inner.style.removeProperty('--glow-min');
-                inner.style.removeProperty('--glow-max');
-                inner.style.removeProperty('--glow-spread-min');
-                inner.style.removeProperty('--glow-spread-max');
-                inner.style.removeProperty('--glow-opacity');
-            }
-        }
 
         // "You" badge — shows when current user has voted on this card
         if (votedOvl) {
