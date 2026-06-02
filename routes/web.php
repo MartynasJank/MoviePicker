@@ -22,6 +22,7 @@ use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PersonRollController;
 use App\Http\Controllers\BatchShareController;
 use App\Http\Controllers\CollabBatchController;
+use App\Http\Controllers\SwipeController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminRouletteController;
 use App\Http\Controllers\Admin\AdminUserController;
@@ -103,6 +104,11 @@ Route::prefix('batch/collab/{token}')->group(function () {
     Route::post('/remove-votes', [CollabBatchController::class, 'removeVotes']);
     Route::post('/restart',      [CollabBatchController::class, 'restart']);
 });
+
+// ── Swipe ─────────────────────────────────────────────────────────────
+Route::get('/swipe', [SwipeController::class, 'index'])->name('swipe');
+Route::post('/swipe/next', [SwipeController::class, 'next'])->name('swipe.next');
+Route::post('/swipe/load', [SwipeController::class, 'load'])->name('swipe.load');
 
 // ── Watchlist (auth required) ─────────────────────────────────────────────────
 Route::middleware('auth')->group(function () {

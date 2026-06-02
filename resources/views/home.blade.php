@@ -85,6 +85,21 @@
                     </div>
                 </div>
             </div>
+
+            {{-- Movie Swipe featured card --}}
+            <a href="/swipe?reset=1" class="group mt-4 block bg-gradient-to-r from-accent/20 to-accent/5 border border-accent/20 hover:border-accent/40 rounded-2xl p-5 transition-all duration-200 hover:shadow-[0_0_32px_rgba(192,57,58,0.2)]">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center gap-2.5 mb-1.5">
+                            <span class="text-2xl">🎬</span>
+                            <span class="font-bold text-white text-lg">Movie Swipe</span>
+                            <span class="text-xs bg-accent/30 text-accent px-2 py-0.5 rounded-full font-medium">New</span>
+                        </div>
+                        <p class="text-sm text-gray-400">Swipe through movies one by one. Like what you want to watch, skip the rest.</p>
+                    </div>
+                    <svg class="w-5 h-5 text-accent/60 flex-shrink-0 ml-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+                </div>
+            </a>
         </div>
     </section>
 
