@@ -20,6 +20,7 @@ export default defineConfig({
                 'resources/js/custom/rouletteForm.js',
                 'resources/js/custom/cookieConsent.js',
                 'resources/js/custom/collabBatch.js',
+                'resources/js/custom/swipe.js',
             ],
             refresh: true,
         }),
