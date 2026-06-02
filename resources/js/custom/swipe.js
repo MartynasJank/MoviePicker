@@ -252,7 +252,7 @@ function triggerUndo() {
         if (isLoggedIn) {
             const isTv = last.movie.media_type === 'tv';
             const year = (last.movie.release_date || last.movie.first_air_date || '').slice(0, 4);
-            fetch('/watchlist/toggle', {
+            fetch('/watchlist/add', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content },
                 body: JSON.stringify({
@@ -291,7 +291,7 @@ function saveLike(movie) {
     if (isLoggedIn) {
         const isTv = movie.media_type === 'tv';
         const year = (movie.release_date || movie.first_air_date || '').slice(0, 4);
-        fetch('/watchlist/toggle', {
+        fetch('/watchlist/add', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content },
             body: JSON.stringify({
@@ -342,10 +342,14 @@ function showLoading() {
 }
 
 function showEmpty() {
-    stack.innerHTML = `<div class="absolute inset-0 flex flex-col items-center justify-center gap-4">
-        <p class="text-gray-500 text-sm">No more movies found</p>
-        <button onclick="location.reload()" class="btn-secondary text-sm px-4 py-2">Start Over</button>
+    stack.innerHTML = `<div class="absolute inset-0 flex flex-col items-center justify-center gap-4 px-6 text-center">
+        <p class="text-gray-400 text-sm">No movies found for these filters</p>
+        <p class="text-gray-600 text-xs">Try adjusting your criteria</p>
+        <button id="empty-criteria-btn" class="btn-secondary text-sm px-4 py-2">Change Criteria</button>
     </div>`;
+    document.getElementById('empty-criteria-btn')?.addEventListener('click', () => {
+        document.querySelector('#modal-form')?.classList.remove('hidden');
+    });
 }
 
 // ── Results overlay ───────────────────────────────────────────────────
@@ -429,16 +433,18 @@ document.addEventListener('submit', async (e) => {
         const res  = await fetch('/swipe/load', { method: 'POST', body: data });
         const json = await res.json();
         if (json.movies?.length) {
-            queue    = [...json.movies];
+            queue     = [...json.movies];
             seenPages = [json.page];
-            history  = [];
+            history   = [];
             saveSession();
             stack.innerHTML = '';
             renderStack();
             updateUndo();
+            document.querySelector('#modal-form')?.classList.add('hidden');
+        } else {
+            showEmpty();
+            document.querySelector('#modal-form')?.classList.add('hidden');
         }
-        // Close modal
-        document.querySelector('#modal-form')?.classList.add('hidden');
     } finally {
         if (submitBtn) { submitBtn.textContent = origText; submitBtn.disabled = false; }
     }
