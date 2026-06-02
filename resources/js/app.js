@@ -46,6 +46,26 @@ $(document).ready(function () {
         }
     });
 
+    /* ── Debug mode toggle (admin only) ───────────────────────────────── */
+    function setDebug(on) {
+        document.documentElement.classList.toggle('debug-mode', on);
+        localStorage.setItem('debug_mode', on ? '1' : '0');
+        ['debug-toggle-indicator', 'debug-toggle-indicator-mobile'].forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = on ? 'on' : 'off';
+            el.style.background = on ? 'rgba(192,57,58,0.25)' : '';
+            el.style.color      = on ? '#c0393a' : '';
+        });
+    }
+    setDebug(localStorage.getItem('debug_mode') === '1');
+
+    ['debug-toggle-btn', 'debug-toggle-btn-mobile'].forEach(id => {
+        document.getElementById(id)?.addEventListener('click', () => {
+            setDebug(!document.documentElement.classList.contains('debug-mode'));
+        });
+    });
+
     /* ── Mobile nav expandable sections ───────────────────────────────── */
     $(document).on('click', '.mobile-nav-toggle', function () {
         const body    = $(this).siblings('.mobile-nav-body');

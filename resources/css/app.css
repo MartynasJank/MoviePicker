@@ -491,6 +491,8 @@ html[data-theme="light"] {
     .collab-voting-ring { animation: collab-voting-ring 0.7s ease-in-out infinite; }
 
     .nav-dropdown:hover .nav-dropdown-menu { display: flex; }
+    .debug-only { display: none; }
+    .debug-mode .debug-only { display: block; }
 
     @keyframes collab-veto-glow-pulse {
         0%, 100% { box-shadow: 0 0 var(--glow-min, 4px) var(--glow-spread-min, 2px) rgba(239,68,68,var(--glow-opacity, 0.3)); }

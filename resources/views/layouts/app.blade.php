@@ -108,6 +108,10 @@
                                 <a href="{{ route('my-roulettes.index') }}" class="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">My Roulettes</a>
                                 @if(auth()->user()->email === config('api.admin_email'))
                                     <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-white/5 transition-colors">Admin</a>
+                                    <button id="debug-toggle-btn" class="w-full text-left px-4 py-2 text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-colors flex items-center justify-between">
+                                        Debug mode
+                                        <span id="debug-toggle-indicator" class="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10">off</span>
+                                    </button>
                                 @endif
                                 <div class="h-px bg-white/5 my-1"></div>
                                 <div class="px-4 py-2">
@@ -215,6 +219,10 @@
 
                 @if(auth()->user()->email === config('api.admin_email'))
                     <a href="{{ route('admin.dashboard') }}" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-red-400 hover:text-red-300 hover:bg-red-500/5 transition-colors">Admin</a>
+                    <button id="debug-toggle-btn-mobile" class="w-full text-left px-4 py-3 rounded-xl text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-colors flex items-center justify-between">
+                        Debug mode
+                        <span id="debug-toggle-indicator-mobile" class="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10">off</span>
+                    </button>
                 @endif
                 <a href="{{ route('watchlist') }}" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">Watchlist</a>
                 <a href="{{ route('my-roulettes.index') }}" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">My Roulettes</a>
