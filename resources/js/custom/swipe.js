@@ -21,7 +21,9 @@ let fetching   = false;
 let animating  = false;
 const isLoggedIn = window.swipeLoggedIn;
 const THRESHOLD     = 90;
-const VEL_THRESHOLD = 0.3; // px/ms — fast flick triggers even if distance is short
+const VEL_THRESHOLD = 0.5;  // px/ms — fast flick triggers even if distance is short
+const MIN_FLICK_DX  = 40;   // minimum horizontal distance even for velocity-based trigger
+const DIR_LOCK_PX   = 8;    // after this many px of movement, lock to horizontal or cancel
 
 function saveSession() {
     sessionStorage.setItem(SESSION_KEY, JSON.stringify({ queue, seenPages }));
@@ -177,24 +179,34 @@ function attachDrag(card) {
     if (card.dataset.dragAttached) return;
     card.dataset.dragAttached = '1';
     let startX = 0, startY = 0, dx = 0, startTime = 0;
-    let active = false;
+    let active = false, locked = false; // locked: confirmed horizontal gesture
 
     const onStart = (e) => {
         if (animating) return;
         active = true;
+        locked = false;
+        dx     = 0;
         const pt = e.touches ? e.touches[0] : e;
-        startX   = pt.clientX;
-        startY   = pt.clientY;
+        startX    = pt.clientX;
+        startY    = pt.clientY;
         startTime = Date.now();
         card.style.transition = 'none';
     };
 
     const onMove = (e) => {
         if (!active) return;
-        e.preventDefault();
         const pt = e.touches ? e.touches[0] : e;
-        dx = pt.clientX - startX;
+        dx       = pt.clientX - startX;
         const dy = pt.clientY - startY;
+
+        // Direction lock: decide horizontal vs vertical once moved enough
+        if (!locked) {
+            if (Math.abs(dx) < DIR_LOCK_PX && Math.abs(dy) < DIR_LOCK_PX) return;
+            if (Math.abs(dy) > Math.abs(dx)) { active = false; return; } // vertical — cancel
+            locked = true;
+        }
+
+        e.preventDefault();
         const rotate = dx * 0.08;
         card.style.transform = `translate(${dx}px, ${dy * 0.3}px) rotate(${rotate}deg)`;
 
@@ -214,13 +226,14 @@ function attachDrag(card) {
         overlayLike.style.opacity = 0;
         overlaySkip.style.opacity = 0;
 
+        if (!locked) { dx = 0; return; } // never confirmed as horizontal
+
         const velocity = Math.abs(dx) / Math.max(Date.now() - startTime, 1);
-        const isFlick  = velocity > VEL_THRESHOLD && Math.abs(dx) > 20;
+        const isFlick  = velocity > VEL_THRESHOLD && Math.abs(dx) > MIN_FLICK_DX;
 
         if (Math.abs(dx) >= THRESHOLD || isFlick) {
             dx > 0 ? triggerLike(card) : triggerSkip(card);
         } else {
-            // Snap back
             card.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
             card.style.transform  = 'translate(0,0) rotate(0deg)';
         }
