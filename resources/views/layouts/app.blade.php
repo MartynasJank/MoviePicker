@@ -110,6 +110,9 @@
                                     <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-white/5 transition-colors">Admin</a>
                                 @endif
                                 <div class="h-px bg-white/5 my-1"></div>
+                                <div class="px-4 py-2">
+                                    @include('includes.anim-toggle')
+                                </div>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-colors">Sign out</button>
@@ -124,8 +127,6 @@
                         <a href="{{ route('auth.google') }}" class="text-sm px-3 py-1.5 rounded-lg border border-white/10 text-gray-300 hover:text-white hover:border-white/25 transition-all">Sign in</a>
                     @endif
                 @endauth
-
-                @include('includes.anim-toggle')
 
                 <button id="theme-toggle" class="theme-toggle p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-white/5 transition-all" aria-label="Toggle theme">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
