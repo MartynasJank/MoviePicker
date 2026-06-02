@@ -302,6 +302,7 @@ function saveLike(movie) {
                 genres:       movie.genres ?? '',
                 vote_average: movie.vote_average,
                 type:         isTv ? 'tv' : 'movie',
+                source:       'swipe',
             }),
         }).catch(() => {});
     }

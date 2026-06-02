@@ -18,6 +18,7 @@ class Watchlist extends Model
         'vote_average',
         'type',
         'status',
+        'source',
     ];
 
     public function user()

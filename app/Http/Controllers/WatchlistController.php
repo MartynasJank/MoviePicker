@@ -140,6 +140,7 @@ class WatchlistController extends Controller
             'genres'       => 'nullable|string',
             'vote_average' => 'nullable|numeric|min:0|max:10',
             'type'         => 'nullable|in:movie,tv',
+            'source'       => 'nullable|string|max:50',
         ]);
 
         $user = Auth::user();
@@ -156,6 +157,7 @@ class WatchlistController extends Controller
             'vote_average' => $request->vote_average ?: null,
             'type'         => $request->input('type', 'movie'),
             'status'       => 'saved',
+            'source'       => $request->input('source'),
         ]);
 
         return response()->json(['saved' => true]);
