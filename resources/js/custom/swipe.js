@@ -130,24 +130,25 @@ function advanceStack() {
 
 // ── Undo entrance (fly card back in from the side) ────────────────────
 function renderUndo(movie, direction) {
-    // Put a new behind card at back if needed
-    const existingBehind = stack.querySelector('.swipe-card:first-child');
-    if (!existingBehind && queue.length > 1) {
-        const behind = buildCard(queue[1]);
-        behind.style.cssText += 'z-index:1;pointer-events:none;transform:scale(0.94) translateY(10px);';
-        stack.appendChild(behind);
+    // After queue.unshift(), queue[0]=undone, queue[1]=what was top
+    // DOM should end up as: [behind(queue[1]), top(undone)]
+    // Remove any stale behind card so we don't accumulate extras
+    const cards = stack.querySelectorAll('.swipe-card');
+    if (cards.length >= 2) {
+        // More than one card — remove all but the last (current top)
+        for (let i = 0; i < cards.length - 1; i++) cards[i].remove();
     }
 
-    // Demote current top to behind
+    // Demote current top to behind position
     const currentTop = stack.querySelector('.swipe-card:last-child');
     if (currentTop) {
-        currentTop.style.transition = 'transform 0.25s ease-out';
-        currentTop.style.transform  = 'scale(0.94) translateY(10px)';
-        currentTop.style.zIndex     = '1';
+        currentTop.style.transition    = 'transform 0.25s ease-out';
+        currentTop.style.transform     = 'scale(0.94) translateY(10px)';
+        currentTop.style.zIndex        = '1';
         currentTop.style.pointerEvents = 'none';
     }
 
-    // Fly the undone card back in
+    // Fly the undone card back in as new top
     const card = buildCard(movie);
     const startX = direction * (window.innerWidth + 200);
     card.style.zIndex     = '2';
