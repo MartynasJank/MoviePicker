@@ -63,14 +63,14 @@ function buildCard(movie) {
             <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent"></div>
             ${watchlistIds.has(movie.id) ? `<div class="absolute top-3 right-3 z-10 bg-black/50 backdrop-blur-sm rounded-full p-1.5" title="Already in watchlist"><svg class="w-4 h-4 text-accent" fill="currentColor" viewBox="0 0 24 24"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg></div>` : ''}
             <div class="absolute bottom-0 left-0 right-0 p-5">
-                <a href="${url}" target="_blank" rel="noopener" class="block" onclick="event.stopPropagation()">
-                    <h2 class="text-2xl font-bold text-white leading-tight">${title}</h2>
-                    <div class="flex items-center gap-2 mt-1.5 flex-wrap">
-                        ${year ? `<span class="text-sm text-gray-300">${year}</span>` : ''}
-                        ${movie.vote_average ? `<span class="text-sm text-gray-300">★ ${Number(movie.vote_average).toFixed(1)}</span>` : ''}
-                    </div>
-                    ${movie.genres ? `<div class="flex flex-wrap gap-1 mt-2">${movie.genres.split(', ').map(g => `<span class="text-xs bg-white/15 text-white/80 px-2 py-0.5 rounded-full">${g}</span>`).join('')}</div>` : ''}
+                <a href="${url}" target="_blank" rel="noopener" class="inline-block" onclick="event.stopPropagation()">
+                    <h2 class="text-2xl font-bold text-white leading-tight hover:underline">${title}</h2>
                 </a>
+                <div class="flex items-center gap-2 mt-1.5 flex-wrap">
+                    ${year ? `<span class="text-sm text-gray-300">${year}</span>` : ''}
+                    ${movie.vote_average ? `<span class="text-sm text-gray-300">★ ${Number(movie.vote_average).toFixed(1)}</span>` : ''}
+                </div>
+                ${movie.genres ? `<div class="flex flex-wrap gap-1 mt-2">${movie.genres.split(', ').map(g => `<span class="text-xs bg-white/15 text-white/80 px-2 py-0.5 rounded-full">${g}</span>`).join('')}</div>` : ''}
             </div>
         </div>`;
     return el;
