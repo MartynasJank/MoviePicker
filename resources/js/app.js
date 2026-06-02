@@ -46,6 +46,15 @@ $(document).ready(function () {
         }
     });
 
+    /* ── Mobile nav expandable sections ───────────────────────────────── */
+    $(document).on('click', '.mobile-nav-toggle', function () {
+        const body    = $(this).siblings('.mobile-nav-body');
+        const chevron = $(this).find('.mobile-nav-chevron');
+        const open    = body.hasClass('hidden');
+        body.toggleClass('hidden', !open).toggleClass('flex', open);
+        chevron.css('transform', open ? 'rotate(180deg)' : '');
+    });
+
     /* ── Theme toggle ──────────────────────────────────────────────────── */
     function applyTheme(theme) {
         document.documentElement.dataset.theme = theme;
