@@ -95,6 +95,16 @@ function saveName() {
 identityInput.addEventListener('blur', saveName);
 identityInput.addEventListener('keydown', e => { if (e.key === 'Enter') { identityInput.blur(); } });
 
+// ── Invite — always copy to clipboard ────────────────────────────────
+document.getElementById('invite-btn').addEventListener('click', function () {
+    const url = this.dataset.url;
+    navigator.clipboard.writeText(url).then(() => {
+        showToast('Invite link copied!', 'green');
+    }).catch(() => {
+        showToast('Could not copy link.');
+    });
+});
+
 // ── Join / Leave / Heartbeat ──────────────────────────────────────────
 api('join');
 
@@ -223,11 +233,17 @@ function applyDelta(eventType, byName, byId, movieTitle, delta) {
             state.participants = state.participants.filter(p => p.userId !== delta.participant.userId);
             state.participants.push(delta.participant);
             updateParticipants();
+            updateReadyButton();
+            updateRefreshButton();
+            updateAllVoteBars();
             break;
 
         case 'leave':
             state.participants = state.participants.filter(p => p.userId !== byId);
             updateParticipants();
+            updateReadyButton();
+            updateRefreshButton();
+            updateAllVoteBars();
             break;
 
         case 'ready_on':
@@ -317,10 +333,15 @@ function addCardToGrid(movie) {
                 ${poster}
                 <div class="vote-heat absolute inset-0 bg-red-900/0 transition-all duration-500 pointer-events-none"></div>
                 <div class="voted-overlay absolute inset-0 border-2 border-red-500/70 hidden pointer-events-none"></div>
-                <div class="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
-                    <div class="vote-bar h-full bg-red-500 transition-all duration-300" style="width:0%"></div>
+                <div class="absolute bottom-0 left-0 right-0">
+                    <div class="vote-info hidden px-2 py-1 flex items-center gap-1.5 bg-black/50">
+                        <div class="vote-avatars flex -space-x-1.5"></div>
+                        <span class="vote-count text-xs text-red-300"></span>
+                    </div>
+                    <div class="h-1 bg-white/10">
+                        <div class="vote-bar h-full bg-red-500 transition-all duration-300" style="width:0%"></div>
+                    </div>
                 </div>
-                <div class="vote-pips absolute top-2 left-0 right-0 flex justify-center gap-1 hidden"></div>
             </div>
             <div class="p-2">
                 <div class="text-xs font-medium text-white truncate">${esc(title)}</div>
@@ -339,26 +360,31 @@ function addCardToGrid(movie) {
 }
 
 function addCardToGraveyard(movie) {
-    const title = movie.title ?? movie.name ?? '';
+    const title  = movie.title ?? movie.name ?? '';
+    const year   = (movie.release_date || movie.first_air_date || '').slice(0, 4);
     const poster = movie.poster_path
-        ? `<img src="https://image.tmdb.org/t/p/w185${movie.poster_path}" alt="${esc(title)}" class="w-full h-full object-cover grayscale">`
-        : '';
+        ? `<img src="https://image.tmdb.org/t/p/w342${movie.poster_path}" alt="${esc(title)}" class="w-full h-full object-cover grayscale">`
+        : `<div class="w-full h-full flex items-center justify-center text-gray-600 text-xs px-2 text-center">${esc(title)}</div>`;
 
     const el = document.createElement('div');
-    el.className = 'graveyard-card relative flex-shrink-0 w-28 sm:w-32 cursor-pointer opacity-50 hover:opacity-80 transition-opacity group';
+    el.className = 'graveyard-card relative select-none cursor-pointer opacity-50 hover:opacity-75 active:opacity-90 transition-opacity';
     el.dataset.id = movie.id;
     el.innerHTML = `
-        <div class="aspect-[2/3] rounded-lg overflow-hidden bg-white/[0.03] relative">
-            ${poster}
-            <div class="restore-overlay absolute inset-0 bg-black/70 flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <span class="text-lg">↩</span>
-                <span class="text-xs text-gray-300">Restore</span>
+        <div class="card overflow-hidden">
+            <div class="aspect-[2/3] bg-white/[0.03] overflow-hidden relative">
+                ${poster}
+                <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-black/70 flex items-center justify-center text-xs">↩</div>
+                <div class="restore-pips absolute top-2 left-0 right-0 flex justify-center gap-1 hidden"></div>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
+                    <div class="restore-bar h-full bg-green-500 transition-all duration-300" style="width:0%"></div>
+                </div>
             </div>
-            <div class="restore-vote-bar absolute bottom-0 left-0 right-0 h-1 bg-white/10">
-                <div class="restore-bar h-full bg-green-500 transition-all duration-300" style="width:0%"></div>
+            <div class="p-2">
+                <div class="text-xs font-medium text-gray-400 truncate">${esc(title)}</div>
+                ${movie.vote_average ? `<div class="text-xs text-gray-600 mt-0.5">★ ${Number(movie.vote_average).toFixed(1)}</div>` : ''}
+                ${year ? `<div class="text-xs text-gray-600 mt-0.5">${year}</div>` : ''}
             </div>
-        </div>
-        <div class="text-xs text-gray-500 truncate mt-1 text-center">${esc(title)}</div>`;
+        </div>`;
 
     document.getElementById('graveyard-grid').appendChild(el);
     document.getElementById('graveyard-section').classList.remove('hidden');
@@ -377,23 +403,31 @@ function updateAllVoteBars() {
         const pct        = pCount > 0 ? Math.round((votes / vetoNeeded) * 100) : 0;
         const iVoted     = voters.includes(myId);
         const bar        = card.querySelector('.vote-bar');
-        const pips       = card.querySelector('.vote-pips');
         const heat       = card.querySelector('.vote-heat');
         const votedOvl   = card.querySelector('.voted-overlay');
         const voteTarget = card.querySelector('.vote-target');
 
         if (bar) bar.style.width = Math.min(pct, 100) + '%';
 
-        // Pip dots — one per required vote, filled red if voted
-        if (pips) {
-            if (votes > 0 || vetoNeeded <= 4) {
-                pips.classList.remove('hidden');
-                pips.innerHTML = Array.from({ length: vetoNeeded }, (_, i) =>
-                    `<span class="w-2 h-2 rounded-full border border-white/40 transition-colors duration-200
-                        ${i < votes ? 'bg-red-500 border-red-500' : 'bg-white/10'}"></span>`
-                ).join('');
+        // Vote info row in card info section
+        const voteInfo    = card.querySelector('.vote-info');
+        const voteAvatars = card.querySelector('.vote-avatars');
+        const voteCount   = card.querySelector('.vote-count');
+        if (voteInfo) {
+            if (votes > 0) {
+                voteInfo.classList.remove('hidden');
+                const visible = voters.slice(0, 3);
+                const overflow = voters.length - visible.length;
+                voteAvatars.innerHTML = visible.map(vid => {
+                    const p       = state.participants.find(p => p.userId === vid);
+                    const initial = p ? p.name.slice(0, 1).toUpperCase() : '?';
+                    const isMe    = vid === myId;
+                    return `<span class="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white ring-1 ring-black
+                        ${isMe ? 'bg-accent' : 'bg-red-500'}" title="${p ? esc(p.name) : ''}">${initial}</span>`;
+                }).join('') + (overflow > 0 ? `<span class="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white bg-white/20 ring-1 ring-black">+${overflow}</span>` : '');
+                voteCount.textContent = `${votes}/${vetoNeeded} to veto`;
             } else {
-                pips.classList.add('hidden');
+                voteInfo.classList.add('hidden');
             }
         }
 
@@ -413,10 +447,31 @@ function updateAllVoteBars() {
     // Graveyard
     document.querySelectorAll('.graveyard-card').forEach(card => {
         const movieId = String(card.dataset.id);
-        const votes   = (state.restoreVotes[movieId] || []).length;
+        const voters  = state.restoreVotes[movieId] || [];
+        const votes   = voters.length;
         const pct     = pCount > 0 ? Math.round((votes / vetoNeeded) * 100) : 0;
         const bar     = card.querySelector('.restore-bar');
+        const pips    = card.querySelector('.restore-pips');
         if (bar) bar.style.width = Math.min(pct, 100) + '%';
+
+        if (pips) {
+            if (votes > 0) {
+                pips.classList.remove('hidden');
+                pips.innerHTML = Array.from({ length: vetoNeeded }, (_, i) => {
+                    if (i < votes) {
+                        const vid     = voters[i];
+                        const p       = state.participants.find(p => p.userId === vid);
+                        const initial = p ? p.name.slice(0, 1).toUpperCase() : '✓';
+                        const isMe    = vid === myId;
+                        return `<span class="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white
+                            ${isMe ? 'bg-accent' : 'bg-green-500'}" title="${p ? p.name : ''}">${initial}</span>`;
+                    }
+                    return `<span class="w-4 h-4 rounded-full border border-white/20 bg-white/5"></span>`;
+                }).join('');
+            } else {
+                pips.classList.add('hidden');
+            }
+        }
     });
 
     // Update threshold info
@@ -469,11 +524,11 @@ function updateParticipants() {
 
 // ── Ready button ──────────────────────────────────────────────────────
 function updateReadyButton() {
-    const btn     = document.getElementById('ready-btn');
-    const countEl = document.getElementById('ready-count');
-    const pCount  = activeParticipantCount();
-    const needed  = readyThreshold(pCount);
-    const iReady  = state.ready.includes(myId);
+    const btn    = document.getElementById('ready-btn');
+    const pCount = activeParticipantCount();
+    const needed = readyThreshold(pCount);
+    const iReady = state.ready.includes(myId);
+    const isDeciding = !iReady && state.ready.length === needed - 1;
 
     btn.textContent = iReady ? 'Unready' : 'Ready to Roll';
     const span = document.createElement('span');
@@ -482,6 +537,7 @@ function updateReadyButton() {
     btn.appendChild(span);
     btn.classList.toggle('btn-secondary', iReady);
     btn.classList.toggle('btn-accent', !iReady);
+    btn.classList.toggle('animate-pulse', isDeciding);
 }
 
 // ── Refresh button ────────────────────────────────────────────────────
@@ -540,6 +596,9 @@ function showWinner(movie) {
     document.getElementById('winner-title').textContent = title;
     document.getElementById('winner-rating').textContent = movie.vote_average
         ? `★ ${Number(movie.vote_average).toFixed(1)}` : '';
+    const year = (movie.release_date || movie.first_air_date || '').slice(0, 4);
+    const meta = [year, movie.genres].filter(Boolean).join(' · ');
+    document.getElementById('winner-meta').textContent = meta;
     document.getElementById('winner-details-link').href = url;
     document.getElementById('winner-overlay').classList.remove('hidden');
     confetti();
@@ -583,6 +642,22 @@ function confetti() {
 function esc(s) {
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 }
+
+// ── Tap to skip hint ──────────────────────────────────────────────────
+if (!localStorage.getItem('collab_hint_seen')) {
+    const firstCard = document.querySelector('.collab-card .vote-target');
+    if (firstCard) {
+        const hint = document.createElement('div');
+        hint.className = 'absolute inset-0 flex items-center justify-center bg-black/50 pointer-events-none z-10';
+        hint.innerHTML = '<span class="text-white text-xs font-medium bg-black/60 px-2 py-1 rounded-full">Tap to skip</span>';
+        firstCard.appendChild(hint);
+        setTimeout(() => hint.remove(), 3000);
+    }
+}
+
+document.getElementById('collab-grid').addEventListener('click', () => {
+    localStorage.setItem('collab_hint_seen', '1');
+}, { once: true });
 
 // ── Init ──────────────────────────────────────────────────────────────
 updateParticipants();
