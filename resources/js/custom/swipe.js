@@ -16,7 +16,8 @@ let liked      = JSON.parse(localStorage.getItem('swipe_liked') || '[]');
 let fetching   = false;
 let animating  = false;
 const isLoggedIn = window.swipeLoggedIn;
-const THRESHOLD  = 90;
+const THRESHOLD     = 90;
+const VEL_THRESHOLD = 0.3; // px/ms — fast flick triggers even if distance is short
 
 function saveSession() {
     sessionStorage.setItem(SESSION_KEY, JSON.stringify({ queue, seenPages }));
@@ -170,15 +171,16 @@ function getTopCard() {
 function attachDrag(card) {
     if (card.dataset.dragAttached) return;
     card.dataset.dragAttached = '1';
-    let startX = 0, startY = 0, dx = 0;
+    let startX = 0, startY = 0, dx = 0, startTime = 0;
     let active = false;
 
     const onStart = (e) => {
         if (animating) return;
         active = true;
         const pt = e.touches ? e.touches[0] : e;
-        startX = pt.clientX;
-        startY = pt.clientY;
+        startX   = pt.clientX;
+        startY   = pt.clientY;
+        startTime = Date.now();
         card.style.transition = 'none';
     };
 
@@ -207,7 +209,10 @@ function attachDrag(card) {
         overlayLike.style.opacity = 0;
         overlaySkip.style.opacity = 0;
 
-        if (Math.abs(dx) >= THRESHOLD) {
+        const velocity = Math.abs(dx) / Math.max(Date.now() - startTime, 1);
+        const isFlick  = velocity > VEL_THRESHOLD && Math.abs(dx) > 20;
+
+        if (Math.abs(dx) >= THRESHOLD || isFlick) {
             dx > 0 ? triggerLike(card) : triggerSkip(card);
         } else {
             // Snap back
