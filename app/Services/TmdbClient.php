@@ -86,7 +86,8 @@ class TmdbClient implements ApiMovie
         }
 
         if (isset($input['with_watch_providers'])) {
-            $input['watch_region'] = $country;
+            $input['watch_region']                  = $country;
+            $input['with_watch_monetization_types'] = 'flatrate|free|ads|rent|buy';
         }
 
         $url = 'https://api.themoviedb.org/3/discover/movie?' . http_build_query($input);
@@ -274,7 +275,8 @@ class TmdbClient implements ApiMovie
         }
 
         if (isset($input['with_watch_providers'])) {
-            $input['watch_region'] = $country;
+            $input['watch_region']                  = $country;
+            $input['with_watch_monetization_types'] = 'flatrate|free|ads|rent|buy';
         }
 
         $url = 'https://api.themoviedb.org/3/discover/tv?' . http_build_query($input);
