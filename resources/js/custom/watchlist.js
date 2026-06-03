@@ -494,6 +494,7 @@ $(document).ready(function () {
                 title:  card.dataset.title || '',
                 year:   card.dataset.year || '',
                 rating: card.dataset.rating || '',
+                genres: card.dataset.genres || '',
                 poster: img ? img.src : '',
                 href,
                 el:     card,
@@ -522,6 +523,7 @@ $(document).ready(function () {
                         ${item.rating ? `<span class="text-sm text-gray-300">★ ${Number(item.rating).toFixed(1)}</span>` : ''}
                         <span class="text-xs bg-white/15 text-white/80 px-2 py-0.5 rounded-full">${item.type === 'tv' ? 'TV' : 'Film'}</span>
                     </div>
+                    ${item.genres ? `<div class="flex flex-wrap gap-1 mt-2">${item.genres.split(',').map(g => g.trim()).filter(Boolean).map(g => `<span class="text-xs bg-white/15 text-white/80 px-2 py-0.5 rounded-full">${g}</span>`).join('')}</div>` : ''}
                 </div>
             </div>`;
         return el;
