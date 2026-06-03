@@ -165,16 +165,10 @@
             {{-- Streaming --}}
             @if ($watchProviders != null)
                 @php
-                    $title     = $tmdbInfo->title ?? $omdbInfo->Title ?? '';
-                    $year      = substr($tmdbInfo->release_date ?? '', 0, 4);
-                    $jwUrl     = 'https://www.justwatch.com/' . strtolower($country) . '/search?q=' . urlencode($title);
-                    $amzTag    = config('api.amazon_affiliate_tag');
-                    $allProviders = collect($watchProviders->flatrate ?? [])
-                        ->merge($watchProviders->ads ?? [])
-                        ->merge($watchProviders->free ?? [])
-                        ->merge($watchProviders->buy ?? [])
-                        ->merge($watchProviders->rent ?? [])
-                        ->unique('provider_id');
+                    $title  = $tmdbInfo->title ?? $omdbInfo->Title ?? '';
+                    $year   = substr($tmdbInfo->release_date ?? '', 0, 4);
+                    $jwUrl  = 'https://www.justwatch.com/' . strtolower($country) . '/search?q=' . urlencode($title);
+                    $amzTag = config('api.amazon_affiliate_tag');
 
                     function movieProviderUrl($name, $title, $year, $jwUrl, $amzTag) {
                         $n = strtolower($name);
@@ -183,15 +177,32 @@
                         }
                         return $jwUrl;
                     }
+
+                    $providerGroups = [
+                        'Streaming'    => collect($watchProviders->flatrate ?? []),
+                        'Free'         => collect($watchProviders->free ?? []),
+                        'Free with Ads'=> collect($watchProviders->ads ?? []),
+                        'Rent'         => collect($watchProviders->rent ?? []),
+                        'Buy'          => collect($watchProviders->buy ?? []),
+                    ];
                 @endphp
-                <div class="flex items-center gap-2 flex-wrap">
-                    @foreach($allProviders as $stream)
-                        <a href="{{ movieProviderUrl($stream->provider_name, $title, $year, $jwUrl, $amzTag) }}"
-                           target="_blank" rel="noopener"
-                           title="{{ $stream->provider_name }}">
-                            <img src="https://image.tmdb.org/t/p/w45{{ $stream->logo_path }}"
-                                class="h-8 w-8 rounded-md border border-white/10 hover:border-white/30 transition-colors">
-                        </a>
+                <div class="flex flex-col gap-2">
+                    @foreach($providerGroups as $label => $providers)
+                        @if($providers->isNotEmpty())
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-xs text-gray-500 w-20 flex-shrink-0">{{ $label }}</span>
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                @foreach($providers as $stream)
+                                <a href="{{ movieProviderUrl($stream->provider_name, $title, $year, $jwUrl, $amzTag) }}"
+                                   target="_blank" rel="noopener"
+                                   title="{{ $stream->provider_name }}">
+                                    <img src="https://image.tmdb.org/t/p/w45{{ $stream->logo_path }}"
+                                        class="h-8 w-8 rounded-md border border-white/10 hover:border-white/30 transition-colors">
+                                </a>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
                     @endforeach
                 </div>
             @endif
