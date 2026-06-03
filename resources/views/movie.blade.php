@@ -165,25 +165,41 @@
             {{-- Streaming --}}
             @if ($watchProviders != null)
                 @php
-                    $title  = $tmdbInfo->title ?? $omdbInfo->Title ?? '';
-                    $year   = substr($tmdbInfo->release_date ?? '', 0, 4);
-                    $jwUrl  = 'https://www.justwatch.com/' . strtolower($country) . '/search?q=' . urlencode($title);
-                    $amzTag = config('api.amazon_affiliate_tag');
+                    $title    = $tmdbInfo->title ?? $omdbInfo->Title ?? '';
+                    $year     = substr($tmdbInfo->release_date ?? '', 0, 4);
+                    $tmdbLink = $watchProviders->link ?? null;
+                    $jwSearch = mb_strlen($title) >= 5
+                        ? 'https://www.justwatch.com/' . strtolower($country) . '/search?q=' . urlencode($title)
+                        : null;
+                    $amzTag   = config('api.amazon_affiliate_tag');
 
-                    function movieProviderUrl($name, $title, $year, $jwUrl, $amzTag) {
-                        $n = strtolower($name);
-                        if (str_contains($n, 'amazon') && $amzTag) {
+                    // Reliable deep-link URLs by TMDB provider ID
+                    $providerLinks = [
+                        8   => 'https://www.netflix.com/search?q=' . urlencode($title),
+                        175 => 'https://www.netflix.com/search?q=' . urlencode($title),
+                        337 => 'https://www.disneyplus.com/search/' . urlencode($title),
+                        350 => 'https://tv.apple.com/search?term=' . urlencode($title),
+                        2   => 'https://tv.apple.com/search?term=' . urlencode($title),
+                        3   => 'https://play.google.com/store/search?q=' . urlencode($title) . '&c=movies',
+                        283 => 'https://www.crunchyroll.com/search?q=' . urlencode($title),
+                        11  => 'https://mubi.com/search/' . urlencode($title),
+                        538 => 'https://app.plex.tv/desktop/#!/search?query=' . urlencode($title),
+                    ];
+
+                    // Amazon affiliate by name (covers both provider IDs)
+                    $resolveProviderUrl = function($id, $name) use ($providerLinks, $title, $year, $amzTag, $jwSearch, $tmdbLink) {
+                        if (str_contains(strtolower($name), 'amazon') && $amzTag) {
                             return 'https://www.amazon.com/s?k=' . urlencode($title . ' ' . $year) . '&i=instant-video&tag=' . $amzTag;
                         }
-                        return $jwUrl;
-                    }
+                        return $providerLinks[$id] ?? $jwSearch ?? $tmdbLink;
+                    };
 
                     $providerGroups = [
-                        'Streaming'    => collect($watchProviders->flatrate ?? []),
-                        'Free'         => collect($watchProviders->free ?? []),
-                        'Free with Ads'=> collect($watchProviders->ads ?? []),
-                        'Rent'         => collect($watchProviders->rent ?? []),
-                        'Buy'          => collect($watchProviders->buy ?? []),
+                        'Streaming'     => collect($watchProviders->flatrate ?? []),
+                        'Free'          => collect($watchProviders->free ?? []),
+                        'Free with Ads' => collect($watchProviders->ads ?? []),
+                        'Rent'          => collect($watchProviders->rent ?? []),
+                        'Buy'           => collect($watchProviders->buy ?? []),
                     ];
                 @endphp
                 <div class="flex flex-col gap-2">
@@ -193,12 +209,17 @@
                             <span class="text-xs text-gray-500 w-20 flex-shrink-0">{{ $label }}</span>
                             <div class="flex items-center gap-1.5 flex-wrap">
                                 @foreach($providers as $stream)
-                                <a href="{{ movieProviderUrl($stream->provider_name, $title, $year, $jwUrl, $amzTag) }}"
-                                   target="_blank" rel="noopener"
-                                   title="{{ $stream->provider_name }}">
+                                @php $url = $resolveProviderUrl($stream->provider_id, $stream->provider_name); @endphp
+                                @if($url)
+                                <a href="{{ $url }}" target="_blank" rel="noopener" title="{{ $stream->provider_name }}">
                                     <img src="https://image.tmdb.org/t/p/w45{{ $stream->logo_path }}"
                                         class="h-8 w-8 rounded-md border border-white/10 hover:border-white/30 transition-colors">
                                 </a>
+                                @else
+                                <img src="https://image.tmdb.org/t/p/w45{{ $stream->logo_path }}"
+                                    class="h-8 w-8 rounded-md border border-white/10 opacity-60"
+                                    title="{{ $stream->provider_name }}">
+                                @endif
                                 @endforeach
                             </div>
                         </div>
