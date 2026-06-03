@@ -154,25 +154,36 @@
                     $year   = substr($tmdbInfo->first_air_date ?? '', 0, 4);
                     $jwUrl  = 'https://www.justwatch.com/' . strtolower($country) . '/search?q=' . urlencode($title);
                     $amzTag = config('api.amazon_affiliate_tag');
-                    $allProviders = collect($watchProviders->flatrate ?? [])
-                        ->merge($watchProviders->ads ?? [])
-                        ->merge($watchProviders->free ?? [])
-                        ->merge($watchProviders->buy ?? [])
-                        ->merge($watchProviders->rent ?? [])
-                        ->unique('provider_id');
+
+                    $tvProviderGroups = [
+                        'Streaming'     => collect($watchProviders->flatrate ?? []),
+                        'Free'          => collect($watchProviders->free ?? []),
+                        'Free with Ads' => collect($watchProviders->ads ?? []),
+                        'Rent'          => collect($watchProviders->rent ?? []),
+                        'Buy'           => collect($watchProviders->buy ?? []),
+                    ];
                 @endphp
-                <div class="flex items-center gap-2 flex-wrap">
-                    @foreach($allProviders as $stream)
-                        @php
-                            $n = strtolower($stream->provider_name);
-                            $href = (str_contains($n, 'amazon') && $amzTag)
-                                ? 'https://www.amazon.com/s?k=' . urlencode($title . ' ' . $year) . '&i=instant-video&tag=' . $amzTag
-                                : $jwUrl;
-                        @endphp
-                        <a href="{{ $href }}" target="_blank" rel="noopener" title="{{ $stream->provider_name }}">
-                            <img src="https://image.tmdb.org/t/p/w45{{ $stream->logo_path }}"
-                                class="h-8 w-8 rounded-md border border-white/10 hover:border-white/30 transition-colors">
-                        </a>
+                <div class="flex flex-col gap-2">
+                    @foreach($tvProviderGroups as $label => $providers)
+                        @if($providers->isNotEmpty())
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-xs text-gray-500 w-20 flex-shrink-0">{{ $label }}</span>
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                @foreach($providers as $stream)
+                                @php
+                                    $n = strtolower($stream->provider_name);
+                                    $href = (str_contains($n, 'amazon') && $amzTag)
+                                        ? 'https://www.amazon.com/s?k=' . urlencode($title . ' ' . $year) . '&i=instant-video&tag=' . $amzTag
+                                        : $jwUrl;
+                                @endphp
+                                <a href="{{ $href }}" target="_blank" rel="noopener" title="{{ $stream->provider_name }}">
+                                    <img src="https://image.tmdb.org/t/p/w45{{ $stream->logo_path }}"
+                                        class="h-8 w-8 rounded-md border border-white/10 hover:border-white/30 transition-colors">
+                                </a>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
                     @endforeach
                 </div>
             @endif
