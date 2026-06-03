@@ -16,15 +16,24 @@ CookieConsent.run({
         if (CookieConsent.acceptedCategory('analytics')) {
             gtag('consent', 'update', { analytics_storage: 'granted' });
         }
+        if (window.showAdConsent && CookieConsent.acceptedCategory('advertising')) {
+            gtag('consent', 'update', { ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted' });
+        }
     },
 
     onChange: ({ changedCategories }) => {
         if (changedCategories.includes('analytics')) {
-            if (CookieConsent.acceptedCategory('analytics')) {
-                gtag('consent', 'update', { analytics_storage: 'granted' });
-            } else {
-                gtag('consent', 'update', { analytics_storage: 'denied' });
-            }
+            gtag('consent', 'update', {
+                analytics_storage: CookieConsent.acceptedCategory('analytics') ? 'granted' : 'denied',
+            });
+        }
+        if (window.showAdConsent && changedCategories.includes('advertising')) {
+            const granted = CookieConsent.acceptedCategory('advertising');
+            gtag('consent', 'update', {
+                ad_storage:          granted ? 'granted' : 'denied',
+                ad_user_data:        granted ? 'granted' : 'denied',
+                ad_personalization:  granted ? 'granted' : 'denied',
+            });
         }
     },
 
@@ -42,6 +51,14 @@ CookieConsent.run({
                 ],
             },
         },
+        ...(window.showAdConsent ? {
+            advertising: {
+                enabled: false,
+                autoClear: {
+                    cookies: [{ name: /^_gcl/ }],
+                },
+            },
+        } : {}),
     },
 
     language: {
@@ -71,6 +88,11 @@ CookieConsent.run({
                             description: 'Google Analytics (GA4) helps us understand which features are used and how people navigate the site. No personal data is sold or shared.',
                             linkedCategory: 'analytics',
                         },
+                        ...(window.showAdConsent ? [{
+                            title: 'Advertising cookies',
+                            description: 'Used to show relevant ads via Google AdSense. Declining means you may still see ads but they won\'t be personalised.',
+                            linkedCategory: 'advertising',
+                        }] : []),
                     ],
                 },
             },

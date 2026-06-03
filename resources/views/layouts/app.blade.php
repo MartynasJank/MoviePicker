@@ -34,12 +34,20 @@
             'preview_all',  'live_all'   => true,
             default                       => false,
         };
-        $liveAds   = $showAds && in_array($adsMode, ['live_admin', 'live_all']);
+        $liveAds    = $showAds && in_array($adsMode, ['live_admin', 'live_all']);
         $previewAds = $showAds && in_array($adsMode, ['preview_admin', 'preview_all']);
+        $showAdConsent = $liveAds;
     @endphp
     @if($liveAds)
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
     @endif
+    <script>
+        window.showAdConsent = {{ $showAdConsent ? 'true' : 'false' }};
+        // Default deny ad_storage — only granted if user consents and live ads are on
+        if (window.showAdConsent) {
+            gtag('consent', 'default', { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
+        }
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/custom/watchlist.js', 'resources/js/custom/search.js', 'resources/js/custom/roulettes.js', 'resources/js/custom/cookieConsent.js'])
     @yield('scripts', '')
 </head>
