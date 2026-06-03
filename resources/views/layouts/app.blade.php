@@ -176,7 +176,6 @@
                         <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
                     </a>
                     <a href="/criteria" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors">Filters</a>
-                    <a href="/roulettes" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors">Roulettes</a>
                 </div>
             </div>
 
@@ -196,9 +195,14 @@
                         <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
                     </a>
                     <a href="/tv/criteria" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors">Filters</a>
-                    <a href="/roulettes?tab=tv" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors">Roulettes</a>
                 </div>
             </div>
+
+            {{-- Roulettes --}}
+            <a href="/roulettes" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold text-white hover:bg-white/5 transition-colors">
+                Roulettes
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+            </a>
 
             {{-- Account --}}
             <div class="h-px bg-white/5 my-2"></div>
@@ -217,19 +221,21 @@
                     </div>
                 </div>
 
+                <a href="{{ route('watchlist') }}" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">Watchlist</a>
+                <a href="{{ route('my-roulettes.index') }}" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">My Roulettes</a>
                 @if(auth()->user()->email === config('api.admin_email'))
                     <a href="{{ route('admin.dashboard') }}" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-red-400 hover:text-red-300 hover:bg-red-500/5 transition-colors">Admin</a>
+                @endif
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="w-full text-left px-4 py-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors">Sign out</button>
+                </form>
+                @if(auth()->user()->email === config('api.admin_email'))
                     <button id="debug-toggle-btn-mobile" class="w-full text-left px-4 py-3 rounded-xl text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-colors flex items-center justify-between">
                         Debug mode
                         <span id="debug-toggle-indicator-mobile" class="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10">off</span>
                     </button>
                 @endif
-                <a href="{{ route('watchlist') }}" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">Watchlist</a>
-                <a href="{{ route('my-roulettes.index') }}" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">My Roulettes</a>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="w-full text-left px-4 py-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors">Sign out</button>
-                </form>
             @else
                 @if(app()->environment('local'))
                     <a href="/dev/login" class="flex items-center justify-between px-4 py-3.5 rounded-xl bg-yellow-500/10 border border-yellow-500/20 hover:bg-yellow-500/20 text-sm text-yellow-400 font-medium transition-colors">
