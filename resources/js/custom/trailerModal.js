@@ -1,4 +1,6 @@
 import TomSelect from 'tom-select';
+import jq from 'jquery';
+window.jQuery = window.jQuery || jq;   // flexdatalist expects a global jQuery
 import 'jquery-flexdatalist/jquery.flexdatalist.min';
 
 $(document).ready(function () {
