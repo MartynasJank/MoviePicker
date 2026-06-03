@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('hide_ads', '1')
 @section('page_title', 'Movie Swipe — MoviePickr')
 @section('scripts')
     @vite(['resources/js/custom/criteriaForm.js', 'resources/js/custom/swipe.js'])
