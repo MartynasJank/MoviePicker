@@ -21,11 +21,39 @@
     @endif
 
     {{-- Header row --}}
-    <div class="flex items-center justify-between gap-4 mb-6 flex-wrap">
-        <div>
-            <h1 class="text-2xl font-bold text-white">{{ $tag ?? ($isTv ? 'TV Batch' : 'Movie Batch') }}</h1>
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-white mb-3">{{ $tag ?? ($isTv ? 'TV Batch' : 'Movie Batch') }}</h1>
+
+        {{-- Mobile: btn-nav-tab row --}}
+        <div class="flex gap-2 sm:hidden">
+            @if(isset($shareToken) && empty($isShared))
+            <button type="button" class="btn-nav-tab"
+                data-share
+                data-share-url="{{ url('/batch/share/'.$shareToken) }}"
+                data-share-title="{{ $tag ?? 'Shared Batch' }} — MoviePickr">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+                Share
+            </button>
+            @endif
+            @auth
+            @if(isset($shareToken))
+            <button type="button" id="collab-start-btn-m" class="btn-nav-tab"
+                data-media-type="{{ $mediaType ?? 'movie' }}">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+                Together
+            </button>
+            @endif
+            @endauth
+            @auth
+            <button type="button" id="save-roulette-btn-m" class="btn-nav-tab">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+                Roulette
+            </button>
+            @endauth
         </div>
-        <div class="flex items-center gap-2">
+
+        {{-- Desktop: text buttons --}}
+        <div class="hidden sm:flex items-center gap-2">
             @if(isset($shareToken) && empty($isShared))
             <button type="button" class="btn-secondary text-sm"
                 data-share
@@ -115,8 +143,35 @@
 </div>
 
 {{-- Sticky bottom bar --}}
-<div class="fixed bottom-0 left-0 right-0 bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 px-4 z-40 sticky-bar-safe">
-    <div class="max-w-7xl mx-auto flex items-center justify-end gap-3">
+<div class="fixed bottom-0 left-0 right-0 bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 z-40 sticky-bar-safe">
+
+    {{-- Mobile --}}
+    <div class="md:hidden flex px-3 py-1.5 gap-2">
+        @if(empty($isShared))
+            @if(isset($providersArray) && isset($all_genres))
+            <button type="button" class="btn-nav-tab" data-modal-open="modal-form">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M7 12h10M11 18h2"/></svg>
+                Filters
+            </button>
+            @endif
+            <a href="{{ Request::url() }}" class="btn-nav-tab">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                New
+            </a>
+            <button id="batch-roll-btn-m" class="btn-nav-tab accent" data-media-type="{{ $isTv ? 'tv' : 'movie' }}">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+                Roll
+            </button>
+        @else
+            <button id="shared-batch-roll-btn-m" class="btn-nav-tab accent" data-media-type="{{ $isTv ? 'tv' : 'movie' }}">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+                Roll
+            </button>
+        @endif
+    </div>
+
+    {{-- Desktop --}}
+    <div class="hidden md:flex max-w-7xl mx-auto px-4 items-center justify-end gap-3">
         @if(isset($providersArray) && isset($all_genres) && empty($isShared))
             <button type="button" class="btn-secondary flex-1 sm:flex-none" data-modal-open="modal-form">Filters</button>
         @endif
@@ -127,6 +182,13 @@
             <button id="shared-batch-roll-btn" class="btn-accent flex-1 sm:flex-none" data-media-type="{{ $isTv ? 'tv' : 'movie' }}">Roll</button>
         @endif
     </div>
+
 </div>
+<script>
+document.getElementById('batch-roll-btn-m')?.addEventListener('click',()=>document.getElementById('batch-roll-btn').click());
+document.getElementById('shared-batch-roll-btn-m')?.addEventListener('click',()=>document.getElementById('shared-batch-roll-btn').click());
+document.getElementById('collab-start-btn-m')?.addEventListener('click',()=>document.getElementById('collab-start-btn').click());
+document.getElementById('save-roulette-btn-m')?.addEventListener('click',()=>document.getElementById('save-roulette-btn').click());
+</script>
 
 @endsection
