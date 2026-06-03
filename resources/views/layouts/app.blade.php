@@ -26,7 +26,6 @@
         gtag('config', 'G-RH8D2TSYJJ');
     </script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-RH8D2TSYJJ"></script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2474116357747084" crossorigin="anonymous"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/custom/watchlist.js', 'resources/js/custom/search.js', 'resources/js/custom/roulettes.js', 'resources/js/custom/cookieConsent.js'])
     @yield('scripts', '')
 </head>
