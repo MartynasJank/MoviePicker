@@ -155,6 +155,8 @@
                     $jwUrl  = 'https://www.justwatch.com/' . strtolower($country) . '/search?q=' . urlencode($title);
                     $amzTag = config('api.amazon_affiliate_tag');
                     $allProviders = collect($watchProviders->flatrate ?? [])
+                        ->merge($watchProviders->ads ?? [])
+                        ->merge($watchProviders->free ?? [])
                         ->merge($watchProviders->buy ?? [])
                         ->merge($watchProviders->rent ?? [])
                         ->unique('provider_id');
