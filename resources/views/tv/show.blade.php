@@ -458,9 +458,48 @@
 </div>
 
 {{-- Sticky bottom bar --}}
-<div class="fixed bottom-0 left-0 right-0 bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 px-4 z-40 sticky-bar-safe">
-    <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
-        {{-- Back button --}}
+<div class="fixed bottom-0 left-0 right-0 bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 z-40 sticky-bar-safe">
+
+    {{-- Mobile --}}
+    <div class="md:hidden flex px-3 py-1.5 gap-2">
+        @if(request()->query('wl_status'))
+            <a href="{{ route('watchlist') }}" class="btn-nav-tab">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                Watchlist
+            </a>
+            <button id="wl-roll-btn-m" class="btn-nav-tab accent">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+                Roll
+            </button>
+        @else
+            @if($batchUrl)
+            <a href="{{ $batchUrl }}" class="btn-nav-tab js-back-roulettes">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                Batch
+            </a>
+            @endif
+            @if(!session('tvPersonRollIds'))
+            <button type="button" class="btn-nav-tab js-criteria-btn" data-modal-open="modal-form">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M7 12h10M11 18h2"/></svg>
+                Filters
+            </button>
+            @endif
+            @if(session('tvPersonRollIds'))
+                <a href="{{ route('person.roll.tv.next') }}" class="btn-nav-tab accent">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+                    Roll
+                </a>
+            @else
+                <a href="/tv/pick" class="btn-nav-tab accent" data-roll="tv-criteria">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+                    Roll
+                </a>
+            @endif
+        @endif
+    </div>
+
+    {{-- Desktop --}}
+    <div class="hidden md:flex max-w-7xl mx-auto px-4 items-center justify-between gap-3">
         <div class="flex-shrink-0">
             @if(request()->query('wl_status'))
                 <a href="{{ route('watchlist') }}" class="btn-secondary text-center">← Watchlist</a>
@@ -468,7 +507,6 @@
                 <a href="{{ $batchUrl ?? '#' }}" class="btn-secondary text-center js-back-roulettes {{ $batchUrl ? '' : 'hidden' }}">← Batch</a>
             @endif
         </div>
-        {{-- Right actions --}}
         <div class="flex items-center gap-3">
             @if(!request()->query('wl_status') && !session('tvPersonRollIds'))
                 <button type="button" class="btn-secondary js-criteria-btn" data-modal-open="modal-form">Filters</button>
@@ -482,7 +520,11 @@
             @endif
         </div>
     </div>
+
 </div>
+@if(request()->query('wl_status'))
+<script>document.getElementById('wl-roll-btn-m')?.addEventListener('click',()=>document.getElementById('wl-roll-btn').click());</script>
+@endif
 
 @if(request()->query('wl_status'))
 <script>

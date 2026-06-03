@@ -149,14 +149,32 @@
 </div>
 
 {{-- Sticky bottom bar --}}
-<div class="fixed bottom-0 left-0 right-0 bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 px-4 py-3 z-40">
-    <div class="max-w-2xl mx-auto flex items-center justify-between gap-2">
-        <button type="button" id="btn-reset-mobile" class="btn-secondary text-sm px-4 sm:hidden flex-shrink-0">Reset</button>
-        <div class="flex items-center gap-2 sm:ml-auto">
-            <button type="submit" form="criteria" formaction="/multiple" class="btn-secondary long-single flex-1 sm:flex-none text-center">Multiple</button>
-            <button type="submit" form="criteria" formaction="/movie" class="btn-accent long-single flex-1 sm:flex-none text-center">Find Movie</button>
+<div class="fixed bottom-0 left-0 right-0 bg-[#0f0f0f]/95 backdrop-blur-lg border-t border-white/10 z-40 sticky-bar-safe">
+
+    {{-- Mobile --}}
+    <div class="md:hidden flex px-3 py-1.5 gap-2">
+        <button type="button" id="btn-reset-mobile" class="btn-nav-tab">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Reset
+        </button>
+        <button type="submit" form="criteria" formaction="/multiple" class="btn-nav-tab">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            Multiple
+        </button>
+        <button type="submit" form="criteria" formaction="/movie" class="btn-nav-tab accent">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+            Find Movie
+        </button>
+    </div>
+
+    {{-- Desktop --}}
+    <div class="hidden md:flex max-w-2xl mx-auto px-4 py-3 items-center justify-between gap-2">
+        <div class="flex items-center gap-2 ml-auto">
+            <button type="submit" form="criteria" formaction="/multiple" class="btn-secondary long-single flex-none text-center">Multiple</button>
+            <button type="submit" form="criteria" formaction="/movie" class="btn-accent long-single flex-none text-center">Find Movie</button>
         </div>
     </div>
+
 </div>
 
 @endsection
