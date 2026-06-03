@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="description" content="@yield('meta_description', 'Pick a random movie or TV show filtered by genre, streaming service, or mood. Or just hit roll and let it decide.')">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name='impact-site-verification' value='094b4ade-b891-4274-a148-5f84edce1fd8'>
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:site_name" content="MoviePickr">
