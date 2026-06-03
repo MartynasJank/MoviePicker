@@ -164,10 +164,29 @@
 
             {{-- Streaming --}}
             @if ($watchProviders != null)
-                @php $jwUrl = 'https://www.justwatch.com/' . strtolower($country) . '/search?q=' . urlencode($tmdbInfo->title ?? $omdbInfo->Title); @endphp
+                @php
+                    $title     = $tmdbInfo->title ?? $omdbInfo->Title ?? '';
+                    $year      = substr($tmdbInfo->release_date ?? '', 0, 4);
+                    $jwUrl     = 'https://www.justwatch.com/' . strtolower($country) . '/search?q=' . urlencode($title);
+                    $amzTag    = config('api.amazon_affiliate_tag');
+                    $allProviders = collect($watchProviders->flatrate ?? [])
+                        ->merge($watchProviders->buy ?? [])
+                        ->merge($watchProviders->rent ?? [])
+                        ->unique('provider_id');
+
+                    function movieProviderUrl($name, $title, $year, $jwUrl, $amzTag) {
+                        $n = strtolower($name);
+                        if (str_contains($n, 'amazon') && $amzTag) {
+                            return 'https://www.amazon.com/s?k=' . urlencode($title . ' ' . $year) . '&i=instant-video&tag=' . $amzTag;
+                        }
+                        return $jwUrl;
+                    }
+                @endphp
                 <div class="flex items-center gap-2 flex-wrap">
-                    @foreach($watchProviders->flatrate as $stream)
-                        <a href="{{ $jwUrl }}" target="_blank" title="Find on JustWatch">
+                    @foreach($allProviders as $stream)
+                        <a href="{{ movieProviderUrl($stream->provider_name, $title, $year, $jwUrl, $amzTag) }}"
+                           target="_blank" rel="noopener"
+                           title="{{ $stream->provider_name }}">
                             <img src="https://image.tmdb.org/t/p/w45{{ $stream->logo_path }}"
                                 class="h-8 w-8 rounded-md border border-white/10 hover:border-white/30 transition-colors">
                         </a>
@@ -204,7 +223,7 @@
     </div>
 
     @if ($watchProviders != null)
-        <p class="text-xs text-gray-600 mb-6">Streaming availability by JustWatch. Links open JustWatch search for your region.</p>
+        <p class="text-xs text-gray-600 mb-6">Streaming availability by JustWatch. Amazon links are affiliate links — we may earn a small commission at no extra cost to you.</p>
     @endif
 
     {{-- Info cards --}}
