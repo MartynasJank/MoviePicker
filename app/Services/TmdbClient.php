@@ -40,11 +40,14 @@ class TmdbClient implements ApiMovie
             $input['with_original_language'] = 'en';
         }
 
-        // Implode array values to comma-separated strings
-        foreach (['with_genres', 'without_genres', 'with_watch_providers', 'with_cast', 'with_crew', 'with_keywords'] as $key) {
+        // Implode array values — providers use | (OR), everything else uses , (AND)
+        foreach (['with_genres', 'without_genres', 'with_cast', 'with_crew', 'with_keywords'] as $key) {
             if (isset($input[$key]) && is_array($input[$key])) {
                 $input[$key] = implode(',', $input[$key]);
             }
+        }
+        if (isset($input['with_watch_providers']) && is_array($input['with_watch_providers'])) {
+            $input['with_watch_providers'] = implode('|', $input['with_watch_providers']);
         }
 
         // Date range formatting
@@ -234,10 +237,13 @@ class TmdbClient implements ApiMovie
             unset($input[$key]);
         }
 
-        foreach (['with_genres', 'without_genres', 'with_watch_providers', 'with_people', 'with_keywords'] as $key) {
+        foreach (['with_genres', 'without_genres', 'with_people', 'with_keywords'] as $key) {
             if (isset($input[$key]) && is_array($input[$key])) {
                 $input[$key] = implode(',', $input[$key]);
             }
+        }
+        if (isset($input['with_watch_providers']) && is_array($input['with_watch_providers'])) {
+            $input['with_watch_providers'] = implode('|', $input['with_watch_providers']);
         }
 
         if (isset($input['first_air_date.gte'])) {
