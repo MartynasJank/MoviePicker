@@ -24,9 +24,12 @@ class MovieController extends Controller
         }
         $omdbInfo = $omdb->movie($tmdbInfo->imdb_id);
 
-        $watchProviders = isset($tmdbInfo->{'watch/providers'}->results->$country->flatrate)
-            ? $tmdbInfo->{'watch/providers'}->results->$country
-            : null;
+        $countryProviders = $tmdbInfo->{'watch/providers'}->results->$country ?? null;
+        $watchProviders   = ($countryProviders && (
+            isset($countryProviders->flatrate) || isset($countryProviders->ads) ||
+            isset($countryProviders->free)     || isset($countryProviders->buy) ||
+            isset($countryProviders->rent)
+        )) ? $countryProviders : null;
 
         $providersArray = $movieService->buildProvidersArray($tmdb);
 
