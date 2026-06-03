@@ -4,6 +4,9 @@ import inject from '@rollup/plugin-inject';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
+    optimizeDeps: {
+        exclude: ['jquery-flexdatalist'],
+    },
     plugins: [
         tailwindcss(),
         laravel({
