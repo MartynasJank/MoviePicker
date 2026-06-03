@@ -77,6 +77,33 @@
             </a>
         </div>
 
+        {{-- Ads Mode --}}
+        @php $adsMode = \App\Models\Setting::get('ads_mode', 'off'); @endphp
+        <div class="mt-8 bg-white/3 border border-white/5 rounded-xl p-6">
+            <div class="text-base font-semibold text-white mb-1">Ads Mode</div>
+            <div class="text-sm text-gray-500 mb-4">Control who sees ads and whether they're placeholders or real AdSense.</div>
+            <form method="POST" action="{{ route('admin.settings.ads-mode') }}" class="flex flex-wrap gap-2">
+                @csrf
+                @foreach([
+                    'off'           => ['label' => 'Off',              'desc' => 'No ads for anyone'],
+                    'preview_admin' => ['label' => 'Preview — Admin',  'desc' => 'Placeholder banners, admin only'],
+                    'preview_all'   => ['label' => 'Preview — All',    'desc' => 'Placeholder banners, everyone'],
+                    'live_admin'    => ['label' => 'Live — Admin',     'desc' => 'Real AdSense, admin only'],
+                    'live_all'      => ['label' => 'Live — All',       'desc' => 'Real AdSense, everyone'],
+                ] as $value => $opt)
+                <button type="submit" name="ads_mode" value="{{ $value }}"
+                    class="px-4 py-2 rounded-lg text-sm font-medium border transition-colors
+                        {{ $adsMode === $value
+                            ? 'bg-accent text-white border-accent'
+                            : 'bg-white/5 text-gray-400 border-white/10 hover:text-white hover:border-white/20' }}"
+                    title="{{ $opt['desc'] }}">
+                    {{ $opt['label'] }}
+                </button>
+                @endforeach
+            </form>
+            <p class="mt-3 text-xs text-gray-600">Current: <span class="text-gray-400">{{ $adsMode }}</span></p>
+        </div>
+
     @else
 
         @php

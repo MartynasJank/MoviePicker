@@ -26,8 +26,20 @@
         gtag('config', 'G-RH8D2TSYJJ');
     </script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-RH8D2TSYJJ"></script>
-    {{-- AdSense auto ads — remove before deploy if not approved --}}
+    @php
+        $adsMode   = \App\Models\Setting::get('ads_mode', 'off');
+        $isAdmin   = auth()->check() && auth()->user()->email === config('api.admin_email');
+        $showAds   = !View::hasSection('hide_ads') && match($adsMode) {
+            'preview_admin', 'live_admin' => $isAdmin,
+            'preview_all',  'live_all'   => true,
+            default                       => false,
+        };
+        $liveAds   = $showAds && in_array($adsMode, ['live_admin', 'live_all']);
+        $previewAds = $showAds && in_array($adsMode, ['preview_admin', 'preview_all']);
+    @endphp
+    @if($liveAds)
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+    @endif
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/custom/watchlist.js', 'resources/js/custom/search.js', 'resources/js/custom/roulettes.js', 'resources/js/custom/cookieConsent.js'])
     @yield('scripts', '')
 </head>
@@ -291,24 +303,28 @@
 
     {{-- Page content --}}
     <main class="pt-16">
-        {{-- Auto ad: top banner (leaderboard desktop / banner mobile) --}}
-        @unless(View::hasSection('hide_ads'))
+        {{-- Auto ad: top banner --}}
+        @if($previewAds)
         <div class="layout-spacer flex items-center justify-center text-xs font-medium" style="min-height:50px;background:#1a1a2e;border-bottom:1px solid #333;color:#888;">
             <span class="hidden sm:block">📢 Ad placeholder · 728×90 leaderboard</span>
             <span class="sm:hidden">📢 Ad placeholder · 320×50 banner</span>
         </div>
-        @endunless
+        @elseif($liveAds)
+        {{-- Real AdSense top banner slot goes here --}}
+        @endif
 
         @yield('content')
     </main>
 
     {{-- Auto ad: before footer --}}
-    @unless(View::hasSection('hide_footer'))
+    @if($previewAds)
     <div class="layout-spacer flex items-center justify-center text-xs font-medium" style="min-height:90px;background:#1a1a2e;border-top:1px solid #333;color:#888;">
         <span class="hidden sm:block">📢 Ad placeholder · 728×90 before footer</span>
         <span class="sm:hidden">📢 Ad placeholder · 300×250 before footer</span>
     </div>
-    @endunless
+    @elseif($liveAds)
+    {{-- Real AdSense pre-footer slot goes here --}}
+    @endif
 
     @unless(View::hasSection('hide_footer'))
     <footer class="border-t border-white/5 mt-8 pt-6 @yield('footer_pb', 'pb-6') text-center text-xs text-gray-600">
@@ -330,12 +346,14 @@
 
     @include('includes.case-overlay')
 
-    {{-- Auto ad: sticky anchor (appears fixed at bottom — very common with auto ads) --}}
-    @unless(View::hasSection('hide_ads'))
+    {{-- Auto ad: sticky anchor --}}
+    @if($previewAds)
     <div class="layout-spacer fixed bottom-0 left-0 right-0 z-30 flex items-center justify-center text-xs font-medium" style="height:50px;background:#1a1a2e;border-top:1px solid #333;color:#888;">
         📢 Ad placeholder · sticky anchor 320×50
         <button onclick="this.parentElement.remove()" style="position:absolute;right:12px;font-size:18px;color:#555;line-height:1;">&times;</button>
     </div>
-    @endunless
+    @elseif($liveAds)
+    {{-- Real AdSense sticky anchor slot goes here --}}
+    @endif
 </body>
 </html>

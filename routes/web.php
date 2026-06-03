@@ -147,6 +147,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     Route::get('users', [AdminUserController::class, 'index'])->name('users.index');
     Route::get('users/{user}', [AdminUserController::class, 'show'])->name('users.show');
     Route::delete('users/{user}/roulettes/{roulette}', [AdminUserController::class, 'destroyRoulette'])->name('users.roulettes.destroy');
+    Route::post('settings/ads-mode', [AdminController::class, 'setAdsMode'])->name('settings.ads-mode');
 });
 
 // ── Dev only ──────────────────────────────────────────────────────────────────

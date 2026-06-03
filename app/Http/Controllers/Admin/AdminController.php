@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Roulette;
 use App\Models\Setting;
 use App\Models\TmdbRequestLog;
+use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
@@ -89,5 +90,17 @@ class AdminController extends Controller
         }
 
         return view('admin.dashboard', compact('stats', 'rowOrder', 'activeTab', 'tmdb'));
+    }
+
+    public function setAdsMode(Request $request)
+    {
+        $mode = $request->input('ads_mode');
+        $allowed = ['off', 'preview_admin', 'preview_all', 'live_admin', 'live_all'];
+
+        if (in_array($mode, $allowed)) {
+            Setting::set('ads_mode', $mode);
+        }
+
+        return back();
     }
 }
