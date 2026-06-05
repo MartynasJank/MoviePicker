@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Roulette;
 use App\Services\MovieService;
+use App\Services\RouletteTagMapper;
 use App\Services\TmdbClient;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -19,7 +22,7 @@ class SwipeController extends Controller
 
     public function index(Request $request, MovieService $movieService, TmdbClient $tmdb): View
     {
-        $country   = $movieService->getUserCountry();
+        $country    = $movieService->getUserCountry();
         $forceReset = $request->boolean('reset');
         $criteria   = $movieService->resolveSessionCriteria(self::DEFAULTS, $forceReset);
         $all_genres     = $movieService->genres($tmdb);
@@ -45,6 +48,26 @@ class SwipeController extends Controller
             'providersArray' => $providersArray,
             'user_input'     => $user_input,
         ]);
+    }
+
+    public function fromRoulette(string $slug, MovieService $movieService): RedirectResponse
+    {
+        $roulette = Roulette::where('slug', $slug)
+            ->where(fn($q) => $q->where('is_public', true)->orWhere('user_id', auth()->id()))
+            ->firstOrFail();
+
+        $mapper = new RouletteTagMapper();
+        $base   = $roulette->media_type === 'tv'
+            ? $mapper->toCriteriaTv($roulette->tags)
+            : $mapper->toCriteriaMovie($roulette->tags);
+
+        $sessionCriteria = [];
+        foreach ($base as $key => $value) {
+            $sessionCriteria[str_replace('.', '_', $key)] = $value;
+        }
+        session(['userInput' => $sessionCriteria]);
+
+        return redirect()->route('swipe');
     }
 
     public function load(Request $request, MovieService $movieService, TmdbClient $tmdb): JsonResponse
