@@ -110,6 +110,10 @@ Route::get('/swipe', [SwipeController::class, 'index'])->name('swipe');
 Route::get('/swipe/roulette/{slug}', [SwipeController::class, 'fromRoulette'])->name('swipe.roulette');
 Route::post('/swipe/next', [SwipeController::class, 'next'])->name('swipe.next');
 Route::post('/swipe/load', [SwipeController::class, 'load'])->name('swipe.load');
+Route::get('/swipe/tv', [SwipeController::class, 'tvIndex'])->name('swipe.tv');
+Route::get('/swipe/tv/roulette/{slug}', [SwipeController::class, 'tvFromRoulette'])->name('swipe.tv.roulette');
+Route::post('/swipe/tv/next', [SwipeController::class, 'tvNext'])->name('swipe.tv.next');
+Route::post('/swipe/tv/load', [SwipeController::class, 'tvLoad'])->name('swipe.tv.load');
 
 // ── Watchlist (auth required) ─────────────────────────────────────────────────
 Route::middleware('auth')->group(function () {

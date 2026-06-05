@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('page_title', 'Movie Swipe — MoviePickr')
+@section('page_title', 'TV Show Swipe — MoviePickr')
 @section('scripts')
     @vite(['resources/js/custom/criteriaForm.js', 'resources/js/custom/swipe.js'])
 @endsection
@@ -16,7 +16,6 @@
         <div id="overlay-skip" class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 z-20">
             <span class="text-5xl font-black text-red-400 border-4 border-red-400 rounded-xl px-5 py-2 rotate-[12deg]">SKIP</span>
         </div>
-        {{-- aspect-[2/3] keeps poster ratio, h-full fills available height, w-auto derives width --}}
         <div id="card-stack" class="relative h-full w-full" style="max-width:min(100%, calc((100vh - 160px) * 2/3))"></div>
     </div>
 
@@ -47,24 +46,21 @@
     </div>
 </div>
 
-{{-- Full criteria modal (action overridden by JS) --}}
-@include('includes.criteria-modal')
+{{-- Full criteria modal --}}
+@include('includes.criteria-modal', ['modalMediaType' => 'tv'])
 
 {{-- Results overlay --}}
 <div id="results-overlay" class="hidden fixed inset-0 z-50 bg-[#0f0f0f] flex flex-col">
-    {{-- Sticky header --}}
     <div class="flex-shrink-0 bg-[#0f0f0f]/95 backdrop-blur-sm flex items-center justify-between px-4 pt-4 pb-3 border-b border-white/10">
         <button id="results-close" class="text-gray-400 hover:text-white transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         </button>
-        <h2 class="text-base font-bold text-white">Movies you liked</h2>
+        <h2 class="text-base font-bold text-white">Shows you liked</h2>
         <div class="w-8"></div>
     </div>
-    {{-- Scrollable grid --}}
     <div class="flex-1 overflow-y-auto min-h-0">
         <div id="results-grid" class="p-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3"></div>
     </div>
-    {{-- Sticky footer --}}
     <div class="flex-shrink-0 p-4 flex gap-3 border-t border-white/10 bg-[#0f0f0f]">
         <button id="results-continue" class="btn-accent flex-1 py-3">Keep Swiping</button>
         <button id="results-end" class="flex-1 py-3 rounded-xl font-semibold text-sm bg-red-600/20 text-red-400 hover:bg-red-600/30 transition-colors">End Session</button>
@@ -72,11 +68,13 @@
 </div>
 
 <script>
-window.swipeMovies      = @json($movies);
-window.swipePage        = {{ $initialPage }};
-window.swipeLoggedIn    = {{ $isLoggedIn ? 'true' : 'false' }};
+window.swipeMovies       = @json($movies);
+window.swipePage         = {{ $initialPage }};
+window.swipeLoggedIn     = {{ $isLoggedIn ? 'true' : 'false' }};
 window.swipeTotalResults = {{ $totalResults }};
 window.swipeWatchlistIds = @json($watchlistIds);
-window.swipeFresh       = {{ $freshStart ? 'true' : 'false' }};
+window.swipeNextUrl      = '/swipe/tv/next';
+window.swipeLoadUrl      = '/swipe/tv/load';
+window.swipeFresh        = {{ $freshStart ? 'true' : 'false' }};
 </script>
 @endsection
