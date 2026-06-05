@@ -15,7 +15,8 @@ if (window.swipeFresh) {
 }
 
 const saved    = JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null');
-let queue      = saved?.queue?.length ? saved.queue : [...window.swipeMovies];
+const filterWatched = movies => movies.filter(m => !watchlistIds.has(m.id));
+let queue      = saved?.queue?.length ? filterWatched(saved.queue) : filterWatched([...window.swipeMovies]);
 let seenPages  = saved?.seenPages || [window.swipePage];
 let history    = [];
 let liked      = JSON.parse(localStorage.getItem('swipe_liked') || '[]');
@@ -353,7 +354,7 @@ function prefetch() {
         .then(data => {
             if (data.movies?.length) {
                 const wasEmpty = queue.length === 0;
-                queue.push(...data.movies);
+                queue.push(...filterWatched(data.movies));
                 seenPages.push(data.page);
                 saveSession();
                 if (wasEmpty) {
@@ -476,7 +477,7 @@ document.addEventListener('submit', async (e) => {
         const res  = await fetch(window.swipeLoadUrl || '/swipe/load', { method: 'POST', body: data });
         const json = await res.json();
         if (json.movies?.length) {
-            queue        = [...json.movies];
+            queue        = filterWatched([...json.movies]);
             seenPages    = [json.page];
             history      = [];
             totalResults = json.total_results || 0;
