@@ -115,10 +115,9 @@ class SwipeController extends Controller
     {
         $country    = $movieService->getUserCountry();
         $criteria   = $movieService->resolveSessionCriteria([], false);
-        $seenPages  = array_map('intval', $request->input('seen_pages', []));
         $totalPages = session('userInput.total_pages', 500);
         $genres     = $movieService->genres($tmdb);
-        $page       = $this->pickPage((int) $totalPages, $seenPages);
+        $page       = $this->pickPage((int) $totalPages, []);
         $results    = $tmdb->discover(array_merge($criteria, ['page' => $page]), $country);
         $movies     = $this->attachGenres($movieService->pickBatch($results['results'] ?? []), $genres, $page, 'movie');
 
@@ -213,10 +212,9 @@ class SwipeController extends Controller
     {
         $country    = $movieService->getUserCountry();
         $criteria   = $movieService->resolveSessionCriteria([], false, 'tvInput');
-        $seenPages  = array_map('intval', $request->input('seen_pages', []));
         $totalPages = session('tvInput.total_pages', 500);
         $genres     = $movieService->genres($tmdb, 'tv');
-        $page       = $this->pickPage((int) $totalPages, $seenPages);
+        $page       = $this->pickPage((int) $totalPages, []);
         $results    = $tmdb->discoverTv(array_merge($criteria, ['page' => $page]), $country);
         $shows      = $movieService->normaliseShows($results['results'] ?? []);
         $movies     = $this->attachGenres($movieService->pickBatch($shows), $genres, $page, 'tv');

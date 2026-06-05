@@ -21,8 +21,13 @@
     </div>
 
     @if($isAdmin)
-    <div class="flex-shrink-0 text-center pb-1 debug-only" id="swipe-counter-wrap">
-        <span id="swipe-counter" class="text-xs text-gray-600"></span>
+    <div class="flex-shrink-0 pb-1 debug-only" id="swipe-counter-wrap">
+        <div class="flex flex-wrap gap-x-4 gap-y-0.5 justify-center text-[11px] text-gray-600 font-mono">
+            <span id="dbg-page"></span>
+            <span id="dbg-queue"></span>
+            <span id="dbg-seen"></span>
+            <span id="dbg-filtered"></span>
+        </div>
     </div>
     @endif
 

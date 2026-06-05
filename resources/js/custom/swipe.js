@@ -2,7 +2,6 @@ function esc(s) { const d = document.createElement('div'); d.textContent = s; re
 
 // ── State ─────────────────────────────────────────────────────────────
 const SESSION_KEY   = 'swipe_session';
-const counter       = document.getElementById('swipe-counter');
 let watchlistIds    = new Set(window.swipeWatchlistIds || []);
 let totalResults    = window.swipeTotalResults || 0;
 
@@ -14,10 +13,22 @@ if (window.swipeFresh) {
     sessionStorage.removeItem(SESSION_KEY);
 }
 
-const saved    = JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null');
+const saved     = JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null');
+let seenIds     = new Set();
+let dbgLastFiltered = { dupes: 0, watchlisted: 0, kept: 0, total: 0 };
+const filterSeen = movies => {
+    let dupes = 0, watchlisted = 0, kept = [];
+    for (const m of movies) {
+        if (watchlistIds.has(m.id))  { watchlisted++; continue; }
+        if (seenIds.has(m.id))       { dupes++;       continue; }
+        kept.push(m);
+    }
+    dbgLastFiltered = { dupes, watchlisted, kept: kept.length, total: movies.length };
+    return kept;
+};
 const filterWatched = movies => movies.filter(m => !watchlistIds.has(m.id));
-let queue      = saved?.queue?.length ? filterWatched(saved.queue) : filterWatched([...window.swipeMovies]);
-let seenPages  = saved?.seenPages || [window.swipePage];
+let queue       = saved?.queue?.length ? filterWatched(saved.queue) : filterSeen([...window.swipeMovies]);
+(window.swipeMovies || []).forEach(m => seenIds.add(m.id));
 let history    = [];
 let liked      = JSON.parse(localStorage.getItem('swipe_liked') || '[]');
 let fetching   = false;
@@ -28,7 +39,7 @@ const VEL_THRESHOLD = 0.25; // px/ms — fast flick triggers even if distance is
 const MIN_FLICK_DX  = 20;   // minimum horizontal distance even for velocity-based trigger
 
 function saveSession() {
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify({ queue, seenPages }));
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify({ queue }));
 }
 
 // ── DOM refs ──────────────────────────────────────────────────────────
@@ -238,16 +249,23 @@ function attachDrag(card) {
 }
 
 // ── Undo button state ─────────────────────────────────────────────────
+const dbgPage     = document.getElementById('dbg-page');
+const dbgQueue    = document.getElementById('dbg-queue');
+const dbgSeen     = document.getElementById('dbg-seen');
+const dbgFiltered = document.getElementById('dbg-filtered');
+
 function updateCounter() {
-    if (!counter) return;
+    if (!dbgPage) return;
     const movie = queue[0];
     if (totalResults > 0 && movie?._page) {
-        const pos = movie._page * 20 + movie._pos;
-        counter.textContent = `${pos.toLocaleString()} / ${totalResults.toLocaleString()}`;
-    } else if (totalResults > 0) {
-        counter.textContent = `${totalResults.toLocaleString()} movies found`;
-    } else {
-        counter.textContent = '';
+        const totalPages = Math.ceil(Math.min(totalResults, 10000) / 20);
+        dbgPage.textContent     = `page: ${movie._page}/${totalPages}`;
+        dbgQueue.textContent    = `queue: ${queue.length}`;
+        dbgSeen.textContent     = `seen ids: ${seenIds.size}`;
+        const f = dbgLastFiltered;
+        dbgFiltered.textContent = f.total
+            ? `batch: ${f.kept}/${f.total} kept (${f.dupes} dupe, ${f.watchlisted} watchlisted)`
+            : '';
     }
 }
 
@@ -348,14 +366,15 @@ function prefetch() {
     fetch(window.swipeNextUrl || '/swipe/next', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content },
-        body: JSON.stringify({ seen_pages: seenPages }),
+        body: JSON.stringify({}),
     })
         .then(r => r.json())
         .then(data => {
             if (data.movies?.length) {
+                const fresh = filterSeen(data.movies);
+                fresh.forEach(m => seenIds.add(m.id));
                 const wasEmpty = queue.length === 0;
-                queue.push(...filterWatched(data.movies));
-                seenPages.push(data.page);
+                queue.push(...fresh);
                 saveSession();
                 if (wasEmpty) {
                     stack.innerHTML = '';
@@ -456,7 +475,7 @@ if (swipeCriteriaForm) {
         const loadBtn = document.createElement('button');
         loadBtn.type = 'submit';
         loadBtn.className = 'btn-accent text-sm';
-        loadBtn.textContent = 'Load Movies';
+        loadBtn.textContent = (window.swipeLoadUrl || '').includes('/tv/') ? 'Load Shows' : 'Load Movies';
         modalFooter.appendChild(loadBtn);
     }
 }
@@ -477,8 +496,8 @@ document.addEventListener('submit', async (e) => {
         const res  = await fetch(window.swipeLoadUrl || '/swipe/load', { method: 'POST', body: data });
         const json = await res.json();
         if (json.movies?.length) {
+            seenIds      = new Set(json.movies.map(m => m.id));
             queue        = filterWatched([...json.movies]);
-            seenPages    = [json.page];
             history      = [];
             totalResults = json.total_results || 0;
             saveSession();
