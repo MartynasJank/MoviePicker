@@ -10,6 +10,9 @@ if (new URLSearchParams(window.location.search).get('reset') === '1') {
     sessionStorage.removeItem(SESSION_KEY);
     localStorage.removeItem('swipe_liked');
 }
+if (window.swipeFresh) {
+    sessionStorage.removeItem(SESSION_KEY);
+}
 
 const saved    = JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null');
 let queue      = saved?.queue?.length ? saved.queue : [...window.swipeMovies];
@@ -341,7 +344,7 @@ function saveLike(movie) {
 // ── Prefetch ──────────────────────────────────────────────────────────
 function prefetch() {
     fetching = true;
-    fetch('/swipe/next', {
+    fetch(window.swipeNextUrl || '/swipe/next', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content },
         body: JSON.stringify({ seen_pages: seenPages }),
@@ -441,7 +444,7 @@ document.getElementById('results-end').addEventListener('click', () => {
 const swipeCriteriaForm = document.getElementById('modal-criteria');
 if (swipeCriteriaForm) {
     // Change action so roulettes.js doesn't trigger case-opening animation
-    swipeCriteriaForm.action = '/swipe/load';
+    swipeCriteriaForm.action = window.swipeLoadUrl || '/swipe/load';
 
     // Replace footer buttons with single Load button
     const modalFooter = swipeCriteriaForm.querySelector('.modal-sticky-footer');
@@ -470,7 +473,7 @@ document.addEventListener('submit', async (e) => {
     const data = new FormData(form);
 
     try {
-        const res  = await fetch('/swipe/load', { method: 'POST', body: data });
+        const res  = await fetch(window.swipeLoadUrl || '/swipe/load', { method: 'POST', body: data });
         const json = await res.json();
         if (json.movies?.length) {
             queue        = [...json.movies];

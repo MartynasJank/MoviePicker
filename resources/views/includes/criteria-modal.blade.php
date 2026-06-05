@@ -1,6 +1,12 @@
 @php
+    $modalMediaType = $modalMediaType ?? 'movie';
+    $isTvModal      = $modalMediaType === 'tv';
+    $yearGteField   = $isTvModal ? 'first_air_date_gte'   : 'primary_release_date_gte';
+    $yearLteField   = $isTvModal ? 'first_air_date_lte'   : 'primary_release_date_lte';
+    $yearLabel      = $isTvModal ? 'First Air Date'        : 'Release Year';
+
     if ($user_input === 'default') $user_input = [];
-    $openYear     = !empty($user_input['primary_release_date_gte'] ?? '') || !empty($user_input['primary_release_date_lte'] ?? '');
+    $openYear     = !empty($user_input[$yearGteField] ?? '') || !empty($user_input[$yearLteField] ?? '');
     $openGenres   = !empty($user_input['with_genres'] ?? []) || !empty($user_input['without_genres'] ?? []);
     $openLanguage  = !empty($user_input['with_original_language'] ?? '') || !empty($user_input['with_origin_country'] ?? '');
     $openStreaming  = !empty($user_input['with_watch_providers'] ?? []);
@@ -26,18 +32,18 @@
                 {{-- Years --}}
                 <div class="accordion-section border-t border-white/5 {{ $openYear ? 'accordion-open' : '' }}">
                     <button type="button" class="accordion-header w-full flex items-center justify-between py-2.5 sm:py-3.5 text-left">
-                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Release Year</h3>
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ $yearLabel }}</h3>
                         <svg class="accordion-chevron w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
                     </button>
                     <div class="accordion-body">
                         <div class="pb-4 grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-sm text-gray-400 mb-1">From</label>
-                                <input type="text" class="input-dark" name="primary_release_date_gte" placeholder="1874" value="{{ $user_input['primary_release_date_gte'] ?? '' }}">
+                                <input type="text" class="input-dark" name="{{ $yearGteField }}" placeholder="1874" value="{{ $user_input[$yearGteField] ?? '' }}">
                             </div>
                             <div>
                                 <label class="block text-sm text-gray-400 mb-1">To</label>
-                                <input type="text" class="input-dark" name="primary_release_date_lte" placeholder="{{ date('Y') }}" value="{{ $user_input['primary_release_date_lte'] ?? '' }}">
+                                <input type="text" class="input-dark" name="{{ $yearLteField }}" placeholder="{{ date('Y') }}" value="{{ $user_input[$yearLteField] ?? '' }}">
                             </div>
                         </div>
                     </div>
