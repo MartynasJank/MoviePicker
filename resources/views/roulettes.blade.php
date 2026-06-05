@@ -18,6 +18,7 @@
 
     @include('includes.roulette-labels')
 
+
     {{-- Movies panel --}}
     <div id="roulette-panel-movies">
         @include('includes.roulette-grid', ['grouped' => $movieGrouped])

@@ -44,6 +44,7 @@
                     </div>
                 </a>
                 <button class="w-full btn-accent text-xs py-1.5 mt-2" data-roulette-roll data-slug="{{ $roulette->slug }}">Roll</button>
+                <a href="/swipe/roulette/{{ $roulette->slug }}" class="w-full btn-secondary text-xs py-1.5 mt-1 block text-center">Swipe</a>
                 </div>
 
             @endforeach
