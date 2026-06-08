@@ -203,6 +203,7 @@ function attachDrag(card) {
         startY    = pt.clientY;
         startTime = Date.now();
         card.style.transition = 'none';
+        card.setPointerCapture(e.pointerId);
     };
 
     const onMove = (e) => {
