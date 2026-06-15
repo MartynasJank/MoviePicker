@@ -1,0 +1,121 @@
+@extends('layouts.app')
+@section('page_title', 'Visitor ' . substr($hash, 0, 8))
+@section('content')
+<div class="max-w-5xl mx-auto px-4 py-10">
+
+    <div class="mb-6">
+        <a href="{{ route('admin.dashboard', ['tab' => 'traffic']) }}"
+           class="text-xs text-gray-500 hover:text-white transition-colors">
+            ← Back to Traffic
+        </a>
+    </div>
+
+    {{-- Header --}}
+    <div class="mb-8 flex items-center gap-4 flex-wrap">
+        <h1 class="text-2xl font-bold text-white font-mono">{{ $hash }}</h1>
+
+        @if($user)
+            <span class="text-sm text-gray-300">{{ $user->name }}</span>
+        @endif
+
+        @if($bot)
+            <span class="text-xs px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/20 font-mono">{{ $bot }}</span>
+        @else
+            <span class="text-xs px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20">human</span>
+        @endif
+    </div>
+
+    {{-- Summary stats --}}
+    @php
+        $sessionCount   = count($processedSessions);
+        $routeCounts    = [];
+        foreach ($processedSessions as $session) {
+            foreach ($session->pages as $page) {
+                $routeCounts[$page->route] = ($routeCounts[$page->route] ?? 0) + 1;
+            }
+        }
+        arsort($routeCounts);
+        $topRoute = array_key_first($routeCounts) ?? '—';
+    @endphp
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+        <div class="bg-white/3 border border-white/5 rounded-xl p-5">
+            <div class="text-3xl font-bold text-white mb-1">{{ number_format($total) }}</div>
+            <div class="text-xs text-gray-500 uppercase tracking-widest">Total Page Views</div>
+        </div>
+        <div class="bg-white/3 border border-white/5 rounded-xl p-5">
+            <div class="text-3xl font-bold text-accent mb-1">{{ $sessionCount }}</div>
+            <div class="text-xs text-gray-500 uppercase tracking-widest">Sessions</div>
+        </div>
+        <div class="bg-white/3 border border-white/5 rounded-xl p-5">
+            <div class="text-lg font-bold text-blue-400 mb-1 font-mono truncate">{{ $topRoute }}</div>
+            <div class="text-xs text-gray-500 uppercase tracking-widest">Most Visited Route</div>
+        </div>
+    </div>
+
+    {{-- Sessions --}}
+    @if(empty($processedSessions))
+        <div class="bg-white/3 border border-white/5 rounded-xl px-5 py-8 text-sm text-gray-500">
+            No page views recorded in the last 30 days.
+        </div>
+    @else
+        <div class="space-y-6">
+            @foreach($processedSessions as $i => $session)
+            @php
+                $mins = floor($session->duration / 60);
+                $secs = $session->duration % 60;
+                $durationStr = $mins > 0 ? "{$mins}m {$secs}s" : "{$secs}s";
+            @endphp
+            <div class="bg-white/3 border border-white/5 rounded-xl overflow-hidden">
+                {{-- Session header --}}
+                <div class="px-5 py-3 border-b border-white/5 flex items-center justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-semibold text-gray-500 uppercase tracking-widest">Session {{ $i + 1 }}</span>
+                        <span class="ml-3 text-sm text-gray-300">{{ $session->start->format('M j, Y · H:i') }}</span>
+                    </div>
+                    <div class="flex items-center gap-4 text-xs text-gray-500">
+                        <span>{{ count($session->pages) }} {{ Str::plural('page', count($session->pages)) }}</span>
+                        @if($session->duration > 0)
+                            <span>{{ $durationStr }}</span>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- Pages table --}}
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-white/5">
+                            <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Route</th>
+                            <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Referrer</th>
+                            <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Time</th>
+                            <th class="text-right px-5 py-2.5 text-xs text-gray-500 font-medium">Time on Page</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        @foreach($session->pages as $page)
+                        <tr>
+                            <td class="px-5 py-2.5 font-mono text-xs text-gray-200">{{ $page->route }}</td>
+                            <td class="px-5 py-2.5 text-xs text-gray-500 font-mono">{{ $page->referrer ?? '—' }}</td>
+                            <td class="px-5 py-2.5 text-xs text-gray-500 whitespace-nowrap">{{ $page->created_at->format('H:i:s') }}</td>
+                            <td class="px-5 py-2.5 text-right text-xs">
+                                @if($page->time_on_page !== null)
+                                    @php
+                                        $t = $page->time_on_page;
+                                        $display = $t >= 60 ? floor($t/60) . 'm ' . ($t%60) . 's' : $t . 's';
+                                    @endphp
+                                    <span class="text-gray-400">{{ $display }}</span>
+                                @else
+                                    <span class="text-gray-600">—</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            @endforeach
+        </div>
+    @endif
+
+</div>
+@endsection
