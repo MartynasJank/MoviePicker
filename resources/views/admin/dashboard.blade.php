@@ -171,7 +171,7 @@
         @php
             $uniqueTotal = ($today->unique_auth ?? 0) + ($today->unique_anon ?? 0);
         @endphp
-        <div class="grid grid-cols-3 gap-3 mb-10">
+        <div class="grid grid-cols-4 gap-3 mb-10">
             <div class="bg-white/3 border border-white/5 rounded-xl p-4">
                 <div class="text-2xl font-bold text-orange-400 mb-1">{{ $uniqueTotal }}</div>
                 <div class="text-xs text-gray-500 uppercase tracking-widest">Unique Users</div>
@@ -183,6 +183,10 @@
             <div class="bg-white/3 border border-white/5 rounded-xl p-4">
                 <div class="text-2xl font-bold text-orange-200 mb-1">{{ $today->unique_anon ?? 0 }}</div>
                 <div class="text-xs text-gray-500 uppercase tracking-widest">Anonymous</div>
+            </div>
+            <div class="bg-white/3 border border-white/5 rounded-xl p-4">
+                <div class="text-2xl font-bold text-red-400 mb-1">{{ $today->bot_total ?? 0 }}</div>
+                <div class="text-xs text-gray-500 uppercase tracking-widest">Bot Requests</div>
             </div>
         </div>
 
@@ -332,6 +336,29 @@
         </div>
         @endif
 
+        {{-- Bot Breakdown --}}
+        @if($tmdb['bots_today']->isNotEmpty())
+        <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Bots — Today</h2>
+        <div class="bg-white/3 border border-white/5 rounded-xl overflow-x-auto mb-8">
+            <table class="w-full text-sm min-w-[280px]">
+                <thead>
+                    <tr class="border-b border-white/5">
+                        <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Bot</th>
+                        <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Requests</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                    @foreach($tmdb['bots_today'] as $b)
+                    <tr>
+                        <td class="px-4 py-2.5 font-mono text-xs text-red-300">{{ $b->bot }}</td>
+                        <td class="px-4 py-2.5 text-right text-white font-semibold">{{ number_format($b->total) }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @endif
+
         {{-- Top Users Today --}}
         @if($tmdb['top_users']->isNotEmpty())
         <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Top Users — Today</h2>
@@ -405,7 +432,11 @@
                         </td>
                         <td class="px-4 py-2 text-right text-xs text-gray-500">{{ $log->response_time_ms ?? '—' }}</td>
                         <td class="px-4 py-2 text-xs text-gray-400">
-                            {{ $log->user?->name ?? $log->visitor_hash ?? '—' }}
+                            @if($log->bot)
+                                <span class="px-1.5 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 font-mono">{{ $log->bot }}</span>
+                            @else
+                                {{ $log->user?->name ?? $log->visitor_hash ?? '—' }}
+                            @endif
                         </td>
                     </tr>
                     @endforeach
