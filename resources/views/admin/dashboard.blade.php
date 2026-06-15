@@ -92,7 +92,8 @@
             $today        = $tmdb['today'];
             $humanTotal   = $today->human_total ?? 0;
             $botTotal     = $today->bot_total ?? 0;
-            $botPct       = ($today->total ?? 0) > 0 ? number_format(($botTotal / $today->total) * 100, 2) : '0.00';
+            $botPageTotal  = $tmdb['bot_pages_today'] + $tmdb['human_pages_today'];
+            $botPct        = $botPageTotal > 0 ? number_format(($tmdb['bot_pages_today'] / $botPageTotal) * 100, 2) : '0.00';
             $humanHitRate = $humanTotal > 0 ? round((($today->human_hits ?? 0) / $humanTotal) * 100) : 0;
             $uniqueTotal  = ($today->unique_auth ?? 0) + ($today->unique_anon ?? 0);
             $projected    = $tmdb['revenue_week'] > 0 ? round(($tmdb['revenue_week'] / 7) * 30, 2) : 0;
@@ -179,12 +180,12 @@
         <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Today — Bot Traffic</h2>
         <div class="grid grid-cols-2 gap-3 mb-8">
             <div class="bg-white/3 border border-white/5 rounded-xl p-4">
-                <div class="text-2xl font-bold text-red-400 mb-1">{{ number_format($botTotal) }}</div>
-                <div class="text-xs text-gray-500 uppercase tracking-widest">Bot Requests</div>
+                <div class="text-2xl font-bold text-red-400 mb-1">{{ number_format($tmdb['bot_pages_today']) }}</div>
+                <div class="text-xs text-gray-500 uppercase tracking-widest">Bot Page Visits</div>
             </div>
             <div class="bg-white/3 border border-white/5 rounded-xl p-4">
                 <div class="text-2xl font-bold text-red-400 mb-1">{{ $botPct }}%</div>
-                <div class="text-xs text-gray-500 uppercase tracking-widest">% of All Traffic</div>
+                <div class="text-xs text-gray-500 uppercase tracking-widest">% of All Visits</div>
             </div>
         </div>
 

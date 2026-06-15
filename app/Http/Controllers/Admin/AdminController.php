@@ -149,6 +149,10 @@ class AdminController extends Controller
 
             $tmdb['top_users'] = $topAuth->concat($topAnon)->sortByDesc('total')->take(10)->values();
 
+            // Bot page views today (from page_views, not tmdb_request_logs)
+            $tmdb['bot_pages_today']   = PageView::whereDate('created_at', $today)->whereNotNull('bot')->count();
+            $tmdb['human_pages_today'] = PageView::whereDate('created_at', $today)->whereNull('bot')->count();
+
             // Page views: top pages today (human only)
             $tmdb['top_pages'] = PageView::selectRaw('route, COUNT(*) as total')
                 ->whereDate('created_at', $today)
