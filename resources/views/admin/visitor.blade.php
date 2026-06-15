@@ -27,8 +27,8 @@
 
     {{-- Summary stats --}}
     @php
-        $sessionCount   = count($processedSessions);
-        $routeCounts    = [];
+        $sessionCount = count($processedSessions);
+        $routeCounts  = [];
         foreach ($processedSessions as $session) {
             foreach ($session->pages as $page) {
                 $routeCounts[$page->route] = ($routeCounts[$page->route] ?? 0) + 1;
@@ -53,73 +53,30 @@
         </div>
     </div>
 
-    {{-- TMDB Requests (collapsible) --}}
-    @if($tmdbLogs->isNotEmpty())
-    <div class="mb-10">
-        <details class="group">
-            <summary class="flex items-center justify-between cursor-pointer list-none mb-3">
-                <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest">TMDB Requests — Last 30 Days</h2>
-                <div class="flex items-center gap-3 text-xs text-gray-600">
-                    <span>{{ number_format($tmdbLogsTotal) }} total · showing {{ $tmdbLogs->count() }}</span>
-                    <span class="group-open:rotate-180 transition-transform">▾</span>
-                </div>
-            </summary>
-            <div class="bg-white/3 border border-white/5 rounded-xl overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead>
-                        <tr class="border-b border-white/5">
-                            <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Time</th>
-                            <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Endpoint</th>
-                            <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Route</th>
-                            <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Cache</th>
-                            <th class="text-right px-5 py-2.5 text-xs text-gray-500 font-medium">ms</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-white/5">
-                        @foreach($tmdbLogs as $log)
-                        <tr>
-                            <td class="px-5 py-2 text-xs text-gray-500 whitespace-nowrap">{{ $log->created_at->format('M j H:i:s') }}</td>
-                            <td class="px-5 py-2 font-mono text-xs text-gray-300">{{ $log->endpoint }}</td>
-                            <td class="px-5 py-2 font-mono text-xs text-gray-500">{{ $log->route }}</td>
-                            <td class="px-5 py-2 text-xs">
-                                @if($log->cached)<span class="text-blue-400">hit</span>
-                                @else<span class="text-gray-500">live</span>@endif
-                            </td>
-                            <td class="px-5 py-2 text-right text-xs text-gray-500">{{ $log->cached ? '—' : $log->response_time_ms }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </details>
-    </div>
-    @endif
-
     {{-- Page Flow --}}
     <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">
         Page Flow — Last 30 Days
-        @if(!empty($processedSessions))
-            <span class="ml-2 normal-case font-normal text-gray-600">{{ count($processedSessions) }} {{ Str::plural('session', count($processedSessions)) }}</span>
+        @if($sessionCount)
+            <span class="ml-2 normal-case font-normal text-gray-600">{{ $sessionCount }} {{ Str::plural('session', $sessionCount) }}</span>
         @endif
     </h2>
 
     @if(empty($processedSessions))
-        <div class="bg-white/3 border border-white/5 rounded-xl px-5 py-8 text-sm text-gray-500">
+        <div class="bg-white/3 border border-white/5 rounded-xl px-5 py-8 text-sm text-gray-500 mb-10">
             No page flow recorded yet — page view tracking started recently.
         </div>
     @else
-        <div class="space-y-2">
+        <div class="space-y-2 mb-10">
             @foreach($processedSessions as $i => $session)
             @php
                 $mins = floor($session->duration / 60);
                 $secs = $session->duration % 60;
                 $durationStr = $mins > 0 ? "{$mins}m {$secs}s" : "{$secs}s";
-                $isFirst = $i === 0;
             @endphp
-            <details class="group bg-white/3 border border-white/5 rounded-xl overflow-hidden" {{ $isFirst ? 'open' : '' }}>
+            <details class="group bg-white/3 border border-white/5 rounded-xl overflow-hidden" {{ $i === 0 ? 'open' : '' }}>
                 <summary class="flex items-center justify-between px-5 py-3 cursor-pointer list-none hover:bg-white/2 transition-colors">
                     <div class="flex items-center gap-3">
-                        <span class="text-xs text-gray-600 w-16">Session {{ count($processedSessions) - $i }}</span>
+                        <span class="text-xs text-gray-600 w-16">Session {{ $sessionCount - $i }}</span>
                         <span class="text-sm text-gray-300">{{ $session->start->format('M j, Y · H:i') }}</span>
                     </div>
                     <div class="flex items-center gap-4 text-xs text-gray-500">
@@ -128,7 +85,6 @@
                         <span class="group-open:rotate-180 transition-transform text-gray-600">▾</span>
                     </div>
                 </summary>
-
                 <table class="w-full text-sm border-t border-white/5">
                     <thead>
                         <tr class="border-b border-white/5">
@@ -159,6 +115,42 @@
             </details>
             @endforeach
         </div>
+    @endif
+
+    {{-- TMDB Requests --}}
+    @if($tmdbLogs->isNotEmpty())
+    <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">
+        TMDB Requests — Last 30 Days
+        <span class="ml-2 normal-case font-normal text-gray-600">{{ number_format($tmdbLogs->total()) }} total</span>
+    </h2>
+    <div class="bg-white/3 border border-white/5 rounded-xl overflow-x-auto mb-4">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="border-b border-white/5">
+                    <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Time</th>
+                    <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Endpoint</th>
+                    <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Route</th>
+                    <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Cache</th>
+                    <th class="text-right px-5 py-2.5 text-xs text-gray-500 font-medium">ms</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5">
+                @foreach($tmdbLogs as $log)
+                <tr>
+                    <td class="px-5 py-2 text-xs text-gray-500 whitespace-nowrap">{{ $log->created_at->format('M j H:i:s') }}</td>
+                    <td class="px-5 py-2 font-mono text-xs text-gray-300">{{ $log->endpoint }}</td>
+                    <td class="px-5 py-2 font-mono text-xs text-gray-500">{{ $log->route }}</td>
+                    <td class="px-5 py-2 text-xs">
+                        @if($log->cached)<span class="text-blue-400">hit</span>
+                        @else<span class="text-gray-500">live</span>@endif
+                    </td>
+                    <td class="px-5 py-2 text-right text-xs text-gray-500">{{ $log->cached ? '—' : $log->response_time_ms }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    {{ $tmdbLogs->links('admin.pagination') }}
     @endif
 
 </div>
