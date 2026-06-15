@@ -707,10 +707,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function humanTime(isoString) {
         var diff = Math.floor((Date.now() - new Date(isoString).getTime()) / 1000);
-        if (diff < 60)   return diff + 's ago';
-        if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
-        if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
-        return Math.floor(diff / 86400) + 'd ago';
+        if (diff < 60)  { return diff === 1 ? '1 second ago' : diff + ' seconds ago'; }
+        var mins = Math.floor(diff / 60);
+        if (mins < 60)  { return mins === 1 ? '1 minute ago' : mins + ' minutes ago'; }
+        var hrs = Math.floor(mins / 60);
+        if (hrs < 24)   { return hrs === 1 ? '1 hour ago' : hrs + ' hours ago'; }
+        var days = Math.floor(hrs / 24);
+        return days === 1 ? '1 day ago' : days + ' days ago';
     }
 
     function buildRow(v) {
