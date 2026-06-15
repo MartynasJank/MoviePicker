@@ -344,7 +344,7 @@
                     </thead>
                     <tbody class="divide-y divide-white/5">
                         @foreach($tmdb['recent_visitors'] as $v)
-                        <tr data-pages="{{ $v->page_count }}" data-ts="{{ \Carbon\Carbon::parse($v->last_seen)->timestamp }}">
+                        <tr>
                             <td class="px-4 py-2.5">
                                 @if($v->visitor_hash)
                                 <a href="{{ route('admin.visitor.show', $v->visitor_hash) }}" class="group flex items-baseline gap-2">
@@ -701,30 +701,66 @@ document.addEventListener('DOMContentLoaded', function () {
     var table = document.getElementById('visitors-table');
     if (!table) return;
 
-    var activeSort = 'pages';
+    var dataUrl     = '{{ route('admin.visitors.data') }}';
+    var visitorBase = '{{ url('admin/visitor') }}/';
+    var activeSort  = 'last_seen';
+
+    function humanTime(isoString) {
+        var diff = Math.floor((Date.now() - new Date(isoString).getTime()) / 1000);
+        if (diff < 60)   return diff + 's ago';
+        if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+        if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+        return Math.floor(diff / 86400) + 'd ago';
+    }
+
+    function buildRow(v) {
+        var visitorCell;
+        if (v.hash) {
+            var nameSpan = v.user_name
+                ? '<span class="text-xs text-gray-500 group-hover:text-gray-300 transition-colors">' + v.user_name + '</span>'
+                : '';
+            visitorCell = '<a href="' + visitorBase + v.hash + '" class="group flex items-baseline gap-2">'
+                + '<span class="font-mono text-xs text-gray-300 group-hover:text-accent transition-colors">' + v.hash.slice(0, 8) + '</span>'
+                + nameSpan + '</a>';
+        } else {
+            visitorCell = '<span class="font-mono text-xs text-gray-600">unknown</span>';
+        }
+
+        var typeCell;
+        if (v.bot) {
+            var href = v.hash ? visitorBase + v.hash : '#';
+            typeCell = '<a href="' + href + '" class="text-xs px-1.5 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 font-mono hover:bg-red-500/20 transition-colors">' + v.bot + '</a>';
+        } else {
+            typeCell = '<span class="text-xs px-1.5 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20">human</span>';
+        }
+
+        return '<tr>'
+            + '<td class="px-4 py-2.5">' + visitorCell + '</td>'
+            + '<td class="px-4 py-2.5">' + typeCell + '</td>'
+            + '<td class="px-4 py-2.5 text-right text-white font-semibold">' + v.page_count.toLocaleString() + '</td>'
+            + '<td class="px-4 py-2.5 text-xs text-gray-500 whitespace-nowrap">' + humanTime(v.last_seen) + '</td>'
+            + '</tr>';
+    }
+
+    function loadVisitors(sort) {
+        activeSort = sort;
+
+        document.querySelectorAll('.visitor-sort').forEach(function (b) {
+            b.classList.toggle('text-accent',      b.dataset.sort === sort);
+            b.classList.toggle('text-gray-500',    b.dataset.sort !== sort);
+            b.classList.toggle('hover:text-white', b.dataset.sort !== sort);
+        });
+
+        fetch(dataUrl + '?sort=' + sort)
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                table.querySelector('tbody').innerHTML = data.map(buildRow).join('');
+            });
+    }
 
     document.querySelectorAll('.visitor-sort').forEach(function (btn) {
         btn.addEventListener('click', function () {
-            activeSort = this.dataset.sort;
-
-            document.querySelectorAll('.visitor-sort').forEach(function (b) {
-                b.classList.toggle('text-accent', b.dataset.sort === activeSort);
-                b.classList.toggle('text-gray-500', b.dataset.sort !== activeSort);
-                b.classList.toggle('hover:text-white', b.dataset.sort !== activeSort);
-            });
-
-            var tbody = table.querySelector('tbody');
-            var rows  = Array.from(tbody.querySelectorAll('tr'));
-
-            rows.sort(function (a, b) {
-                if (activeSort === 'pages') {
-                    return parseInt(b.dataset.pages, 10) - parseInt(a.dataset.pages, 10);
-                } else {
-                    return parseInt(b.dataset.ts, 10) - parseInt(a.dataset.ts, 10);
-                }
-            });
-
-            rows.forEach(function (row) { tbody.appendChild(row); });
+            loadVisitors(this.dataset.sort);
         });
     });
 });

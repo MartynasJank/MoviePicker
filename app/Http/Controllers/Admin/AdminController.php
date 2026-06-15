@@ -244,4 +244,32 @@ class AdminController extends Controller
 
         return view('admin.dashboard', compact('stats', 'rowOrder', 'activeTab', 'tmdb'));
     }
+
+    public function visitorsData()
+    {
+        $sort    = request('sort', 'last_seen');
+        $orderBy = $sort === 'pages' ? 'page_count' : 'last_seen';
+
+        $rows = PageView::selectRaw('visitor_hash, user_id, bot, COUNT(*) as page_count, MAX(created_at) as last_seen')
+            ->where('created_at', '>=', now()->subHours(24))
+            ->groupBy('visitor_hash', 'user_id', 'bot')
+            ->orderByDesc($orderBy)
+            ->limit(20)
+            ->get();
+
+        $userIds  = $rows->pluck('user_id')->filter()->unique();
+        $usersById = User::whereIn('id', $userIds)->get()->keyBy('id');
+
+        return response()->json($rows->map(function ($row) use ($usersById) {
+            $user = $row->user_id ? ($usersById[$row->user_id] ?? null) : null;
+            return [
+                'hash'       => $row->visitor_hash,
+                'bot'        => $row->bot,
+                'page_count' => $row->page_count,
+                'last_seen'  => $row->last_seen,
+                'user_name'  => $user?->name,
+                'user_id'    => $row->user_id,
+            ];
+        })->values());
+    }
 }
