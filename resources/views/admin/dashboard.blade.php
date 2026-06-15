@@ -255,7 +255,15 @@
                         <tbody class="divide-y divide-white/5">
                             @foreach($tmdb['top_users'] as $u)
                             <tr>
-                                <td class="px-4 py-2.5 text-gray-300 font-mono text-xs">{{ $u->label }}</td>
+                                <td class="px-4 py-2.5 font-mono text-xs">
+                                    @if($u->type === 'auth' && $u->user_id)
+                                        <a href="{{ route('admin.users.show', $u->user_id) }}" class="text-gray-300 hover:text-accent transition-colors">{{ $u->label }}</a>
+                                    @elseif($u->hash)
+                                        <a href="{{ route('admin.visitor.show', $u->hash) }}" class="text-gray-300 hover:text-accent transition-colors">{{ $u->label }}</a>
+                                    @else
+                                        <span class="text-gray-500">{{ $u->label }}</span>
+                                    @endif
+                                </td>
                                 <td class="px-4 py-2.5">
                                     @if($u->type === 'auth')
                                         <span class="text-xs px-1.5 py-0.5 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20">logged in</span>
@@ -311,33 +319,33 @@
                             <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Type</th>
                             <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Pages</th>
                             <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Last Seen</th>
-                            <th class="px-4 py-2.5"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-white/5">
                         @foreach($tmdb['recent_visitors'] as $v)
                         <tr>
                             <td class="px-4 py-2.5">
-                                <span class="font-mono text-xs text-gray-300">{{ substr($v->visitor_hash ?? '--------', 0, 8) }}</span>
-                                @if($v->user)
-                                    <span class="ml-2 text-xs text-gray-500">{{ $v->user->name }}</span>
+                                @if($v->visitor_hash)
+                                <a href="{{ route('admin.visitor.show', $v->visitor_hash) }}" class="group flex items-baseline gap-2">
+                                    <span class="font-mono text-xs text-gray-300 group-hover:text-accent transition-colors">{{ substr($v->visitor_hash, 0, 8) }}</span>
+                                    @if($v->user)
+                                        <span class="text-xs text-gray-500 group-hover:text-gray-300 transition-colors">{{ $v->user->name }}</span>
+                                    @endif
+                                </a>
+                                @else
+                                    <span class="font-mono text-xs text-gray-600">unknown</span>
                                 @endif
                             </td>
                             <td class="px-4 py-2.5">
                                 @if($v->bot)
-                                    <span class="text-xs px-1.5 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 font-mono">{{ $v->bot }}</span>
+                                    <a href="{{ $v->visitor_hash ? route('admin.visitor.show', $v->visitor_hash) : '#' }}"
+                                       class="text-xs px-1.5 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 font-mono hover:bg-red-500/20 transition-colors">{{ $v->bot }}</a>
                                 @else
                                     <span class="text-xs px-1.5 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20">human</span>
                                 @endif
                             </td>
                             <td class="px-4 py-2.5 text-right text-white font-semibold">{{ number_format($v->page_count) }}</td>
                             <td class="px-4 py-2.5 text-xs text-gray-500 whitespace-nowrap">{{ \Carbon\Carbon::parse($v->last_seen)->diffForHumans() }}</td>
-                            <td class="px-4 py-2.5 text-right">
-                                @if($v->visitor_hash)
-                                <a href="{{ route('admin.visitor.show', $v->visitor_hash) }}"
-                                   class="text-xs text-accent hover:underline">View →</a>
-                                @endif
-                            </td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -580,9 +588,18 @@
                         <td class="px-4 py-2 text-right text-xs text-gray-500">{{ $log->response_time_ms ?? '—' }}</td>
                         <td class="px-4 py-2 text-xs text-gray-400">
                             @if($log->bot)
+                                @if($log->visitor_hash)
+                                <a href="{{ route('admin.visitor.show', $log->visitor_hash) }}"
+                                   class="px-1.5 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 font-mono hover:bg-red-500/20 transition-colors">{{ $log->bot }}</a>
+                                @else
                                 <span class="px-1.5 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 font-mono">{{ $log->bot }}</span>
+                                @endif
+                            @elseif($log->user)
+                                <a href="{{ route('admin.users.show', $log->user_id) }}" class="hover:text-accent transition-colors">{{ $log->user->name }}</a>
+                            @elseif($log->visitor_hash)
+                                <a href="{{ route('admin.visitor.show', $log->visitor_hash) }}" class="font-mono hover:text-accent transition-colors">{{ $log->visitor_hash }}</a>
                             @else
-                                {{ $log->user?->name ?? $log->visitor_hash ?? '—' }}
+                                —
                             @endif
                         </td>
                     </tr>

@@ -123,23 +123,28 @@ class AdminController extends Controller
                 ->with('user')
                 ->get()
                 ->map(fn($r) => (object)[
-                    'label' => $r->user?->name ?? "User #{$r->user_id}",
-                    'type'  => 'auth',
-                    'total' => $r->total,
+                    'label'   => $r->user?->name ?? "User #{$r->user_id}",
+                    'type'    => 'auth',
+                    'total'   => $r->total,
+                    'user_id' => $r->user_id,
+                    'hash'    => null,
                 ]);
 
             $topAnon = TmdbRequestLog::selectRaw('visitor_hash, COUNT(*) as total')
                 ->whereDate('created_at', $today)
                 ->whereNull('user_id')
+                ->whereNull('bot')
                 ->whereNotNull('visitor_hash')
                 ->groupBy('visitor_hash')
                 ->orderByDesc('total')
                 ->limit(10)
                 ->get()
                 ->map(fn($r) => (object)[
-                    'label' => $r->visitor_hash,
-                    'type'  => 'anon',
-                    'total' => $r->total,
+                    'label'   => $r->visitor_hash,
+                    'type'    => 'anon',
+                    'total'   => $r->total,
+                    'user_id' => null,
+                    'hash'    => $r->visitor_hash,
                 ]);
 
             $tmdb['top_users'] = $topAuth->concat($topAnon)->sortByDesc('total')->take(10)->values();
