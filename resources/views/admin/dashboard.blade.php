@@ -131,7 +131,7 @@
                 </span>
             @endif
         </div>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-3">
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-8">
             <div class="bg-white/3 border border-white/5 rounded-xl p-4">
                 <div class="text-2xl font-bold text-white mb-1">{{ number_format($humanTotal) }}</div>
                 <div class="text-xs text-gray-500 uppercase tracking-widest">Total</div>
@@ -152,8 +152,6 @@
                 <div class="text-2xl font-bold text-yellow-400 mb-1">{{ $today->human_avg_ms ? round($today->human_avg_ms) . 'ms' : '—' }}</div>
                 <div class="text-xs text-gray-500 uppercase tracking-widest">Avg Response</div>
             </div>
-        </div>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
             <div class="bg-white/3 border border-white/5 rounded-xl p-4">
                 <div class="text-2xl font-bold text-orange-400 mb-1">{{ $uniqueTotal }}</div>
                 <div class="text-xs text-gray-500 uppercase tracking-widest">Unique Users</div>
@@ -328,6 +326,11 @@
 
         {{-- Recent Visitors --}}
         @if(!empty($tmdb['recent_visitors']) && $tmdb['recent_visitors']->isNotEmpty())
+        @php
+            $visitorSort = request('visitor_sort', 'last_seen');
+            $sortByPages   = route('admin.dashboard', ['tab' => 'traffic', 'visitor_sort' => 'pages']);
+            $sortByLastSeen = route('admin.dashboard', ['tab' => 'traffic', 'visitor_sort' => 'last_seen']);
+        @endphp
         <div class="mt-8">
             <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Recent Visitors — Last 24h</h2>
             <div class="bg-white/3 border border-white/5 rounded-xl overflow-x-auto">
@@ -336,8 +339,12 @@
                         <tr class="border-b border-white/5">
                             <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Visitor</th>
                             <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Type</th>
-                            <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Pages</th>
-                            <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Last Seen</th>
+                            <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">
+                                <a href="{{ $sortByPages }}" class="{{ $visitorSort === 'pages' ? 'text-accent' : 'text-gray-500 hover:text-white' }} transition-colors">Pages ↓</a>
+                            </th>
+                            <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">
+                                <a href="{{ $sortByLastSeen }}" class="{{ $visitorSort === 'last_seen' ? 'text-accent' : 'text-gray-500 hover:text-white' }} transition-colors">Last Seen ↓</a>
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-white/5">
