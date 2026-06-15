@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\PageView;
 use App\Models\Roulette;
 use App\Models\Setting;
 use App\Models\TmdbRequestLog;
+use App\Models\User;
 
 class AdminController extends Controller
 {
@@ -141,6 +143,32 @@ class AdminController extends Controller
                 ]);
 
             $tmdb['top_users'] = $topAuth->concat($topAnon)->sortByDesc('total')->take(10)->values();
+
+            // Page views: top pages today (human only)
+            $tmdb['top_pages'] = PageView::selectRaw('route, COUNT(*) as total')
+                ->whereDate('created_at', $today)
+                ->whereNull('bot')
+                ->groupBy('route')
+                ->orderByDesc('total')
+                ->limit(10)
+                ->get();
+
+            // Page views: recent unique visitors in last 24h
+            $recentVisitorRows = PageView::selectRaw('visitor_hash, user_id, bot, COUNT(*) as page_count, MAX(created_at) as last_seen')
+                ->where('created_at', '>=', now()->subHours(24))
+                ->groupBy('visitor_hash', 'user_id', 'bot')
+                ->orderByDesc('last_seen')
+                ->limit(20)
+                ->get();
+
+            // Eager-load users separately
+            $userIds = $recentVisitorRows->pluck('user_id')->filter()->unique()->values();
+            $usersById = User::whereIn('id', $userIds)->get()->keyBy('id');
+
+            $tmdb['recent_visitors'] = $recentVisitorRows->map(function ($row) use ($usersById) {
+                $row->user = isset($row->user_id) ? ($usersById[$row->user_id] ?? null) : null;
+                return $row;
+            });
 
             $tmdb['recent'] = TmdbRequestLog::with('user')
                 ->orderByDesc('id')
