@@ -75,7 +75,7 @@
 
     @if($hourly->max('total') > 0)
     <div class="mb-8">
-        <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Activity by Hour — Last 30 Days</h2>
+        <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Typical Active Hours — Last 30 Days</h2>
         <div class="bg-white/3 border border-white/5 rounded-xl p-5">
             @php $hourlyMax = $hourly->max('total') ?: 1; @endphp
             <div class="flex gap-1 items-end" style="height:48px">
