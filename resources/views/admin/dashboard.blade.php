@@ -96,6 +96,8 @@
             $humanHitRate = $humanTotal > 0 ? round((($today->human_hits ?? 0) / $humanTotal) * 100) : 0;
             $uniqueTotal  = ($today->unique_auth ?? 0) + ($today->unique_anon ?? 0);
             $projected    = $tmdb['revenue_week'] > 0 ? round(($tmdb['revenue_week'] / 7) * 30, 2) : 0;
+            $avgSecs      = $tmdb['avg_session_secs'];
+            $avgDisplay   = $avgSecs !== null ? ($avgSecs >= 60 ? floor($avgSecs/60).'m '.($avgSecs%60).'s' : $avgSecs.'s') : '—';
         @endphp
 
         {{-- Revenue --}}
@@ -119,7 +121,15 @@
         </div>
 
         {{-- Today: human --}}
-        <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Today — Human Traffic</h2>
+        <div class="flex items-center justify-between mb-3">
+            <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest">Today — Human Traffic</h2>
+            @if($tmdb['active_now'] > 0)
+                <span class="flex items-center gap-1.5 text-xs text-green-400">
+                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+                    {{ $tmdb['active_now'] }} {{ Str::plural('visitor', $tmdb['active_now']) }} now
+                </span>
+            @endif
+        </div>
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-3">
             <div class="bg-white/3 border border-white/5 rounded-xl p-4">
                 <div class="text-2xl font-bold text-white mb-1">{{ number_format($humanTotal) }}</div>
@@ -142,7 +152,7 @@
                 <div class="text-xs text-gray-500 uppercase tracking-widest">Avg Response</div>
             </div>
         </div>
-        <div class="grid grid-cols-3 gap-3 mb-8">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
             <div class="bg-white/3 border border-white/5 rounded-xl p-4">
                 <div class="text-2xl font-bold text-orange-400 mb-1">{{ $uniqueTotal }}</div>
                 <div class="text-xs text-gray-500 uppercase tracking-widest">Unique Users</div>
@@ -154,6 +164,14 @@
             <div class="bg-white/3 border border-white/5 rounded-xl p-4">
                 <div class="text-2xl font-bold text-orange-200 mb-1">{{ $today->unique_anon ?? 0 }}</div>
                 <div class="text-xs text-gray-500 uppercase tracking-widest">Anonymous</div>
+            </div>
+            <div class="bg-white/3 border border-white/5 rounded-xl p-4">
+                <div class="text-2xl font-bold text-white mb-1">{{ $tmdb['bounce_rate'] !== null ? $tmdb['bounce_rate'].'%' : '—' }}</div>
+                <div class="text-xs text-gray-500 uppercase tracking-widest">Bounce Rate</div>
+            </div>
+            <div class="bg-white/3 border border-white/5 rounded-xl p-4">
+                <div class="text-2xl font-bold text-white mb-1">{{ $avgDisplay }}</div>
+                <div class="text-xs text-gray-500 uppercase tracking-widest">Avg Session</div>
             </div>
         </div>
 
@@ -353,6 +371,94 @@
             </div>
         </div>
         @endif
+
+        {{-- Hourly heatmap --}}
+        <div class="mt-8">
+            <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Activity by Hour — Today (Human)</h2>
+            <div class="bg-white/3 border border-white/5 rounded-xl p-5">
+                @php
+                    $hourlyMax = $tmdb['hourly']->max('total') ?: 1;
+                    $currentHour = now()->hour;
+                @endphp
+                <div class="flex gap-1 items-end" style="height:60px">
+                    @foreach($tmdb['hourly'] as $h)
+                    @php
+                        $barH   = $h->total > 0 ? max(4, round(($h->total / $hourlyMax) * 52)) : 2;
+                        $isNow  = $h->hour === $currentHour;
+                        $color  = $isNow ? 'var(--color-accent)' : 'rgba(255,255,255,0.15)';
+                        $opacity = $h->total > 0 ? 1 : 0.3;
+                    @endphp
+                    <div class="flex-1 flex flex-col items-center justify-end gap-0.5 group relative" style="height:60px" title="{{ $h->hour }}:00 — {{ $h->total }} views">
+                        <div class="w-full rounded-sm transition-opacity group-hover:opacity-100"
+                             style="height:{{ $barH }}px; background:{{ $color }}; opacity:{{ $opacity }}"></div>
+                    </div>
+                    @endforeach
+                </div>
+                <div class="flex gap-1 mt-1">
+                    @foreach($tmdb['hourly'] as $h)
+                    <div class="flex-1 text-center">
+                        @if($h->hour % 6 === 0)
+                            <span class="text-[9px] text-gray-600">{{ str_pad($h->hour, 2, '0', STR_PAD_LEFT) }}</span>
+                        @endif
+                    </div>
+                    @endforeach
+                </div>
+                <div class="mt-2 text-xs text-gray-600">Current hour highlighted in red · hover bars for counts</div>
+            </div>
+        </div>
+
+        {{-- Referrers + Transitions side by side --}}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+
+            @if($tmdb['referrers']->isNotEmpty())
+            <div>
+                <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Top Referrers — Today</h2>
+                <div class="bg-white/3 border border-white/5 rounded-xl overflow-hidden">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-white/5">
+                                <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Source</th>
+                                <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Visits</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            @foreach($tmdb['referrers'] as $ref)
+                            <tr>
+                                <td class="px-4 py-2.5 font-mono text-xs text-gray-300">{{ $ref->referrer }}</td>
+                                <td class="px-4 py-2.5 text-right text-white font-semibold">{{ number_format($ref->total) }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            @endif
+
+            @if(!empty($tmdb['transitions']))
+            <div>
+                <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Top A→B Transitions — Last 7 Days</h2>
+                <div class="bg-white/3 border border-white/5 rounded-xl overflow-hidden">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-white/5">
+                                <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Flow</th>
+                                <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Count</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            @foreach($tmdb['transitions'] as $flow => $count)
+                            <tr>
+                                <td class="px-4 py-2.5 font-mono text-xs text-gray-300">{{ $flow }}</td>
+                                <td class="px-4 py-2.5 text-right text-white font-semibold">{{ number_format($count) }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            @endif
+
+        </div>
 
     {{-- ================================================================ --}}
     {{-- TMDB TAB                                                          --}}
