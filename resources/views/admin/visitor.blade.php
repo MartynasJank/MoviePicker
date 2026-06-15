@@ -25,10 +25,24 @@
         @endif
     </div>
 
-    @if($userAgent)
+    @if($parsedUA)
     <div class="mb-8">
-        <div class="text-xs text-gray-600 uppercase tracking-widest mb-1">User Agent</div>
-        <div class="font-mono text-xs text-gray-400 bg-white/3 border border-white/5 rounded-lg px-4 py-2.5 break-all">{{ $userAgent }}</div>
+        <div class="text-xs text-gray-600 uppercase tracking-widest mb-2">Device</div>
+        <div class="flex flex-wrap items-center gap-2 mb-2">
+            @if($parsedUA->browser)
+                <span class="text-xs px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-gray-300">{{ $parsedUA->browser }}</span>
+            @endif
+            @if($parsedUA->os)
+                <span class="text-xs px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-gray-300">{{ $parsedUA->os }}</span>
+            @endif
+            @if($parsedUA->device)
+                <span class="text-xs px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-gray-400">{{ $parsedUA->device }}</span>
+            @endif
+        </div>
+        <details class="group">
+            <summary class="text-xs text-gray-600 cursor-pointer hover:text-gray-400 transition-colors list-none">Raw UA <span class="group-open:hidden">▸</span><span class="hidden group-open:inline">▾</span></summary>
+            <div class="font-mono text-xs text-gray-600 bg-white/3 border border-white/5 rounded-lg px-4 py-2.5 break-all mt-2">{{ $parsedUA->raw }}</div>
+        </details>
     </div>
     @endif
 
