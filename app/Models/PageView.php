@@ -14,6 +14,7 @@ class PageView extends Model
         'bot',
         'route',
         'referrer',
+        'user_agent',
     ];
 
     public function user()

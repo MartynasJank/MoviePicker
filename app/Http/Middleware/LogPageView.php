@@ -62,6 +62,7 @@ class LogPageView
                 'bot'          => $bot,
                 'route'        => $route,
                 'referrer'     => $referrer,
+                'user_agent'   => substr($request->userAgent() ?? '', 0, 512) ?: null,
             ]);
         } catch (\Throwable) {
             // Never break requests

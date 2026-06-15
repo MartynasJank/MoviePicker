@@ -25,6 +25,13 @@
         @endif
     </div>
 
+    @if($userAgent)
+    <div class="mb-8">
+        <div class="text-xs text-gray-600 uppercase tracking-widest mb-1">User Agent</div>
+        <div class="font-mono text-xs text-gray-400 bg-white/3 border border-white/5 rounded-lg px-4 py-2.5 break-all">{{ $userAgent }}</div>
+    </div>
+    @endif
+
     {{-- Summary stats --}}
     @php
         $sessionCount = count($processedSessions);

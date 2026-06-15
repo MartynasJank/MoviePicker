@@ -17,6 +17,7 @@ class TmdbRequestLog extends Model
         'user_id',
         'visitor_hash',
         'bot',
+        'user_agent',
     ];
 
     protected $casts = [

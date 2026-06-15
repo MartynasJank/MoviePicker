@@ -463,6 +463,7 @@ class TmdbClient implements ApiMovie
                 'user_id'          => auth()->id(),
                 'visitor_hash'     => $this->visitorHash(),
                 'bot'              => $this->detectBot(),
+                'user_agent'       => substr(request()->userAgent() ?? '', 0, 512) ?: null,
             ]);
         } catch (\Throwable) {
             // Never let logging break a request
