@@ -92,7 +92,7 @@
             $today        = $tmdb['today'];
             $humanTotal   = $today->human_total ?? 0;
             $botTotal     = $today->bot_total ?? 0;
-            $botPct       = ($today->total ?? 0) > 0 ? round(($botTotal / $today->total) * 100) : 0;
+            $botPct       = ($today->total ?? 0) > 0 ? number_format(($botTotal / $today->total) * 100, 2) : '0.00';
             $humanHitRate = $humanTotal > 0 ? round((($today->human_hits ?? 0) / $humanTotal) * 100) : 0;
             $uniqueTotal  = ($today->unique_auth ?? 0) + ($today->unique_anon ?? 0);
             $projected    = $tmdb['revenue_week'] > 0 ? round(($tmdb['revenue_week'] / 7) * 30, 2) : 0;
