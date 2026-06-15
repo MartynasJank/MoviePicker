@@ -81,14 +81,21 @@ class AdminVisitorController extends Controller
             ->paginate(25)
             ->withQueryString();
 
-        // Resolve bot/user/UA from tmdb logs if page_views had none
+        // Resolve bot/user from tmdb logs if page_views had none
         if (!$bot && !$user) {
-            $firstLog  = $tmdbLogs->first();
-            $bot       = $bot ?? $firstLog?->bot;
-            $userAgent = $userAgent ?? $firstLog?->user_agent;
+            $firstLog = $tmdbLogs->first();
+            $bot      = $bot ?? $firstLog?->bot;
             if (!$user && $firstLog?->user_id) {
                 $user = User::find($firstLog->user_id);
             }
+        }
+
+        // UA: always fall back to tmdb logs if page_views didn't have one
+        if (!$userAgent) {
+            $userAgent = TmdbRequestLog::where('visitor_hash', $hash)
+                ->whereNotNull('user_agent')
+                ->orderByDesc('created_at')
+                ->value('user_agent');
         }
 
         // External referrers for this visitor
