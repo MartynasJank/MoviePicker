@@ -33,8 +33,16 @@ class AdminController extends Controller
                 AVG(CASE WHEN cached = 0 THEN response_time_ms ELSE NULL END) as avg_ms,
                 SUM(CASE WHEN status_code = 429 THEN 1 ELSE 0 END) as rate_limited,
                 COUNT(DISTINCT user_id) as unique_auth,
-                COUNT(DISTINCT CASE WHEN user_id IS NULL THEN visitor_hash END) as unique_anon
+                COUNT(DISTINCT CASE WHEN user_id IS NULL THEN visitor_hash END) as unique_anon,
+                SUM(CASE WHEN bot IS NOT NULL THEN 1 ELSE 0 END) as bot_total
             ')->whereDate('created_at', $today)->first();
+
+            $tmdb['bots_today'] = TmdbRequestLog::selectRaw('bot, COUNT(*) as total')
+                ->whereDate('created_at', $today)
+                ->whereNotNull('bot')
+                ->groupBy('bot')
+                ->orderByDesc('total')
+                ->get();
 
             // Short-window live request counts for rate limit monitoring
             $tmdb['last_60s']  = TmdbRequestLog::where('cached', false)
