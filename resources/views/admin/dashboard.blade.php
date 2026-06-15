@@ -154,27 +154,27 @@
         @endphp
 
         {{-- Revenue estimate --}}
-        <div class="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-5 mb-6">
+        <div class="bg-white/3 border border-white/5 rounded-xl p-5 mb-6">
             <div class="flex items-center justify-between mb-3">
                 <div>
-                    <div class="text-xs font-semibold text-emerald-400 uppercase tracking-widest">Estimated Ad Revenue</div>
-                    <div class="text-xs text-gray-500 mt-0.5">Based on human requests as page view proxy @ ${{ $tmdb['rpm'] }} RPM</div>
+                    <div class="text-xs font-semibold text-gray-500 uppercase tracking-widest">Estimated Ad Revenue</div>
+                    <div class="text-xs text-gray-600 mt-0.5">Human requests as page view proxy @ ${{ $tmdb['rpm'] }} RPM</div>
                 </div>
                 <div class="text-xs text-gray-600">{{ number_format($humanTotal) }} human requests today</div>
             </div>
             <div class="grid grid-cols-3 gap-4">
                 <div>
-                    <div class="text-2xl font-bold text-emerald-400">${{ number_format($tmdb['revenue_today'], 2) }}</div>
-                    <div class="text-xs text-gray-500 mt-0.5">Today</div>
+                    <div class="text-2xl font-bold text-accent mb-1">${{ number_format($tmdb['revenue_today'], 2) }}</div>
+                    <div class="text-xs text-gray-500">Today</div>
                 </div>
                 <div>
-                    <div class="text-2xl font-bold text-emerald-300">${{ number_format($tmdb['revenue_week'], 2) }}</div>
-                    <div class="text-xs text-gray-500 mt-0.5">Last 7 days</div>
+                    <div class="text-2xl font-bold text-white mb-1">${{ number_format($tmdb['revenue_week'], 2) }}</div>
+                    <div class="text-xs text-gray-500">Last 7 days</div>
                 </div>
                 <div>
                     @php $projected = $tmdb['revenue_week'] > 0 ? round(($tmdb['revenue_week'] / 7) * 30, 2) : 0; @endphp
-                    <div class="text-2xl font-bold text-emerald-200">${{ number_format($projected, 2) }}</div>
-                    <div class="text-xs text-gray-500 mt-0.5">Projected / month</div>
+                    <div class="text-2xl font-bold text-gray-400 mb-1">${{ number_format($projected, 2) }}</div>
+                    <div class="text-xs text-gray-500">Projected / month</div>
                 </div>
             </div>
         </div>
@@ -219,12 +219,12 @@
 
         <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Today — Bot Traffic</h2>
         <div class="grid grid-cols-2 gap-3 mb-10">
-            <div class="bg-red-500/5 border border-red-500/10 rounded-xl p-4">
+            <div class="bg-white/3 border border-white/5 rounded-xl p-4">
                 <div class="text-2xl font-bold text-red-400 mb-1">{{ number_format($botTotal) }}</div>
                 <div class="text-xs text-gray-500 uppercase tracking-widest">Bot Requests</div>
             </div>
-            <div class="bg-red-500/5 border border-red-500/10 rounded-xl p-4">
-                <div class="text-2xl font-bold text-red-300 mb-1">{{ $botPct }}%</div>
+            <div class="bg-white/3 border border-white/5 rounded-xl p-4">
+                <div class="text-2xl font-bold text-red-400 mb-1">{{ $botPct }}%</div>
                 <div class="text-xs text-gray-500 uppercase tracking-widest">% of All Traffic</div>
             </div>
         </div>
@@ -328,7 +328,7 @@
                         <td class="px-4 py-2.5 text-right text-green-400">{{ number_format($row->hits) }}</td>
                         <td class="px-4 py-2.5 text-right text-purple-400">{{ $pct }}%</td>
                         <td class="px-4 py-2.5 text-right text-orange-400">{{ $uniq }}</td>
-                        <td class="px-4 py-2.5 text-right text-emerald-400">${{ number_format($estRev, 2) }}</td>
+                        <td class="px-4 py-2.5 text-right text-accent">${{ number_format($estRev, 2) }}</td>
                     </tr>
                     @endforeach
                 </tbody>
