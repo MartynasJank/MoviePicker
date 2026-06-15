@@ -31,7 +31,9 @@ class AdminController extends Controller
                 SUM(CASE WHEN cached = 0 THEN 1 ELSE 0 END) as live,
                 SUM(CASE WHEN cached = 1 THEN 1 ELSE 0 END) as hits,
                 AVG(CASE WHEN cached = 0 THEN response_time_ms ELSE NULL END) as avg_ms,
-                SUM(CASE WHEN status_code = 429 THEN 1 ELSE 0 END) as rate_limited
+                SUM(CASE WHEN status_code = 429 THEN 1 ELSE 0 END) as rate_limited,
+                COUNT(DISTINCT user_id) as unique_auth,
+                COUNT(DISTINCT CASE WHEN user_id IS NULL THEN visitor_hash END) as unique_anon
             ')->whereDate('created_at', $today)->first();
 
             // Short-window live request counts for rate limit monitoring
@@ -76,11 +78,43 @@ class AdminController extends Controller
                 DATE(created_at) as date,
                 COUNT(*) as total,
                 SUM(CASE WHEN cached = 0 THEN 1 ELSE 0 END) as live,
-                SUM(CASE WHEN cached = 1 THEN 1 ELSE 0 END) as hits
+                SUM(CASE WHEN cached = 1 THEN 1 ELSE 0 END) as hits,
+                COUNT(DISTINCT user_id) as unique_auth,
+                COUNT(DISTINCT CASE WHEN user_id IS NULL THEN visitor_hash END) as unique_anon
             ')->where('created_at', '>=', $sevenDays)
               ->groupByRaw('DATE(created_at)')
               ->orderByDesc('date')
               ->get();
+
+            $topAuth = TmdbRequestLog::selectRaw('user_id, COUNT(*) as total')
+                ->whereDate('created_at', $today)
+                ->whereNotNull('user_id')
+                ->groupBy('user_id')
+                ->orderByDesc('total')
+                ->limit(10)
+                ->with('user')
+                ->get()
+                ->map(fn($r) => (object)[
+                    'label' => $r->user?->name ?? "User #{$r->user_id}",
+                    'type'  => 'auth',
+                    'total' => $r->total,
+                ]);
+
+            $topAnon = TmdbRequestLog::selectRaw('visitor_hash, COUNT(*) as total')
+                ->whereDate('created_at', $today)
+                ->whereNull('user_id')
+                ->whereNotNull('visitor_hash')
+                ->groupBy('visitor_hash')
+                ->orderByDesc('total')
+                ->limit(10)
+                ->get()
+                ->map(fn($r) => (object)[
+                    'label' => $r->visitor_hash,
+                    'type'  => 'anon',
+                    'total' => $r->total,
+                ]);
+
+            $tmdb['top_users'] = $topAuth->concat($topAnon)->sortByDesc('total')->take(10)->values();
 
             $tmdb['recent'] = TmdbRequestLog::with('user')
                 ->orderByDesc('id')

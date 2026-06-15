@@ -146,7 +146,7 @@
 
         {{-- Today's summary --}}
         <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Today</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-10">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-4">
             <div class="bg-white/3 border border-white/5 rounded-xl p-4">
                 <div class="text-2xl font-bold text-white mb-1">{{ number_format($today->total ?? 0) }}</div>
                 <div class="text-xs text-gray-500 uppercase tracking-widest">Total</div>
@@ -166,6 +166,23 @@
             <div class="bg-white/3 border border-white/5 rounded-xl p-4">
                 <div class="text-2xl font-bold text-yellow-400 mb-1">{{ $today->avg_ms ? round($today->avg_ms) . 'ms' : '—' }}</div>
                 <div class="text-xs text-gray-500 uppercase tracking-widest">Avg Response</div>
+            </div>
+        </div>
+        @php
+            $uniqueTotal = ($today->unique_auth ?? 0) + ($today->unique_anon ?? 0);
+        @endphp
+        <div class="grid grid-cols-3 gap-3 mb-10">
+            <div class="bg-white/3 border border-white/5 rounded-xl p-4">
+                <div class="text-2xl font-bold text-orange-400 mb-1">{{ $uniqueTotal }}</div>
+                <div class="text-xs text-gray-500 uppercase tracking-widest">Unique Users</div>
+            </div>
+            <div class="bg-white/3 border border-white/5 rounded-xl p-4">
+                <div class="text-2xl font-bold text-orange-300 mb-1">{{ $today->unique_auth ?? 0 }}</div>
+                <div class="text-xs text-gray-500 uppercase tracking-widest">Logged In</div>
+            </div>
+            <div class="bg-white/3 border border-white/5 rounded-xl p-4">
+                <div class="text-2xl font-bold text-orange-200 mb-1">{{ $today->unique_anon ?? 0 }}</div>
+                <div class="text-xs text-gray-500 uppercase tracking-widest">Anonymous</div>
             </div>
         </div>
 
@@ -211,7 +228,7 @@
                     @if($tmdb['daily']->isEmpty())
                         <div class="px-5 py-6 text-sm text-gray-500">No data yet.</div>
                     @else
-                    <table class="w-full text-sm min-w-[320px]">
+                    <table class="w-full text-sm min-w-[380px]">
                         <thead>
                             <tr class="border-b border-white/5">
                                 <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Date</th>
@@ -219,17 +236,22 @@
                                 <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Live</th>
                                 <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Cached</th>
                                 <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Hit %</th>
+                                <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Uniq</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-white/5">
                             @foreach($tmdb['daily'] as $row)
-                            @php $pct = $row->total > 0 ? round(($row->hits / $row->total) * 100) : 0; @endphp
+                            @php
+                                $pct   = $row->total > 0 ? round(($row->hits / $row->total) * 100) : 0;
+                                $uniq  = ($row->unique_auth ?? 0) + ($row->unique_anon ?? 0);
+                            @endphp
                             <tr>
                                 <td class="px-4 py-2.5 text-gray-300">{{ \Carbon\Carbon::parse($row->date)->format('M j') }}</td>
                                 <td class="px-4 py-2.5 text-right text-white">{{ number_format($row->total) }}</td>
                                 <td class="px-4 py-2.5 text-right text-blue-400">{{ number_format($row->live) }}</td>
                                 <td class="px-4 py-2.5 text-right text-green-400">{{ number_format($row->hits) }}</td>
                                 <td class="px-4 py-2.5 text-right text-purple-400">{{ $pct }}%</td>
+                                <td class="px-4 py-2.5 text-right text-orange-400">{{ $uniq }}</td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -307,6 +329,37 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+        @endif
+
+        {{-- Top Users Today --}}
+        @if($tmdb['top_users']->isNotEmpty())
+        <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Top Users — Today</h2>
+        <div class="bg-white/3 border border-white/5 rounded-xl overflow-x-auto mb-8">
+            <table class="w-full text-sm min-w-[320px]">
+                <thead>
+                    <tr class="border-b border-white/5">
+                        <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">User</th>
+                        <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Type</th>
+                        <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Requests</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                    @foreach($tmdb['top_users'] as $u)
+                    <tr>
+                        <td class="px-4 py-2.5 text-gray-300 font-mono text-xs">{{ $u->label }}</td>
+                        <td class="px-4 py-2.5">
+                            @if($u->type === 'auth')
+                                <span class="text-xs px-1.5 py-0.5 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20">logged in</span>
+                            @else
+                                <span class="text-xs px-1.5 py-0.5 rounded-full bg-white/5 text-gray-400 border border-white/10">anon</span>
+                            @endif
+                        </td>
+                        <td class="px-4 py-2.5 text-right text-white font-semibold">{{ number_format($u->total) }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
         @endif
 
