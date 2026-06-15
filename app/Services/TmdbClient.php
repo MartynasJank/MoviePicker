@@ -461,6 +461,7 @@ class TmdbClient implements ApiMovie
                 'response_time_ms' => $ms,
                 'user_id'          => auth()->id(),
                 'visitor_hash'     => $this->visitorHash(),
+                'bot'              => $this->detectBot(),
             ]);
         } catch (\Throwable) {
             // Never let logging break a request
@@ -485,6 +486,57 @@ class TmdbClient implements ApiMovie
             return substr(hash('sha256', $ip . $ua), 0, 16);
         } catch (\Throwable) {
             return '';
+        }
+    }
+
+    private function detectBot(): ?string
+    {
+        try {
+            $req = request();
+            $ua  = $req->userAgent() ?? '';
+
+            if ($ua === '') {
+                return 'no-ua';
+            }
+
+            $patterns = [
+                '/Googlebot/i'           => 'Googlebot',
+                '/Bingbot/i'             => 'Bingbot',
+                '/DuckDuckBot/i'         => 'DuckDuckBot',
+                '/YandexBot/i'           => 'YandexBot',
+                '/Baiduspider/i'         => 'Baiduspider',
+                '/Slurp/i'               => 'Yahoo-Slurp',
+                '/facebookexternalhit/i' => 'FacebookBot',
+                '/Twitterbot/i'          => 'Twitterbot',
+                '/LinkedInBot/i'         => 'LinkedInBot',
+                '/Slackbot/i'            => 'Slackbot',
+                '/Discordbot/i'          => 'Discordbot',
+                '/python-requests/i'     => 'python-requests',
+                '/curl\//i'              => 'curl',
+                '/wget\//i'              => 'wget',
+                '/Go-http-client/i'      => 'Go-http-client',
+                '/Java\//i'              => 'Java-client',
+                '/Scrapy/i'              => 'Scrapy',
+                '/PostmanRuntime/i'      => 'Postman',
+                '/HeadlessChrome/i'      => 'HeadlessChrome',
+                '/PhantomJS/i'           => 'PhantomJS',
+                '/bot|crawler|spider|scraper/i' => 'crawler',
+            ];
+
+            foreach ($patterns as $pattern => $name) {
+                if (preg_match($pattern, $ua)) {
+                    return $name;
+                }
+            }
+
+            // Real browsers always send Accept-Language
+            if (($req->header('Accept-Language') ?? '') === '') {
+                return 'no-accept-language';
+            }
+
+            return null;
+        } catch (\Throwable) {
+            return null;
         }
     }
 }
