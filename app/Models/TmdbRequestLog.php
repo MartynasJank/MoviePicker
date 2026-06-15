@@ -16,6 +16,7 @@ class TmdbRequestLog extends Model
         'response_time_ms',
         'user_id',
         'visitor_hash',
+        'bot',
     ];
 
     protected $casts = [
