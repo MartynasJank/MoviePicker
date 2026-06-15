@@ -274,6 +274,78 @@
 
         </div>
 
+        {{-- Top Pages Today --}}
+        @if(!empty($tmdb['top_pages']) && $tmdb['top_pages']->isNotEmpty())
+        <div class="mt-8">
+            <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Top Pages — Today (Human)</h2>
+            <div class="bg-white/3 border border-white/5 rounded-xl overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-white/5">
+                            <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Route</th>
+                            <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Views</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        @foreach($tmdb['top_pages'] as $page)
+                        <tr>
+                            <td class="px-4 py-2.5 font-mono text-xs text-gray-200">{{ $page->route }}</td>
+                            <td class="px-4 py-2.5 text-right text-white font-semibold">{{ number_format($page->total) }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @endif
+
+        {{-- Recent Visitors --}}
+        @if(!empty($tmdb['recent_visitors']) && $tmdb['recent_visitors']->isNotEmpty())
+        <div class="mt-8">
+            <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Recent Visitors — Last 24h</h2>
+            <div class="bg-white/3 border border-white/5 rounded-xl overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-white/5">
+                            <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Visitor</th>
+                            <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Type</th>
+                            <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Pages</th>
+                            <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Last Seen</th>
+                            <th class="px-4 py-2.5"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        @foreach($tmdb['recent_visitors'] as $v)
+                        <tr>
+                            <td class="px-4 py-2.5">
+                                <span class="font-mono text-xs text-gray-300">{{ substr($v->visitor_hash ?? '--------', 0, 8) }}</span>
+                                @if($v->user)
+                                    <span class="ml-2 text-xs text-gray-500">{{ $v->user->name }}</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-2.5">
+                                @if($v->bot)
+                                    <span class="text-xs px-1.5 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 font-mono">{{ $v->bot }}</span>
+                                @else
+                                    <span class="text-xs px-1.5 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20">human</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-2.5 text-right text-white font-semibold">{{ number_format($v->page_count) }}</td>
+                            <td class="px-4 py-2.5 text-xs text-gray-500 whitespace-nowrap">{{ \Carbon\Carbon::parse($v->last_seen)->diffForHumans() }}</td>
+                            <td class="px-4 py-2.5 text-right">
+                                @if($v->visitor_hash)
+                                <a href="{{ route('admin.visitor.show', $v->visitor_hash) }}"
+                                   class="text-xs text-accent hover:underline">View →</a>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @endif
+
     {{-- ================================================================ --}}
     {{-- TMDB TAB                                                          --}}
     {{-- ================================================================ --}}
