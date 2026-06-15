@@ -407,58 +407,30 @@
             </div>
         </div>
 
-        {{-- Referrers + Transitions side by side --}}
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
-
-            @if($tmdb['referrers']->isNotEmpty())
-            <div>
-                <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Top Referrers — Today</h2>
-                <div class="bg-white/3 border border-white/5 rounded-xl overflow-hidden">
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr class="border-b border-white/5">
-                                <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Source</th>
-                                <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Visits</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-white/5">
-                            @foreach($tmdb['referrers'] as $ref)
-                            <tr>
-                                <td class="px-4 py-2.5 font-mono text-xs text-gray-300">{{ $ref->referrer }}</td>
-                                <td class="px-4 py-2.5 text-right text-white font-semibold">{{ number_format($ref->total) }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+        {{-- Top Referrers --}}
+        @if($tmdb['referrers']->isNotEmpty())
+        <div class="mt-8">
+            <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Top Referrers — Today</h2>
+            <div class="bg-white/3 border border-white/5 rounded-xl overflow-hidden">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-white/5">
+                            <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Source</th>
+                            <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Visits</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        @foreach($tmdb['referrers'] as $ref)
+                        <tr>
+                            <td class="px-4 py-2.5 font-mono text-xs text-gray-300">{{ $ref->referrer }}</td>
+                            <td class="px-4 py-2.5 text-right text-white font-semibold">{{ number_format($ref->total) }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
-            @endif
-
-            @if(!empty($tmdb['transitions']))
-            <div>
-                <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Top A→B Transitions — Last 7 Days</h2>
-                <div class="bg-white/3 border border-white/5 rounded-xl overflow-hidden">
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr class="border-b border-white/5">
-                                <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Flow</th>
-                                <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Count</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-white/5">
-                            @foreach($tmdb['transitions'] as $flow => $count)
-                            <tr>
-                                <td class="px-4 py-2.5 font-mono text-xs text-gray-300">{{ $flow }}</td>
-                                <td class="px-4 py-2.5 text-right text-white font-semibold">{{ number_format($count) }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            @endif
-
         </div>
+        @endif
 
     {{-- ================================================================ --}}
     {{-- TMDB TAB                                                          --}}

@@ -53,47 +53,25 @@
         </div>
     </div>
 
-    {{-- Referrers + Transitions + Hourly --}}
-    @if(!empty($referrers) || !empty($transitions) || $hourly->max('total') > 0)
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-
-        @if(!empty($referrers))
-        <div>
-            <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">External Referrers</h2>
-            <div class="bg-white/3 border border-white/5 rounded-xl overflow-hidden">
-                <table class="w-full text-sm">
-                    <tbody class="divide-y divide-white/5">
-                        @foreach($referrers as $domain => $count)
-                        <tr>
-                            <td class="px-4 py-2.5 font-mono text-xs text-gray-300">{{ $domain }}</td>
-                            <td class="px-4 py-2.5 text-right text-white font-semibold">{{ $count }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+    {{-- Referrers + Hourly --}}
+    @if(!empty($referrers) || $hourly->max('total') > 0)
+    @if(!empty($referrers))
+    <div class="mb-8">
+        <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">External Referrers</h2>
+        <div class="bg-white/3 border border-white/5 rounded-xl overflow-hidden">
+            <table class="w-full text-sm">
+                <tbody class="divide-y divide-white/5">
+                    @foreach($referrers as $domain => $count)
+                    <tr>
+                        <td class="px-4 py-2.5 font-mono text-xs text-gray-300">{{ $domain }}</td>
+                        <td class="px-4 py-2.5 text-right text-white font-semibold">{{ $count }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
-        @endif
-
-        @if(!empty($transitions))
-        <div>
-            <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">A→B Transitions</h2>
-            <div class="bg-white/3 border border-white/5 rounded-xl overflow-hidden">
-                <table class="w-full text-sm">
-                    <tbody class="divide-y divide-white/5">
-                        @foreach($transitions as $flow => $count)
-                        <tr>
-                            <td class="px-4 py-2.5 font-mono text-xs text-gray-300">{{ $flow }}</td>
-                            <td class="px-4 py-2.5 text-right text-white font-semibold">{{ $count }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        @endif
-
     </div>
+    @endif
 
     @if($hourly->max('total') > 0)
     <div class="mb-8">

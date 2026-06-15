@@ -99,21 +99,6 @@ class AdminUserController extends Controller
         arsort($referrerCounts);
         $referrers = array_slice($referrerCounts, 0, 5, true);
 
-        // A→B transitions for this user
-        $transCounts = [];
-        foreach ($processedSessions as $session) {
-            for ($j = 0; $j < count($session->pages) - 1; $j++) {
-                $from = $session->pages[$j]->route;
-                $to   = $session->pages[$j + 1]->route;
-                if ($from !== $to) {
-                    $key = $from . ' → ' . $to;
-                    $transCounts[$key] = ($transCounts[$key] ?? 0) + 1;
-                }
-            }
-        }
-        arsort($transCounts);
-        $transitions = array_slice($transCounts, 0, 10, true);
-
         // Hourly activity for this user (last 30 days)
         $hourlyRows = PageView::selectRaw('HOUR(created_at) as hour, COUNT(*) as total')
             ->where('user_id', $user->id)
@@ -126,7 +111,7 @@ class AdminUserController extends Controller
             'total' => $hourlyRows->get($h)?->total ?? 0,
         ]);
 
-        return view('admin.users.show', compact('user', 'ordered', 'roulettes', 'tmdbLogs', 'processedSessions', 'referrers', 'transitions', 'hourly'));
+        return view('admin.users.show', compact('user', 'ordered', 'roulettes', 'tmdbLogs', 'processedSessions', 'referrers', 'hourly'));
     }
 
     public function destroyRoulette(User $user, Roulette $roulette)

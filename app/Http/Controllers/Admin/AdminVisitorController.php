@@ -101,21 +101,6 @@ class AdminVisitorController extends Controller
         arsort($referrerCounts);
         $referrers = array_slice($referrerCounts, 0, 5, true);
 
-        // A→B transitions for this visitor
-        $transCounts = [];
-        foreach ($processedSessions as $session) {
-            for ($j = 0; $j < count($session->pages) - 1; $j++) {
-                $from = $session->pages[$j]->route;
-                $to   = $session->pages[$j + 1]->route;
-                if ($from !== $to) {
-                    $key = $from . ' → ' . $to;
-                    $transCounts[$key] = ($transCounts[$key] ?? 0) + 1;
-                }
-            }
-        }
-        arsort($transCounts);
-        $transitions = array_slice($transCounts, 0, 10, true);
-
         // Hourly activity for this visitor (last 30 days)
         $hourlyRows = PageView::selectRaw('HOUR(created_at) as hour, COUNT(*) as total')
             ->where('visitor_hash', $hash)
@@ -128,6 +113,6 @@ class AdminVisitorController extends Controller
             'total' => $hourlyRows->get($h)?->total ?? 0,
         ]);
 
-        return view('admin.visitor', compact('hash', 'user', 'bot', 'processedSessions', 'total', 'tmdbLogs', 'referrers', 'transitions', 'hourly'));
+        return view('admin.visitor', compact('hash', 'user', 'bot', 'processedSessions', 'total', 'tmdbLogs', 'referrers', 'hourly'));
     }
 }

@@ -232,29 +232,6 @@ class AdminController extends Controller
             $tmdb['bounce_rate']      = $totalSess > 0 ? round(($bounced / $totalSess) * 100) : null;
             $tmdb['avg_session_secs'] = $totalSess > 0 ? (int) round(array_sum(array_column($sessionStats, 'secs')) / $totalSess) : null;
 
-            // A→B transitions — last 7 days, human, PHP session grouping
-            $recentViews = PageView::where('created_at', '>=', $sevenDays)
-                ->whereNull('bot')
-                ->whereNotNull('visitor_hash')
-                ->orderBy('visitor_hash')
-                ->orderBy('created_at')
-                ->get(['visitor_hash', 'route', 'created_at']);
-
-            $transCounts = [];
-            foreach ($recentViews->groupBy('visitor_hash') as $views) {
-                $sorted = $views->sortBy('created_at')->values();
-                for ($i = 0; $i < $sorted->count() - 1; $i++) {
-                    $curr = $sorted[$i];
-                    $next = $sorted[$i + 1];
-                    if ($next->created_at->diffInSeconds($curr->created_at) <= 1800 && $curr->route !== $next->route) {
-                        $key = $curr->route . ' → ' . $next->route;
-                        $transCounts[$key] = ($transCounts[$key] ?? 0) + 1;
-                    }
-                }
-            }
-            arsort($transCounts);
-            $tmdb['transitions'] = array_slice($transCounts, 0, 10, true);
-
             $tmdb['recent'] = TmdbRequestLog::with('user')
                 ->orderByDesc('id')
                 ->paginate(25)
