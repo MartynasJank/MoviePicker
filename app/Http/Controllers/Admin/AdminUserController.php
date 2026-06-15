@@ -41,10 +41,14 @@ class AdminUserController extends Controller
             }
         }
 
+        $tmdbLogsTotal = TmdbRequestLog::where('user_id', $user->id)
+            ->where('created_at', '>=', now()->subDays(30))
+            ->count();
+
         $tmdbLogs = TmdbRequestLog::where('user_id', $user->id)
             ->where('created_at', '>=', now()->subDays(30))
             ->orderByDesc('created_at')
-            ->limit(100)
+            ->limit(25)
             ->get();
 
         $pageViewRows = PageView::where('user_id', $user->id)
@@ -87,7 +91,7 @@ class AdminUserController extends Controller
             ];
         }
 
-        return view('admin.users.show', compact('user', 'ordered', 'roulettes', 'tmdbLogs', 'processedSessions'));
+        return view('admin.users.show', compact('user', 'ordered', 'roulettes', 'tmdbLogs', 'tmdbLogsTotal', 'processedSessions'));
     }
 
     public function destroyRoulette(User $user, Roulette $roulette)

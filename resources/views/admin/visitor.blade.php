@@ -53,94 +53,101 @@
         </div>
     </div>
 
-    {{-- TMDB Requests --}}
+    {{-- TMDB Requests (collapsible) --}}
     @if($tmdbLogs->isNotEmpty())
     <div class="mb-10">
-        <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">TMDB Requests — Last 30 Days</h2>
-        <div class="bg-white/3 border border-white/5 rounded-xl overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b border-white/5">
-                        <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Time</th>
-                        <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Endpoint</th>
-                        <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Route</th>
-                        <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Cache</th>
-                        <th class="text-right px-5 py-2.5 text-xs text-gray-500 font-medium">ms</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-white/5">
-                    @foreach($tmdbLogs as $log)
-                    <tr>
-                        <td class="px-5 py-2 text-xs text-gray-500 whitespace-nowrap">{{ $log->created_at->format('M j H:i:s') }}</td>
-                        <td class="px-5 py-2 font-mono text-xs text-gray-300">{{ $log->endpoint }}</td>
-                        <td class="px-5 py-2 font-mono text-xs text-gray-500">{{ $log->route }}</td>
-                        <td class="px-5 py-2 text-xs">
-                            @if($log->cached)
-                                <span class="text-blue-400">hit</span>
-                            @else
-                                <span class="text-gray-500">live</span>
-                            @endif
-                        </td>
-                        <td class="px-5 py-2 text-right text-xs text-gray-500">{{ $log->cached ? '—' : $log->response_time_ms }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+        <details class="group">
+            <summary class="flex items-center justify-between cursor-pointer list-none mb-3">
+                <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest">TMDB Requests — Last 30 Days</h2>
+                <div class="flex items-center gap-3 text-xs text-gray-600">
+                    <span>{{ number_format($tmdbLogsTotal) }} total · showing {{ $tmdbLogs->count() }}</span>
+                    <span class="group-open:rotate-180 transition-transform">▾</span>
+                </div>
+            </summary>
+            <div class="bg-white/3 border border-white/5 rounded-xl overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-white/5">
+                            <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Time</th>
+                            <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Endpoint</th>
+                            <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Route</th>
+                            <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Cache</th>
+                            <th class="text-right px-5 py-2.5 text-xs text-gray-500 font-medium">ms</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        @foreach($tmdbLogs as $log)
+                        <tr>
+                            <td class="px-5 py-2 text-xs text-gray-500 whitespace-nowrap">{{ $log->created_at->format('M j H:i:s') }}</td>
+                            <td class="px-5 py-2 font-mono text-xs text-gray-300">{{ $log->endpoint }}</td>
+                            <td class="px-5 py-2 font-mono text-xs text-gray-500">{{ $log->route }}</td>
+                            <td class="px-5 py-2 text-xs">
+                                @if($log->cached)<span class="text-blue-400">hit</span>
+                                @else<span class="text-gray-500">live</span>@endif
+                            </td>
+                            <td class="px-5 py-2 text-right text-xs text-gray-500">{{ $log->cached ? '—' : $log->response_time_ms }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </details>
     </div>
     @endif
 
-    {{-- Sessions --}}
+    {{-- Page Flow --}}
+    <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">
+        Page Flow — Last 30 Days
+        @if(!empty($processedSessions))
+            <span class="ml-2 normal-case font-normal text-gray-600">{{ count($processedSessions) }} {{ Str::plural('session', count($processedSessions)) }}</span>
+        @endif
+    </h2>
+
     @if(empty($processedSessions))
         <div class="bg-white/3 border border-white/5 rounded-xl px-5 py-8 text-sm text-gray-500">
             No page flow recorded yet — page view tracking started recently.
         </div>
     @else
-        <div class="space-y-6">
+        <div class="space-y-2">
             @foreach($processedSessions as $i => $session)
             @php
                 $mins = floor($session->duration / 60);
                 $secs = $session->duration % 60;
                 $durationStr = $mins > 0 ? "{$mins}m {$secs}s" : "{$secs}s";
+                $isFirst = $i === 0;
             @endphp
-            <div class="bg-white/3 border border-white/5 rounded-xl overflow-hidden">
-                {{-- Session header --}}
-                <div class="px-5 py-3 border-b border-white/5 flex items-center justify-between gap-4">
-                    <div>
-                        <span class="text-xs font-semibold text-gray-500 uppercase tracking-widest">Session {{ $i + 1 }}</span>
-                        <span class="ml-3 text-sm text-gray-300">{{ $session->start->format('M j, Y · H:i') }}</span>
+            <details class="group bg-white/3 border border-white/5 rounded-xl overflow-hidden" {{ $isFirst ? 'open' : '' }}>
+                <summary class="flex items-center justify-between px-5 py-3 cursor-pointer list-none hover:bg-white/2 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs text-gray-600 w-16">Session {{ count($processedSessions) - $i }}</span>
+                        <span class="text-sm text-gray-300">{{ $session->start->format('M j, Y · H:i') }}</span>
                     </div>
                     <div class="flex items-center gap-4 text-xs text-gray-500">
                         <span>{{ count($session->pages) }} {{ Str::plural('page', count($session->pages)) }}</span>
-                        @if($session->duration > 0)
-                            <span>{{ $durationStr }}</span>
-                        @endif
+                        @if($session->duration > 0)<span>{{ $durationStr }}</span>@endif
+                        <span class="group-open:rotate-180 transition-transform text-gray-600">▾</span>
                     </div>
-                </div>
+                </summary>
 
-                {{-- Pages table --}}
-                <table class="w-full text-sm">
+                <table class="w-full text-sm border-t border-white/5">
                     <thead>
                         <tr class="border-b border-white/5">
-                            <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Route</th>
-                            <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Referrer</th>
-                            <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Time</th>
-                            <th class="text-right px-5 py-2.5 text-xs text-gray-500 font-medium">Time on Page</th>
+                            <th class="text-left px-5 py-2 text-xs text-gray-500 font-medium">Route</th>
+                            <th class="text-left px-5 py-2 text-xs text-gray-500 font-medium">Referrer</th>
+                            <th class="text-left px-5 py-2 text-xs text-gray-500 font-medium">Time</th>
+                            <th class="text-right px-5 py-2 text-xs text-gray-500 font-medium">Time on Page</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-white/5">
                         @foreach($session->pages as $page)
                         <tr>
-                            <td class="px-5 py-2.5 font-mono text-xs text-gray-200">{{ $page->route }}</td>
-                            <td class="px-5 py-2.5 text-xs text-gray-500 font-mono">{{ $page->referrer ?? '—' }}</td>
-                            <td class="px-5 py-2.5 text-xs text-gray-500 whitespace-nowrap">{{ $page->created_at->format('H:i:s') }}</td>
-                            <td class="px-5 py-2.5 text-right text-xs">
+                            <td class="px-5 py-2 font-mono text-xs text-gray-200">{{ $page->route }}</td>
+                            <td class="px-5 py-2 font-mono text-xs text-gray-500">{{ $page->referrer ?? '—' }}</td>
+                            <td class="px-5 py-2 text-xs text-gray-500 whitespace-nowrap">{{ $page->created_at->format('H:i:s') }}</td>
+                            <td class="px-5 py-2 text-right text-xs">
                                 @if($page->time_on_page !== null)
-                                    @php
-                                        $t = $page->time_on_page;
-                                        $display = $t >= 60 ? floor($t/60) . 'm ' . ($t%60) . 's' : $t . 's';
-                                    @endphp
-                                    <span class="text-gray-400">{{ $display }}</span>
+                                    @php $t = $page->time_on_page; @endphp
+                                    <span class="text-gray-400">{{ $t >= 60 ? floor($t/60).'m '.($t%60).'s' : $t.'s' }}</span>
                                 @else
                                     <span class="text-gray-600">—</span>
                                 @endif
@@ -149,7 +156,7 @@
                         @endforeach
                     </tbody>
                 </table>
-            </div>
+            </details>
             @endforeach
         </div>
     @endif
