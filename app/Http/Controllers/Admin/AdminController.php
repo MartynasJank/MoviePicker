@@ -266,7 +266,7 @@ class AdminController extends Controller
                 'hash'       => $row->visitor_hash,
                 'bot'        => $row->bot,
                 'page_count' => $row->page_count,
-                'last_seen'  => $row->last_seen,
+                'last_seen'  => \Carbon\Carbon::parse($row->last_seen)->timestamp,
                 'user_name'  => $user?->name,
                 'user_id'    => $row->user_id,
             ];

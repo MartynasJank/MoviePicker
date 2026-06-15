@@ -705,8 +705,8 @@ document.addEventListener('DOMContentLoaded', function () {
     var visitorBase = '{{ url('admin/visitor') }}/';
     var activeSort  = 'last_seen';
 
-    function humanTime(isoString) {
-        var diff = Math.floor((Date.now() - new Date(isoString).getTime()) / 1000);
+    function humanTime(unixTs) {
+        var diff = Math.floor(Date.now() / 1000) - unixTs;
         if (diff < 60)  { return diff === 1 ? '1 second ago' : diff + ' seconds ago'; }
         var mins = Math.floor(diff / 60);
         if (mins < 60)  { return mins === 1 ? '1 minute ago' : mins + ' minutes ago'; }
