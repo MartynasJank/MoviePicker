@@ -26,6 +26,7 @@ use App\Http\Controllers\SwipeController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminRouletteController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\AdminVisitorController;
 use App\Http\Controllers\Admin\RowOrderController;
 
 // ── Public pages ─────────────────────────────────────────────────────────────
@@ -152,6 +153,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     Route::get('users', [AdminUserController::class, 'index'])->name('users.index');
     Route::get('users/{user}', [AdminUserController::class, 'show'])->name('users.show');
     Route::delete('users/{user}/roulettes/{roulette}', [AdminUserController::class, 'destroyRoulette'])->name('users.roulettes.destroy');
+    Route::get('visitor/{hash}', [AdminVisitorController::class, 'show'])->name('visitor.show');
 });
 
 // ── Dev only ──────────────────────────────────────────────────────────────────
