@@ -19,10 +19,10 @@ class AdminController extends Controller
         ];
 
         $rowOrder   = Setting::get('roulette_row_order', []);
-        $activeTab  = request('tab', 'overview');
+        $activeTab  = request('tab', 'roulettes');
         $tmdb       = [];
 
-        if ($activeTab === 'tmdb') {
+        if (in_array($activeTab, ['tmdb', 'traffic'])) {
             $today     = now()->toDateString();
             $sevenDays = now()->subDays(6)->startOfDay();
 
