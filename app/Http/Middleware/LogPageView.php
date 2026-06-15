@@ -42,7 +42,7 @@ class LogPageView
             $rawRef   = $request->header('Referer', '');
             if ($rawRef !== '') {
                 $parsed  = parse_url($rawRef);
-                $appHost = parse_url(config('app.url', ''), PHP_URL_HOST);
+                $appHost = $request->getHost();
                 $refHost = $parsed['host'] ?? '';
 
                 if ($refHost !== '' && $refHost === $appHost) {
