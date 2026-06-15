@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\PageView;
 use App\Models\Roulette;
 use App\Models\Setting;
+use App\Models\TmdbRequestLog;
 use App\Models\User;
 
 class AdminUserController extends Controller
@@ -39,7 +41,53 @@ class AdminUserController extends Controller
             }
         }
 
-        return view('admin.users.show', compact('user', 'ordered', 'roulettes'));
+        $tmdbLogs = TmdbRequestLog::where('user_id', $user->id)
+            ->where('created_at', '>=', now()->subDays(30))
+            ->orderByDesc('created_at')
+            ->limit(100)
+            ->get();
+
+        $pageViewRows = PageView::where('user_id', $user->id)
+            ->where('created_at', '>=', now()->subDays(30))
+            ->orderBy('created_at')
+            ->get();
+
+        $sessions = [];
+        $current  = [];
+        foreach ($pageViewRows as $view) {
+            if (empty($current)) {
+                $current[] = $view;
+            } else {
+                $gap = $view->created_at->diffInSeconds(end($current)->created_at);
+                if ($gap > 1800) { $sessions[] = $current; $current = []; }
+                $current[] = $view;
+            }
+        }
+        if (!empty($current)) $sessions[] = $current;
+
+        $processedSessions = [];
+        foreach ($sessions as $session) {
+            $pages = [];
+            foreach ($session as $j => $view) {
+                $pages[] = (object)[
+                    'route'        => $view->route,
+                    'referrer'     => $view->referrer,
+                    'created_at'   => $view->created_at,
+                    'time_on_page' => isset($session[$j + 1])
+                        ? $view->created_at->diffInSeconds($session[$j + 1]->created_at)
+                        : null,
+                ];
+            }
+            $start = $session[0]->created_at;
+            $end   = end($session)->created_at;
+            $processedSessions[] = (object)[
+                'start'    => $start,
+                'duration' => $start->diffInSeconds($end),
+                'pages'    => $pages,
+            ];
+        }
+
+        return view('admin.users.show', compact('user', 'ordered', 'roulettes', 'tmdbLogs', 'processedSessions'));
     }
 
     public function destroyRoulette(User $user, Roulette $roulette)
