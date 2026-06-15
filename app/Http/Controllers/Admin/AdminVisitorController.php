@@ -71,8 +71,9 @@ class AdminVisitorController extends Controller
         $user       = $userRecord ? User::find($userRecord->user_id) : null;
 
         // Bot from first record
-        $bot   = $views->first()?->bot;
-        $total = $views->count();
+        $bot       = $views->first()?->bot;
+        $userAgent = $views->first()?->user_agent;
+        $total     = $views->count();
 
         $tmdbLogs = TmdbRequestLog::where('visitor_hash', $hash)
             ->where('created_at', '>=', now()->subDays(30))
@@ -80,10 +81,11 @@ class AdminVisitorController extends Controller
             ->paginate(25)
             ->withQueryString();
 
-        // Resolve bot/user from tmdb logs if page_views had none
+        // Resolve bot/user/UA from tmdb logs if page_views had none
         if (!$bot && !$user) {
-            $firstLog = $tmdbLogs->first();
-            $bot      = $bot ?? $firstLog?->bot;
+            $firstLog  = $tmdbLogs->first();
+            $bot       = $bot ?? $firstLog?->bot;
+            $userAgent = $userAgent ?? $firstLog?->user_agent;
             if (!$user && $firstLog?->user_id) {
                 $user = User::find($firstLog->user_id);
             }
@@ -113,6 +115,6 @@ class AdminVisitorController extends Controller
             'total' => $hourlyRows->get($h)?->total ?? 0,
         ]);
 
-        return view('admin.visitor', compact('hash', 'user', 'bot', 'processedSessions', 'total', 'tmdbLogs', 'referrers', 'hourly'));
+        return view('admin.visitor', compact('hash', 'user', 'bot', 'userAgent', 'processedSessions', 'total', 'tmdbLogs', 'referrers', 'hourly'));
     }
 }
