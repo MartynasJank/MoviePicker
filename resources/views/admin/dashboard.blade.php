@@ -145,33 +145,64 @@
         </div>
 
         {{-- Today's summary --}}
-        <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Today</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-4">
+        @php
+            $humanTotal    = $today->human_total ?? 0;
+            $botTotal      = $today->bot_total ?? 0;
+            $botPct        = ($today->total ?? 0) > 0 ? round(($botTotal / $today->total) * 100) : 0;
+            $humanHitRate  = $humanTotal > 0 ? round((($today->human_hits ?? 0) / $humanTotal) * 100) : 0;
+            $uniqueTotal   = ($today->unique_auth ?? 0) + ($today->unique_anon ?? 0);
+        @endphp
+
+        {{-- Revenue estimate --}}
+        <div class="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-5 mb-6">
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <div class="text-xs font-semibold text-emerald-400 uppercase tracking-widest">Estimated Ad Revenue</div>
+                    <div class="text-xs text-gray-500 mt-0.5">Based on human requests as page view proxy @ ${{ $tmdb['rpm'] }} RPM</div>
+                </div>
+                <div class="text-xs text-gray-600">{{ number_format($humanTotal) }} human requests today</div>
+            </div>
+            <div class="grid grid-cols-3 gap-4">
+                <div>
+                    <div class="text-2xl font-bold text-emerald-400">${{ number_format($tmdb['revenue_today'], 2) }}</div>
+                    <div class="text-xs text-gray-500 mt-0.5">Today</div>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-emerald-300">${{ number_format($tmdb['revenue_week'], 2) }}</div>
+                    <div class="text-xs text-gray-500 mt-0.5">Last 7 days</div>
+                </div>
+                <div>
+                    @php $projected = $tmdb['revenue_week'] > 0 ? round(($tmdb['revenue_week'] / 7) * 30, 2) : 0; @endphp
+                    <div class="text-2xl font-bold text-emerald-200">${{ number_format($projected, 2) }}</div>
+                    <div class="text-xs text-gray-500 mt-0.5">Projected / month</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Today — Human Traffic</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-3">
             <div class="bg-white/3 border border-white/5 rounded-xl p-4">
-                <div class="text-2xl font-bold text-white mb-1">{{ number_format($today->total ?? 0) }}</div>
+                <div class="text-2xl font-bold text-white mb-1">{{ number_format($humanTotal) }}</div>
                 <div class="text-xs text-gray-500 uppercase tracking-widest">Total</div>
             </div>
             <div class="bg-white/3 border border-white/5 rounded-xl p-4">
-                <div class="text-2xl font-bold text-blue-400 mb-1">{{ number_format($today->live ?? 0) }}</div>
+                <div class="text-2xl font-bold text-blue-400 mb-1">{{ number_format($today->human_live ?? 0) }}</div>
                 <div class="text-xs text-gray-500 uppercase tracking-widest">Live</div>
             </div>
             <div class="bg-white/3 border border-white/5 rounded-xl p-4">
-                <div class="text-2xl font-bold text-green-400 mb-1">{{ number_format($today->hits ?? 0) }}</div>
+                <div class="text-2xl font-bold text-green-400 mb-1">{{ number_format($today->human_hits ?? 0) }}</div>
                 <div class="text-xs text-gray-500 uppercase tracking-widest">Cached</div>
             </div>
             <div class="bg-white/3 border border-white/5 rounded-xl p-4">
-                <div class="text-2xl font-bold text-purple-400 mb-1">{{ $hitRate }}%</div>
+                <div class="text-2xl font-bold text-purple-400 mb-1">{{ $humanHitRate }}%</div>
                 <div class="text-xs text-gray-500 uppercase tracking-widest">Hit Rate</div>
             </div>
             <div class="bg-white/3 border border-white/5 rounded-xl p-4">
-                <div class="text-2xl font-bold text-yellow-400 mb-1">{{ $today->avg_ms ? round($today->avg_ms) . 'ms' : '—' }}</div>
+                <div class="text-2xl font-bold text-yellow-400 mb-1">{{ $today->human_avg_ms ? round($today->human_avg_ms) . 'ms' : '—' }}</div>
                 <div class="text-xs text-gray-500 uppercase tracking-widest">Avg Response</div>
             </div>
         </div>
-        @php
-            $uniqueTotal = ($today->unique_auth ?? 0) + ($today->unique_anon ?? 0);
-        @endphp
-        <div class="grid grid-cols-4 gap-3 mb-10">
+        <div class="grid grid-cols-3 gap-3 mb-6">
             <div class="bg-white/3 border border-white/5 rounded-xl p-4">
                 <div class="text-2xl font-bold text-orange-400 mb-1">{{ $uniqueTotal }}</div>
                 <div class="text-xs text-gray-500 uppercase tracking-widest">Unique Users</div>
@@ -184,17 +215,25 @@
                 <div class="text-2xl font-bold text-orange-200 mb-1">{{ $today->unique_anon ?? 0 }}</div>
                 <div class="text-xs text-gray-500 uppercase tracking-widest">Anonymous</div>
             </div>
-            <div class="bg-white/3 border border-white/5 rounded-xl p-4">
-                <div class="text-2xl font-bold text-red-400 mb-1">{{ $today->bot_total ?? 0 }}</div>
+        </div>
+
+        <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Today — Bot Traffic</h2>
+        <div class="grid grid-cols-2 gap-3 mb-10">
+            <div class="bg-red-500/5 border border-red-500/10 rounded-xl p-4">
+                <div class="text-2xl font-bold text-red-400 mb-1">{{ number_format($botTotal) }}</div>
                 <div class="text-xs text-gray-500 uppercase tracking-widest">Bot Requests</div>
+            </div>
+            <div class="bg-red-500/5 border border-red-500/10 rounded-xl p-4">
+                <div class="text-2xl font-bold text-red-300 mb-1">{{ $botPct }}%</div>
+                <div class="text-xs text-gray-500 uppercase tracking-widest">% of All Traffic</div>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
 
-            {{-- By endpoint --}}
+            {{-- By endpoint — human --}}
             <div>
-                <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">By Endpoint — Today</h2>
+                <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">By Endpoint — Human</h2>
                 <div class="bg-white/3 border border-white/5 rounded-xl overflow-x-auto">
                     @if($tmdb['by_endpoint']->isEmpty())
                         <div class="px-5 py-6 text-sm text-gray-500">No requests yet today.</div>
@@ -225,37 +264,25 @@
                 </div>
             </div>
 
-            {{-- Last 7 days --}}
+            {{-- By endpoint — bots --}}
             <div>
-                <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Last 7 Days</h2>
+                <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">By Endpoint — Bots</h2>
                 <div class="bg-white/3 border border-white/5 rounded-xl overflow-x-auto">
-                    @if($tmdb['daily']->isEmpty())
-                        <div class="px-5 py-6 text-sm text-gray-500">No data yet.</div>
+                    @if($tmdb['by_endpoint_bots']->isEmpty())
+                        <div class="px-5 py-6 text-sm text-gray-500">No bot requests today.</div>
                     @else
-                    <table class="w-full text-sm min-w-[380px]">
+                    <table class="w-full text-sm min-w-[280px]">
                         <thead>
                             <tr class="border-b border-white/5">
-                                <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Date</th>
-                                <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Total</th>
-                                <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Live</th>
-                                <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Cached</th>
-                                <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Hit %</th>
-                                <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Uniq</th>
+                                <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Endpoint</th>
+                                <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Requests</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-white/5">
-                            @foreach($tmdb['daily'] as $row)
-                            @php
-                                $pct   = $row->total > 0 ? round(($row->hits / $row->total) * 100) : 0;
-                                $uniq  = ($row->unique_auth ?? 0) + ($row->unique_anon ?? 0);
-                            @endphp
+                            @foreach($tmdb['by_endpoint_bots'] as $row)
                             <tr>
-                                <td class="px-4 py-2.5 text-gray-300">{{ \Carbon\Carbon::parse($row->date)->format('M j') }}</td>
+                                <td class="px-4 py-2.5 text-red-300 font-mono text-xs">{{ str_replace('_', '/', $row->endpoint) }}</td>
                                 <td class="px-4 py-2.5 text-right text-white">{{ number_format($row->total) }}</td>
-                                <td class="px-4 py-2.5 text-right text-blue-400">{{ number_format($row->live) }}</td>
-                                <td class="px-4 py-2.5 text-right text-green-400">{{ number_format($row->hits) }}</td>
-                                <td class="px-4 py-2.5 text-right text-purple-400">{{ $pct }}%</td>
-                                <td class="px-4 py-2.5 text-right text-orange-400">{{ $uniq }}</td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -264,6 +291,49 @@
                 </div>
             </div>
 
+        </div>
+
+        {{-- Last 7 days --}}
+        <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Last 7 Days</h2>
+        <div class="bg-white/3 border border-white/5 rounded-xl overflow-x-auto mb-10">
+            @if($tmdb['daily']->isEmpty())
+                <div class="px-5 py-6 text-sm text-gray-500">No data yet.</div>
+            @else
+            <table class="w-full text-sm min-w-[520px]">
+                <thead>
+                    <tr class="border-b border-white/5">
+                        <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Date</th>
+                        <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Human</th>
+                        <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Bots</th>
+                        <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Bot %</th>
+                        <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Cached</th>
+                        <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Hit %</th>
+                        <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Uniq</th>
+                        <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Est. $</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                    @foreach($tmdb['daily'] as $row)
+                    @php
+                        $pct       = $row->total > 0 ? round(($row->hits / $row->total) * 100) : 0;
+                        $botPctDay = $row->total > 0 ? round((($row->bot_count ?? 0) / $row->total) * 100) : 0;
+                        $uniq      = ($row->unique_auth ?? 0) + ($row->unique_anon ?? 0);
+                        $estRev    = round((($row->human_total ?? 0) / 1000) * $tmdb['rpm'], 2);
+                    @endphp
+                    <tr>
+                        <td class="px-4 py-2.5 text-gray-300">{{ \Carbon\Carbon::parse($row->date)->format('M j') }}</td>
+                        <td class="px-4 py-2.5 text-right text-white">{{ number_format($row->human_total ?? 0) }}</td>
+                        <td class="px-4 py-2.5 text-right text-red-400">{{ number_format($row->bot_count ?? 0) }}</td>
+                        <td class="px-4 py-2.5 text-right {{ $botPctDay >= 40 ? 'text-red-400' : 'text-gray-500' }}">{{ $botPctDay }}%</td>
+                        <td class="px-4 py-2.5 text-right text-green-400">{{ number_format($row->hits) }}</td>
+                        <td class="px-4 py-2.5 text-right text-purple-400">{{ $pct }}%</td>
+                        <td class="px-4 py-2.5 text-right text-orange-400">{{ $uniq }}</td>
+                        <td class="px-4 py-2.5 text-right text-emerald-400">${{ number_format($estRev, 2) }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+            @endif
         </div>
 
         {{-- Per-minute activity (last 30 min) --}}

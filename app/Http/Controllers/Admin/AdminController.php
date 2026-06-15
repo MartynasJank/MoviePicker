@@ -32,8 +32,12 @@ class AdminController extends Controller
                 SUM(CASE WHEN cached = 1 THEN 1 ELSE 0 END) as hits,
                 AVG(CASE WHEN cached = 0 THEN response_time_ms ELSE NULL END) as avg_ms,
                 SUM(CASE WHEN status_code = 429 THEN 1 ELSE 0 END) as rate_limited,
+                SUM(CASE WHEN bot IS NULL THEN 1 ELSE 0 END) as human_total,
+                SUM(CASE WHEN bot IS NULL AND cached = 0 THEN 1 ELSE 0 END) as human_live,
+                SUM(CASE WHEN bot IS NULL AND cached = 1 THEN 1 ELSE 0 END) as human_hits,
+                AVG(CASE WHEN bot IS NULL AND cached = 0 THEN response_time_ms ELSE NULL END) as human_avg_ms,
                 COUNT(DISTINCT user_id) as unique_auth,
-                COUNT(DISTINCT CASE WHEN user_id IS NULL THEN visitor_hash END) as unique_anon,
+                COUNT(DISTINCT CASE WHEN user_id IS NULL AND bot IS NULL THEN visitor_hash END) as unique_anon,
                 SUM(CASE WHEN bot IS NOT NULL THEN 1 ELSE 0 END) as bot_total
             ')->whereDate('created_at', $today)->first();
 
@@ -41,6 +45,13 @@ class AdminController extends Controller
                 ->whereDate('created_at', $today)
                 ->whereNotNull('bot')
                 ->groupBy('bot')
+                ->orderByDesc('total')
+                ->get();
+
+            $tmdb['by_endpoint_bots'] = TmdbRequestLog::selectRaw('endpoint, COUNT(*) as total')
+                ->whereDate('created_at', $today)
+                ->whereNotNull('bot')
+                ->groupBy('endpoint')
                 ->orderByDesc('total')
                 ->get();
 
@@ -87,12 +98,19 @@ class AdminController extends Controller
                 COUNT(*) as total,
                 SUM(CASE WHEN cached = 0 THEN 1 ELSE 0 END) as live,
                 SUM(CASE WHEN cached = 1 THEN 1 ELSE 0 END) as hits,
+                SUM(CASE WHEN bot IS NULL THEN 1 ELSE 0 END) as human_total,
+                SUM(CASE WHEN bot IS NOT NULL THEN 1 ELSE 0 END) as bot_count,
                 COUNT(DISTINCT user_id) as unique_auth,
-                COUNT(DISTINCT CASE WHEN user_id IS NULL THEN visitor_hash END) as unique_anon
+                COUNT(DISTINCT CASE WHEN user_id IS NULL AND bot IS NULL THEN visitor_hash END) as unique_anon
             ')->where('created_at', '>=', $sevenDays)
               ->groupByRaw('DATE(created_at)')
               ->orderByDesc('date')
               ->get();
+
+            $rpm = 1.50;
+            $tmdb['rpm']           = $rpm;
+            $tmdb['revenue_today'] = round((($tmdb['today']->human_total ?? 0) / 1000) * $rpm, 2);
+            $tmdb['revenue_week']  = round(($tmdb['daily']->sum('human_total') / 1000) * $rpm, 2);
 
             $topAuth = TmdbRequestLog::selectRaw('user_id, COUNT(*) as total')
                 ->whereDate('created_at', $today)
