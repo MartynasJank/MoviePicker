@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PageView;
 use App\Models\TmdbRequestLog;
 use App\Models\User;
+use App\Support\UAParser;
 
 class AdminVisitorController extends Controller
 {
@@ -122,6 +123,8 @@ class AdminVisitorController extends Controller
             'total' => $hourlyRows->get($h)?->total ?? 0,
         ]);
 
-        return view('admin.visitor', compact('hash', 'user', 'bot', 'userAgent', 'processedSessions', 'total', 'tmdbLogs', 'referrers', 'hourly'));
+        $parsedUA = UAParser::parse($userAgent);
+
+        return view('admin.visitor', compact('hash', 'user', 'bot', 'userAgent', 'parsedUA', 'processedSessions', 'total', 'tmdbLogs', 'referrers', 'hourly'));
     }
 }
