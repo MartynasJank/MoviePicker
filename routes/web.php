@@ -154,6 +154,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     Route::get('users/{user}', [AdminUserController::class, 'show'])->name('users.show');
     Route::delete('users/{user}/roulettes/{roulette}', [AdminUserController::class, 'destroyRoulette'])->name('users.roulettes.destroy');
     Route::get('visitor/{hash}', [AdminVisitorController::class, 'show'])->name('visitor.show');
+    Route::get('visitors/data', [AdminController::class, 'visitorsData'])->name('visitors.data');
 });
 
 // ── Dev only ──────────────────────────────────────────────────────────────────
