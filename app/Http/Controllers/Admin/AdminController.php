@@ -175,6 +175,86 @@ class AdminController extends Controller
                 return $row;
             });
 
+            // Active now: unique human visitors in last 10 minutes
+            $tmdb['active_now'] = PageView::whereNull('bot')
+                ->where('created_at', '>=', now()->subMinutes(10))
+                ->distinct('visitor_hash')
+                ->count('visitor_hash');
+
+            // Hourly traffic today (human only) — fill all 24 hours
+            $hourlyRows = PageView::selectRaw('HOUR(created_at) as hour, COUNT(*) as total')
+                ->whereDate('created_at', $today)
+                ->whereNull('bot')
+                ->groupByRaw('HOUR(created_at)')
+                ->get()
+                ->keyBy('hour');
+            $tmdb['hourly'] = collect(range(0, 23))->map(fn($h) => (object)[
+                'hour'  => $h,
+                'total' => $hourlyRows->get($h)?->total ?? 0,
+            ]);
+
+            // Top external referrers today (external = stored as domain, not /path)
+            $tmdb['referrers'] = PageView::selectRaw('referrer, COUNT(*) as total')
+                ->whereDate('created_at', $today)
+                ->whereNull('bot')
+                ->whereNotNull('referrer')
+                ->where('referrer', 'not like', '/%')
+                ->groupBy('referrer')
+                ->orderByDesc('total')
+                ->limit(10)
+                ->get();
+
+            // Bounce rate + avg session length from today's page views
+            $todayViews = PageView::whereDate('created_at', $today)
+                ->whereNull('bot')
+                ->whereNotNull('visitor_hash')
+                ->orderBy('visitor_hash')
+                ->orderBy('created_at')
+                ->get(['visitor_hash', 'created_at']);
+
+            $sessionStats = [];
+            foreach ($todayViews->groupBy('visitor_hash') as $views) {
+                $session = [];
+                foreach ($views->sortBy('created_at') as $view) {
+                    if (empty($session) || $view->created_at->diffInSeconds(end($session)->created_at) <= 1800) {
+                        $session[] = $view;
+                    } else {
+                        $sessionStats[] = ['pages' => count($session), 'secs' => $session[0]->created_at->diffInSeconds(end($session)->created_at)];
+                        $session = [$view];
+                    }
+                }
+                if (!empty($session)) {
+                    $sessionStats[] = ['pages' => count($session), 'secs' => $session[0]->created_at->diffInSeconds(end($session)->created_at)];
+                }
+            }
+            $totalSess = count($sessionStats);
+            $bounced   = count(array_filter($sessionStats, fn($s) => $s['pages'] === 1));
+            $tmdb['bounce_rate']      = $totalSess > 0 ? round(($bounced / $totalSess) * 100) : null;
+            $tmdb['avg_session_secs'] = $totalSess > 0 ? (int) round(array_sum(array_column($sessionStats, 'secs')) / $totalSess) : null;
+
+            // A→B transitions — last 7 days, human, PHP session grouping
+            $recentViews = PageView::where('created_at', '>=', $sevenDays)
+                ->whereNull('bot')
+                ->whereNotNull('visitor_hash')
+                ->orderBy('visitor_hash')
+                ->orderBy('created_at')
+                ->get(['visitor_hash', 'route', 'created_at']);
+
+            $transCounts = [];
+            foreach ($recentViews->groupBy('visitor_hash') as $views) {
+                $sorted = $views->sortBy('created_at')->values();
+                for ($i = 0; $i < $sorted->count() - 1; $i++) {
+                    $curr = $sorted[$i];
+                    $next = $sorted[$i + 1];
+                    if ($next->created_at->diffInSeconds($curr->created_at) <= 1800 && $curr->route !== $next->route) {
+                        $key = $curr->route . ' → ' . $next->route;
+                        $transCounts[$key] = ($transCounts[$key] ?? 0) + 1;
+                    }
+                }
+            }
+            arsort($transCounts);
+            $tmdb['transitions'] = array_slice($transCounts, 0, 10, true);
+
             $tmdb['recent'] = TmdbRequestLog::with('user')
                 ->orderByDesc('id')
                 ->paginate(25)

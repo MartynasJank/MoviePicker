@@ -53,6 +53,74 @@
         </div>
     </div>
 
+    {{-- Referrers + Transitions + Hourly --}}
+    @if(!empty($referrers) || !empty($transitions) || $hourly->max('total') > 0)
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+
+        @if(!empty($referrers))
+        <div>
+            <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">External Referrers</h2>
+            <div class="bg-white/3 border border-white/5 rounded-xl overflow-hidden">
+                <table class="w-full text-sm">
+                    <tbody class="divide-y divide-white/5">
+                        @foreach($referrers as $domain => $count)
+                        <tr>
+                            <td class="px-4 py-2.5 font-mono text-xs text-gray-300">{{ $domain }}</td>
+                            <td class="px-4 py-2.5 text-right text-white font-semibold">{{ $count }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @endif
+
+        @if(!empty($transitions))
+        <div>
+            <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">A→B Transitions</h2>
+            <div class="bg-white/3 border border-white/5 rounded-xl overflow-hidden">
+                <table class="w-full text-sm">
+                    <tbody class="divide-y divide-white/5">
+                        @foreach($transitions as $flow => $count)
+                        <tr>
+                            <td class="px-4 py-2.5 font-mono text-xs text-gray-300">{{ $flow }}</td>
+                            <td class="px-4 py-2.5 text-right text-white font-semibold">{{ $count }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @endif
+
+    </div>
+
+    @if($hourly->max('total') > 0)
+    <div class="mb-8">
+        <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Activity by Hour — Last 30 Days</h2>
+        <div class="bg-white/3 border border-white/5 rounded-xl p-5">
+            @php $hourlyMax = $hourly->max('total') ?: 1; @endphp
+            <div class="flex gap-1 items-end" style="height:48px">
+                @foreach($hourly as $h)
+                @php $barH = $h->total > 0 ? max(3, round(($h->total / $hourlyMax) * 40)) : 2; @endphp
+                <div class="flex-1 rounded-sm" style="height:{{ $barH }}px; background:rgba(255,255,255,{{ $h->total > 0 ? 0.25 : 0.05 }})"
+                     title="{{ $h->hour }}:00 — {{ $h->total }}"></div>
+                @endforeach
+            </div>
+            <div class="flex gap-1 mt-1">
+                @foreach($hourly as $h)
+                <div class="flex-1 text-center">
+                    @if($h->hour % 6 === 0)
+                        <span class="text-[9px] text-gray-600">{{ str_pad($h->hour, 2, '0', STR_PAD_LEFT) }}</span>
+                    @endif
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+    @endif
+    @endif
+
     {{-- Page Flow --}}
     <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">
         Page Flow — Last 30 Days

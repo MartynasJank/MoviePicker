@@ -89,6 +89,45 @@ class AdminVisitorController extends Controller
             }
         }
 
-        return view('admin.visitor', compact('hash', 'user', 'bot', 'processedSessions', 'total', 'tmdbLogs'));
+        // External referrers for this visitor
+        $referrerCounts = [];
+        foreach ($processedSessions as $session) {
+            foreach ($session->pages as $page) {
+                if ($page->referrer && !str_starts_with($page->referrer, '/')) {
+                    $referrerCounts[$page->referrer] = ($referrerCounts[$page->referrer] ?? 0) + 1;
+                }
+            }
+        }
+        arsort($referrerCounts);
+        $referrers = array_slice($referrerCounts, 0, 5, true);
+
+        // A→B transitions for this visitor
+        $transCounts = [];
+        foreach ($processedSessions as $session) {
+            for ($j = 0; $j < count($session->pages) - 1; $j++) {
+                $from = $session->pages[$j]->route;
+                $to   = $session->pages[$j + 1]->route;
+                if ($from !== $to) {
+                    $key = $from . ' → ' . $to;
+                    $transCounts[$key] = ($transCounts[$key] ?? 0) + 1;
+                }
+            }
+        }
+        arsort($transCounts);
+        $transitions = array_slice($transCounts, 0, 10, true);
+
+        // Hourly activity for this visitor (last 30 days)
+        $hourlyRows = PageView::selectRaw('HOUR(created_at) as hour, COUNT(*) as total')
+            ->where('visitor_hash', $hash)
+            ->where('created_at', '>=', now()->subDays(30))
+            ->groupByRaw('HOUR(created_at)')
+            ->get()
+            ->keyBy('hour');
+        $hourly = collect(range(0, 23))->map(fn($h) => (object)[
+            'hour'  => $h,
+            'total' => $hourlyRows->get($h)?->total ?? 0,
+        ]);
+
+        return view('admin.visitor', compact('hash', 'user', 'bot', 'processedSessions', 'total', 'tmdbLogs', 'referrers', 'transitions', 'hourly'));
     }
 }
