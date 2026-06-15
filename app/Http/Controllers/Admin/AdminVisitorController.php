@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PageView;
+use App\Models\TmdbRequestLog;
 use App\Models\User;
 
 class AdminVisitorController extends Controller
@@ -73,6 +74,21 @@ class AdminVisitorController extends Controller
         $bot   = $views->first()?->bot;
         $total = $views->count();
 
-        return view('admin.visitor', compact('hash', 'user', 'bot', 'processedSessions', 'total'));
+        $tmdbLogs = TmdbRequestLog::where('visitor_hash', $hash)
+            ->where('created_at', '>=', now()->subDays(30))
+            ->orderByDesc('created_at')
+            ->limit(100)
+            ->get();
+
+        // Resolve bot/user from tmdb logs if page_views had none
+        if (!$bot && !$user) {
+            $firstLog = $tmdbLogs->first();
+            $bot      = $bot ?? $firstLog?->bot;
+            if (!$user && $firstLog?->user_id) {
+                $user = User::find($firstLog->user_id);
+            }
+        }
+
+        return view('admin.visitor', compact('hash', 'user', 'bot', 'processedSessions', 'total', 'tmdbLogs'));
     }
 }

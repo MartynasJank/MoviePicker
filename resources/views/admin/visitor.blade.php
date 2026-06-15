@@ -53,10 +53,47 @@
         </div>
     </div>
 
+    {{-- TMDB Requests --}}
+    @if($tmdbLogs->isNotEmpty())
+    <div class="mb-10">
+        <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">TMDB Requests — Last 30 Days</h2>
+        <div class="bg-white/3 border border-white/5 rounded-xl overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-white/5">
+                        <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Time</th>
+                        <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Endpoint</th>
+                        <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Route</th>
+                        <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium">Cache</th>
+                        <th class="text-right px-5 py-2.5 text-xs text-gray-500 font-medium">ms</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                    @foreach($tmdbLogs as $log)
+                    <tr>
+                        <td class="px-5 py-2 text-xs text-gray-500 whitespace-nowrap">{{ $log->created_at->format('M j H:i:s') }}</td>
+                        <td class="px-5 py-2 font-mono text-xs text-gray-300">{{ $log->endpoint }}</td>
+                        <td class="px-5 py-2 font-mono text-xs text-gray-500">{{ $log->route }}</td>
+                        <td class="px-5 py-2 text-xs">
+                            @if($log->cached)
+                                <span class="text-blue-400">hit</span>
+                            @else
+                                <span class="text-gray-500">live</span>
+                            @endif
+                        </td>
+                        <td class="px-5 py-2 text-right text-xs text-gray-500">{{ $log->cached ? '—' : $log->response_time_ms }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @endif
+
     {{-- Sessions --}}
     @if(empty($processedSessions))
         <div class="bg-white/3 border border-white/5 rounded-xl px-5 py-8 text-sm text-gray-500">
-            No page views recorded in the last 30 days.
+            No page flow recorded yet — page view tracking started recently.
         </div>
     @else
         <div class="space-y-6">
