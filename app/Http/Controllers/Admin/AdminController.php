@@ -163,11 +163,10 @@ class AdminController extends Controller
                 ->get();
 
             // Page views: recent unique visitors in last 24h
-            $visitorSort = request('visitor_sort', 'last_seen');
             $recentVisitorRows = PageView::selectRaw('visitor_hash, user_id, bot, COUNT(*) as page_count, MAX(created_at) as last_seen')
                 ->where('created_at', '>=', now()->subHours(24))
                 ->groupBy('visitor_hash', 'user_id', 'bot')
-                ->orderByDesc($visitorSort === 'pages' ? 'page_count' : 'last_seen')
+                ->orderByDesc('last_seen')
                 ->limit(20)
                 ->get();
 

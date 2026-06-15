@@ -326,30 +326,25 @@
 
         {{-- Recent Visitors --}}
         @if(!empty($tmdb['recent_visitors']) && $tmdb['recent_visitors']->isNotEmpty())
-        @php
-            $visitorSort = request('visitor_sort', 'last_seen');
-            $sortByPages   = route('admin.dashboard', ['tab' => 'traffic', 'visitor_sort' => 'pages']);
-            $sortByLastSeen = route('admin.dashboard', ['tab' => 'traffic', 'visitor_sort' => 'last_seen']);
-        @endphp
         <div class="mt-8">
             <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Recent Visitors — Last 24h</h2>
             <div class="bg-white/3 border border-white/5 rounded-xl overflow-x-auto">
-                <table class="w-full text-sm">
+                <table class="w-full text-sm" id="visitors-table">
                     <thead>
                         <tr class="border-b border-white/5">
                             <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Visitor</th>
                             <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Type</th>
                             <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">
-                                <a href="{{ $sortByPages }}" class="{{ $visitorSort === 'pages' ? 'text-accent' : 'text-gray-500 hover:text-white' }} transition-colors">Pages ↓</a>
+                                <button type="button" data-sort="pages" class="visitor-sort text-accent transition-colors">Pages ↓</button>
                             </th>
                             <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">
-                                <a href="{{ $sortByLastSeen }}" class="{{ $visitorSort === 'last_seen' ? 'text-accent' : 'text-gray-500 hover:text-white' }} transition-colors">Last Seen ↓</a>
+                                <button type="button" data-sort="last_seen" class="visitor-sort text-gray-500 hover:text-white transition-colors">Last Seen ↓</button>
                             </th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-white/5">
                         @foreach($tmdb['recent_visitors'] as $v)
-                        <tr>
+                        <tr data-pages="{{ $v->page_count }}" data-ts="{{ \Carbon\Carbon::parse($v->last_seen)->timestamp }}">
                             <td class="px-4 py-2.5">
                                 @if($v->visitor_hash)
                                 <a href="{{ route('admin.visitor.show', $v->visitor_hash) }}" class="group flex items-baseline gap-2">
@@ -699,4 +694,40 @@
     @endif
 
 </div>
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var table = document.getElementById('visitors-table');
+    if (!table) return;
+
+    var activeSort = 'pages';
+
+    document.querySelectorAll('.visitor-sort').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            activeSort = this.dataset.sort;
+
+            document.querySelectorAll('.visitor-sort').forEach(function (b) {
+                b.classList.toggle('text-accent', b.dataset.sort === activeSort);
+                b.classList.toggle('text-gray-500', b.dataset.sort !== activeSort);
+                b.classList.toggle('hover:text-white', b.dataset.sort !== activeSort);
+            });
+
+            var tbody = table.querySelector('tbody');
+            var rows  = Array.from(tbody.querySelectorAll('tr'));
+
+            rows.sort(function (a, b) {
+                if (activeSort === 'pages') {
+                    return parseInt(b.dataset.pages, 10) - parseInt(a.dataset.pages, 10);
+                } else {
+                    return parseInt(b.dataset.ts, 10) - parseInt(a.dataset.ts, 10);
+                }
+            });
+
+            rows.forEach(function (row) { tbody.appendChild(row); });
+        });
+    });
+});
+</script>
+@endsection
 @endsection
