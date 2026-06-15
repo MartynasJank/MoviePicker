@@ -74,15 +74,11 @@ class AdminVisitorController extends Controller
         $bot   = $views->first()?->bot;
         $total = $views->count();
 
-        $tmdbLogsTotal = TmdbRequestLog::where('visitor_hash', $hash)
-            ->where('created_at', '>=', now()->subDays(30))
-            ->count();
-
         $tmdbLogs = TmdbRequestLog::where('visitor_hash', $hash)
             ->where('created_at', '>=', now()->subDays(30))
             ->orderByDesc('created_at')
-            ->limit(25)
-            ->get();
+            ->paginate(25)
+            ->withQueryString();
 
         // Resolve bot/user from tmdb logs if page_views had none
         if (!$bot && !$user) {
@@ -93,6 +89,6 @@ class AdminVisitorController extends Controller
             }
         }
 
-        return view('admin.visitor', compact('hash', 'user', 'bot', 'processedSessions', 'total', 'tmdbLogs', 'tmdbLogsTotal'));
+        return view('admin.visitor', compact('hash', 'user', 'bot', 'processedSessions', 'total', 'tmdbLogs'));
     }
 }
