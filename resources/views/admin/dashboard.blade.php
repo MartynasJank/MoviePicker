@@ -89,12 +89,10 @@
     @elseif($activeTab === 'traffic')
 
         @php
-            $today        = $tmdb['today'];
+            $today        = $tmdb['traffic_today'];
             $humanTotal   = $today->human_total ?? 0;
-            $botTotal     = $today->bot_total ?? 0;
             $botPageTotal  = $tmdb['bot_pages_today'] + $tmdb['human_pages_today'];
             $botPct        = $botPageTotal > 0 ? number_format(($tmdb['bot_pages_today'] / $botPageTotal) * 100, 2) : '0.00';
-            $humanHitRate = $humanTotal > 0 ? round((($today->human_hits ?? 0) / $humanTotal) * 100) : 0;
             $uniqueTotal  = ($today->unique_auth ?? 0) + ($today->unique_anon ?? 0);
             $projected    = $tmdb['revenue_week'] > 0 ? round(($tmdb['revenue_week'] / 7) * 30, 2) : 0;
             $avgSecs      = $tmdb['avg_session_secs'];
@@ -104,7 +102,7 @@
         {{-- Revenue --}}
         <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Estimated Ad Revenue</h2>
         <div class="bg-white/3 border border-white/5 rounded-xl p-5 mb-8">
-            <div class="text-xs text-gray-600 mb-4">Human requests as page view proxy @ ${{ $tmdb['rpm'] }} RPM &middot; {{ number_format($humanTotal) }} human requests today</div>
+            <div class="text-xs text-gray-600 mb-4">Human page views @ ${{ $tmdb['rpm'] }} RPM &middot; {{ number_format($humanTotal) }} human page views today</div>
             <div class="grid grid-cols-3 gap-4">
                 <div>
                     <div class="text-2xl font-bold text-accent mb-1">${{ number_format($tmdb['revenue_today'], 2) }}</div>
@@ -131,30 +129,14 @@
                 </span>
             @endif
         </div>
-        <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-8">
+        <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-8">
             <div class="bg-white/3 border border-white/5 rounded-xl p-4">
                 <div class="text-2xl font-bold text-white mb-1">{{ number_format($humanTotal) }}</div>
-                <div class="text-xs text-gray-500 uppercase tracking-widest">Total</div>
-            </div>
-            <div class="bg-white/3 border border-white/5 rounded-xl p-4">
-                <div class="text-2xl font-bold text-blue-400 mb-1">{{ number_format($today->human_live ?? 0) }}</div>
-                <div class="text-xs text-gray-500 uppercase tracking-widest">Live</div>
-            </div>
-            <div class="bg-white/3 border border-white/5 rounded-xl p-4">
-                <div class="text-2xl font-bold text-green-400 mb-1">{{ number_format($today->human_hits ?? 0) }}</div>
-                <div class="text-xs text-gray-500 uppercase tracking-widest">Cached</div>
-            </div>
-            <div class="bg-white/3 border border-white/5 rounded-xl p-4">
-                <div class="text-2xl font-bold text-purple-400 mb-1">{{ $humanHitRate }}%</div>
-                <div class="text-xs text-gray-500 uppercase tracking-widest">Hit Rate</div>
-            </div>
-            <div class="bg-white/3 border border-white/5 rounded-xl p-4">
-                <div class="text-2xl font-bold text-yellow-400 mb-1">{{ $today->human_avg_ms ? round($today->human_avg_ms) . 'ms' : '—' }}</div>
-                <div class="text-xs text-gray-500 uppercase tracking-widest">Avg Response</div>
+                <div class="text-xs text-gray-500 uppercase tracking-widest">Page Views</div>
             </div>
             <div class="bg-white/3 border border-white/5 rounded-xl p-4">
                 <div class="text-2xl font-bold text-orange-400 mb-1">{{ $uniqueTotal }}</div>
-                <div class="text-xs text-gray-500 uppercase tracking-widest">Unique Users</div>
+                <div class="text-xs text-gray-500 uppercase tracking-widest">Unique Visitors</div>
             </div>
             <div class="bg-white/3 border border-white/5 rounded-xl p-4">
                 <div class="text-2xl font-bold text-orange-300 mb-1">{{ $today->unique_auth ?? 0 }}</div>
@@ -200,8 +182,6 @@
                         <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Human</th>
                         <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Bots</th>
                         <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Bot %</th>
-                        <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Cached</th>
-                        <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Hit %</th>
                         <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Uniq</th>
                         <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Est. $</th>
                     </tr>
@@ -209,8 +189,8 @@
                 <tbody class="divide-y divide-white/5">
                     @foreach($tmdb['daily'] as $row)
                     @php
-                        $pct       = $row->total > 0 ? round(($row->hits / $row->total) * 100) : 0;
-                        $botPctDay = $row->total > 0 ? round((($row->bot_count ?? 0) / $row->total) * 100) : 0;
+                        $rowTotal  = ($row->human_total ?? 0) + ($row->bot_count ?? 0);
+                        $botPctDay = $rowTotal > 0 ? round((($row->bot_count ?? 0) / $rowTotal) * 100) : 0;
                         $uniq      = ($row->unique_auth ?? 0) + ($row->unique_anon ?? 0);
                         $estRev    = round((($row->human_total ?? 0) / 1000) * $tmdb['rpm'], 2);
                     @endphp
@@ -219,8 +199,6 @@
                         <td class="px-4 py-2.5 text-right text-white">{{ number_format($row->human_total ?? 0) }}</td>
                         <td class="px-4 py-2.5 text-right text-red-400">{{ number_format($row->bot_count ?? 0) }}</td>
                         <td class="px-4 py-2.5 text-right {{ $botPctDay >= 40 ? 'text-red-400' : 'text-gray-500' }}">{{ $botPctDay }}%</td>
-                        <td class="px-4 py-2.5 text-right text-green-400">{{ number_format($row->hits) }}</td>
-                        <td class="px-4 py-2.5 text-right text-purple-400">{{ $pct }}%</td>
                         <td class="px-4 py-2.5 text-right text-orange-400">{{ $uniq }}</td>
                         <td class="px-4 py-2.5 text-right text-accent">${{ number_format($estRev, 2) }}</td>
                     </tr>
@@ -241,7 +219,7 @@
                         <thead>
                             <tr class="border-b border-white/5">
                                 <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Bot</th>
-                                <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Requests</th>
+                                <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Page Views</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-white/5">
@@ -266,7 +244,7 @@
                             <tr class="border-b border-white/5">
                                 <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">User</th>
                                 <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Type</th>
-                                <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Requests</th>
+                                <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Pages</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-white/5">
@@ -625,6 +603,73 @@
             </div>
         </div>
         @endif
+
+        {{-- Bots + Top users --}}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            @if($tmdb['bots_today']->isNotEmpty())
+            <div>
+                <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Bots — Today</h2>
+                <div class="bg-white/3 border border-white/5 rounded-xl overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-white/5">
+                                <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Bot</th>
+                                <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Requests</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            @foreach($tmdb['bots_today'] as $b)
+                            <tr>
+                                <td class="px-4 py-2.5 font-mono text-xs text-red-300">{{ $b->bot }}</td>
+                                <td class="px-4 py-2.5 text-right text-white font-semibold">{{ number_format($b->total) }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            @endif
+
+            @if($tmdb['top_users']->isNotEmpty())
+            <div>
+                <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Top Users — Today</h2>
+                <div class="bg-white/3 border border-white/5 rounded-xl overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-white/5">
+                                <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">User</th>
+                                <th class="text-left px-4 py-2.5 text-xs text-gray-500 font-medium">Type</th>
+                                <th class="text-right px-4 py-2.5 text-xs text-gray-500 font-medium">Requests</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            @foreach($tmdb['top_users'] as $u)
+                            <tr>
+                                <td class="px-4 py-2.5 font-mono text-xs">
+                                    @if($u->type === 'auth' && $u->user_id)
+                                        <a href="{{ route('admin.users.show', $u->user_id) }}" class="text-gray-300 hover:text-accent transition-colors">{{ $u->label }}</a>
+                                    @elseif($u->hash)
+                                        <a href="{{ route('admin.visitor.show', $u->hash) }}" class="text-gray-300 hover:text-accent transition-colors">{{ $u->label }}</a>
+                                    @else
+                                        <span class="text-gray-500">{{ $u->label }}</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-2.5">
+                                    @if($u->type === 'auth')
+                                        <span class="text-xs px-1.5 py-0.5 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20">logged in</span>
+                                    @else
+                                        <span class="text-xs px-1.5 py-0.5 rounded-full bg-white/5 text-gray-400 border border-white/10">anon</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-2.5 text-right text-white font-semibold">{{ number_format($u->total) }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            @endif
+        </div>
 
         {{-- Recent requests --}}
         <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Recent Requests</h2>
