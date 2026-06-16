@@ -57,6 +57,9 @@ class LogPageView
             // Skip admin user from traffic stats
             if (auth()->check() && auth()->user()->email === config('api.admin_email')) return;
 
+            // Skip internal uptime monitors
+            if (str_contains($request->userAgent() ?? '', 'Vitals-Monitor')) return;
+
             $route = $request->path() === '/' ? '/' : '/' . ltrim($request->path(), '/');
 
             PageView::create([
