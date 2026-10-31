@@ -69,7 +69,7 @@ class CollabBatchController extends Controller
     public function create(Request $request)
     {
         $request->validate([
-            'movies'     => 'required|array|min:2|max:100',
+            'movies'     => 'required|array|min:2|max:' . CollabBatch::MAX_MOVIES,
             'movies.*' => 'required|array',
             'movies.*.id' => 'required|integer|min:1',
             'movies.*.title' => 'sometimes|nullable|string|max:255',

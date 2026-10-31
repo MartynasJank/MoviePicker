@@ -396,6 +396,13 @@ $(document).on('click', '#collab-start-btn', function () {
         };
     }).filter(m => m.id > 0);
 
+    const maxMovies = Number(btn.data('max-movies'));
+    if (movies.length > maxMovies) {
+        btn.text('Pick Together').prop('disabled', false);
+        window.showErrorToast(`Choose up to ${maxMovies.toLocaleString()} titles to pick together.`);
+        return;
+    }
+
     $.ajax({
         url:         '/batch/collab',
         method:      'POST',

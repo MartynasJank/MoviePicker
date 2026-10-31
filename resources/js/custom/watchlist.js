@@ -417,6 +417,12 @@ $(document).ready(function () {
 
         if (!movies.length) { window.showErrorToast('Nothing to pick from.'); return; }
 
+        const maxMovies = Number(btn.data('max-movies'));
+        if (movies.length > maxMovies) {
+            window.showErrorToast(`Choose up to ${maxMovies.toLocaleString()} titles. Use the filters to narrow your watchlist.`);
+            return;
+        }
+
         const hasTV     = movies.some(m => m.media_type === 'tv');
         const hasMov    = movies.some(m => m.media_type === 'movie');
         const mediaType = hasTV && hasMov ? 'mixed' : (hasTV ? 'tv' : 'movie');

@@ -123,3 +123,21 @@ it('casts a vote under the joined session rather than a supplied victim ID', fun
     expect($batch->fresh()->movies)->toHaveCount(2);
     Event::assertDispatched(CollabStateUpdated::class, fn ($event) => $event->byId === 'mine');
 });
+
+it('creates rooms from watchlists up to the supported limit', function (int $count) {
+    $this->actingAs(User::factory()->create())->postJson('/batch/collab', [
+        'movies' => array_map(fn ($id) => ['id' => $id, 'title' => 'Title ' . $id], range(1, $count)),
+        'media_type' => 'movie',
+    ])->assertOk();
+
+    expect(CollabBatch::first()->movies)->toHaveCount($count);
+})->with([101, CollabBatch::MAX_MOVIES]);
+
+it('rejects selections over the maximum supported size', function () {
+    $this->actingAs(User::factory()->create())->postJson('/batch/collab', [
+        'movies' => array_map(fn ($id) => ['id' => $id], range(1, CollabBatch::MAX_MOVIES + 1)),
+    ])->assertUnprocessable()->assertJsonValidationErrors('movies');
+
+    $this->assertDatabaseCount('collab_batches', 0);
+});
+
