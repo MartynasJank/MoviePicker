@@ -239,6 +239,7 @@
 </div>
 
 <script>
+window.collabParticipantId = @json(session('collab_participant_id'));
 window.collabToken     = @json($batch->token);
 window.collabMovies    = @json($batch->movies);
 window.collabGraveyard = @json($batch->graveyard ?? []);

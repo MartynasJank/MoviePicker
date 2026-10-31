@@ -1,23 +1,14 @@
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 import { runCaseOpening } from './caseOpening.js';
+import { escapeHtml as esc, posterUrl } from './collabRendering.js';
 
 // ── Identity ──────────────────────────────────────────────────────────
 const COLORS  = ['Red','Blue','Green','Purple','Orange','Pink','Teal','Gold'];
 const ANIMALS = ['Fox','Panda','Wolf','Bear','Hawk','Lynx','Otter','Raven'];
 
 
-const myId = (() => {
-    let id = localStorage.getItem('collab_user_id');
-    if (!id) {
-        id = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-            const r = Math.random() * 16 | 0;
-            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-        });
-        localStorage.setItem('collab_user_id', id);
-    }
-    return id;
-})();
+const myId = window.collabParticipantId;
 let myName = (() => {
     let name = localStorage.getItem('collab_identity');
     if (!name) {
@@ -204,7 +195,6 @@ function applyDelta(eventType, byName, byId, movieTitle, delta) {
             const t = setTimeout(() => {
                 leavePending.delete(byId);
                 showToast(`${who} left`);
-                api('remove-votes', { targetUserId: byId });
             }, 8000);
             leavePending.set(byId, t);
         }
@@ -387,7 +377,7 @@ function buildCard(movie, isGraveyard = false) {
     const year   = (movie.release_date || movie.first_air_date || '').slice(0, 4);
     const imgCls = `w-full h-full object-cover transition-all duration-300${isGraveyard ? ' grayscale' : ''}`;
     const poster = movie.poster_path
-        ? `<img src="https://image.tmdb.org/t/p/w342${movie.poster_path}" alt="${esc(title)}" class="${imgCls}" loading="lazy">`
+        ? `<img src="${posterUrl(movie.poster_path)}" alt="${esc(title)}" class="${imgCls}" loading="lazy">`
         : `<div class="w-full h-full flex items-center justify-center text-gray-600 text-xs px-2 text-center">${esc(title)}</div>`;
 
     const posterOverlays = isGraveyard ? `
@@ -431,7 +421,7 @@ function buildCard(movie, isGraveyard = false) {
             <div class="p-2">
                 <div class="${titleCls}">${esc(title)}</div>
                 ${movie.vote_average ? `<div class="${ratingCls}">★ ${Number(movie.vote_average).toFixed(1)}</div>` : ''}
-                ${year ? `<div class="${metaCls}">${year}</div>` : ''}
+                ${year ? `<div class="${metaCls}">${esc(year)}</div>` : ''}
                 ${!isGraveyard && movie.genres ? `<div class="${metaCls} truncate">${esc(movie.genres)}</div>` : ''}
             </div>
         </div>`;
@@ -547,7 +537,7 @@ function updateAllVoteBars() {
                     const initial = p ? p.name.slice(0, 1).toUpperCase() : '?';
                     const isMe    = vid === myId;
                     return `<span class="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white ring-1 ring-black
-                        ${isMe ? 'bg-accent' : 'bg-red-500'}" title="${p ? esc(p.name) : ''}">${initial}</span>`;
+                        ${isMe ? 'bg-accent' : 'bg-red-500'}" title="${p ? esc(p.name) : ''}">${esc(initial)}</span>`;
                 }).join('') + (overflow > 0 ? `<span class="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white bg-white/20 ring-1 ring-black">+${overflow}</span>` : '');
                 voteCount.textContent = `${votes}/${vetoNeeded} to veto`;
             } else {
@@ -606,7 +596,7 @@ function updateAllVoteBars() {
                     const initial = p ? p.name.slice(0, 1).toUpperCase() : '?';
                     const isMe    = vid === myId;
                     return `<span class="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white ring-1 ring-black
-                        ${isMe ? 'bg-accent' : 'bg-green-500'}" title="${p ? esc(p.name) : ''}">${initial}</span>`;
+                        ${isMe ? 'bg-accent' : 'bg-green-500'}" title="${p ? esc(p.name) : ''}">${esc(initial)}</span>`;
                 }).join('') + (overflow > 0 ? `<span class="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white bg-white/20 ring-1 ring-black">+${overflow}</span>` : '');
                 voteCount.textContent = `${votes}/${vetoNeeded} to restore`;
             } else {
@@ -650,14 +640,14 @@ function updateParticipants() {
         const initials = (p.name || '?').slice(0, 2).toUpperCase();
         return `<div class="relative flex-shrink-0" title="${esc(p.name)}">
             <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold
-                ${isMe ? 'bg-accent text-white' : 'bg-white/10 text-gray-300'}">${initials}</div>
+                ${isMe ? 'bg-accent text-white' : 'bg-white/10 text-gray-300'}">${esc(initials)}</div>
             <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-[#0f0f0f] pulse-dot"></span>
         </div>`;
     }).join('');
 
     if (state.participants.length === 0) {
         list.innerHTML = `<div class="relative flex-shrink-0">
-            <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-accent text-white">${myName.slice(0,2).toUpperCase()}</div>
+            <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-accent text-white">${esc(myName.slice(0,2).toUpperCase())}</div>
             <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-[#0f0f0f] pulse-dot"></span>
         </div>`;
     }
@@ -754,7 +744,7 @@ function triggerRoll(winner) {
 
     const toCard = m => ({
         url:        ((mediaType === 'tv' || m.media_type === 'tv') ? '/tv/' : '/movie/') + m.id,
-        poster:     `https://image.tmdb.org/t/p/w342${m.poster_path}`,
+        poster:     posterUrl(m.poster_path),
         title:      m.title ?? m.name ?? '',
         rating:     m.vote_average ?? 0,
         media_type: mediaType,
@@ -777,11 +767,11 @@ function showWinner(movie) {
     // Blurred background
     if (movie.poster_path) {
         document.getElementById('winner-bg').style.backgroundImage
-            = `url(https://image.tmdb.org/t/p/w342${movie.poster_path})`;
+            = `url(${posterUrl(movie.poster_path)})`;
     }
 
     document.getElementById('winner-poster').innerHTML = movie.poster_path
-        ? `<img src="https://image.tmdb.org/t/p/w342${movie.poster_path}" class="w-full h-full object-cover">`
+        ? `<img src="${posterUrl(movie.poster_path)}" class="w-full h-full object-cover">`
         : '';
     document.getElementById('winner-title').textContent = title;
     document.getElementById('winner-rating').textContent = movie.vote_average
@@ -833,11 +823,6 @@ function confetti() {
         container.appendChild(piece);
         setTimeout(() => piece.remove(), (dur + delay) * 1000 + 100);
     }
-}
-
-// ── Util ──────────────────────────────────────────────────────────────
-function esc(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 }
 
 // ── Tap to skip hint ──────────────────────────────────────────────────

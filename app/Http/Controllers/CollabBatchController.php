@@ -69,12 +69,22 @@ class CollabBatchController extends Controller
     public function create(Request $request)
     {
         $request->validate([
-            'movies'     => 'required|array|min:2',
+            'movies'     => 'required|array|min:2|max:100',
+            'movies.*' => 'required|array',
+            'movies.*.id' => 'required|integer|min:1',
+            'movies.*.title' => 'sometimes|nullable|string|max:255',
+            'movies.*.name' => 'sometimes|nullable|string|max:255',
+            'movies.*.poster_path' => ['nullable', 'string', 'max:255', 'regex:~^/[a-zA-Z0-9._/-]+$~'],
+            'movies.*.vote_average' => 'nullable|numeric|min:0|max:10',
+            'movies.*.media_type' => 'nullable|in:movie,tv',
+            'movies.*.release_date' => 'nullable|date_format:Y-m-d',
+            'movies.*.first_air_date' => 'nullable|date_format:Y-m-d',
+            'movies.*.genres' => 'nullable|string|max:1000',
             'media_type' => 'in:movie,tv,mixed',
         ]);
 
         $sessionKey = $request->input('media_type') === 'tv' ? 'tvInput' : 'userInput';
-        $movies     = $request->movies;
+        $movies     = $this->slimAll($request->movies);
 
         $batch = CollabBatch::create([
             'token'      => Str::random(8),
@@ -93,6 +103,9 @@ class CollabBatchController extends Controller
     public function show(string $token)
     {
         $batch = $this->guardBatch($token);
+        if (!session()->has('collab_participant_id')) {
+            session(['collab_participant_id' => (string) Str::uuid()]);
+        }
         return view('batch.collab', compact('batch'));
     }
 
@@ -137,6 +150,14 @@ class CollabBatchController extends Controller
             'refresh_votes' => array_values(array_diff($batch->refresh_votes ?? [], [$userId])),
         ]);
 
+        $batch->update([
+            'votes' => collect($batch->votes ?? [])->map(fn ($voters) => array_values(array_diff($voters, [$userId])))->all(),
+            'restore_votes' => collect($batch->restore_votes ?? [])->map(fn ($voters) => array_values(array_diff($voters, [$userId])))->all(),
+            'try_again_votes' => array_values(array_diff($batch->try_again_votes ?? [], [$userId])),
+        ]);
+        $this->broadcast($token, 'vote_cleanup', '', '', '', [
+            'votes' => $batch->votes ?? [], 'restoreVotes' => $batch->restore_votes ?? [],
+        ]);
         $this->broadcast($token, 'leave', $name, $userId);
         return response()->json(['ok' => true]);
     }
@@ -146,7 +167,8 @@ class CollabBatchController extends Controller
         $batch = CollabBatch::where('token', $token)->first();
         if (!$batch) return response()->json(['ok' => true]);
 
-        $targetUserId = $request->input('targetUserId');
+        $targetUserId = $request->input('targetUserId', $request->input('userId'));
+        abort_unless($targetUserId === $request->input('userId'), 403);
 
         $votes = collect($batch->votes ?? [])
             ->map(fn($voters) => array_values(array_diff($voters, [$targetUserId])))
@@ -220,6 +242,7 @@ class CollabBatchController extends Controller
         $batch   = $this->guardBatch($token);
         $userId  = $request->input('userId');
         $name    = $request->input('name', 'Someone');
+        $request->validate(['type' => 'sometimes|in:veto,restore']);
         $type    = $request->input('type', 'veto');
         $key     = (string) $movieId;
         $pCount  = $this->participantCount($batch);
