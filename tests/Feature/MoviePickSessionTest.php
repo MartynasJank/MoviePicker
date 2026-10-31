@@ -67,8 +67,8 @@ it('sets default criteria when ?i=new is used with no prior session', function (
     expect(session('userInput'))->toMatchArray([
         'with_original_language'   => 'en',
         'primary_release_date_gte' => 1990,
-        'vote_average_gte'         => 7,
-        'vote_count_gte'           => 100,
+        'vote_average_gte'         => 6,
+        'vote_count_gte'           => 50,
     ]);
 });
 
@@ -77,7 +77,7 @@ it('replaces existing session with defaults when ?i=new is used', function () {
 
     $this->get('/movie?i=new')->assertRedirect();
 
-    expect(session('userInput.vote_count_gte'))->toBe(100);
+    expect(session('userInput.vote_count_gte'))->toBe(50);
     expect(session('userInput.with_original_language'))->toBe('en');
 });
 

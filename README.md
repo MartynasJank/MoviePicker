@@ -82,6 +82,52 @@ App runs at `http://localhost:8000`.
 
 ---
 
+## AI-assisted development
+
+Laravel Boost is installed as a development dependency. Its generated instructions
+and skills support Codex and Claude Code. Project conventions live in
+`.ai/guidelines/moviepicker.md`; edit that source and regenerate with:
+
+```bash
+composer ai:update
+```
+
+After cloning, run `composer install`, then `php artisan boost:install` to configure
+the coding agents you use on your machine. Restart the agent session after MCP
+configuration changes. Check that `laravel-boost` connects and can resolve a project URL. Codex configuration is in `.codex/config.toml`;
+Claude Code uses `.mcp.json`. Keep existing local IDE connections when configuring
+agents. Local PHP must be on PATH. Production targets PHP 8.4.
+
+Before handing off a change:
+
+```bash
+composer test          # Pest, SQLite in memory, no MySQL required
+npm run build          # compile and validate frontend assets
+```
+
+Mock external API clients in tests. For UI changes, also inspect the affected page
+in the browser and check its console. CI runs tests and builds assets on pull
+requests, and deployment waits for those checks to pass.
+
+### Local development with Herd
+
+Herd serves this linked project at `http://moviepicker.test`. On this Mac, start
+MySQL with `brew services start mysql@8.4`. For a new checkout, copy `.env.example`
+to `.env`, set `APP_URL=http://moviepicker.test` and your database credentials,
+then generate the app key and run migrations. Create the configured database if
+needed. Seed a new development database with `php artisan db:seed`.
+
+Run `npm run dev` for frontend hot reload. For collaborative batches, configure
+the Reverb values in `.env` and run `php artisan reverb:start` in another terminal.
+Without Herd, use `php artisan serve` and set APP_URL to its URL instead.
+
+If the site fails, check that Herd and MySQL are running, the app key is set, and
+`storage/logs/laravel.log` has no new errors. After changing cached configuration,
+run `php artisan config:clear`. Never paste credentials or full `.env` contents
+into issue reports or AI prompts.
+
+---
+
 ## Deployment
 
 Pushing to `master` triggers a GitHub Actions workflow that:
