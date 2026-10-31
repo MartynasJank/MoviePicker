@@ -43,7 +43,7 @@ class SwipeController extends Controller
         $totalResults   = $results['total_results'] ?? 0;
 
         $watchlistIds = auth()->check()
-            ? auth()->user()->watchlist()->pluck('tmdb_id')->all()
+            ? auth()->user()->watchlist()->where('type', 'movie')->pluck('tmdb_id')->all()
             : [];
 
         $freshStart = session()->pull('swipe_fresh', false);

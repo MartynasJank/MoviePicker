@@ -54,7 +54,7 @@
 
             @if($showSave ?? false)
                 @auth
-                    @php $isSaved = in_array($result['id'], $savedIds ?? []); @endphp
+                    @php $isSaved = in_array(($itemBase === 'tv' ? 'tv' : 'movie') . ':' . $result['id'], $savedIds ?? [], true); @endphp
                     <button type="button"
                         class="absolute top-2 right-2 watchlist-toggle text-xs px-2 py-1 rounded transition-all z-10 {{ $isSaved ? 'bg-accent text-white' : 'bg-black/70 text-white hover:bg-black/90' }}"
                         data-format="star"
@@ -64,7 +64,7 @@
                         data-year="{{ date('Y', strtotime($date)) }}"
                         data-genres="{{ $genres[$result['id']] ?? '' }}"
                         data-rating="{{ $result['vote_average'] ?? '' }}"
-                        data-media-type="{{ $mediaType ?? ($linkBase ?? 'movie') }}"
+                        data-media-type="{{ $itemBase === 'tv' ? 'tv' : 'movie' }}"
                         data-saved="{{ $isSaved ? '1' : '0' }}">
                         {{ $isSaved ? '★ Saved' : '☆' }}
                     </button>

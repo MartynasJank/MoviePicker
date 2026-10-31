@@ -51,7 +51,7 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
                 </button>
                 @auth
-                    @php $isSaved = auth()->user()->watchlist()->where('tmdb_id', $tmdbInfo->id)->exists(); @endphp
+                    @php $isSaved = auth()->user()->watchlist()->where('type', 'tv')->where('tmdb_id', $tmdbInfo->id)->exists(); @endphp
                     <button type="button" id="title-save-roulette-btn"
                             class="btn-secondary text-sm flex items-center gap-1.5">
                         <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

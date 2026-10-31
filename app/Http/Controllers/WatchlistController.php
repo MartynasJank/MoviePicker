@@ -107,7 +107,7 @@ class WatchlistController extends Controller
         ]);
 
         $user = Auth::user();
-        $existing = $user->watchlist()->where('tmdb_id', $request->tmdb_id)->first();
+        $existing = $user->watchlist()->where('type', $request->input('type') ?? 'movie')->where('tmdb_id', $request->tmdb_id)->first();
 
         if ($existing) {
             $existing->delete();
@@ -123,7 +123,7 @@ class WatchlistController extends Controller
             'year'         => $request->year,
             'genres'       => $rawGenres ? static::normalizeGenres($rawGenres) : null,
             'vote_average' => $request->vote_average ?: null,
-            'type'         => $request->input('type', 'movie'),
+            'type'         => ($request->input('type') ?? 'movie'),
             'status'       => 'saved',
         ]);
 
@@ -144,7 +144,7 @@ class WatchlistController extends Controller
         ]);
 
         $user = Auth::user();
-        if ($user->watchlist()->where('tmdb_id', $request->tmdb_id)->exists()) {
+        if ($user->watchlist()->where('type', $request->input('type') ?? 'movie')->where('tmdb_id', $request->tmdb_id)->exists()) {
             return response()->json(['saved' => true]);
         }
 
@@ -155,7 +155,7 @@ class WatchlistController extends Controller
             'year'         => $request->year,
             'genres'       => $request->genres ? static::normalizeGenres($request->genres) : null,
             'vote_average' => $request->vote_average ?: null,
-            'type'         => $request->input('type', 'movie'),
+            'type'         => ($request->input('type') ?? 'movie'),
             'status'       => 'saved',
             'source'       => $request->input('source'),
         ]);
@@ -165,16 +165,18 @@ class WatchlistController extends Controller
 
     public function remove(Request $request, $tmdbId)
     {
-        Auth::user()->watchlist()->where('tmdb_id', $tmdbId)->delete();
+        $request->validate(['type' => 'sometimes|required|in:movie,tv']);
+        Auth::user()->watchlist()->where('type', $request->input('type', 'movie'))->where('tmdb_id', $tmdbId)->delete();
         return response()->json(['ok' => true]);
     }
 
     public function setStatus(Request $request, $tmdbId)
     {
-        $request->validate(['status' => 'required|in:saved,watched']);
+        $request->validate(['status' => 'required|in:saved,watched', 'type' => 'sometimes|required|in:movie,tv']);
 
         Auth::user()
             ->watchlist()
+            ->where('type', $request->input('type', 'movie'))
             ->where('tmdb_id', $tmdbId)
             ->update(['status' => $request->status]);
 

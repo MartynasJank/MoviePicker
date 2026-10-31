@@ -65,8 +65,8 @@
                         data-year="{{ $omdbInfo->Year ?? date('Y', strtotime($tmdbInfo->release_date ?? '')) }}"
                         data-genres="{{ $genres ?? '' }}"
                         data-rating="{{ $tmdbInfo->vote_average ?? '' }}"
-                        data-saved="{{ auth()->user()->watchlist()->where('tmdb_id', $tmdbInfo->id)->exists() ? '1' : '0' }}">
-                        {{ auth()->user()->watchlist()->where('tmdb_id', $tmdbInfo->id)->exists() ? '★ Saved' : '☆ Save' }}
+                        data-saved="{{ auth()->user()->watchlist()->where('type', 'movie')->where('tmdb_id', $tmdbInfo->id)->exists() ? '1' : '0' }}">
+                        {{ auth()->user()->watchlist()->where('type', 'movie')->where('tmdb_id', $tmdbInfo->id)->exists() ? '★ Saved' : '☆ Save' }}
                     </button>
                 @else
                     <a href="{{ route('auth.google') }}" class="btn-secondary flex-shrink-0 text-center text-sm">☆ Save</a>
