@@ -2,6 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'vite';
 
+// Skip Laravel's hot-file lifecycle hooks while exercising its transform pipeline.
+process.env.VITEST = 'true';
+
 test('the dev pipeline supplies jQuery to each entry point that uses it', async () => {
     const server = await createServer({
         mode: 'test',
