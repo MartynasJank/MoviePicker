@@ -4,6 +4,8 @@ import { createServer } from 'vite';
 
 // Skip Laravel's hot-file lifecycle hooks while exercising its transform pipeline.
 process.env.VITEST = 'true';
+// Middleware-mode tests open no listening port and must also run on CI.
+process.env.LARAVEL_BYPASS_ENV_CHECK = '1';
 
 test('the dev pipeline supplies jQuery to each entry point that uses it', async () => {
     const server = await createServer({
