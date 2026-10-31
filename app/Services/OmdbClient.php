@@ -3,58 +3,52 @@
 namespace App\Services;
 
 use App\Interfaces\MovieApiInterface as ApiMovie;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 
 class OmdbClient implements ApiMovie
 {
-    private Client $client;
-
-    public function __construct()
+    public function movie(mixed $imdbId): ?object
     {
-        $this->client = new Client();
+        return $this->details($imdbId, 'movie');
+    }
+
+    public function tv(mixed $imdbId): ?object
+    {
+        return $this->details($imdbId, 'tv');
     }
 
     /**
-     * Fetch full movie details from OMDb including Rotten Tomatoes data.
-     * Cached per IMDb ID for 6 hours.
-     *
-     * @throws GuzzleException
+     * OMDb enriches TMDB details; unavailable ratings must not prevent a page from loading.
      */
-    public function movie($imdbId): ?object
+    private function details(mixed $imdbId, string $type): ?object
     {
-        if (empty($imdbId)) {
+        $apiKey = trim((string) config('api.OMDB'));
+
+        if (!config('api.omdb_enabled') || $apiKey === '' || $apiKey === 'No Key' || empty($imdbId)) {
             return null;
         }
 
-        return Cache::remember('omdb_movie_' . $imdbId, now()->addHours(6), function () use ($imdbId) {
-            $url      = 'https://private.omdbapi.com/?' . http_build_query([
-                'apikey'   => config('api.OMDB'),
-                'i'        => $imdbId,
-                'tomatoes' => 'true',
-            ]);
-            $response = $this->client->get($url);
-            $data = json_decode($response->getBody()->getContents());
-            return (isset($data->Response) && $data->Response === 'False') ? null : $data;
-        });
-    }
+        return Cache::remember('omdb_' . $type . '_' . $imdbId, now()->addHours(6), function () use ($imdbId, $apiKey): ?object {
+            try {
+                $response = Http::connectTimeout(2)->timeout(3)
+                    ->get('https://private.omdbapi.com/', [
+                        'apikey' => $apiKey,
+                        'i' => $imdbId,
+                        'tomatoes' => 'true',
+                    ]);
+            } catch (ConnectionException) {
+                return null;
+            }
 
-    public function tv($imdbId): ?object
-    {
-        if (empty($imdbId)) {
-            return null;
-        }
+            if (!$response->successful()) {
+                return null;
+            }
 
-        return Cache::remember('omdb_tv_' . $imdbId, now()->addHours(6), function () use ($imdbId) {
-            $url      = 'https://private.omdbapi.com/?' . http_build_query([
-                'apikey'   => config('api.OMDB'),
-                'i'        => $imdbId,
-                'tomatoes' => 'true',
-            ]);
-            $response = $this->client->get($url);
-            $data = json_decode($response->getBody()->getContents());
-            return (isset($data->Response) && $data->Response === 'False') ? null : $data;
+            $data = json_decode($response->body());
+
+            return is_object($data) && ($data->Response ?? null) === 'True' ? $data : null;
         });
     }
 }
