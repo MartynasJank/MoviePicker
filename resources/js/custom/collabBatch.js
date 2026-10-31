@@ -9,6 +9,7 @@ const ANIMALS = ['Fox','Panda','Wolf','Bear','Hawk','Lynx','Otter','Raven'];
 
 
 const myId = window.collabParticipantId;
+const connectionId = window.collabConnectionId;
 let myName = (() => {
     let name = localStorage.getItem('collab_identity');
     if (!name) {
@@ -64,12 +65,18 @@ echo.channel('batch.' + token).listen('.CollabStateUpdated', (e) => {
 // ── API helpers ───────────────────────────────────────────────────────
 const csrf = () => document.querySelector('meta[name="csrf-token"]').content;
 
-function api(path, body = {}) {
+function api(path, body = {}, reconnect = true) {
     return fetch(`/batch/collab/${token}/${path}`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf(), 'Accept': 'application/json' },
-        body:    JSON.stringify({ userId: myId, name: myName, ...body }),
-    }).then(r => r.json());
+        body:    JSON.stringify({ userId: myId, name: myName, connectionId, ...body }),
+    }).then(async r => {
+        if (r.status === 403 && reconnect && path !== 'join') {
+            await api('join', {}, false);
+            return api(path, body, false);
+        }
+        return r.json();
+    });
 }
 
 // ── Identity input ────────────────────────────────────────────────────
@@ -97,6 +104,7 @@ document.getElementById('invite-btn').addEventListener('click', function () {
 
 // ── Join / Leave / Heartbeat ──────────────────────────────────────────
 api('join');
+window.addEventListener('pageshow', event => { if (event.persisted) api('join'); });
 
 // Heartbeat every 60s
 setInterval(() => api('heartbeat'), 60_000);
@@ -104,7 +112,7 @@ setInterval(() => api('heartbeat'), 60_000);
 // Leave on unload
 window.addEventListener('beforeunload', () => {
     navigator.sendBeacon(`/batch/collab/${token}/leave`,
-        new Blob([JSON.stringify({ userId: myId, _token: csrf() })], { type: 'application/json' }));
+        new Blob([JSON.stringify({ userId: myId, connectionId, _token: csrf() })], { type: 'application/json' }));
 });
 
 // ── Voting signal — debounced pointerdown ─────────────────────────────
@@ -195,6 +203,7 @@ function applyDelta(eventType, byName, byId, movieTitle, delta) {
             const t = setTimeout(() => {
                 leavePending.delete(byId);
                 showToast(`${who} left`);
+                api('remove-votes', { targetUserId: byId });
             }, 8000);
             leavePending.set(byId, t);
         }
@@ -256,6 +265,10 @@ function applyDelta(eventType, byName, byId, movieTitle, delta) {
             break;
 
         case 'leave':
+            state.ready = delta.ready ?? state.ready;
+            state.refreshVotes = delta.refreshVotes ?? state.refreshVotes;
+            state.tryAgainVotes = delta.tryAgainVotes ?? state.tryAgainVotes;
+            updateTryAgainButton();
             state.participants = state.participants.filter(p => p.userId !== byId);
             updateParticipants();
             updateReadyButton();
@@ -282,6 +295,12 @@ function applyDelta(eventType, byName, byId, movieTitle, delta) {
         case 'vote_cleanup':
             state.votes        = delta.votes;
             state.restoreVotes = delta.restoreVotes;
+            state.ready = delta.ready ?? state.ready;
+            state.refreshVotes = delta.refreshVotes ?? state.refreshVotes;
+            state.tryAgainVotes = delta.tryAgainVotes ?? state.tryAgainVotes;
+            updateReadyButton();
+            updateRefreshButton();
+            updateTryAgainButton();
             updateAllVoteBars();
             break;
 

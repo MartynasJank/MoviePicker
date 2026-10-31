@@ -24,10 +24,17 @@ class CollabParticipant
 
         abort_unless($userId, 403);
         if (!$isJoining) {
-            abort_unless(collect($batch->participants ?? [])->contains('userId', $userId), 403);
+            $participant = collect($batch->participants ?? [])->firstWhere('userId', $userId);
+            abort_unless($participant, 403);
+            if (!$request->is('batch/collab/*/heartbeat', 'batch/collab/*/leave', 'batch/collab/*/remove-votes')) {
+                abort_if(isset($participant['departed_at']), 403);
+            }
         }
 
-        $request->validate(['name' => 'sometimes|required|string|max:80']);
+        $request->validate([
+            'name' => 'sometimes|required|string|max:80',
+            'connectionId' => 'sometimes|required|uuid',
+        ]);
         $name = $request->input('name')
             ?? collect($batch->participants ?? [])->firstWhere('userId', $userId)['name'] ?? 'Anonymous';
         $request->merge(['userId' => $userId, 'name' => $name]);
