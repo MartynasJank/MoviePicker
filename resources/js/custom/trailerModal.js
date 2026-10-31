@@ -1,11 +1,6 @@
 import TomSelect from 'tom-select';
-import jq from 'jquery';
-window.jQuery = window.jQuery || jq;   // flexdatalist expects a global jQuery
-import 'jquery-flexdatalist/jquery.flexdatalist.min';
 
 $(document).ready(function () {
-    const tmdb = window.TMDB_API_KEY;
-
     /* -- Step wizard inside the adjust-form modal -------------- */
     let currentStep = 1;
     const totalSteps = 5;
