@@ -86,7 +86,7 @@ $(document).ready(function () {
         $.ajax({
             url: `/watchlist/${tmdbId}/status`,
             method: 'PATCH',
-            data: { _token: csrf(), status: next },
+            data: { _token: csrf(), status: next, type: btn.closest('.watchlist-card').attr('data-type') || 'movie' },
         }).done(function () {
             const card = btn.closest('.watchlist-card');
             btn.data('status', next);
@@ -118,7 +118,7 @@ $(document).ready(function () {
         $.ajax({
             url: `/watchlist/${tmdbId}`,
             method: 'DELETE',
-            data: { _token: csrf() },
+            data: { _token: csrf(), type: btn.closest('.watchlist-card').attr('data-type') || 'movie' },
         }).done(function () {
             btn.closest('.watchlist-card').fadeOut(200, function () {
                 $(this).remove();
@@ -417,6 +417,12 @@ $(document).ready(function () {
 
         if (!movies.length) { window.showErrorToast('Nothing to pick from.'); return; }
 
+        const maxMovies = Number(btn.data('max-movies'));
+        if (movies.length > maxMovies) {
+            window.showErrorToast(`Choose up to ${maxMovies.toLocaleString()} titles. Use the filters to narrow your watchlist.`);
+            return;
+        }
+
         const hasTV     = movies.some(m => m.media_type === 'tv');
         const hasMov    = movies.some(m => m.media_type === 'movie');
         const mediaType = hasTV && hasMov ? 'mixed' : (hasTV ? 'tv' : 'movie');
@@ -593,7 +599,7 @@ $(document).ready(function () {
         if (last.action === 'remove') {
             removedCount--;
             last.item.el.style.display = '';
-            toRemove = toRemove.filter(i => i.id !== last.item.id);
+            toRemove = toRemove.filter(i => i.id !== last.item.id || i.type !== last.item.type);
         } else {
             keptCount--;
         }
@@ -761,7 +767,7 @@ $(document).ready(function () {
 
     function fireDeletes() {
         toRemove.forEach(item => {
-            fetch(`/watchlist/${item.id}`, {
+            fetch(`/watchlist/${item.id}?type=${encodeURIComponent(item.type)}`, {
                 method:  'DELETE',
                 headers: { 'X-CSRF-TOKEN': csrf() },
             }).catch(() => {});

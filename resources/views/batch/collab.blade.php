@@ -239,6 +239,8 @@
 </div>
 
 <script>
+window.collabConnectionId = @json((string) \Illuminate\Support\Str::uuid());
+window.collabParticipantId = @json(session('collab_participant_id'));
 window.collabToken     = @json($batch->token);
 window.collabMovies    = @json($batch->movies);
 window.collabGraveyard = @json($batch->graveyard ?? []);
@@ -246,7 +248,7 @@ window.collabVotes     = @json($batch->votes ?? (object)[]);
 window.collabRestore   = @json($batch->restore_votes ?? (object)[]);
 window.collabReady     = @json($batch->ready ?? []);
 window.collabRefresh   = @json($batch->refresh_votes ?? []);
-window.collabParticipants = @json($batch->participants ?? []);
+window.collabParticipants = @json($participants);
 window.collabMediaType = @json($batch->media_type);
 window.collabHasCriteria = {{ $batch->criteria ? 'true' : 'false' }};
 </script>

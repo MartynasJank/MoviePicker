@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class CollabBatch extends Model
 {
+    public const MAX_MOVIES = 1000;
+
+    public const RECONNECT_GRACE_SECONDS = 8;
+
     protected $primaryKey  = 'token';
     protected $keyType     = 'string';
     public    $incrementing = false;

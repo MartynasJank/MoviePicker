@@ -182,7 +182,7 @@ class MovieService
              . $ids . '&key=' . config('api.YOUTUBE');
 
         try {
-            $json = (new Client())->get($url)->getBody()->getContents();
+            $json = (new Client(['connect_timeout' => 3, 'timeout' => 10]))->get($url)->getBody()->getContents();
         } catch (\Throwable) {
             return $trailers[0]['key'] ?? null;
         }
@@ -215,16 +215,13 @@ class MovieService
     /**
      * Full watch-provider list for the user's region, cached per country for one week.
      */
-    public function getWatchProviders(): object
+    public function getWatchProviders(?TmdbClient $tmdb = null): object
     {
         $country = $this->getUserCountry();
 
-        return Cache::remember('tmdb_providers_' . $country, now()->addWeek(), function () use ($country) {
-            $url = 'https://api.themoviedb.org/3/watch/providers/movie?'
-                 . http_build_query(['api_key' => config('api.TMDB'), 'language' => 'en-US', 'watch_region' => $country]);
+        $tmdb ??= app(TmdbClient::class);
 
-            return json_decode((new Client())->get($url)->getBody()->getContents());
-        });
+        return Cache::remember('tmdb_providers_' . $country, now()->addWeek(), fn () => $tmdb->watchProviders($country));
     }
 
     public function getUserCountry(): string
@@ -253,7 +250,7 @@ class MovieService
     /** Build the $providersArray shape expected by every view that shows the form. */
     public function buildProvidersArray(TmdbClient $tmdb): array
     {
-        $providers = $this->getWatchProviders();
+        $providers = $this->getWatchProviders($tmdb);
         $result    = [];
 
         foreach ($providers->results as $provider) {
