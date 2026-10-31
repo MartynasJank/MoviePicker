@@ -49,7 +49,7 @@ class MovieController extends Controller
         if ($wlStatus && auth()->check()) {
             $linkSuffix = '?wl_status=' . urlencode($wlStatus) . ($wlGenres ? '&wl_genres=' . urlencode($wlGenres) : '');
 
-            $wlQuery = auth()->user()->watchlist()->where('tmdb_id', '!=', $movieId);
+            $wlQuery = auth()->user()->watchlist()->where('type', 'movie')->where('tmdb_id', '!=', $movieId);
             if ($wlStatus !== 'all') {
                 $wlQuery->where('status', $wlStatus);
             }

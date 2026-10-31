@@ -65,7 +65,7 @@
             @endif
             @auth
             @if(isset($shareToken))
-            <button type="button" id="collab-start-btn" class="btn-secondary text-sm"
+            <button type="button" id="collab-start-btn" data-max-movies="{{ \App\Models\CollabBatch::MAX_MOVIES }}" class="btn-secondary text-sm"
                 data-media-type="{{ $mediaType ?? 'movie' }}"
                 title="Pick together — veto movies in real time with friends">
                 Pick Together

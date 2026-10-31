@@ -65,8 +65,8 @@
                         data-year="{{ $omdbInfo->Year ?? date('Y', strtotime($tmdbInfo->release_date ?? '')) }}"
                         data-genres="{{ $genres ?? '' }}"
                         data-rating="{{ $tmdbInfo->vote_average ?? '' }}"
-                        data-saved="{{ auth()->user()->watchlist()->where('tmdb_id', $tmdbInfo->id)->exists() ? '1' : '0' }}">
-                        {{ auth()->user()->watchlist()->where('tmdb_id', $tmdbInfo->id)->exists() ? '★ Saved' : '☆ Save' }}
+                        data-saved="{{ auth()->user()->watchlist()->where('type', 'movie')->where('tmdb_id', $tmdbInfo->id)->exists() ? '1' : '0' }}">
+                        {{ auth()->user()->watchlist()->where('type', 'movie')->where('tmdb_id', $tmdbInfo->id)->exists() ? '★ Saved' : '☆ Save' }}
                     </button>
                 @else
                     <a href="{{ route('auth.google') }}" class="btn-secondary flex-shrink-0 text-center text-sm">☆ Save</a>
@@ -147,20 +147,7 @@
         {{-- Ratings + Plot --}}
         <div class="flex-1 min-w-0 flex flex-col gap-3 md:gap-6">
 
-            {{-- Ratings --}}
-            @if(isset($omdbInfo->Ratings) && count($omdbInfo->Ratings) > 0)
-            <div>
-                <h3 class="text-xs sm:text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2 md:mb-3">Ratings</h3>
-                @foreach ($omdbInfo->Ratings as $rating)
-                    @php $url = $urls[$rating->Source] ?? '#'; @endphp
-                    <a class="rating-pill" href="{{ $url }}"
-                        {{ $url !== '#' ? 'target="_blank"' : '' }}>
-                        <span class="text-gray-400 text-xs sm:text-sm truncate">{{ $rating->Source }}</span>
-                        <span class="ml-auto font-semibold text-accent text-xs sm:text-sm flex-shrink-0">{{ $rating->Value }}</span>
-                    </a>
-                @endforeach
-            </div>
-            @endif
+            @include('includes.ratings', ['mediaType' => 'movie'])
 
             {{-- Streaming --}}
             @if ($watchProviders != null)
@@ -323,9 +310,11 @@
                 <li class="flex justify-between"><span class="text-gray-500">Budget</span><span class="text-gray-300">{{ $tmdbInfo->budget == 0 ? '—' : '$'.number_format($tmdbInfo->budget) }}</span></li>
                 <li class="flex justify-between"><span class="text-gray-500">Revenue</span><span class="text-gray-300">{{ $tmdbInfo->revenue == 0 ? '—' : '$'.number_format($tmdbInfo->revenue) }}</span></li>
                 <li class="flex justify-between"><span class="text-gray-500">Runtime</span><span class="text-gray-300">{{ $omdbInfo->Runtime ?? ($tmdbInfo->runtime == 0 ? '—' : $tmdbInfo->runtime.' min') }}</span></li>
-                <li class="flex justify-between"><span class="text-gray-500">IMDB Votes</span><span class="text-gray-300">{{ $omdbInfo->imdbVotes ?? '—' }}</span></li>
+                <li class="flex justify-between"><span class="text-gray-500">{{ !empty($omdbInfo->imdbVotes) && $omdbInfo->imdbVotes !== 'N/A' ? 'IMDb Votes' : 'TMDB Votes' }}</span><span class="text-gray-300">{{ !empty($omdbInfo->imdbVotes) && $omdbInfo->imdbVotes !== 'N/A' ? $omdbInfo->imdbVotes : number_format($tmdbInfo->vote_count ?? 0) }}</span></li>
                 <li class="flex justify-between"><span class="text-gray-500">TMDB Score</span><span class="text-accent font-semibold">{{ $tmdbInfo->vote_average ?? '—' }}</span></li>
-                <li class="flex justify-between"><span class="text-gray-500">Awards</span><span class="text-gray-300 text-right max-w-[55%]">{{ $omdbInfo->Awards ?? '—' }}</span></li>
+                @if(!empty($omdbInfo->Awards) && $omdbInfo->Awards !== 'N/A')
+                <li class="flex justify-between"><span class="text-gray-500">Awards</span><span class="text-gray-300 text-right max-w-[55%]">{{ $omdbInfo->Awards }}</span></li>
+                @endif
             </ul>
         </div>
 

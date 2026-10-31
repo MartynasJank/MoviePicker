@@ -56,9 +56,7 @@ class BatchShareController extends Controller
             'providersArray' => [],
             'user_input'     => [],
             'tag'            => $tags,
-            'savedIds'       => auth()->check()
-                ? auth()->user()->watchlist()->pluck('tmdb_id')->toArray()
-                : [],
+            'savedIds'       => $this->savedWatchlistIds(),
             'mediaType'      => $isMixed ? 'mixed' : ($isTv ? 'tv' : 'movie'),
             'isShared'       => true,
             'shareToken'     => $shareToken,

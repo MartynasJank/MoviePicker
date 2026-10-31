@@ -19,7 +19,7 @@ class Controller extends BaseController
     protected function savedWatchlistIds(): array
     {
         return auth()->check()
-            ? auth()->user()->watchlist()->pluck('tmdb_id')->toArray()
+            ? auth()->user()->watchlist()->get(['tmdb_id', 'type'])->map(fn ($item) => $item->type . ':' . $item->tmdb_id)->all()
             : [];
     }
 

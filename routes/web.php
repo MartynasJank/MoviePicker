@@ -94,7 +94,7 @@ Route::post('/batch/share', [BatchShareController::class, 'create'])->name('batc
 
 Route::post('/batch/collab', [CollabBatchController::class, 'create'])->name('batch.collab.create')->middleware('auth');
 Route::get('/batch/collab/{token}', [CollabBatchController::class, 'show'])->name('batch.collab.show');
-Route::prefix('batch/collab/{token}')->group(function () {
+Route::prefix('batch/collab/{token}')->middleware(\App\Http\Middleware\CollabParticipant::class)->group(function () {
     Route::post('/join',         [CollabBatchController::class, 'join']);
     Route::post('/leave',        [CollabBatchController::class, 'leave']);
     Route::post('/heartbeat',    [CollabBatchController::class, 'heartbeat']);

@@ -51,7 +51,7 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
                 </button>
                 @auth
-                    @php $isSaved = auth()->user()->watchlist()->where('tmdb_id', $tmdbInfo->id)->exists(); @endphp
+                    @php $isSaved = auth()->user()->watchlist()->where('type', 'tv')->where('tmdb_id', $tmdbInfo->id)->exists(); @endphp
                     <button type="button" id="title-save-roulette-btn"
                             class="btn-secondary text-sm flex items-center gap-1.5">
                         <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -211,20 +211,7 @@
                 </div>
             @endif
 
-            {{-- Ratings --}}
-            @if(isset($omdbInfo->Ratings) && count($omdbInfo->Ratings) > 0)
-            <div>
-                <h3 class="text-xs sm:text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2 md:mb-3">Ratings</h3>
-                @foreach ($omdbInfo->Ratings as $rating)
-                    @php $url = $urls[$rating->Source] ?? '#'; @endphp
-                    <a class="rating-pill" href="{{ $url }}"
-                        {{ $url !== '#' ? 'target="_blank"' : '' }}>
-                        <span class="text-gray-400 text-xs sm:text-sm truncate">{{ $rating->Source }}</span>
-                        <span class="ml-auto font-semibold text-accent text-xs sm:text-sm flex-shrink-0">{{ $rating->Value }}</span>
-                    </a>
-                @endforeach
-            </div>
-            @endif
+            @include('includes.ratings', ['mediaType' => 'tv'])
 
             {{-- Plot --}}
             <div>

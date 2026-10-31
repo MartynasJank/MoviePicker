@@ -6,6 +6,7 @@ use App\Events\CollabStateUpdated;
 use App\Models\CollabBatch;
 use App\Services\MovieService;
 use App\Services\TmdbClient;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
@@ -59,9 +60,18 @@ class CollabBatchController extends Controller
 
     private function guardBatch(string $token): CollabBatch
     {
-        return CollabBatch::where('token', $token)
+        $batch = CollabBatch::where('token', $token)
             ->where('expires_at', '>', now())
             ->firstOrFail();
+
+        foreach ($batch->participants ?? [] as $participant) {
+            if (isset($participant['departed_at']) && empty($participant['votes_cleared'])
+                && Carbon::parse($participant['departed_at'])->lte(now()->subSeconds(CollabBatch::RECONNECT_GRACE_SECONDS))) {
+                $this->clearParticipantVotes($batch, $participant['userId']);
+            }
+        }
+
+        return $batch;
     }
 
     // ── Create ────────────────────────────────────────────────────────
@@ -69,12 +79,22 @@ class CollabBatchController extends Controller
     public function create(Request $request)
     {
         $request->validate([
-            'movies'     => 'required|array|min:2',
+            'movies'     => 'required|array|min:2|max:' . CollabBatch::MAX_MOVIES,
+            'movies.*' => 'required|array',
+            'movies.*.id' => 'required|integer|min:1',
+            'movies.*.title' => 'sometimes|nullable|string|max:255',
+            'movies.*.name' => 'sometimes|nullable|string|max:255',
+            'movies.*.poster_path' => ['nullable', 'string', 'max:255', 'regex:~^/[a-zA-Z0-9._/-]+$~'],
+            'movies.*.vote_average' => 'nullable|numeric|min:0|max:10',
+            'movies.*.media_type' => 'nullable|in:movie,tv',
+            'movies.*.release_date' => 'nullable|date_format:Y-m-d',
+            'movies.*.first_air_date' => 'nullable|date_format:Y-m-d',
+            'movies.*.genres' => 'nullable|string|max:1000',
             'media_type' => 'in:movie,tv,mixed',
         ]);
 
         $sessionKey = $request->input('media_type') === 'tv' ? 'tvInput' : 'userInput';
-        $movies     = $request->movies;
+        $movies     = $this->slimAll($request->movies);
 
         $batch = CollabBatch::create([
             'token'      => Str::random(8),
@@ -93,106 +113,128 @@ class CollabBatchController extends Controller
     public function show(string $token)
     {
         $batch = $this->guardBatch($token);
-        return view('batch.collab', compact('batch'));
+        if (!session()->has('collab_participant_id')) {
+            session(['collab_participant_id' => (string) Str::uuid()]);
+        }
+        $participants = $this->activeParticipants($batch);
+        return view('batch.collab', compact('batch', 'participants'));
     }
 
     // ── Participant tracking ──────────────────────────────────────────
 
-    public function join(Request $request, string $token)
+    private function trackParticipant(Request $request, string $token, bool $joining): JsonResponse
     {
-        $batch  = $this->guardBatch($token);
+        $batch = $this->guardBatch($token);
         $userId = $request->input('userId');
-        $name   = $request->input('name', 'Anonymous');
+        $name = $request->input('name', 'Anonymous');
+        $previous = collect($batch->participants ?? [])->firstWhere('userId', $userId);
+        $reconnecting = isset($previous['departed_at']);
 
+        $connections = collect($previous['connections'] ?? [])
+            ->filter(fn ($seen) => Carbon::parse($seen)->gt(now()->subMinutes(3)))->all();
+        $connections[$request->input('connectionId', 'legacy')] = now()->toISOString();
+        $participant = ['userId' => $userId, 'name' => $name, 'last_seen' => now()->toISOString(), 'connections' => $connections];
         $participants = collect($batch->participants ?? [])
-            ->reject(fn($p) => $p['userId'] === $userId)
-            ->push(['userId' => $userId, 'name' => $name, 'last_seen' => now()->toISOString()])
-            ->values()
-            ->all();
-
+            ->reject(fn ($item) => $item['userId'] === $userId)->push($participant)->values()->all();
         $batch->update(['participants' => $participants]);
 
-        $participant = collect($participants)->firstWhere('userId', $userId);
-        $this->broadcast($token, 'join', $name, $userId, '', ['participant' => $participant]);
-
-        return response()->json(['ok' => true]);
-    }
-
-    public function leave(Request $request, string $token)
-    {
-        $batch  = CollabBatch::where('token', $token)->first();
-        if (!$batch) return response()->json(['ok' => true]);
-
-        $userId = $request->input('userId');
-        $name   = collect($batch->participants ?? [])->firstWhere('userId', $userId)['name'] ?? '';
-
-        $participants = collect($batch->participants ?? [])
-            ->reject(fn($p) => $p['userId'] === $userId)
-            ->values()
-            ->all();
-
-        $batch->update([
-            'participants'  => $participants,
-            'ready'         => array_values(array_diff($batch->ready ?? [], [$userId])),
-            'refresh_votes' => array_values(array_diff($batch->refresh_votes ?? [], [$userId])),
-        ]);
-
-        $this->broadcast($token, 'leave', $name, $userId);
-        return response()->json(['ok' => true]);
-    }
-
-    public function removeVotes(Request $request, string $token)
-    {
-        $batch = CollabBatch::where('token', $token)->first();
-        if (!$batch) return response()->json(['ok' => true]);
-
-        $targetUserId = $request->input('targetUserId');
-
-        $votes = collect($batch->votes ?? [])
-            ->map(fn($voters) => array_values(array_diff($voters, [$targetUserId])))
-            ->all();
-
-        $restoreVotes = collect($batch->restore_votes ?? [])
-            ->map(fn($voters) => array_values(array_diff($voters, [$targetUserId])))
-            ->all();
-
-        $batch->update(['votes' => $votes, 'restore_votes' => $restoreVotes]);
-
-        $this->broadcast($token, 'vote_cleanup', '', '', '', [
-            'votes'        => $votes,
-            'restoreVotes' => $restoreVotes,
-        ]);
-
-        return response()->json(['ok' => true]);
-    }
-
-    public function heartbeat(Request $request, string $token)
-    {
-        $batch   = $this->guardBatch($token);
-        $userId  = $request->input('userId');
-        $name    = $request->input('name', 'Anonymous');
-        $oldName = collect($batch->participants ?? [])->firstWhere('userId', $userId)['name'] ?? null;
-
-        $participants = collect($batch->participants ?? [])
-            ->map(fn($p) => $p['userId'] === $userId
-                ? array_merge($p, ['name' => $name, 'last_seen' => now()->toISOString()])
-                : $p)
-            ->values()
-            ->all();
-
-        if (!collect($participants)->contains('userId', $userId)) {
-            $participants[] = ['userId' => $userId, 'name' => $name, 'last_seen' => now()->toISOString()];
-        }
-
-        $batch->update(['participants' => $participants]);
-
-        $participant = collect($participants)->firstWhere('userId', $userId);
-
-        if ($oldName !== null && $oldName !== $name) {
-            $this->broadcast($token, 'rename', $name, $userId, $oldName, ['participant' => $participant]);
-        } elseif ($oldName === null) {
+        if ($joining || !$previous || $reconnecting) {
             $this->broadcast($token, 'join', $name, $userId, '', ['participant' => $participant]);
+        } elseif ($previous['name'] !== $name) {
+            $this->broadcast($token, 'rename', $name, $userId, $previous['name'], ['participant' => $participant]);
         }
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function join(Request $request, string $token): JsonResponse
+    {
+        return $this->trackParticipant($request, $token, true);
+    }
+
+    public function heartbeat(Request $request, string $token): JsonResponse
+    {
+        return $this->trackParticipant($request, $token, false);
+    }
+
+    public function leave(Request $request, string $token): JsonResponse
+    {
+        $batch = $this->guardBatch($token);
+        $userId = $request->input('userId');
+        $participant = collect($batch->participants ?? [])->firstWhere('userId', $userId);
+        $connectionId = $request->input('connectionId', 'legacy');
+        $connections = $participant['connections'] ?? ['legacy' => $participant['last_seen']];
+
+        if (!array_key_exists($connectionId, $connections)) {
+            return response()->json(['ok' => true]);
+        }
+
+        unset($connections[$connectionId]);
+        $connections = collect($connections)
+            ->filter(fn ($seen) => Carbon::parse($seen)->gt(now()->subMinutes(3)))->all();
+        $participant['connections'] = $connections;
+        if ($connections === []) {
+            $participant['departed_at'] = now()->toISOString();
+            $participant['last_seen'] = now()->subMinutes(3)->toISOString();
+        }
+        $changes = ['participants' => collect($batch->participants)
+            ->map(fn ($item) => $item['userId'] === $userId ? $participant : $item)->all()];
+        if ($connections === []) {
+            $changes['ready'] = array_values(array_diff($batch->ready ?? [], [$userId]));
+            $changes['refresh_votes'] = array_values(array_diff($batch->refresh_votes ?? [], [$userId]));
+            $changes['try_again_votes'] = array_values(array_diff($batch->try_again_votes ?? [], [$userId]));
+        }
+        $batch->update($changes);
+
+        if ($connections === []) {
+            $this->broadcast($token, 'leave', $participant['name'], $userId, '', [
+                'ready' => $batch->ready ?? [], 'refreshVotes' => $batch->refresh_votes ?? [],
+                'tryAgainVotes' => $batch->try_again_votes ?? [],
+            ]);
+        }
+
+        return response()->json(['ok' => true]);
+    }
+
+    private function clearParticipantVotes(CollabBatch $batch, string $userId): void
+    {
+        $participant = collect($batch->participants ?? [])->firstWhere('userId', $userId);
+        if (!empty($participant['votes_cleared'])) {
+            return;
+        }
+
+        $participants = collect($batch->participants ?? [])->map(function ($item) use ($userId) {
+            if ($item['userId'] === $userId && isset($item['departed_at'])) {
+                $item['votes_cleared'] = true;
+            }
+            return $item;
+        })->all();
+        $batch->update([
+            'participants' => $participants,
+            'votes' => collect($batch->votes ?? [])->map(fn ($voters) => array_values(array_diff($voters, [$userId])))->all(),
+            'restore_votes' => collect($batch->restore_votes ?? [])->map(fn ($voters) => array_values(array_diff($voters, [$userId])))->all(),
+            'ready' => array_values(array_diff($batch->ready ?? [], [$userId])),
+            'refresh_votes' => array_values(array_diff($batch->refresh_votes ?? [], [$userId])),
+            'try_again_votes' => array_values(array_diff($batch->try_again_votes ?? [], [$userId])),
+        ]);
+        $this->broadcast($batch->token, 'vote_cleanup', '', '', '', [
+            'votes' => $batch->votes ?? [], 'restoreVotes' => $batch->restore_votes ?? [],
+            'ready' => $batch->ready ?? [], 'refreshVotes' => $batch->refresh_votes ?? [],
+            'tryAgainVotes' => $batch->try_again_votes ?? [],
+        ]);
+    }
+
+    public function removeVotes(Request $request, string $token): JsonResponse
+    {
+        $batch = $this->guardBatch($token);
+        $request->validate(['targetUserId' => 'sometimes|required|string|max:100']);
+        $targetUserId = $request->input('targetUserId', $request->input('userId'));
+        $participant = collect($batch->participants ?? [])->firstWhere('userId', $targetUserId);
+        $departed = isset($participant['departed_at'])
+            && Carbon::parse($participant['departed_at'])->lte(now()->subSeconds(CollabBatch::RECONNECT_GRACE_SECONDS));
+        abort_unless($targetUserId === $request->input('userId') || $departed, 403);
+
+        $this->clearParticipantVotes($batch, $targetUserId);
 
         return response()->json(['ok' => true]);
     }
@@ -220,6 +262,7 @@ class CollabBatchController extends Controller
         $batch   = $this->guardBatch($token);
         $userId  = $request->input('userId');
         $name    = $request->input('name', 'Someone');
+        $request->validate(['type' => 'sometimes|in:veto,restore']);
         $type    = $request->input('type', 'veto');
         $key     = (string) $movieId;
         $pCount  = $this->participantCount($batch);

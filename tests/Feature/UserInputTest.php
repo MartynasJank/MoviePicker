@@ -1,6 +1,8 @@
 <?php
 
-use Illuminate\Testing\Fluent\AssertableJson;
+beforeEach(function () {
+    $this->withHeaders(['X-Requested-With' => 'XMLHttpRequest']);
+});
 
 it('returns null when no session exists', function () {
     $this->getJson('/userinput')
@@ -37,4 +39,8 @@ it('does not return tv session when type is omitted', function () {
     $this->getJson('/userinput')
         ->assertOk()
         ->assertJsonFragment(['vote_count_gte' => 50]);
+});
+
+it('rejects requests without the AJAX header', function () {
+    $this->withHeaders(['X-Requested-With' => ''])->getJson('/userinput')->assertForbidden();
 });

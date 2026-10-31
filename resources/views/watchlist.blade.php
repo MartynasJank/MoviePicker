@@ -194,7 +194,7 @@
         </div>
         <div class="flex items-center gap-3">
             <button id="wl-swipe-btn" class="btn-secondary text-sm">Swipe</button>
-            <button id="watchlist-collab" class="btn-secondary text-sm">Pick Together</button>
+            <button id="watchlist-collab" data-max-movies="{{ \App\Models\CollabBatch::MAX_MOVIES }}" class="btn-secondary text-sm">Pick Together</button>
             <button id="watchlist-roll" class="btn-accent px-8">Roll</button>
         </div>
     </div>

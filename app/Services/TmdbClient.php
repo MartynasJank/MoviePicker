@@ -6,25 +6,18 @@ use App\Interfaces\MovieApiInterface as ApiMovie;
 use App\Models\TmdbRequestLog;
 use App\Support\BotDetector;
 use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Cache;
 
 class TmdbClient implements ApiMovie
 {
-    // Read-access token — not secret, already public in repo history.
-    private const BEARER = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0ZDg4NjhiNGMzOGM0YTk0MWYxNTU4NmQ4MjRjYjgwNiIsInN1YiI6IjVlOGFmYTZjYzRhZDU5MDAxM2ZmM2IyOCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.SOJk4kMLahEcmJf9riMYfZL1pnb7YwuLWosSdFfNLwU';
+    private ClientInterface $client;
 
-    private Client $client;
-
-    public function __construct()
+    public function __construct(?ClientInterface $client = null)
     {
-        $this->client = new Client([
-            'headers' => [
-                'Authorization' => 'Bearer ' . self::BEARER,
-                'Accept'        => 'application/json',
-            ],
-        ]);
+        $this->client = $client ?? new Client();
     }
 
     /**
@@ -284,6 +277,15 @@ class TmdbClient implements ApiMovie
         return json_decode($this->fetch($url, 'discover_tv'), true);
     }
 
+    public function watchProviders(string $country): object
+    {
+        $url = 'https://api.themoviedb.org/3/watch/providers/movie?' . http_build_query([
+            'language' => 'en-US', 'watch_region' => $country,
+        ]);
+
+        return json_decode($this->fetch($url, 'watch_providers'));
+    }
+
     /**
      * Lightweight show status — only status + last_air_date. Cached 24 h.
      */
@@ -422,7 +424,18 @@ class TmdbClient implements ApiMovie
         $start      = microtime(true);
         $statusCode = 200;
         try {
-            $response   = $this->client->get($url);
+            $token = trim((string) config('api.tmdb_token'));
+            $headers = ['Accept' => 'application/json'];
+            if ($token !== '') {
+                $headers['Authorization'] = 'Bearer ' . $token;
+            } else {
+                $url .= (str_contains($url, '?') ? '&' : '?') . http_build_query(['api_key' => config('api.TMDB')]);
+            }
+            $response = $this->client->get($url, [
+                'headers' => $headers,
+                'connect_timeout' => 3,
+                'timeout' => 10,
+            ]);
             $statusCode = $response->getStatusCode();
             return $response->getBody()->getContents();
         } catch (RequestException $e) {
