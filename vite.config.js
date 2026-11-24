@@ -24,6 +24,7 @@ export default defineConfig({
                 'resources/js/custom/cookieConsent.js',
                 'resources/js/custom/collabBatch.js',
                 'resources/js/custom/swipe.js',
+                'resources/js/custom/swipeV2.js',
             ],
             refresh: true,
         }),
