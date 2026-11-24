@@ -43,6 +43,30 @@ class MovieService
     }
 
     /**
+     * Pick a random discovery page without changing movie or TV session criteria.
+     * TmdbClient selects a random sort whenever sort_by is omitted.
+     *
+     * @param array<string, mixed> $criteria
+     * @return array{results: array<int, array<string, mixed>>, page: int, has_more: bool}
+     */
+    public function discoverRandomMovies(TmdbClient $tmdb, array $criteria, string $country, int $excludePage = 0): array
+    {
+        $discovery = $tmdb->discover($criteria, $country);
+        $maxPage = $this->safeMaxPage((int) ($discovery['total_pages'] ?? 0), (int) ($discovery['total_results'] ?? 0));
+        $page = $this->randomPage($maxPage, $excludePage);
+
+        if ($page !== 1) {
+            $discovery = $tmdb->discover(array_merge($criteria, ['page' => $page]), $country);
+        }
+
+        return [
+            'results' => $this->pickBatch($discovery['results'] ?? []),
+            'page' => $page,
+            'has_more' => $maxPage > 1,
+        ];
+    }
+
+    /**
      * Resolve the criteria array to use for discovery.
      * On first visit stores submitted criteria in session; subsequent visits
      * always return the session copy so "pick another" keeps the same filters.
@@ -210,6 +234,21 @@ class MovieService
         }
 
         return null;
+    }
+
+    /**
+     * Select an embeddable YouTube trailer without requiring a YouTube API key.
+     *
+     * @param array<int, object{site?: string, type?: string, key?: string, official?: bool}> $videos
+     */
+    public function getSwipeTrailer(array $videos): ?string
+    {
+        return collect($videos)
+            ->filter(fn (object $video): bool => ($video->site ?? '') === 'YouTube'
+                && ($video->type ?? '') === 'Trailer'
+                && preg_match('/^[a-zA-Z0-9_-]{11}$/', $video->key ?? '') === 1)
+            ->sortByDesc(fn (object $video): bool => $video->official ?? false)
+            ->first()?->key;
     }
 
     /**
