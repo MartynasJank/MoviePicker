@@ -143,6 +143,9 @@ Route::middleware('auth')->prefix('my-roulettes')->name('my-roulettes.')->group(
 
 // ── Admin (auth + admin role) ─────────────────────────────────────────────────
 Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(function () {
+    Route::get('swipe-v2', [\App\Http\Controllers\Admin\SwipeV2Controller::class, 'index'])->name('swipe-v2');
+    Route::get('swipe-v2/feed', [\App\Http\Controllers\Admin\SwipeV2Controller::class, 'feed'])->middleware('throttle:60,1')->name('swipe-v2.feed');
+    Route::get('swipe-v2/movie/{id}', [\App\Http\Controllers\Admin\SwipeV2Controller::class, 'show'])->whereNumber('id')->middleware('throttle:60,1')->name('swipe-v2.movie');
     Route::get('/', [AdminController::class, 'index'])->name('dashboard');
     Route::post('roulettes/reorder', [AdminRouletteController::class, 'reorder'])->name('roulettes.reorder');
     Route::post('roulettes/{roulette}/refresh-poster', [AdminRouletteController::class, 'refreshPoster'])->name('roulettes.refresh-poster');
