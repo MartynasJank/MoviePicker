@@ -35,7 +35,7 @@
     <div id="progress-bar"></div>
 
     {{-- Navigation --}}
-    <nav class="fixed top-0 left-0 right-0 z-50 h-16 bg-[#0f0f0f]/90 backdrop-blur-lg border-b border-white/5">
+    <nav class="@yield('navigation_class') fixed top-0 left-0 right-0 z-50 h-16 bg-[#0f0f0f]/90 backdrop-blur-lg border-b border-white/5">
         <div class="max-w-7xl mx-auto px-4 h-full flex items-center gap-4">
 
             {{-- Logo --}}
